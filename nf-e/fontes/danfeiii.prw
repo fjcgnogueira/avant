@@ -3108,6 +3108,7 @@ If nFolha ==1
 	oDanfe:Box(nLine+597,nBaseCol+30,MAXBOXV,622)
 	oDanfe:Say(nLine+606,nBaseTxt,"INFORMAÇÕES COMPLEMENTARES",oFont08N:oFont)
 	
+	//Exibir valores de PIS e COFINS na DANFE - Rogerio Machado
 	oDanfe:Say(nLine+612,nBaseTxt,"PIS: " + CVALTOCHAR(SF2->F2_VALIMP6),oFont08:oFont)
 	oDanfe:Say(nLine+612,nBaseTxt+50,"COFINS: " + CVALTOCHAR(SF2->F2_VALIMP5),oFont08:oFont)
 	
