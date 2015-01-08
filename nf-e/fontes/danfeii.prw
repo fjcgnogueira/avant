@@ -2167,6 +2167,9 @@ oDanfe:Say(719,000,"DADOS ADICIONAIS",oFont08N:oFont)
 oDanfe:Box(721,000,865,351)
 oDanfe:Say(729,002,"INFORMA합ES COMPLEMENTARES",oFont08N:oFont)
 
+oDanfe:Say(735,002,"PIS: " + CVALTOCHAR(SF2->F2_VALIMP6),oFont08:oFont)
+oDanfe:Say(735,050,"COFINS: " + CVALTOCHAR(SF2->F2_VALIMP5),oFont08:oFont)
+
 nLenMensagens:= Len(aMensagem)
 nLin:= 741
 nMensagem := 0
@@ -2178,6 +2181,7 @@ nMensagem := nX
 
 oDanfe:Box(721,350,865,603)
 oDanfe:Say(729,352,"RESERVADO AO FISCO",oFont08N:oFont)
+
 
 //旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커
 //쿗ogotipo Rodape
