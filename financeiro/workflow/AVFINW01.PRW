@@ -201,11 +201,11 @@ DO 	CASE
 			BeginSQL Alias cAlias
 				select
 					CR_FILIAL, CR_TIPO, CR_NUM, CR_NIVEL, CR_USER, CR_APROV, CR_EMISSAO
-				   ,isnull(E2_SALDO,0)    as E2_SALDO,   isnull(E2_DATALIB,'') as E2_DATALIB, isnull(E2_USUALIB,'') as E2_USUALIB
-				   ,isnull(E2_VENCREA,'') as E2_VENCREA
-				   ,isnull(E2_FILIAL,'')  as E2_FILIAL
-				   ,isnull(E2_PREFIXO,'') as E2_PREFIXO, isnull(E2_NUM,'')     as E2_NUM,     isnull(E2_TIPO,'')    as E2_TIPO
-				   ,isnull(E2_FORNECE,'') as E2_FORNECE, isnull(E2_LOJA,'')    as E2_LOJA,    isnull(E2_PARCELA,'') as E2_PARCELA
+				   ,isnull(E2_SALDO,0)    as E2_SALDO,   isnull(E2_DATALIB,' ') as E2_DATALIB, isnull(E2_USUALIB,' ') as E2_USUALIB
+				   ,isnull(E2_VENCREA,' ') as E2_VENCREA
+				   ,isnull(E2_FILIAL,' ')  as E2_FILIAL
+				   ,isnull(E2_PREFIXO,' ') as E2_PREFIXO, isnull(E2_NUM,' ')     as E2_NUM,     isnull(E2_TIPO,' ')    as E2_TIPO
+				   ,isnull(E2_FORNECE,' ') as E2_FORNECE, isnull(E2_LOJA,' ')    as E2_LOJA,    isnull(E2_PARCELA,' ') as E2_PARCELA
 				from %Table:SCR% SCR
 				left join %Table:SE2% SE2 on E2_FILIAL = %xFilial:SE2% and E2_PREFIXO+E2_NUM+E2_TIPO+E2_FORNECE+E2_LOJA+E2_PARCELA = left(CR_NUM,%Exp:nTamChSE2%) and SE2.%NotDel%
 				where CR_FILIAL = %Exp:TMP->CR_FILIAL% and left(CR_NUM,%Exp:nTamChSCR%) = %Exp:Left(TMP->CR_NUM,nTamChSCR)%
