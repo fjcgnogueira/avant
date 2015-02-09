@@ -69,20 +69,22 @@ Static oSayNome
 
 Return*/
 
-User Function AfterLogin()
+
+/*User Function AfterLogin()
 	Local cId	:= ParamIXB[1]
 	Local cNome := ParamIXB[2]      
 	//ApMsgAlert("Usuário "+ cId + " - " + Alltrim(cNome)+" efetuou login às "+Time())
 	//If AllTrim(cNome) <> "liquidacao"
 	//	Final("Acesso não autorizado!")
 	//Endif
-	If (AllTrim(cModulo) <> "FAT" .And. Left(oMainWnd:cCaption,18) == "Documento de Saida")
+	If (AllTrim(cModulo) <> "FAT" .And. Left(oMainWnd:cCaption,18) == "Documento de Saida") .Or. Left(oMainWnd:cCaption,18) <> "Documento de Saida"
 		Final("Acesso não autorizado!")
 	Endif
-Return
+Return*/
 
 //-------------------------------------------------------------------------------------------------
- 
+
+/* 
 User Function TesteWs(cEmpInt, cFilInt, cNumTroca, cDocumento)
 //IntNFDev(cEmpInt, cFilInt, cNumTroca)
 //U_IntNFDev("01","010104","000004","DEVOLUCAO")
@@ -127,4 +129,4 @@ Next _n
 
 conout("teste")
 
-Return
+Return*/
