@@ -585,8 +585,8 @@ Endif
 BeginSQL Alias cAliasTRB
 	select 
 		rtrim(ZW_FILIAL) as ZW_FILIAL,  rtrim(ZW_CODPREV) as ZW_CODPREV, rtrim(ZW_DESPREV) as ZW_DESPREV, rtrim(ZW_ANO) as ZW_ANO, 
-		rtrim(ZW_CODREG) as ZW_CODREG,  rtrim(isnull(ZZ_DESREG,'')) as ZW_DESREG,
-		rtrim(ZW_CODPROD) as ZW_CODPROD, rtrim(isnull(B1_DESC,''))   as ZW_DESPROD,
+		rtrim(ZW_CODREG) as ZW_CODREG,  rtrim(isnull(ZZ_DESREG,' ')) as ZW_DESREG,
+		rtrim(ZW_CODPROD) as ZW_CODPROD, rtrim(isnull(B1_DESC,' '))   as ZW_DESPROD,
 		ZW_MES01, ZW_MES02, ZW_MES03, ZW_MES04, ZW_MES05, ZW_MES06, ZW_MES07, ZW_MES08, ZW_MES09, ZW_MES10, ZW_MES11, ZW_MES12
 	from %Table:SZW% SZW
 	left join %Table:SZZ% SZZ on ZZ_FILIAL = %xFilial:SZZ% and ZZ_CODREG = ZW_CODREG  and SZZ.%NotDel%

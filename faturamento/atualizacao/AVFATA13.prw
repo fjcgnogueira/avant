@@ -577,7 +577,7 @@ Endif
 BeginSQL Alias cAliasTRB
 	select 
 		rtrim(ZX_FILIAL) as ZX_FILIAL,  rtrim(ZX_CODPREV) as ZX_CODPREV, rtrim(ZX_DESPREV) as ZX_DESPREV, rtrim(ZX_ANO) as ZX_ANO, 
-		rtrim(ZX_CODPROD) as ZX_CODPROD, rtrim(isnull(B1_DESC,''))   as ZX_DESPROD,
+		rtrim(ZX_CODPROD) as ZX_CODPROD, rtrim(isnull(B1_DESC,' '))   as ZX_DESPROD,
 		ZX_MES01, ZX_MES02, ZX_MES03, ZX_MES04, ZX_MES05, ZX_MES06, ZX_MES07, ZX_MES08, ZX_MES09, ZX_MES10, ZX_MES11, ZX_MES12
 	from %Table:SZX% SZX
 	left join %Table:SB1% SB1 on B1_FILIAL = %xFilial:SB1% and B1_COD    = ZX_CODPROD and SB1.%NotDel%
