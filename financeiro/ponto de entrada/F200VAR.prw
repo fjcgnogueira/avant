@@ -44,9 +44,15 @@ User Function F200VAR()
 Local aAreaSE1  := SE1->(GetArea())
 Local aValores	:= ParamIXB[01]
 Local cOcorCnab := aValores[14]
-Local cCartBanc	:= Substr(aValores[16],58,01)
-Local cNumTit	:= AllTrim(Substr(aValores[16],059,15))
+Local cCartBanc	:= Space(01)
 Local cIdCnab   := AllTrim(aValores[01])
+
+If cBanco = '001'       // Banco do Brasil
+	cCartBanc	:= Substr(aValores[16],058,001)
+	cNumTit	    := AllTrim(Substr(aValores[16],059,015))
+ElseIf cBanco = '707'   // Banco Daycoval
+	cCartBanc	:= Substr(aValores[16],108,001)
+Endif
 
 // Posiciona na Amarracao Cart. Banco x Cart. Sistema
 SZF->(dbSelectArea("SZF"))
