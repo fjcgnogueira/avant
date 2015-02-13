@@ -28,10 +28,10 @@ _cChave := xFilial("SC9")+AllTrim(SDB->DB_DOC)+AllTrim(SDB->DB_SERIE)
 
 SC9->(dbSeek(_cChave))
 
-SC5->(dbSelectArea("SC5"))
-SC5->(dbSetOrder(01))
-SC5->(dbGoTop())
-SC5->(dbSeek(xFilial("SC5")+SC9->C9_PEDIDO))
+dbSelectArea("SC5")
+dbSetOrder(01)
+dbGoTop()
+dbSeek(xFilial("SC5")+SC9->C9_PEDIDO)
 
 If SC5->C5_VOLUME1 <> 0
 	If SC5->(RecLock("SC5",.F.))
