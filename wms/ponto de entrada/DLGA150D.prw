@@ -18,13 +18,15 @@ User Function DLGA150D()
 
 Local _aArea   := GetArea()
 Local _cChave  := ""
+Local _cDoc    := AllTrim(ParamIXB[3])
+Local _cSerie  := AllTrim(ParamIXB[4])
 Local aAreaSC9 := SC9->(GetArea())
 Local aAreaSC5 := SC5->(GetArea())
 
 SC9->(dbSelectArea("SC9"))
 SC9->(dbSetOrder(01))
 
-_cChave := xFilial("SC9")+AllTrim(SDB->DB_DOC)+AllTrim(SDB->DB_SERIE)
+_cChave := xFilial("SC9")+_cDoc+_cSerie
 
 SC9->(dbSeek(_cChave))
 
