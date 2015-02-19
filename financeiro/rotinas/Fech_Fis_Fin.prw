@@ -21,7 +21,6 @@ User Function Fech_Fis_Fin()
 Local cMensFin  := 'Data do Fechamento Fin: '
 Local cMensFis  := 'Data do Fechamento Fis: '
 Local cEOL		:= Chr(13)+Chr(10)
-Local cMensDes  := 'Inclusão Automática de Serviço WMS Desabilitada'
 Local bConfirma := {||If(dFechFin<>GetMv("MV_DATAFIN"),PutMV("MV_DATAFIN",dFechFin),.T.),If(dFechFis<>GetMv("MV_DATAFIS"),PutMV("MV_DATAFIS",dFechFis),.T.),MsgInfo(cMensFin+DTOC(dFechFin)+cEOL+cMensFis+DTOC(dFechFis)),oDlgFech:End()}
 
 Static oDlgFech
