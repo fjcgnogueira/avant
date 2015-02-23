@@ -45,6 +45,7 @@ Local cLojaFor	:= CriaVar("FM_LOJAFOR")
 Local cCodProd	:= CriaVar("FM_PRODUTO")
 Local cEst  	:= CriaVar("FM_EST")
 Local cEstBranc	:= CriaVar("FM_EST")
+Local nPrcOri   := 0
 
 Private cTpOper		:= ""
 Private lMsErroAuto	:= .F.
@@ -184,19 +185,24 @@ If lRetorno
 							aAdd(aLinha,{"C6_QTDLIB", 0       ,NIL} )
 						EndIf
 						
-						aAdd(aLinha,{"C6_PRCVEN" ,SZ4->Z4_PRLIQ,NIL})
-						aAdd(aLinha,{"C6_X_VLORI" ,SZ4->Z4_PRORI,NIL})
-						aAdd(aLinha,{"C6_X_PLIST" ,SZ4->Z4_PRVEN,NIL})
-						aAdd(aLinha,{"C6_OPER"   ,cTpOper		,NIL})
-						//	aAdd(aLinha,{ "C6_TES"	   , cTES               ,NIL} )
-						//	aAdd(aLinha,{ "C6_X_DESC1"	, SZ4->Z4_DESCRA		,NIL} )
-						//	aAdd(aLinha,{ "C6_X_DESC2"	, SZ4->Z4_DESCGE		,NIL} )
-						aAdd(aLinha,{"C6_PEDCLI" ,SZ4->Z4_NUMPED ,NIL})
-						aAdd(aLinha,{"C6_X_RAMO" ,SZ4->Z4_DESCRA ,NIL})
-						aAdd(aLinha,{"C6_X_GERE" ,SZ4->Z4_DESCGE ,NIL})
-						aAdd(aLinha,{"C6_X_ESPEC",SZ4->Z4_DESCESP,NIL})
-						aAdd(aLinha,{"C6_DESCPRO",SZ4->Z4_PRODESC,NIL})
-						aAdd(aLinha,{"C6_LOCAL"	 ,cArmazem       ,NIL})
+						SB1->(dbSeek(xFilial("SB1")+SZ4->Z4_CODPROD))
+												
+						nPrcOri := SB1->B1_PRV1
+						
+						If SZ4->Z4_DESCRA > 0
+							nPrcOri := nPrcOri * (1 - SZ4->Z4_DESCRA/100)
+						Endif
+						
+						aAdd(aLinha,{"C6_PRCVEN"  ,SZ4->Z4_PRLIQ  ,NIL})
+						aAdd(aLinha,{"C6_X_VLORI" ,nPrcOri        ,NIL})
+						aAdd(aLinha,{"C6_X_PLIST" ,SB1->B1_PRV1   ,NIL})
+						aAdd(aLinha,{"C6_OPER"    ,cTpOper		  ,NIL})
+						aAdd(aLinha,{"C6_PEDCLI"  ,SZ4->Z4_NUMPED ,NIL})
+						aAdd(aLinha,{"C6_X_RAMO"  ,SZ4->Z4_DESCRA ,NIL})
+						aAdd(aLinha,{"C6_X_GERE"  ,SZ4->Z4_DESCGE ,NIL})
+						aAdd(aLinha,{"C6_X_ESPEC" ,SZ4->Z4_DESCESP,NIL})
+						aAdd(aLinha,{"C6_DESCPRO" ,SZ4->Z4_PRODESC,NIL})
+						aAdd(aLinha,{"C6_LOCAL"	  ,cArmazem       ,NIL})
 						aAdd(aItens,aLinha)
 						
 						lTesInt := .F.
