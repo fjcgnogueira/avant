@@ -79,7 +79,7 @@ Static Function BUSCANF()
 	DbSelectarea("SF2")
 	SF2->(DbSetorder(1))
 	If SF2->(DbSeek(xFilial("SF2") + cGetNF + cGetSr))
-		If !Empty(F2_CHVNFE)
+		If !Empty(SF2->F2_CHVNFE)
 			lAchou	 := .T.
 			lAutoriz := .T.
 			ApMsgInfo("Nota autorizada no Sefaz!"+cEOL+"Fazer carta de correção.")
