@@ -16,16 +16,17 @@
 /*/
 
 User Function ALTVOLNF()
-	Local oFont0 	:= TFont():New("Verdana",,020,,.T.,,,,,.F.,.F.)
-	Local oFont1 	:= TFont():New("Verdana",,018,,.T.,,,,,.F.,.F.)
-	Local nOpcX		:= 0
+	Local oFont0 	 := TFont():New("Verdana",,020,,.T.,,,,,.F.,.F.)
+	Local oFont1 	 := TFont():New("Verdana",,018,,.T.,,,,,.F.,.F.)
+	Local nOpcX		 := 0
 	
-	Private cGetNF 	:= Space( TamSx3("F2_DOC")[1] )
-	Private cGetSr 	:= Space( TamSx3("F2_SERIE")[1] )
-	Private nGetVol	:= 0
-	Private lWhenA	:= .T.
-	Private lWhenB	:= .F.
-	Private lAchou	:= .F.
+	Private cGetNF 	 := Space( TamSx3("F2_DOC")[1] )
+	Private cGetSr 	 := Space( TamSx3("F2_SERIE")[1] )
+	Private nGetVol	 := 0
+	Private lWhenA	 := .T.
+	Private lWhenB	 := .F.
+	Private lAchou	 := .F.
+	Private lAutoriz := .F.
 	
 	Private oGetNF
 	Private oGetSr
@@ -53,7 +54,7 @@ User Function ALTVOLNF()
 	
 	ACTIVATE MSDIALOG oDlg CENTERED
 	
-	If nOpcX == 1
+	If nOpcX == 1 .And. !lAutoriz
 		If MsgYesNo("Confirma gravação do Volume na Nota Fiscal")
 			RecLock("SF2",.F.)
 				SF2->F2_VOLUME1	:= nGetVol
@@ -68,6 +69,8 @@ Return Nil
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 Static Function BUSCANF()
 
+	Local cEOL := Chr(13)+Chr(10)
+
 	If Empty(cGetNF)
 		Alert("Campo da NF deve ser Preenchido")
 		Return Nil
@@ -76,13 +79,20 @@ Static Function BUSCANF()
 	DbSelectarea("SF2")
 	SF2->(DbSetorder(1))
 	If SF2->(DbSeek(xFilial("SF2") + cGetNF + cGetSr))
-		lWhenB	:= .T.
-		lWhenA	:= .F.
-		lAchou	:= .T.
-		nGetVol	:= SF2->F2_VOLUME1
-		oGetNF:Refresh()
-		oGetSr:Refresh()
-		oGetVol:Refresh()
+		If !Empty(F2_CHVNFE)
+			lAchou	 := .T.
+			lAutoriz := .T.
+			ApMsgInfo("Nota autorizada no Sefaz!"+cEOL+"Fazer carta de correção.")
+		Else
+			lWhenB	 := .T.
+			lWhenA	 := .F.
+			lAchou	 := .T.
+			lAutoriz := .F.
+			nGetVol	:= SF2->F2_VOLUME1
+			oGetNF:Refresh()
+			oGetSr:Refresh()
+			oGetVol:Refresh()
+		Endif
 	Else
 		Alert("Nota fiscal não encontrada")
 		lWhenB	:= .F.
