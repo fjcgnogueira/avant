@@ -27,6 +27,7 @@ User Function ALTVOLNF()
 	Private lWhenB	 := .F.
 	Private lAchou	 := .F.
 	Private lAutoriz := .F.
+	Private lWms     := .T.
 	
 	Private oGetNF
 	Private oGetSr
@@ -79,7 +80,8 @@ Static Function BUSCANF()
 	DbSelectarea("SF2")
 	SF2->(DbSetorder(1))
 	If SF2->(DbSeek(xFilial("SF2") + cGetNF + cGetSr))
-		If !Empty(SF2->F2_CHVNFE)
+		lWms := Posicione("SA1",1,xFilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA,"A1_WMS")
+		If !Empty(SF2->F2_CHVNFE) .And. lWms
 			lAchou	 := .T.
 			lAutoriz := .T.
 			ApMsgInfo("Nota autorizada no Sefaz!"+cEOL+"Fazer carta de correção.")
