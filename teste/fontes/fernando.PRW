@@ -12,6 +12,25 @@
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
+User Function Fernando()
+
+conout("teste")
+
+Return 1000
+
+User Function F070ACONT()
+
+conout("teste")
+
+Return
+
+User Function SACI008()
+
+conout("teste")
+
+Return
+
+
 /*User Function Fernando()
 
 dbSelectArea("SE1")
