@@ -3995,6 +3995,16 @@ Else
 		    	aTotal[2] -= nDesTotal
 		    EndIf
 		    
+		    // Inscricao no Suframa - Fernando Nogueira
+		 	If !Empty(SA1->A1_SUFRAMA)
+		    	cMensCli += " - Insc. no Suframa: " + AllTrim(SA1->A1_SUFRAMA)
+		    Endif
+		    
+		    //Faz o Calculo de Cubagem - Fernando Nogueira
+		    If Len(_aCubagem) > 0
+		    	cMensCli += U_Cubagem(_aCubagem)
+		    Endif 
+		    
 			If nBaseIrrf > 0 .And. nValIrrf > 0
 				aadd(aRetido,{"IRRF",nBaseIrrf,nValIrrf})
 			EndIf
