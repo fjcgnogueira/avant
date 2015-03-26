@@ -283,6 +283,7 @@ Local lNfCupZero	:= .F.
 Local lRural		:= .F.
 Local lSeekOk   	:= .F.
 Local lNotaBenef	:= .F.
+Local _aCubagem     := {}
 Local lDifParc		:= .F.
 Local lFCI			:= GetNewPar("MV_FCIDANF",.F.) // Imprime ou não os dados da FCI no Xml/Danfe (De acordo com as configurações necessárias)
 Local aSb1			:= {}
