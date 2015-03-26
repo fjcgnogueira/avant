@@ -1634,6 +1634,19 @@ If cTipo == "1"
 						EndIf
 						cMensFis += AllTrim(FORMULA(SC5->C5_MENPAD))
 					EndIf
+					
+					//================================================================================================
+					//Amedeo (Mensagem do Pedido de Venda na DANFE)
+	                If !"Nro. Pedido AVANT: " + SC5->C5_NUM $ cMensCli
+						If Len(cMensCli) > 0 .And. SubStr(cMensCli, Len(cMensCli), 1) <> " "
+							cMensCli += " "
+						EndIf
+						cMensCli += "Nro. Pedido AVANT: " + SC5->C5_NUM
+					EndIf
+					//================================================================================================
+					
+					Aadd(_aCubagem,{(cAliasSD2)->D2_COD,(cAliasSD2)->D2_QUANT}) // Fernando Nogueira					
+					
 					If !Empty( cNumNfCup )
 						//Tratamento para nota sobre Cupom 
 						aAreaSF2  	:= SF2->(GetArea())
@@ -4651,7 +4664,7 @@ Local cMVNumProc	:= AllTrim(GetNewPar("MV_NUMPROC"," "))
 Local lAnfProd		:= SuperGetMV("MV_ANFPROD",,.T.)
 Local lArt186	    := SuperGetMV("MV_ART186",,.F.)
 Local lIssQn     	:= .F.
-Local lMvPisCofD 	:= GetNewPar("MV_DPISCOF",.F.)   // Parâmetro para informar os valores de Cofins e Pis nas Informações complementares do Danfe 
+Local lMvPisCofD 	:= GetNewPar("MV_DPISCOF",.T.)   // Parâmetro para informar os valores de Cofins e Pis nas Informações complementares do Danfe 
 //Local lSimpNac   	:= SuperGetMV("MV_CODREG")== "1" .Or. SuperGetMV("MV_CODREG")== "2" 
 Local lUnTribCom	:= GetNewPar("MV_VTRICOM",.F.) //Parâmetro para informar o valor unitário comercial e valor unitário tributável nas informações complementares do DANFE (quando vuncom e vuntrib forem diferentes)
 Local lNContrICM	:= .F.  //Define se o cliente não é contribuinte do ICMS no estado.
