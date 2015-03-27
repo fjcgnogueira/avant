@@ -2530,6 +2530,16 @@ If cTipo == "1"
 				dbSkip()
 		    EndDo 
 
+		    // Inscricao no Suframa - Fernando Nogueira
+		 	If !Empty(SA1->A1_SUFRAMA)
+		    	cMensCli += " - Insc. no Suframa: " + AllTrim(SA1->A1_SUFRAMA)
+		    Endif
+		    
+		    //Faz o Calculo de Cubagem - Fernando Nogueira
+		    If Len(_aCubagem) > 0
+		    	cMensCli += U_Cubagem(_aCubagem)
+		    Endif 
+
 			//Tratamento para incluir a mensagem em informacoes adicionais do Suframa
 			If !Empty(aDest[15])
 			// Msg Zona Franca de Manaus / ALC
@@ -3994,16 +4004,6 @@ Else
 		    If nDesTotal > 0
 		    	aTotal[2] -= nDesTotal
 		    EndIf
-		    
-		    // Inscricao no Suframa - Fernando Nogueira
-		 	If !Empty(SA1->A1_SUFRAMA)
-		    	cMensCli += " - Insc. no Suframa: " + AllTrim(SA1->A1_SUFRAMA)
-		    Endif
-		    
-		    //Faz o Calculo de Cubagem - Fernando Nogueira
-		    If Len(_aCubagem) > 0
-		    	cMensCli += U_Cubagem(_aCubagem)
-		    Endif 
 		    
 			If nBaseIrrf > 0 .And. nValIrrf > 0
 				aadd(aRetido,{"IRRF",nBaseIrrf,nValIrrf})
