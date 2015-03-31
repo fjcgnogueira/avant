@@ -5228,17 +5228,17 @@ If  !lIssQn
 				cString += '<valor>0</valor>' 				
 			Else
 				If cVerAmb >= "3.10" .and. aCST[1] $ '51' .and. !Empty(aICMS[12]) .and. !lArt186
-					If	aICMS[14] == "3"	
-						cString += NfeTag('<vICMSOp>' ,ConvType(iIf(lIcmDevol,aICMS[07],0)+aICMS[12],15,2))
-				  		cString += NfeTag('<pDif>' ,ConvType(aICMS[12]/( aICMS[12]+iIf(lIcmDevol,aICMS[07],0))*100,8,4))
-				  		cString += NfeTag('<vICMSDif>' ,ConvType(aICMS[12],15,2))
-				  		cString += '<valor>'+ConvType(iIf(lIcmDevol,(aICMS[07]+aICMS[12])-aICMS[12],0),15,2)+'</valor>'
-					Else		  		
+					//If	aICMS[14] == "3"	
+						//cString += NfeTag('<vICMSOp>' ,ConvType(iIf(lIcmDevol,aICMS[07],0)+aICMS[12],15,2))
+				  		//cString += NfeTag('<pDif>' ,ConvType(aICMS[12]/( aICMS[12]+iIf(lIcmDevol,aICMS[07],0))*100,8,4))
+				  		//cString += NfeTag('<vICMSDif>' ,ConvType(aICMS[12],15,2))
+				  		//cString += '<valor>'+ConvType(iIf(lIcmDevol,(aICMS[07]+aICMS[12])-aICMS[12],0),15,2)+'</valor>'
+					//Else		  		
 				  		cString += NfeTag('<vICMSOp>' ,ConvType(iIf(lIcmDevol,aICMS[07],0),15,2))
 						cString += NfeTag('<pDif>' ,ConvType(aICMS[12]/iIf(lIcmDevol,aICMS[07],0)*100,8,4))
 						cString += NfeTag('<vICMSDif>' ,ConvType(aICMS[12],15,2))
 						cString += '<valor>'+ConvType(iIf(lIcmDevol,aICMS[07]-aICMS[12],0),15,2)+'</valor>' 		
-				  	EndIf
+				  	//EndIf
 				  			
 					nVIcmDif += iIf(lIcmDevol,aICMS[07]-aICMS[12],0)
 						/*Na versão 3.10, para CST=51, O Valor do ICMS(vICMS) deve ser a diferença do Valor do ICMS da Operação (vICMSOp) e o Valor do ICMS diferido (vICMSDif),
