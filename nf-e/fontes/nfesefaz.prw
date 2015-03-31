@@ -5228,6 +5228,7 @@ If  !lIssQn
 				cString += '<valor>0</valor>' 				
 			Else
 				If cVerAmb >= "3.10" .and. aCST[1] $ '51' .and. !Empty(aICMS[12]) .and. !lArt186
+					// Comentando fonte por causa de erro de estouro do array aICMS - Fernando Nogueira 
 					//If	aICMS[14] == "3"	
 						//cString += NfeTag('<vICMSOp>' ,ConvType(iIf(lIcmDevol,aICMS[07],0)+aICMS[12],15,2))
 				  		//cString += NfeTag('<pDif>' ,ConvType(aICMS[12]/( aICMS[12]+iIf(lIcmDevol,aICMS[07],0))*100,8,4))
