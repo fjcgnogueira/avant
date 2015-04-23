@@ -18,7 +18,7 @@
 User Function SLDPRD()                  
 
 Local aDados := {}
-Local aCabec := {'FILIAL','CODIGO','DESCRICAO','GRUPO','ARMAZEM','SALDO DISPONIVEL','SALDO ATUAL','ENDEREÇAR','RESERVA','EMPENHO'}
+Local aCabec := {'FILIAL','CODIGO','DESCRICAO','GRUPO','ARMAZEM','SALDO DISPONIVEL','SALDO ATUAL','ENDEREÇAR','RESERVA','EMPENHO','SIT_PROD'}
 Local cReserv 
 Private cPerg		:= 'SLDPRD'
 Private cQry
@@ -33,7 +33,6 @@ cQry += " SB2.B2_FILIAL, "
 cQry += " SB2.B2_COD, "
 cQry += " SB1.B1_DESC, "
 cQry += " SBM.BM_DESC, "
-//cQry += " SBP.BP_DESCR, "
 cQry += " SB2.B2_LOCAL, "
 cQry += " CASE WHEN SB2.B2_QACLASS <= '0' THEN "
 cQry += " SB2.B2_QATU - SB2.B2_RESERVA "
@@ -44,16 +43,15 @@ cQry += " SB2.B2_QACLASS, "
 cQry += " SB2.B2_RESERVA, "
 cQry += " SB2.B2_QEMP, "
 cQry += " SB1.B1_MSBLQL "
+cQry += " CASE " 
+cQry += " 	WHEN SB1.B1_X_STPRD = '1' THEN 'Em Linha' "
+cQry += " 	WHEN SB1.B1_X_STPRD = '2' THEN 'Fora de Linha' "
+cQry += " 	WHEN SB1.B1_X_STPRD = '3' THEN 'Em Analise' "
+cQry += " 	ELSE '' "
+cQry += "  END AS 'STD_PROD' "
 cQry += " FROM " + RetSqlName("SB2") + " AS SB2 "
-cQry += " INNER JOIN " + RetSqlName("SB1") + " AS SB1 ON "
-cQry += " SB2.B2_COD = SB1.B1_COD AND "
-cQry += " SB1.D_E_L_E_T_ = '' "
-cQry += " INNER JOIN " + RetSqlName("SBM") + " AS SBM ON"
-cQry += " SBM.BM_FILIAL BETWEEN '"+MV_PAR01+"' AND '"+MV_PAR02+"' AND SB1.B1_GRUPO = SBM.BM_GRUPO AND "
-cQry += " SBM.D_E_L_E_T_ = '' "
-//cQry += " INNER JOIN " + RetSqlName("SBP") + " AS SBP  ON"
-//cQry += " SB1.B1_FAMAVAN = SBP.BP_BASE AND "
-//cQry += " SB2.D_E_L_E_T_ <> '*' "
+cQry += " INNER JOIN " + RetSqlName("SB1") + " AS SB1 ON SB2.B2_COD = SB1.B1_COD AND SB1.D_E_L_E_T_ = '' "
+cQry += " INNER JOIN " + RetSqlName("SBM") + " AS SBM ON SBM.BM_FILIAL BETWEEN '"+MV_PAR01+"' AND '"+MV_PAR02+"' AND SB1.B1_GRUPO = SBM.BM_GRUPO AND SBM.D_E_L_E_T_ = '' "
 
 IF MV_PAR09 == 2
 	cQry += " WHERE SB1.B1_MSBLQL = '2' AND "
@@ -64,7 +62,6 @@ ENDIF
 cQry += " SB2.B2_FILIAL BETWEEN '"+MV_PAR01+"' AND '"+MV_PAR02+"' AND "
 cQry += " SB2.B2_COD BETWEEN '"+MV_PAR03+"' AND '"+MV_PAR04+"' AND "
 cQry += " B2_LOCAL BETWEEN '"+MV_PAR07+"' AND '"+MV_PAR08+"' AND "
-//cQry += " SB1.B1_FAMAVAN BETWEEN '"+MV_PAR07+"' AND '"+MV_PAR08+"' AND "
 cQry += " SB1.B1_GRUPO BETWEEN '"+MV_PAR05+"' AND '"+MV_PAR06+"'"
 cQry += " AND SB2.D_E_L_E_T_ = ''"  // Fernando Nogueira - Chamado 000036
 cQry += " ORDER BY SB1.B1_DESC "
@@ -79,10 +76,10 @@ TRB->(DBGOTOP())
 WHILE TRB->(!EOF())
 	cReserv := cvaltochar(TRB->B2_QACLASS)
 	IF cReserv <= '0'
-		aadd(aDados, {'=TEXTO( '+TRB->B2_FILIAL+';"000000")', '=TEXTO( '+TRB->B2_COD+';"000000000")', TRB->B1_DESC, TRB->BM_DESC, '=TEXTO( '+TRB->B2_LOCAL+';"00")', TRB->B2_QATU - TRB->B2_RESERVA, TRB->B2_QATU, TRB->B2_QACLASS, TRB->B2_RESERVA, TRB->B2_QEMP})
+		aadd(aDados, {'=TEXTO( '+TRB->B2_FILIAL+';"000000")', '=TEXTO( '+TRB->B2_COD+';"000000000")', TRB->B1_DESC, TRB->BM_DESC, '=TEXTO( '+TRB->B2_LOCAL+';"00")', TRB->B2_QATU - TRB->B2_RESERVA, TRB->B2_QATU, TRB->B2_QACLASS, TRB->B2_RESERVA, TRB->B2_QEMP, TRB->B1_X_STPRD})
 		TRB->(DBSKIP())
 	ELSE               
-	  	aadd(aDados, {'=TEXTO( '+TRB->B2_FILIAL+';"000000")', '=TEXTO( '+TRB->B2_COD+';"000000000")', TRB->B1_DESC, TRB->BM_DESC, '=TEXTO( '+TRB->B2_LOCAL+';"00")', TRB->B2_QATU - TRB->B2_QACLASS - TRB->B2_RESERVA, TRB->B2_QATU, TRB->B2_QACLASS, TRB->B2_RESERVA, TRB->B2_QEMP})
+	  	aadd(aDados, {'=TEXTO( '+TRB->B2_FILIAL+';"000000")', '=TEXTO( '+TRB->B2_COD+';"000000000")', TRB->B1_DESC, TRB->BM_DESC, '=TEXTO( '+TRB->B2_LOCAL+';"00")', TRB->B2_QATU - TRB->B2_QACLASS - TRB->B2_RESERVA, TRB->B2_QATU, TRB->B2_QACLASS, TRB->B2_RESERVA, TRB->B2_QEMP, TRB->B1_X_STPRD})
 		TRB->(DBSKIP())
 	ENDIF
 Enddo
