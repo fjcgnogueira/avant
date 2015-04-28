@@ -179,6 +179,7 @@ If lRetorno
 						//EndIf
 
 					   // Produtos de Marketing - Fernando Nogueira - Chamado 000796
+					   // Operacao Triangular
 					   If lLiberAut .And. SZ3->Z3_PRODMKT == 'N'
 							aAdd(aLinha,{"C6_QTDLIB", SZ4->Z4_QTDE       ,NIL} )
 						Else
