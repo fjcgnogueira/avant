@@ -8,7 +8,7 @@
 ฑฑฬออออออออออุอออออออออออออสอออออออฯออออออออออออออออออออสออออออฯออออออออออนฑฑ
 ฑฑบDescrio ณ Menu do Tecnico... Baseado nos fontes da TOTVS...	   	  บฑฑ
 ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ Especifico AVANT.                   	                    บฑฑ
+ฑฑบUso       ณ Especifico AVANT.                   	                      บฑฑ
 ฑฑฬออออออออออฯอออัออออออออัอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
 ฑฑบAnalista Resp.ณ  Data  ณ Manutencao Efetuada                           บฑฑ
 ฑฑฬออออออออออออออุออออออออุอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
@@ -23,7 +23,7 @@ User Function UsrMenu()
 	Local nRet	:= 0
 	Local aArea := GetArea()
 	Local aInd  := {}
-	Local cCond := "ZU_CODUSR == '"+Alltrim(RetCodUsr())+"'"
+	Local cCond := "ZU_CODUSR == '"+Alltrim(RetCodUsr())+"' .OR. ZU_CODSUP == '"+Alltrim(RetCodUsr())+"'"
 
 	Private cString
 	Private cAlias	  := "SZU"
@@ -72,7 +72,7 @@ Return()
 ฑฑฬออออออออออุอออออออออออออสอออออออฯออออออออออออออออออออสออออออฯออออออออออนฑฑ
 ฑฑบDescrio ณ Efetua gravacao do complemento e informa status p\ usuario.บฑฑ
 ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ Especifico AVANT.                   	                    บฑฑ
+ฑฑบUso       ณ Especifico AVANT.                   	                      บฑฑ
 ฑฑฬออออออออออฯอออัออออออออัอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
 ฑฑบAnalista Resp.ณ  Data  ณ Manutencao Efetuada                           บฑฑ
 ฑฑฬออออออออออออออุออออออออุอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
