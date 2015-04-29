@@ -31,6 +31,7 @@ User Function UsrMenu()
 	Private aRotina   := { {"Pesquisar" ,"AxPesqui"    ,0,1} ,;
 	             	       {"Visualizar","u_WEB270EDIT",0,2} ,;
 	             		   {"Incluir"   ,"u_WEB270EDIT",0,3} ,;
+	             		   {"Editar"    ,"u_WEB270EDIT",0,4} ,;
 	             		   {"Legenda"   ,"u_acr_Legnda",0,5} ,;
 	             		   {"Histórico" ,"u_LJVERHIST" ,0,5} ,;
 	             		   {"Reabertura","u_RejeitaCHM",0,5} }
