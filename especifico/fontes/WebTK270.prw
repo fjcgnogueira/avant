@@ -10,9 +10,9 @@
 ฑฑษออออออออออัอออออออออออออหอออออออัออออออออออออออออออออหออออออัออออออออออปฑฑ
 ฑฑบPrograma  ณ WebTK270()  บ Autor ณ Fernando Nogueira  บ Data ณ23/10/2013บฑฑ
 ฑฑฬออออออออออุอออออออออออออสอออออออฯออออออออออออออออออออสออออออฯออออออออออนฑฑ
-ฑฑบDescrio ณ Programa de abertura de chamados...	  (Copy TOTVS)         บฑฑ
+ฑฑบDescrio ณ Programa de abertura de chamados...	  (Copy TOTVS)        บฑฑ
 ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ Especifico AVANT.                   	                    บฑฑ
+ฑฑบUso       ณ Especifico AVANT.                   	                      บฑฑ
 ฑฑฬออออออออออฯอออัออออออออัอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
 ฑฑบAnalista Resp.ณ  Data  ณ Manutencao Efetuada                           บฑฑ
 ฑฑฬออออออออออออออุออออออออุอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
@@ -1490,7 +1490,7 @@ User Function OpenProc(cChamado,cOp,nAcao,cArqTrb)
 		oProcess:USerSiga	:= "000000"
 		oProcess:cTo		:= cMailList
 		oProcess:cCC		:= If(cOp == "W",'',alltrim(lower(GetMv("ES_CRMMAIL"))))
-		oProcess:cBCC		:= If(cOp == "W",'IT2@AVANTSP.COM.BR','')
+		oProcess:cBCC		:= If(cOp == "W",'FERNANDO.NOGUEIRA@AVANTLED.COM.BR','')
 		oProcess:Start()
 		oProcess:Finish()
 		If cOp == "E"
@@ -1551,9 +1551,9 @@ User Function VldMail()
 		If At('@',&(READVAR()))==0 .or. At('.',&(READVAR()))==0 .or. At('"',&(READVAR()))<>0 .or. At('!',&(READVAR()))<>0 .or. At('#',&(READVAR()))<>0 .or. At('$',&(READVAR()))<>0 .or. At('%',&(READVAR()))<>0 .or. At('&',&(READVAR()))<>0 .or. At('(',&(READVAR()))<>0 .or. At(')',&(READVAR()))<>0 .or. At('/',&(READVAR()))<>0 .or. At('*',&(READVAR()))<>0 .or. At('+',&(READVAR()))<>0 .or. At('|',&(READVAR()))<>0 .or. At('<',&(READVAR()))<>0 .or. At('>',&(READVAR()))<>0 .or. At(':',&(READVAR()))<>0 .or. At('?',&(READVAR()))<>0 .or. At(',',&(READVAR()))<>0 .or. At('}',&(READVAR()))<>0 .or. At(']',&(READVAR()))<>0 .or. At('{',&(READVAR()))<>0 .or. At('[',&(READVAR()))<>0 .or. At('~',&(READVAR()))<>0 .or. At('^',&(READVAR()))<>0 .or. At('ด',&(READVAR()))<>0 .or. At('`',&(READVAR()))<>0
 			_lVai := .F.
 		    Msginfo("Este endere็o de e-mail nใo ้ vแlido!")
-		Elseif At('@AVANTSP.COM.BR',Upper(&(READVAR())))==0
+		Elseif At('@AVANTLED.COM.BR',Upper(&(READVAR())))==0
 			_lVai := .F.
-			Msginfo("Aceito somente e-mails terminado em '@avantsp.com.br'")
+			Msginfo("Aceito somente e-mails terminado em '@AVANTLED.COM.BR'")
 		EndIf
 	EndIf
 
