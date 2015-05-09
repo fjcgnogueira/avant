@@ -15,9 +15,15 @@
 */
 User Function Fernando()
 
-conout("teste")
+X31UPDTABLE("SB1")
 
-Return 1000
+If __GetX31Error()
+
+	ConOut( __GetX31Trace(), "Erro" )
+
+Endif
+
+Return
 
 /*User Function Fernando()
 
