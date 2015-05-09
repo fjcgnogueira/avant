@@ -1,4 +1,5 @@
 #Include "Protheus.Ch"
+#INCLUDE 'FWMVCDEF.CH'
 #Define ENTER 	Chr(13)+Chr(10)
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
@@ -20,50 +21,50 @@
 */
 User Function UsrMenu()
 
-	Local nRet	:= 0
+	Local oBrowse
 	Local aArea := GetArea()
-	Local aInd  := {}
 	Local cCond := "ZU_CODUSR == '"+Alltrim(RetCodUsr())+"' .OR. ZU_CODSUP == '"+Alltrim(RetCodUsr())+"'"
-
-	Private cString
-	Private cAlias	  := "SZU"
-	Private cCadastro := "Atendimento Continuado - Chamados"
-	Private aRotina   := { {"Pesquisar" ,"AxPesqui"    ,0,1} ,;
-	             	       {"Visualizar","u_WEB270EDIT",0,2} ,;
-	             		   {"Incluir"   ,"u_WEB270EDIT",0,3} ,;
-	             		   {"Editar"    ,"u_WEB270EDIT",0,4} ,;
-	             		   {"Legenda"   ,"u_acr_Legnda",0,5} ,;
-	             		   {"Hist๓rico" ,"u_LJVERHIST" ,0,5} ,;
-	             		   {"Reabertura","u_RejeitaCHM",0,5} }
-
-	Private cDelFunc 	:= ".T." 
-	Private cString 	:= "SZU"
-
-	aCores := {}
-
-	aAdd( aCores, { "ZU_STATUS == 'A'" , "BR_VERDE" })
-	aAdd( aCores, { "ZU_STATUS == 'F'" , "BR_AMARELO" })
-	aAdd( aCores, { "ZU_STATUS == 'C'" , "BR_CINZA" })
-	aAdd( aCores, { "ZU_STATUS == 'E'" , "BR_AZUL" })
-	aAdd( aCores, { "ZU_STATUS == 'T'" , "BR_PINK" })
-
-//	ChkFile("SZU")
 	
-	DbSelectArea("SZU")
-	DbSetOrder(2)
-
-	bFiltraBrw := {|| FilBrowse("SZU",@aInd,@cCond) }
-	Eval(bFiltraBrw)
-
-	mBrowse(6,1,22,75,"SZU",,,,,,aCores,)
-
-	DbSelectArea("SZU")
-	RetIndex("SZU")
-	DbClearFilter()
-	aEval(aInd,{|x| FErase(x[1]+OrdBagExt())})
+	oBrowse := FWMBrowse():New()
+	oBrowse:SetAlias('SZU')
+	oBrowse:SetDescription( 'Atendimento Continuado - Chamados' )
+	oBrowse:AddLegend( "ZU_STATUS == 'A'", "BR_VERDE"  , "Chamado Aberto" )
+	oBrowse:AddLegend( "ZU_STATUS == 'F'", "BR_AMARELO", "Chamado Aguardando Confirma็ใo" ) 
+	oBrowse:AddLegend( "ZU_STATUS == 'C'", "BR_CINZA"  , "Chamado Encerrado" )
+	oBrowse:AddLegend( "ZU_STATUS == 'E'", "BR_AZUL"   , "Chamado em Anแlise" )
+	oBrowse:AddLegend( "ZU_STATUS == 'T'", "BR_PINK"   , "Chamado Transferido" )
+	oBrowse:SetFilterDefault( cCond )
+	oBrowse:DisableDetails()
+	oBrowse:Activate()
+	
 	RestArea(aArea)
+	
+Return
 
-Return()
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
+ฑฑบPrograma  ณ MenuDef  บ Autor ณ Fernando Nogueira  บ Data ณ  09/05/2015 บฑฑ
+ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
+ฑฑบDesc.     ณ Definicao de Menu                                          บฑฑ
+ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
+ฑฑบUso       ณ Especifico Avant                                           บฑฑ
+ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+*/
+Static Function MenuDef()
+
+Local aRotina := {}
+ADD OPTION aRotina Title 'Pesquisar'  Action 'PesqBrw'      OPERATION 1 ACCESS 0
+ADD OPTION aRotina Title 'Visualizar' Action 'u_WEB270EDIT' OPERATION 2 ACCESS 0
+ADD OPTION aRotina Title 'Incluir'    Action 'u_WEB270EDIT' OPERATION 3 ACCESS 0
+ADD OPTION aRotina Title 'Editar'     Action 'u_WEB270EDIT' OPERATION 4 ACCESS 0
+ADD OPTION aRotina Title 'Hist๓rico'  Action 'u_LJVERHIST'  OPERATION 5 ACCESS 0
+ADD OPTION aRotina Title 'Reabertura' Action 'u_RejeitaCHM' OPERATION 5 ACCESS 0
+
+Return aRotina
 
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
