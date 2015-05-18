@@ -49,7 +49,6 @@ Local cIdCnab   := AllTrim(aValores[01])
 
 If cBanco = '001'       // Banco do Brasil
 	cCartBanc	:= Substr(aValores[16],058,001)
-	cNumTit	    := AllTrim(Substr(aValores[16],059,015))
 ElseIf cBanco = '707'   // Banco Daycoval
 	cCartBanc	:= Substr(aValores[16],108,001)
 Endif
