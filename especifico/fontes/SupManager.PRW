@@ -25,7 +25,7 @@ User Function SupManager(w,y,nOpc)
 
 	Local aArea	:= GetArea()
 	Local aBut	:= {}
- 
+
 	Private cTecID	:= RetCodUsr()
 	Private oDlgChamados
 	Private oLbx3
@@ -296,7 +296,7 @@ Return()
 Static Function VisuLbx( cChamado )
 
 	Local aArea		:= GetArea()
-	
+
 	// Acerta deletados SYP
 	U_Acerta_SYP()
 
@@ -335,7 +335,7 @@ Static Function EditLbx( cChamado )
 	Private oFlwS 	 := LoadBitmap( GetResources(), "BR_VERMELHO_OCEAN.BMP" )
 	Private oFlwU 	 := LoadBitmap( GetResources(), "BMPUSER.BMP" )
 	Private oFlwT 	 := LoadBitmap( GetResources(), "IC_20_USUARIO.GIF" )
-	
+
 	// Acerta deletados SYP
 	U_Acerta_SYP()
 
@@ -746,7 +746,7 @@ Static Function MTAlocFun(cChamado,cIDTecnico)
 		MsUnLock()
 
 
-		u_RegItem(cChamado,cCodAloc, "Em " + DTOC(Date()) + " o chamado redirecionado para: " + cMotivo ,RetCodUsr())
+		u_RegItem(cChamado,cCodAloc, "Em " + DTOC(Date()) + " o chamado redirecionado para: " + cMotivo ,cIDTecnico)
 		u_OpenProc(cChamado,"T",0)
 
 		aChamados[oLbx3:nAt,1] 	:= SZU->ZU_STATUS
