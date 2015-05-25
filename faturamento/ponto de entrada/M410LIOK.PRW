@@ -17,13 +17,15 @@
 
 User Function M410LIOK()
 
-Local lReturn := .T.
+Local cEOL		 := Chr(13)+Chr(10)
+Local lReturn    := .T.
 Local nPosQtdVen := aScan(aHeader,{|x|Trim(x[2])=="C6_QTDVEN"})
 Local nPosQtdLib := aScan(aHeader,{|x|Trim(x[2])=="C6_QTDLIB"})
 Local nPosLocal  := aScan(aHeader,{|x|Trim(x[2])=="C6_LOCAL"})
 Local nPosOper   := aScan(aHeader,{|x|Trim(x[2])=="C6_OPER"})
 Local nPosProd   := aScan(aHeader,{|x|Trim(x[2])=="C6_PRODUTO"})
-
+Local nPosTes    := aScan(aHeader,{|x|Trim(x[2])=="C6_TES"})
+Local cDuplic    := ''
 
 If aCols[n][nPosQtdLib] > 0 .And. aCols[n][nPosQtdVen] > aCols[n][nPosQtdLib]
 	MsgInfo('Não é permitido liberação parcial!', 'Atenção')
@@ -49,6 +51,19 @@ If n <> 1 .AND. !aCols[n,Len(aHeader)+1]
 	Endif  
 Endif
 
+// Faz uma varredura no aCols
+For _n := 1 to Len(aCols)
+	// Caso a linda naum esteja deletada
+	If !aCols[_n,Len(aHeader)+1]
+		// Chamado 001447 - Fernando Nogueira
+		If !Empty(cDuplic) .And. cDuplic <> Posicione('SF4',1,xFilial('SF4')+aCols[_n][nPosTes],'F4_DUPLIC')
+			ApMsgAlert('Incompatibilidade de Geração de Duplicatas!'+cEOL+'Item que gera duplicata e item que não gera.')
+			ConOut('Incompatibilidade de Geração de Duplicatas!'+cEOL+'Item que gera duplicata e item que não gera.')
+			Return .F.
+		EndIf
+		cDuplic := Posicione('SF4',1,xFilial('SF4')+aCols[_n][nPosTes],'F4_DUPLIC')
+	Endif
+End
 
 //If AllTrim(SM0->M0_CODFIL) == "010104" .And. aScan(PswRet(1)[1][10],'000057') == 0 .And. aCols[n][nPosLocal] <> '01'
 //	MsgInfo('Estoque diferente de "01" somente é permitido aos usuários de logística!', 'Atenção')
