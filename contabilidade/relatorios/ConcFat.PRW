@@ -54,7 +54,11 @@ oSection1 := TRSection():New(oReport,"PickList",{"TRB"})
 
 If MV_PAR03 == 4
 	TRCell():New(oSection1,"CFOP"   ,"TRB","CFOP")
-	TRCell():New(oSection1,"CREDITO","TRB","Conta Credito")
+	If MV_PAR05 == 1
+		TRCell():New(oSection1,"DEBITO","TRB","Conta Debito")
+	Else
+		TRCell():New(oSection1,"CREDITO","TRB","Conta Credito")
+	Endif
 	TRCell():New(oSection1,"VALBRUT","TRB","Valor Bruto"   ,PesqPict('SD2','D2_VALBRUT'),TamSx3("D2_VALBRUT")[1])
 	TRCell():New(oSection1,"VALCONT","TRB","Valor Contabil",PesqPict('CT2','CT2_VALOR') ,TamSx3("CT2_VALOR")[1])
 	TRFunction():New(oSection1:Cell("CFOP"),"Quant. Itens","COUNT",,/*Titulo*/,/*Picture*/,/*CodeBlock*/,.F.,.T.,.F.,oSection1)
@@ -187,26 +191,51 @@ ElseIf MV_PAR03 == 3
 
 ElseIf MV_PAR03 == 4
 
-	BeginSql alias 'TRB'
-	
-		SELECT CFOP,CREDITO,SUM(VALBRUT) VALBRUT,SUM(VALCONT) VALCONT FROM 
-		(SELECT ISNULL(D2_FILIAL+D2_DOC+D2_SERIE+D2_CLIENTE+D2_LOJA+D2_COD+D2_ITEM,'SEM') SD2_KEY, 
-				ISNULL(CT2_KEY,'SEM') CT2_KEY,ISNULL(D2_CF,'SEM') CFOP,
-				ISNULL(D2_VALBRUT,0) VALBRUT,ISNULL(CT2_VALOR,0) VALCONT,
-				CT2_HIST,ISNULL(LEFT(CT2_CREDIT,%exp:MV_PAR04%),'SEM') CREDITO 
-			FROM %table:SD2% SD2
-			FULL OUTER JOIN %table:CT2% CT2 ON D2_FILIAL+D2_DOC+D2_SERIE+D2_CLIENTE+D2_LOJA+D2_COD+D2_ITEM = CT2_KEY 
-				AND CT2.%notDel%
-				AND CT2_DATA BETWEEN %exp:MV_PAR01% AND %exp:MV_PAR02%
-				AND CT2_LP = '610'
-				AND CT2_VALOR > 0
-			WHERE SD2.%notDel% 
-				AND D2_FILIAL = %xfilial:SD2% 
-				AND D2_EMISSAO BETWEEN %exp:MV_PAR01% AND %exp:MV_PAR02%) COMPARACAO
-		GROUP BY CFOP,CREDITO
-		ORDER BY CFOP,CREDITO
+	If MV_PAR05 == 1
 
-	EndSql
+		BeginSql alias 'TRB'
+		
+			SELECT CFOP,DEBITO,SUM(VALBRUT) VALBRUT,SUM(VALCONT) VALCONT FROM 
+			(SELECT ISNULL(D2_FILIAL+D2_DOC+D2_SERIE+D2_CLIENTE+D2_LOJA+D2_COD+D2_ITEM,'SEM') SD2_KEY, 
+					ISNULL(CT2_KEY,'SEM') CT2_KEY,ISNULL(D2_CF,'SEM') CFOP,
+					ISNULL(D2_VALBRUT,0) VALBRUT,ISNULL(CT2_VALOR,0) VALCONT,
+					CT2_HIST,ISNULL(LEFT(CT2_DEBITO,%exp:MV_PAR04%),'SEM') DEBITO 
+				FROM %table:SD2% SD2
+				FULL OUTER JOIN %table:CT2% CT2 ON D2_FILIAL+D2_DOC+D2_SERIE+D2_CLIENTE+D2_LOJA+D2_COD+D2_ITEM = CT2_KEY 
+					AND CT2.%notDel%
+					AND CT2_DATA BETWEEN %exp:MV_PAR01% AND %exp:MV_PAR02%
+					AND CT2_LP = '610'
+					AND CT2_VALOR > 0
+				WHERE SD2.%notDel% 
+					AND D2_FILIAL = %xfilial:SD2% 
+					AND D2_EMISSAO BETWEEN %exp:MV_PAR01% AND %exp:MV_PAR02%) COMPARACAO
+			GROUP BY CFOP,DEBITO
+			ORDER BY CFOP,DEBITO
+	
+		EndSql
+	
+	Else
+
+		BeginSql alias 'TRB'
+		
+			SELECT CFOP,CREDITO,SUM(VALBRUT) VALBRUT,SUM(VALCONT) VALCONT FROM 
+			(SELECT ISNULL(D2_FILIAL+D2_DOC+D2_SERIE+D2_CLIENTE+D2_LOJA+D2_COD+D2_ITEM,'SEM') SD2_KEY, 
+					ISNULL(CT2_KEY,'SEM') CT2_KEY,ISNULL(D2_CF,'SEM') CFOP,
+					ISNULL(D2_VALBRUT,0) VALBRUT,ISNULL(CT2_VALOR,0) VALCONT,
+					CT2_HIST,ISNULL(LEFT(CT2_CREDIT,%exp:MV_PAR04%),'SEM') CREDITO 
+				FROM %table:SD2% SD2
+				FULL OUTER JOIN %table:CT2% CT2 ON D2_FILIAL+D2_DOC+D2_SERIE+D2_CLIENTE+D2_LOJA+D2_COD+D2_ITEM = CT2_KEY 
+					AND CT2.%notDel%
+					AND CT2_DATA BETWEEN %exp:MV_PAR01% AND %exp:MV_PAR02%
+					AND CT2_LP = '610'
+					AND CT2_VALOR > 0
+				WHERE SD2.%notDel% 
+					AND D2_FILIAL = %xfilial:SD2% 
+					AND D2_EMISSAO BETWEEN %exp:MV_PAR01% AND %exp:MV_PAR02%) COMPARACAO
+			GROUP BY CFOP,CREDITO
+			ORDER BY CFOP,CREDITO
+	
+	Endif
 
 Endif
 	
@@ -239,6 +268,8 @@ Static Function AjustaSX1(cPerg)
 	PutSX1(cPerg,"03","Tipo ?"      ,"","","mv_ch3","N",1,0,1,"C","NaoVazio","","","","mv_par03","Canceladas","Canceladas","Canceladas","","Duplicado","Duplicado","Duplicado","Não.Cont.","Não.Cont.","Não.Cont.","Comparativo","Comparativo","Comparativo","","","",aHelpPor,aHelpEng,aHelpSpa)
 	aHelpPor := {"Quantidade de caracteres para quebra da","Conta Contábil no Comparativo"}
 	PutSx1(cPerg,"04","Quantidade?" ,"","","mv_ch4","N",4,0,0,"G","","","",""        ,"mv_par04","","","","","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
+	aHelpPor := {"Tipo Lcto:","- Debito","- Credito"}
+	PutSX1(cPerg,"05","Tipo Lcto ?" ,"","","mv_ch5","N",1,0,1,"C","NaoVazio","","","","mv_par05","Debito","Debito","Debito","","Credito","Credito","Credito","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 	RestArea(aAreaAnt)
 
 Return Nil
