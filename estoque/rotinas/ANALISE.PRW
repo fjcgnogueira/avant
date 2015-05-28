@@ -3547,7 +3547,7 @@ DEFINE FONT oBold   NAME "Arial" SIZE 0, -12 BOLD
 @ 024,005 SAY "Lote"                                    SIZE 040,10 PIXEL OF oDlgSBK FONT oBold 
 @ 020,043 MSGET oVar   VAR cLoteCtl Picture "@!"        SIZE 040,10 PIXEL OF oDlgSBK 
 @ 039,005 SAY "Quantidade"                              SIZE 040,10 PIXEL OF oDlgSBK FONT oBold 
-@ 035,043 MSGET oVar   VAR nQuant   Picture cPict       SIZE 050,10 PIXEL OF oDlgSBK 
+@ 035,043 MSGET oVar   VAR nQuant   Picture "@E 999,999,999,999" SIZE 050,10 PIXEL OF oDlgSBK 
                                                      //fAjusta(cOpcao,cLoteCtl,cDoc,dData,nQuant,cEndereco,cNumSeq,cTipoMov,cNumLote,cSerie,cCliFor,cLoja)
 @ 075,050 BUTTON "&Confirmar" SIZE 30,14 PIXEL ACTION (fAjusta(cOpcao,cLoteCtl,Nil ,Nil  ,nQuant,cEndereco),oDlgSBK:End())
 @ 075,090 BUTTON "&Sair"      SIZE 30,14 PIXEL ACTION oDlgSBK:End()
