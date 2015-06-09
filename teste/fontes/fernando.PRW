@@ -2,8 +2,31 @@
 #INCLUDE "APWEBSRV.CH"
 #INCLUDE "FWMVCDEF.CH"
 
-#INCLUDE "PROTHEUS.CH"
-#INCLUDE "APWEBSRV.CH"
+User Function AfterLogin()
+	Local cId	:= ParamIXB[1]
+	Local cNome := ParamIXB[2]      
+	
+	local cError := cWarning := cDestinatario := cDataEmissao := "",;
+         cNomearq := "\menus\wms.xnu",; 
+         oNotaxml := xmlparserfile(cNomearq, "", @cError, @cWarning)
+
+   if cError # "" .or. cWarning # ""
+      alert("Erro: " + cError + "  -  Aviso: " + cWarning )
+   else
+      cDestinatario := alltrim(oNotaxml:_nfeProc:_NFe:_infNFe:_dest:_xNome:Text)
+      cDataEmissao  := alltrim(oNotaxml:_nfeProc:_NFe:_infNFe:_ide:_dEmi:Text)
+
+      msgalert("Destinatario: " + cDestinatario + " - Emissao: " + cDataEmissao )
+   endif
+	
+	//ApMsgAlert("Usuário "+ cId + " - " + Alltrim(cNome)+" efetuou login às "+Time())
+	//If AllTrim(cNome) <> "liquidacao"
+	//	Final("Acesso não autorizado!")
+	//Endif
+	If AllTrim(cModulo) <> "WMS" //.And. Left(oMainWnd:cCaption,18) == "Documento de Saida") .Or. Left(oMainWnd:cCaption,18) <> "Documento de Saida"
+		Final("Acesso não autorizado!"+Chr(13)+Chr(10)+"Somente módulo do WMS.")
+	Endif
+Return
 
 /* ===============================================================================
 WSDL Location    http://www.byjg.com.br/site/webservice.php/ws/cep?WSDL
@@ -13,13 +36,13 @@ Observações      Código-Fonte gerado por ADVPL WSDL Client 1.120703
                  e serão perdidas caso o código-fonte seja gerado novamente.
 =============================================================================== */
 
-User Function _NLZPYHP ; Return  // "dummy" function - Internal Use 
+//User Function _NLZPYHP ; Return  // "dummy" function - Internal Use 
 
-/* -------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------
 WSDL Service WSCEPService
 ------------------------------------------------------------------------------- */
 
-WSCLIENT WSCEPService
+/*WSCLIENT WSCEPService
 
 	WSMETHOD NEW
 	WSMETHOD INIT
@@ -248,7 +271,7 @@ WSMETHOD SOAPRECV WSSEND oResponse WSCLIENT CEPService_ArrayOfstring
 	If oResponse = NIL ; Return ; Endif 
 	aEval(oNodes1 , { |x| aadd(::cstring ,  x:TEXT  ) } )
 Return
-
+*/
 
 
 
@@ -260,13 +283,13 @@ Observações      Código-Fonte gerado por ADVPL WSDL Client 1.120703
                  e serão perdidas caso o código-fonte seja gerado novamente.
 =============================================================================== */
 
-User Function _OJOMKEF ; Return  // "dummy" function - Internal Use 
+//User Function _OJOMKEF ; Return  // "dummy" function - Internal Use 
 
 /* -------------------------------------------------------------------------------
 WSDL Service WSCadastroConsultasWSService
 ------------------------------------------------------------------------------- */
 
-WSCLIENT WSCadastroConsultasWSService
+/*WSCLIENT WSCadastroConsultasWSService
 
 	WSMETHOD NEW
 	WSMETHOD INIT
@@ -368,7 +391,7 @@ oXmlRet := NIL
 Return .T.
 
 
-User Function TesteWs(ccnpj,cinscsuf)
+/*User Function TesteWs(ccnpj,cinscsuf)
  
 Local oWs := NIL
 
@@ -390,7 +413,7 @@ alert(oCep:cobterLogradouroResponse)
 
 conout('teste')
   
-Return
+Return*/
 
 
 /*
@@ -413,6 +436,8 @@ Conout('teste')
 Return*/
 
 /*X31UPDTABLE("SB1")
+
+EVAL({||X31UPDTABLE("SZH"),__GetX31Error(),alert(__GetX31Trace())})
 
 If __GetX31Error()
 
@@ -480,48 +505,10 @@ Static oSayNome
 Return*/
 
 
-/*User Function AfterLogin()
-	Local cId	:= ParamIXB[1]
-	Local cNome := ParamIXB[2]      
-	//ApMsgAlert("Usuário "+ cId + " - " + Alltrim(cNome)+" efetuou login às "+Time())
-	//If AllTrim(cNome) <> "liquidacao"
-	//	Final("Acesso não autorizado!")
-	//Endif
-	If (AllTrim(cModulo) <> "FAT" .And. Left(oMainWnd:cCaption,18) == "Documento de Saida") .Or. Left(oMainWnd:cCaption,18) <> "Documento de Saida"
-		Final("Acesso não autorizado!")
-	Endif
-Return*/
-
 //-------------------------------------------------------------------------------------------------
 
 /* 
-User Function TesteWs(cEmpInt, cFilInt, cNumTroca, cDocumento)
-//IntNFDev(cEmpInt, cFilInt, cNumTroca)
-//U_IntNFDev("01","010104","000004","DEVOLUCAO")
-//U_TesteWs("01","010104","000004","DEVOLUCAO")
-//U_INTPEDIDO("01","010104", "124114","PEDIDO","")
-//U_TesteWs("01","010104", "124114","PEDIDO","")
- 
-Local oWs := NIL
 
-If Upper(AllTrim(cDocumento)) == "PEDIDO"
-	oWs := WSPEDWEBAVANT():New()
-ElseIf Upper(AllTrim(cDocumento)) == "DEVOLUCAO"
-	oWs := WSDEVWEBAVANT():New()
-Endif
- 
-If oWs:CONNECT(cEmpInt, cFilInt, cNumTroca)
-	If IsMemVar(oWs:oWSCONNECTRESULT:cDOCUMENTO)
-		alert('Documento: '+ oWs:oWSCONNECTRESULT:cDOCUMENTO)
-	Endif
-	If IsMemVar(oWs:oWSCONNECTRESULT:cMENSAGEM)
-		alert('Mensagem: '+ oWs:oWSCONNECTRESULT:cMENSAGEM)
-	Endif
-Else 
-	alert('Erro de Execução : '+GetWSCError())
-Endif
- 
-Return
 
 User Function Arquivos() 
 
