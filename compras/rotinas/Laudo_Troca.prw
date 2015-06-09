@@ -30,6 +30,7 @@ User Function Laudo_Troca()
 	Private _li       := 0	
 	Private nNumItens := 0
 	Private nLinhas   := 0
+	Private _nFoto    := 0
 	
 	//Cria o diretorio local para copiar o documento Word
 	MontaDir(cPathEst)
@@ -43,6 +44,8 @@ User Function Laudo_Troca()
 	
 	hWord	:= OLE_CreateLink()
 	OLE_NewFile(hWord,cPathEst+'Laudo_Troca.dot')
+	
+	Sleep(5000)
 	
 	// Dados do Cabecalho
 	OLE_SetDocumentVar(hWord,'DOT_DATA'  ,SF1->F1_EMISSAO)
@@ -69,7 +72,7 @@ User Function Laudo_Troca()
 			nLinhas++
 			
 			If SZI->ZI_QTDFOTO > 0
-				nNumItens := nNumItens + NoRound(SZI->ZI_QTDFOTO/2,0)
+				nLinhas += 2 + NoRound(SZI->ZI_QTDFOTO/2,0)
 			Endif
 			
 			OLE_SetDocumentVar(hWord,'IT_QTDFOTOS_'+cValtoChar(nNumItens),SZI->ZI_QTDFOTO)
@@ -96,6 +99,7 @@ User Function Laudo_Troca()
 	Endif
 	
 	OLE_SetDocumentVar(hWord,'dot_nroitens',nNumItens)
+	OLE_SetDocumentVar(hWord,'dot_nlinhas' ,nLinhas)
 	SZI->(dbGoTop())	
 
 	// Dados dos Itens da Troca
@@ -105,14 +109,14 @@ User Function Laudo_Troca()
 			
 			_li++
 			
-			OLE_SetDocumentVar(hWord,'IT_NFORI'  +AllTrim(Str(_li)),SZI->ZI_NFORI+"/"+SZI->ZI_SERIORI)                           //NF/Serie Original
-			OLE_SetDocumentVar(hWord,'IT_PRODUTO'+AllTrim(Str(_li)),SZI->ZI_PRODUTO)                                             //Produto
-			OLE_SetDocumentVar(hWord,'IT_DESC'   +AllTrim(Str(_li)),Posicione("SB1",1,xFilial("SB1")+SZI->ZI_PRODUTO,"B1_DESC")) //Desc. Produto
-			OLE_SetDocumentVar(hWord,'IT_QUANT'  +AllTrim(Str(_li)),Transform(SZI->ZI_QUANT, _cD1Qtd))                           //Qtd Original
-			OLE_SetDocumentVar(hWord,'IT_QTDFIS' +AllTrim(Str(_li)),Transform(SZI->ZI_QTDFIS, _cD1Qtd))                          //Qtd Fisica
-			OLE_SetDocumentVar(hWord,'IT_QTDSEM' +AllTrim(Str(_li)),Transform(SZI->ZI_QTDSEM, _cD1Qtd))                          //Qtd Sem Troca
-			OLE_SetDocumentVar(hWord,'IT_QTDDVL' +AllTrim(Str(_li)),Transform(SZI->ZI_QTDDVL, _cD1Qtd))                          //Qtd Devolucao
-			OLE_SetDocumentVar(hWord,'IT_QTDTRC' +AllTrim(Str(_li)),Transform(SZI->ZI_QTDTRC, _cD1Qtd))                          //Qtd de Troca
+			OLE_SetDocumentVar(hWord,'IT_NFORI'  +AllTrim(Str(_li)),If(!Empty(SZI->ZI_NFORI),SZI->ZI_NFORI+"/"+SZI->ZI_SERIORI,"")) //NF/Serie Original
+			OLE_SetDocumentVar(hWord,'IT_PRODUTO'+AllTrim(Str(_li)),SZI->ZI_PRODUTO)                                                //Produto
+			OLE_SetDocumentVar(hWord,'IT_DESC'   +AllTrim(Str(_li)),Posicione("SB1",1,xFilial("SB1")+SZI->ZI_PRODUTO,"B1_DESC"))    //Desc. Produto
+			OLE_SetDocumentVar(hWord,'IT_QUANT'  +AllTrim(Str(_li)),Transform(SZI->ZI_QUANT, _cD1Qtd))                              //Qtd Original
+			OLE_SetDocumentVar(hWord,'IT_QTDFIS' +AllTrim(Str(_li)),Transform(SZI->ZI_QTDFIS, _cD1Qtd))                             //Qtd Fisica
+			OLE_SetDocumentVar(hWord,'IT_QTDSEM' +AllTrim(Str(_li)),Transform(SZI->ZI_QTDSEM, _cD1Qtd))                             //Qtd Sem Troca
+			OLE_SetDocumentVar(hWord,'IT_QTDDVL' +AllTrim(Str(_li)),Transform(SZI->ZI_QTDDVL, _cD1Qtd))                             //Qtd Devolucao
+			OLE_SetDocumentVar(hWord,'IT_QTDTRC' +AllTrim(Str(_li)),Transform(SZI->ZI_QTDTRC, _cD1Qtd))                             //Qtd de Troca
 			SZI->(dbSkip())
 		End
 	Endif
@@ -120,6 +124,8 @@ User Function Laudo_Troca()
 	OLE_ExecuteMacro(hWord,"Laudo_Troca")
 	
 	OLE_ExecuteMacro(hWord,"Fotos")
+	
+	Sleep(5000)
 	
 	OLE_UpdateFields(hWord)
 
