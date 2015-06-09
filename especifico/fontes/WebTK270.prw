@@ -1489,7 +1489,7 @@ User Function OpenProc(cChamado,cOp,nAcao,cArqTrb)
 	IF cOp != "P"
 		oProcess:USerSiga	:= "000000"
 		oProcess:cTo		:= cMailList
-		oProcess:cCC		:= If(cOp == "W",'',alltrim(lower(GetMv("ES_CRMMAIL"))))
+		oProcess:cCC		:= If(cOp == "W",'',alltrim(lower(GetMv("ES_CRMMAIL"))))+If(lower(alltrim(u_usr_campos(SZU->ZU_TECNICO)[3]))$cMailList,'','; '+lower(alltrim(u_usr_campos(SZU->ZU_TECNICO)[3])))
 		oProcess:cBCC		:= If(cOp == "W",'FERNANDO.NOGUEIRA@AVANTLED.COM.BR','')
 		oProcess:Start()
 		oProcess:Finish()
