@@ -3,6 +3,8 @@
 #INCLUDE "FILEIO.ch"
 #INCLUDE "TbiConn.ch"
 #INCLUDE "AP5MAIL.CH"
+#include "tbicode.ch"
+#include "font.ch"
 
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
@@ -256,8 +258,6 @@ Static Function GeraArqTRB()
 			ORDER BY %Exp:cOrder1%
 			
 		EndSql
-		
-		Conout('Teste')
 		         
 		// Por Grupo de Produto / Produto
 		BeginSql alias 'TRC'
@@ -278,8 +278,6 @@ Static Function GeraArqTRB()
 			ORDER BY %Exp:cOrder2%
 			
 		EndSql
-		
-		conout("teste")
 	
 	Else
 
@@ -318,8 +316,6 @@ Static Function GeraArqTRB()
 			ORDER BY %Exp:cOrder1%
 	
 		EndSql
-		
-		Conout('Teste')
 		
 		// Por Grupo de Produto	/ Produto
 		BeginSql alias 'TRC'
@@ -389,6 +385,7 @@ Local _TabTRB     := CriaTrab(Nil,.F.)
 Local _IndTRB     := CriaTrab(Nil,.F.)
 Local _cString    := GetMv("ES_GERENRE")
 Local _cRegionais := GetMv("ES_REGIONA")
+Local _cArquivo   := ""
 
 DbSelectArea('TRC')
 DbGotop()
@@ -404,31 +401,29 @@ If !_lSchedule
 	_oProcess:SetRegua1(nReguaB)
 Endif
 
+If _cRegiao $ "DIRETORIA.GERAL"
+	_cArquivo := "\MODELOS\FAT_DIARIO_DIR.HTM"
+Else
+	_cArquivo := "\MODELOS\FAT_DIARIO_GER.HTM"
+Endif
+
+oProcess := TWFProcess():New("FAT_DIARIO","FATURAMENTO DIARIO")
+oProcess:NewTask("Gerando Relatorio",_cArquivo)
+oProcess:cSubject := Upper(_cTitulo)
+oHTML := oProcess:oHTML
+
 If TRB->(!Eof())
 	If _cRegiao <> 'VENDEDORES'
-		_cCorpoM += '<html>' 
-		_cCorpoM += '<head>'
-		_cCorpoM += '<title>'+_cTitulo+'</title>'
-		_cCorpoM += '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' 
-		_cCorpoM += '<style type="text/css">'
-		_cCorpoM += '<!--'
-		_cCorpoM += '.style1 {font-family: Arial, Helvetica, sans-serif}'
-		_cCorpoM += '.style3 {font-family: Arial, Helvetica, sans-serif; font-weight: bold; }'
-		_cCorpoM += '.style4 {color: #FF0000}'
-		_cCorpoM += '-->'
-		_cCorpoM += '</style>' 
-		_cCorpoM += '</head>' 
-		_cCorpoM += '<body>'
-		_cCorpoM += '  <p align="center" class="style1"><strong>'+Upper(_cTitulo)+'</strong></p>' 
+		oHtml:ValByName("cTitulo", Upper(_cTitulo))
 		If _cDataDe == Date() .And. _cDataAte = Date()
-			_cCorpoM += '  <p class="style1"><strong>Data: </strong>'+DtoC(Date())+'</p>'
+			oHtml:ValByName("cDataDe", DtoC(Date()))
 		Else
-			_cCorpoM += '  <p class="style1"><strong>Data de: </strong>'+DtoC(_cDataDe)+'</p>'
-			_cCorpoM += '  <p class="style1"><strong>Data ate: </strong>'+DtoC(_cDataAte)+'</p>'			
+			oHtml:ValByName("cDataDe",  DtoC(_cDataDe))
+			oHtml:ValByName("cDataAte", DtoC(_cDataAte))
 		Endif
-		_cCorpoM += '  <p class="style1"><strong>Hora: </strong>'+Substr(Time(),1,5)+'</p>'
-		_cCorpoM += '  <p class="style1"><strong>Filial : </strong>'+SM0->M0_FILIAL+'</p>'
-		_cCorpoM += '  <p class="style1"><strong>Regional : </strong>'+_cRegiao+'</p>'
+		oHtml:ValByName("cHora"    , Substr(Time(),1,5))
+		oHtml:ValByName("cFilial"  , SM0->M0_FILIAL)
+		oHtml:ValByName("cRegional", _cRegiao)
 		If !Empty(_cGrupo)
 			_cCorpoM += '  <p class="style1"><strong>Grupo : </strong>'+Posicione("SBM",1,xFilial("SBM")+_cGrupo,"BM_DESC")+'</p>'
 		Endif
@@ -437,18 +432,6 @@ If TRB->(!Eof())
 	If _cRegiao $ "DIRETORIA.GERAL"
 	
 		// Por Regiao
-		_cCorpoM += '  <hr width=100% noshade>'
-		_cCorpoM += '  <p class="style1"><strong>Total por Região: </strong></p>'
-
-		_cCorpoM += '  <table width="1300" border="1" align="left"> '
-		_cCorpoM += '    <tr>
-		_cCorpoM += '      <td align="center" width="200"><span class="style3">Regiao</span></td>'
-		_cCorpoM += '      <td align="center" width="200"><span class="style3">Quantidade</span></td>'	
-		_cCorpoM += '      <td align="center" width="200"><span class="style3">Quant %</span></td>'
-		_cCorpoM += '      <td align="center" width="200"><span class="style3">Valor R$</span></td>'
-		_cCorpoM += '      <td align="center" width="200"><span class="style3">Valor %</span></td>'
-		_cCorpoM += '    </tr>'
-		
 		While TRB->(!Eof())	
 			_nTotQtd  += TRB->QTD
 			_nTotReal += TRB->Reais
@@ -461,52 +444,36 @@ If TRB->(!Eof())
 		DbSelectArea('TRB')		
 		DbGotop()
 
-		While TRB->(!Eof())	
-			_cCorpoM += '    <tr>'
-			_cCorpoM += '     <td align="center"><span>'+TRB->Regiao+'</span></td>' 		
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRB->QTD,   _cPctQtd)+'</span></td>'
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRB->QTD/_nTotQtd*100, _cD2Total)+'%</span></td>'
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRB->Reais, _cD2Total)+'</span></td>'
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRB->Reais/_nTotReal*100, _cD2Total)+'%</span></td>'
-			_cCorpoM += '    </tr>'						
+		While TRB->(!Eof())
+			aAdd((oHTML:ValByName("aReg.cRegiao"))   , TRB->Regiao)
+			aAdd((oHTML:ValByName("aReg.cQuant"))    , Transform(TRB->QTD                , _cPctQtd ))
+			aAdd((oHTML:ValByName("aReg.cQuantPorc")), Transform(TRB->QTD/_nTotQtd*100   , _cD2Total)+'%')
+			aAdd((oHTML:ValByName("aReg.cValor"))    , Transform(TRB->Reais              , _cD2Total))
+			aAdd((oHTML:ValByName("aReg.cValorPorc")), Transform(TRB->Reais/_nTotReal*100, _cD2Total)+'%')						
 			TRB->(dbSkip()) 
 			If !_lSchedule
 				_oProcess:IncRegua1()
 			Endif
 		EndDo
-		
-		_cCorpoM += '    <tr>
-		_cCorpoM += '      <td align="right"><span class="style3">Total:</span></td>'
-		_cCorpoM += '      <td align="right"><span class="style3">'+Transform(_nTotQtd, _cPctQtd)+'</span></td>'	
-		_cCorpoM += '      <td align="right"><span class="style3">100%</span></td>'
-		_cCorpoM += '      <td align="right"><span class="style3">' +Transform(_nTotReal, _cD2Total)+'</span></td>'
-		_cCorpoM += '      <td align="right"><span class="style3">100%</span></td>'
-		_cCorpoM += '    </tr>'
-	
-		_cCorpoM += '  </table>'
-		
+				
+		aAdd((oHTML:ValByName("aReg.cRegiao"))   , "TOTAL:")
+		aAdd((oHTML:ValByName("aReg.cQuant"))    , Transform(_nTotQtd, _cPctQtd))
+		aAdd((oHTML:ValByName("aReg.cQuantPorc")), "100%")
+		aAdd((oHTML:ValByName("aReg.cValor"))    , Transform(_nTotReal, _cD2Total))
+		aAdd((oHTML:ValByName("aReg.cValorPorc")), "100%")	
 		
 		// Por Grupo de Produto / Produto
-		_cCorpoM += '  <hr width=100% noshade>'
-		If Empty(_cGrupo)		
-			_cCorpoM += '  <p class="style1"><strong>Total por Grupo de Produto: </strong></p>'
+		If Empty(_cGrupo)
+			oHtml:ValByName("cTitGrpPrd", "Total por Grupo de Produto")			
 		Else
-			_cCorpoM += '  <p class="style1"><strong>Total por Produto: </strong></p>'
+			oHtml:ValByName("cTitGrpPrd", "Total por Produto")
 		Endif
 
-		_cCorpoM += '  <table width="1300" border="1" align="left"> '
-		_cCorpoM += '    <tr>
-		If Empty(_cGrupo)		
-			_cCorpoM += '      <td align="left" width="300"><span class="style3">Grupo</span></td>'
+		If Empty(_cGrupo)
+			oHtml:ValByName("cGrpPrd", "Grupo")		
 		Else
-			_cCorpoM += '      <td align="left" width="300"><span class="style3">Produto</span></td>'
+			oHtml:ValByName("cGrpPrd", "Produto")
 		Endif
-		_cCorpoM += '      <td align="center" width="250"><span class="style3">Quantidade</span></td>'	
-		_cCorpoM += '      <td align="center" width="250"><span class="style3">Quant %</span></td>'
-		_cCorpoM += '      <td align="center" width="250"><span class="style3">Valor R$</span></td>'
-		_cCorpoM += '      <td align="center" width="250"><span class="style3">Valor %</span></td>'
-		_cCorpoM += '    </tr>'
-		
 	 
 		DbSelectArea('TRC')
 		DbGotop()
@@ -518,33 +485,32 @@ If TRB->(!Eof())
 				Loop
 			Endif
 		
-			_cCorpoM += '    <tr>'
-		
 			If Empty(_cGrupo)		
 				_cGrupoDesc := TRC->Grupo
-				_cCorpoM += '     <td align="left"><span>'+TRC->Grupo+'</span></td>'
+				aAdd((oHTML:ValByName("aGrp.cRegGrp")), TRC->Grupo)
 			Else
 				_cProduto := TRC->Produto
-				_cCorpoM += '     <td align="left"><span>'+TRC->Produto+'</span></td>'
+				aAdd((oHTML:ValByName("aGrp.cRegGrp")), TRC->Produto)
 			Endif
-						
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRC->QTD,   _cPctQtd)+'</span></td>'
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRC->QTD/_nTotQtd*100, _cD2Total)+'%</span></td>'
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRC->Reais, _cD2Total)+'</span></td>'
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRC->Reais/_nTotReal*100, _cD2Total)+'%</span></td>'
-			_cCorpoM += '    </tr>'						
+
+			aAdd((oHTML:ValByName("aGrp.cQtdGrp"))   , Transform(TRC->QTD                , _cPctQtd ))
+			aAdd((oHTML:ValByName("aGrp.cQtdPrcGrp")), Transform(TRC->QTD/_nTotQtd*100   , _cD2Total)+'%')
+			aAdd((oHTML:ValByName("aGrp.cVlrGrp"))   , Transform(TRC->Reais              , _cD2Total))
+			aAdd((oHTML:ValByName("aGrp.cVlrPrcGrp")), Transform(TRC->Reais/_nTotReal*100, _cD2Total)+'%')
+
 			TRC->(dbSkip()) 
 		EndDo
 		
-		_cCorpoM += '    <tr>
-		_cCorpoM += '      <td align="right"><span class="style3">Total:</span></td>'
-		_cCorpoM += '      <td align="right"><span class="style3">'+Transform(_nTotQtd, _cPctQtd)+'</span></td>'	
-		_cCorpoM += '      <td align="right"><span class="style3">100%</span></td>'
-		_cCorpoM += '      <td align="right"><span class="style3">' +Transform(_nTotReal, _cD2Total)+'</span></td>'
-		_cCorpoM += '      <td align="right"><span class="style3">100%</span></td>'
-		_cCorpoM += '    </tr>'
-	
-		_cCorpoM += '  </table>'
+		aAdd((oHTML:ValByName("aGrp.cRegGrp"))   , "TOTAL:")
+		aAdd((oHTML:ValByName("aGrp.cQtdGrp"))   , Transform(_nTotQtd, _cPctQtd))
+		aAdd((oHTML:ValByName("aGrp.cQtdPrcGrp")), "100%")
+		aAdd((oHTML:ValByName("aGrp.cVlrGrp"))   , Transform(_nTotReal, _cD2Total))
+		aAdd((oHTML:ValByName("aGrp.cVlrPrcGrp")), "100%")
+		
+		oProcess:USerSiga	:= "000000"
+		oProcess:cTo		:= "fernando.nogueira@avantled.com.br"
+		oProcess:Start()
+		oProcess:Finish()
 		
 	ElseIf _cRegiao $ _cRegionais
 	
@@ -561,28 +527,14 @@ If TRB->(!Eof())
 		// Total por Vendedor		
 		DbGotop()
 		
-		_cCorpoM += '  <hr width=100% noshade>'
-		_cCorpoM += '  <p class="style1"><strong>Total por Vendedor: </strong></p>'
-		
-		_cCorpoM += '  <table width="1300" border="1" align="left"> '
-		_cCorpoM += '    <tr>
-		_cCorpoM += '      <td align="center" width="500"><span class="style3">Vendedor</span></td>'
-		_cCorpoM += '      <td align="center" width="200"><span class="style3">Quantidade</span></td>'	
-		_cCorpoM += '      <td align="center" width="200"><span class="style3">Quant %</span></td>'
-		_cCorpoM += '      <td align="center" width="200"><span class="style3">Valor R$</span></td>'
-		_cCorpoM += '      <td align="center" width="200"><span class="style3">Valor %</span></td>'
-		_cCorpoM += '    </tr>'
-
 		While TRB->(!Eof())
 			_cVend    := TRB->Vendedor
-
-			_cCorpoM += '    <tr>'
-			_cCorpoM += '     <td align="left"><span>'+AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_NOME"))+'</span></td>' 		
-			_cCorpoM += '     <td align="right"><span>'+Transform(TRB->Total_QTD, _cPctQtd)+'</span></td>' 		
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRB->Total_QTD/_nTotQtd*100, _cD2Total)+'%</span></td>'
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRB->Total_Reais, _cD2Total)+'</span></td>'
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRB->Total_Reais/_nTotReal*100, _cD2Total)+'%</span></td>'						
-			_cCorpoM += '    </tr>'
+			
+			aAdd((oHTML:ValByName("aReg.cVendedor")) , AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_NOME")))
+			aAdd((oHTML:ValByName("aReg.cQuant"))    , Transform(TRB->QTD                      , _cPctQtd ))
+			aAdd((oHTML:ValByName("aReg.cQuantPorc")), Transform(TRB->QTD/_nTotQtd*100         , _cD2Total)+'%')
+			aAdd((oHTML:ValByName("aReg.cValor"))    , Transform(TRB->Total_Reais              , _cD2Total))
+			aAdd((oHTML:ValByName("aReg.cValorPorc")), Transform(TRB->Total_Reais/_nTotReal*100, _cD2Total)+'%')
 		
 			While TRB->(!Eof()) .And. TRB->Vendedor == _cVend		
 				TRB->(dbSkip())
@@ -592,153 +544,95 @@ If TRB->(!Eof())
 			EndDo
 		
 		EndDo
-		
-		_cCorpoM += '    <tr>'
-		_cCorpoM += '     <td align="right"><span class="style3">Total:</span></td>' 		
-		_cCorpoM += '     <td align="right"><span class="style3">'+Transform(_nTotQtd, _cPctQtd)+'</span></td>' 		
-		_cCorpoM += '     <td align="right"><span class="style3">100%</span></td>'
-		_cCorpoM += '	   <td align="right"><span class="style3">'+Transform(_nTotReal, _cD2Total)+'</span></td>'
-		_cCorpoM += '     <td align="right"><span class="style3">100%</span></td>'						
-		_cCorpoM += '    </tr>'
-		
-		_cCorpoM += '  </table>'
-		
-		_cCorpoM += '  <br>'
-		
 
+		aAdd((oHTML:ValByName("aReg.cVendedor")) , "Total:")
+		aAdd((oHTML:ValByName("aReg.cQuant"))    , Transform(_nTotQtd, _cPctQtd))
+		aAdd((oHTML:ValByName("aReg.cQuantPorc")), "100%")
+		aAdd((oHTML:ValByName("aReg.cValor"))    , Transform(_nTotReal, _cD2Total))
+		aAdd((oHTML:ValByName("aReg.cValorPorc")), "100%")
+		
 		// Total por Grupo de Produto / Produto
 		DbSelectArea('TRC')
 		DbGotop()
 		
-		_cCorpoM += '  <hr width=100% noshade>'
-		If Empty(_cGrupo)		
-			_cCorpoM += '  <p class="style1"><strong>Total por Grupo de Produto: </strong></p>'
-		Else
-			_cCorpoM += '  <p class="style1"><strong>Total por Produto: </strong></p>'
-		Endif
+		oHtml:ValByName("cTitGrp", If(Empty(_cGrupo),"Total por Grupo de Produto","Total por Produto"))
+		oHtml:ValByName("cCmpGrp", If(Empty(_cGrupo),"Grupo","Produto"))
 		
-		_cCorpoM += '  <table width="1300" border="1" align="left"> '
-		_cCorpoM += '    <tr>
-		If Empty(_cGrupo)		
-			_cCorpoM += '      <td align="left" width="300"><span class="style3">Grupo</span></td>'
-		Else
-			_cCorpoM += '      <td align="left" width="300"><span class="style3">Produto</span></td>'
-		Endif
-		_cCorpoM += '      <td align="center" width="250"><span class="style3">Quantidade</span></td>'	
-		_cCorpoM += '      <td align="center" width="250"><span class="style3">Quant %</span></td>'
-		_cCorpoM += '      <td align="center" width="250"><span class="style3">Valor R$</span></td>'
-		_cCorpoM += '      <td align="center" width="250"><span class="style3">Valor %</span></td>'
-		_cCorpoM += '    </tr>'
-
 		While TRC->(!Eof())
 		
 			If !Empty(_cGrupo) .And. TRC->Total_QTD == 0
 				TRC->(dbSkip())
 				Loop
 			Endif
-		
-			_cCorpoM += '    <tr>'
-		
-			If Empty(_cGrupo)		
-				_cGrupoDesc := TRC->Grupo
-				_cCorpoM += '     <td align="left"><span>'+TRC->Grupo+'</span></td>'
-			Else
-				_cProduto := TRC->Produto
-				_cCorpoM += '     <td align="left"><span>'+TRC->Produto+'</span></td>'
-			Endif
 			
-			_cCorpoM += '     <td align="right"><span>'+Transform(TRC->Total_QTD, _cPctQtd)+'</span></td>'
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRC->Total_QTD/_nTotQtd*100, _cD2Total)+'%</span></td>'
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRC->Total_Reais, _cD2Total)+'</span></td>'
-			_cCorpoM += '	   <td align="right"><span>'+Transform(TRC->Total_Reais/_nTotReal*100, _cD2Total)+'%</span></td>'
-			_cCorpoM += '    </tr>'
+			_cGrpPrd := If(Empty(_cGrupo),TRC->Grupo,TRC->Produto)
+		
+			aAdd((oHTML:ValByName("aGrp.cGrpPrd"))   , _cGrpPrd)
+			aAdd((oHTML:ValByName("aGrp.cQuant"))    , Transform(TRC->Total_QTD                , _cPctQtd ))
+			aAdd((oHTML:ValByName("aGrp.cQuantPorc")), Transform(TRC->Total_QTD/_nTotQtd*100   , _cD2Total)+'%')
+			aAdd((oHTML:ValByName("aGrp.cValor"))    , Transform(TRC->Total_Reais              , _cD2Total))
+			aAdd((oHTML:ValByName("aGrp.cValorPorc")), Transform(TRC->Total_Reais/_nTotReal*100, _cD2Total)+'%')
 			
 			If Empty(_cGrupo)			
-				While TRC->(!Eof()) .And. TRC->Grupo == _cGrupoDesc		
+				While TRC->(!Eof()) .And. TRC->Grupo == _cGrpPrd		
 					TRC->(dbSkip())
 				EndDo
 			Else
-				While TRC->(!Eof()) .And. TRC->Produto == _cProduto		
+				While TRC->(!Eof()) .And. TRC->Produto == _cGrpPrd		
 					TRC->(dbSkip())
 				EndDo
 			Endif
 			
 		EndDo
 		
-		_cCorpoM += '    <tr>'
-		_cCorpoM += '     <td align="right"><span class="style3">Total:</span></td>' 		
-		_cCorpoM += '     <td align="right"><span class="style3">'+Transform(_nTotQtd, _cPctQtd)+'</span></td>' 		
-		_cCorpoM += '     <td align="right"><span class="style3">100%</span></td>'
-		_cCorpoM += '	   <td align="right"><span class="style3">'+Transform(_nTotReal, _cD2Total)+'</span></td>'
-		_cCorpoM += '     <td align="right"><span class="style3">100%</span></td>'						
-		_cCorpoM += '    </tr>'
-		
-		_cCorpoM += '  </table>'
-		
-		_cCorpoM += '  <br>'
-		
-		
+		aAdd((oHTML:ValByName("aGrp.cGrpPrd"))   , "Total:")
+		aAdd((oHTML:ValByName("aGrp.cQuant"))    , Transform(_nTotQtd, _cPctQtd))
+		aAdd((oHTML:ValByName("aGrp.cQuantPorc")), "100%")
+		aAdd((oHTML:ValByName("aGrp.cValor"))    , Transform(_nTotReal, _cD2Total))
+		aAdd((oHTML:ValByName("aGrp.cValorPorc")), "100%")
+
 		// Vendedores
 		DbSelectArea('TRB')
-		DbGotop()		
+		DbGotop()
+		
+		oHtml:ValByName("cCmpVnd", If(Empty(_cGrupo),"Grupo","Produto"))		
 
 		While TRB->(!Eof())	
 			_cVend    := TRB->Vendedor
 			_nQtdVend := TRB->Total_QTD
 			_nTotVend := TRB->Total_Reais
 			
-			_cCorpoM += '  <hr width=100% noshade>'
-			_cCorpoM += '  <p class="style1"><strong>Vendedor : </strong>'+AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_NOME"))+'</p>'
-	
-			_cCorpoM += '  <table width="1300" border="1" align="left"> '
-			
-			_cCorpoM += '    <tr>
-			If Empty(_cGrupo)
-				_cCorpoM += '      <td align="left" width="300"><span class="style3">Grupo</span></td>'
-				_cCorpoM += '      <td align="center" width="250"><span class="style3">Quantidade</span></td>'	
-				_cCorpoM += '      <td align="center" width="250"><span class="style3">Quant %</span></td>'
-				_cCorpoM += '      <td align="center" width="250"><span class="style3">Valor R$</span></td>'
-				_cCorpoM += '      <td align="center" width="250"><span class="style3">Valor %</span></td>'
-			Else
-				_cCorpoM += '      <td align="left" width="500"><span class="style3">Produto</span></td>'
-				_cCorpoM += '      <td align="center" width="200"><span class="style3">Quantidade</span></td>'	
-				_cCorpoM += '      <td align="center" width="200"><span class="style3">Quant %</span></td>'
-				_cCorpoM += '      <td align="center" width="200"><span class="style3">Valor R$</span></td>'
-				_cCorpoM += '      <td align="center" width="200"><span class="style3">Valor %</span></td>'
-			EndIF
-			_cCorpoM += '    </tr>'
-
+			aAdd((oHTML:ValByName("aGrp.cGrpPrd"))   , AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_NOME")))
+			aAdd((oHTML:ValByName("aGrp.cQuant"))    , "")
+			aAdd((oHTML:ValByName("aGrp.cQuantPorc")), "")
+			aAdd((oHTML:ValByName("aGrp.cValor"))    , "")
+			aAdd((oHTML:ValByName("aGrp.cValorPorc")), "")
+		
 			While TRB->(!Eof()) .And. TRB->Vendedor == _cVend
-			
-				_cCorpoM += '    <tr>'
-				If Empty(_cGrupo)
-					_cCorpoM += '     <td align="left"><span>'+TRB->Grupo+'</span></td>' 		
-				Else
-					_cCorpoM += '     <td align="left"><span>'+TRB->Produto+'</span></td>' 		
-				Endif
-				_cCorpoM += '	   <td align="right"><span>'+Transform(TRB->QTD,   _cPctQtd)+'</span></td>'
-				_cCorpoM += '	   <td align="right"><span>'+Transform(TRB->QTD/TRB->Total_QTD*100, _cD2Total)+'%</span></td>'						
-				_cCorpoM += '	   <td align="right"><span>'+Transform(TRB->Reais, _cD2Total)+'</span></td>'
-				_cCorpoM += '	   <td align="right"><span>'+Transform(TRB->Reais/TRB->Total_Reais*100, _cD2Total)+'%</span></td>'						
-				_cCorpoM += '    </tr>'
-				
+
+				aAdd((oHTML:ValByName("aVnd.cGrpPrd"))   , If(Empty(_cGrupo),TRC->Grupo,TRC->Produto))
+				aAdd((oHTML:ValByName("aVnd.cQuant"))    , Transform(TRB->QTD                       , _cPctQtd ))
+				aAdd((oHTML:ValByName("aVnd.cQuantPorc")), Transform(TRB->QTD/TRB->Total_QTD*100    , _cD2Total)+'%')
+				aAdd((oHTML:ValByName("aVnd.cValor"))    , Transform(TRB->Reais                     , _cD2Total))
+				aAdd((oHTML:ValByName("aVnd.cValorPorc")), Transform(TRB->Reais/TRB->Total_Reais*100, _cD2Total)+'%')
+
 				TRB->(dbSkip())
 				If !_lSchedule
 					_oProcess:IncRegua1()
 				Endif
 			EndDo
 			
-			_cCorpoM += '    <tr>
-			_cCorpoM += '      <td align="right"><span class="style3">Total:</span></td>'
-			_cCorpoM += '      <td align="right"><span class="style3">'+Transform(_nQtdVend, _cPctQtd)+'</span></td>'
-			_cCorpoM += '      <td align="right"><span class="style3">100%</span></td>'
-			_cCorpoM += '      <td align="right"><span class="style3">' +Transform(_nTotVend, _cD2Total)+'</span></td>'	
-			_cCorpoM += '      <td align="right"><span class="style3">100%</span></td>'
-			_cCorpoM += '    </tr>'
-			
-			_cCorpoM += '  </table>'
-			
-			_cCorpoM += '  <br>'
+			aAdd((oHTML:ValByName("aVnd.cGrpPrd"))   , "Total:")
+			aAdd((oHTML:ValByName("aVnd.cQuant"))    , Transform(_nQtdVend, _cPctQtd))
+			aAdd((oHTML:ValByName("aVnd.cQuantPorc")), "100%")
+			aAdd((oHTML:ValByName("aVnd.cValor"))    , Transform(_nTotVend, _cD2Total))
+			aAdd((oHTML:ValByName("aVnd.cValorPorc")), "100%")
+
+			aAdd((oHTML:ValByName("aVnd.cGrpPrd"))   , "")
+			aAdd((oHTML:ValByName("aVnd.cQuant"))    , "")
+			aAdd((oHTML:ValByName("aVnd.cQuantPorc")), "")
+			aAdd((oHTML:ValByName("aVnd.cValor"))    , "")
+			aAdd((oHTML:ValByName("aVnd.cValorPorc")), "")
 			
 		EndDo
 		
@@ -848,7 +742,7 @@ If TRB->(!Eof())
 
 			If !Empty(_cMailTo)
 				// MHDEnvMail(cPara,cCC,cBCC,cAssunto,cCorpo,cAttach)
-				U_MHDEnvMail(_cMailTo,"","fernando.nogueira@avantled.com.br",_cSubject,_cCorpoM,"")
+				//U_MHDEnvMail(_cMailTo,"","fernando.nogueira@avantled.com.br",_cSubject,_cCorpoM,"")
 			EndIf
 			
 		EndDo
@@ -875,12 +769,12 @@ If TRB->(!Eof())
 			//MHDEnvMail(cPara,cCC,cBCC,cAssunto,cCorpo,cAttach)
 			If Empty(_cEmail)
 				If _cRegiao $ "DIRETORIA.GERAL"
-					_lReturn :=	U_MHDEnvMail(SepEmail(_cString,_cRegiao), _cEmailCC, "fernando.nogueira@avantled.com.br",_cSubject,_cCorpoM,"")
+					//_lReturn :=	U_MHDEnvMail(SepEmail(_cString,_cRegiao), _cEmailCC, "fernando.nogueira@avantled.com.br",_cSubject,_cCorpoM,"")
 				Else
-					_lReturn := U_MHDEnvMail(SepEmail(_cString,_cRegiao), SepEmail(_cString,"GERAL")+";"+_cEmailCC, "fernando.nogueira@avantled.com.br",_cSubject,_cCorpoM,"")
+					//_lReturn := U_MHDEnvMail(SepEmail(_cString,_cRegiao), SepEmail(_cString,"GERAL")+";"+_cEmailCC, "fernando.nogueira@avantled.com.br",_cSubject,_cCorpoM,"")
 				Endif
 			Else
-				_lReturn := U_MHDEnvMail(_cEmail, _cEmailCC, "fernando.nogueira@avantled.com.br",_cSubject,_cCorpoM,"")
+				//_lReturn := U_MHDEnvMail(_cEmail, _cEmailCC, "fernando.nogueira@avantled.com.br",_cSubject,_cCorpoM,"")
 			Endif
 		Endif
 		
