@@ -679,8 +679,7 @@ If TRB->(!Eof())
 			oProcess:cSubject := Upper(_cSubject)
 			oProcess:USerSiga := "000000"
 			
-			//_cMailTo := Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_EMAIL")
-			_cMailTo := "fernando.nogueira@avantled.com.br"
+			_cMailTo := Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_EMAIL")
 
 			If !Empty(_cMailTo)
 				oProcess:cTo  := _cMailTo
