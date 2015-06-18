@@ -372,7 +372,6 @@ Static Function EnviaEmail(lEnd,_oProcess)
 
 Local _cMailTo    := ""
 Local _cSubject   := ""
-Local _cCorpoM    := ""
 Local _cNReduz    := "" 
 Local _cD2Total   := PesqPict("SD2","D2_TOTAL")
 Local _cPctQtd    := "@e 999,999,999"
@@ -622,7 +621,6 @@ If TRB->(!Eof())
 			oProcess:NewTask("Gerando Relatorio",_cArquivo)
 			oHTML := oProcess:oHTML
 			
-			_cCorpoM  := ""	
 			_cVend    := TRB->Vendedor
 			_nQtdVend := TRB->Total_QTD
 			_nTotVend := TRB->Total_Reais
@@ -709,22 +707,20 @@ If TRB->(!Eof())
 		oProcess:cSubject := Upper(_cSubject)
 		oProcess:USerSiga := "000000"
 		
-		If !Empty(_cCorpoM)
-			If Empty(_cEmail)
-				If _cRegiao $ "DIRETORIA.GERAL"
-					oProcess:cTo  := SepEmail(_cString,_cRegiao)
-					oProcess:cCC  := _cEmailCC
-					oProcess:cBCC := "fernando.nogueira@avantled.com.br"				
-				Else
-					oProcess:cTo  := SepEmail(_cString,_cRegiao)
-					oProcess:cCC  := SepEmail(_cString,"GERAL")+";"+_cEmailCC
-					oProcess:cBCC := "fernando.nogueira@avantled.com.br"				
-				Endif
-			Else
-				oProcess:cTo  := _cEmail
+		If Empty(_cEmail)
+			If _cRegiao $ "DIRETORIA.GERAL"
+				oProcess:cTo  := SepEmail(_cString,_cRegiao)
 				oProcess:cCC  := _cEmailCC
-				oProcess:cBCC := "fernando.nogueira@avantled.com.br"
+				oProcess:cBCC := "fernando.nogueira@avantled.com.br"				
+			Else
+				oProcess:cTo  := SepEmail(_cString,_cRegiao)
+				oProcess:cCC  := SepEmail(_cString,"GERAL")+";"+_cEmailCC
+				oProcess:cBCC := "fernando.nogueira@avantled.com.br"				
 			Endif
+		Else
+			oProcess:cTo  := _cEmail
+			oProcess:cCC  := _cEmailCC
+			oProcess:cBCC := "fernando.nogueira@avantled.com.br"
 		Endif
 
 		oProcess:Start()
