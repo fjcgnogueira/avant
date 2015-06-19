@@ -72,8 +72,6 @@ User Function Fat_Canal(aParam)
 	dbGoTop()
 	dbSetOrder(1)
 			
-	Private _cRegionais := AllTrim(GetMv("ES_REGIONA"))
-	
 	If Empty(aParam[3])
 		_lReturn := .F.
 		If _lSchedule
@@ -96,7 +94,7 @@ User Function Fat_Canal(aParam)
 			If _lReturn
 				_cDataDe  := ZZP->ZZP_DATADE
 				_cDataAte := ZZP->ZZP_DATATE
-				_cTitulo := "Faturamento Acumulado"
+				_cTitulo := "Faturamento Acumulado Canal"
 			Endif
 		Else
 			_lReturn := .F.
@@ -116,7 +114,7 @@ User Function Fat_Canal(aParam)
 			_cDataDe  := STOD(aParam[3])
 			_cDataAte := STOD(aParam[4])
 		Endif
-		_cTitulo := "Faturamento Acumulado"
+		_cTitulo := "Faturamento Acumulado Canal"
 	EndIf
 	
 	_cCanal := AllTrim(aParam[1])
@@ -179,7 +177,7 @@ Static Function GeraArqTRB()
 	
 	// Campos
 	If _cCanal $ "GERAL"
-		cField1 := "%F2_X_CANAL Canal,%"
+		cField1 := "%X5_DESCRI Canal,%"
 		If Empty(_cGrupo)
 			cField2 := "%BM_DESC Grupo%"
 		Else
@@ -204,7 +202,7 @@ Static Function GeraArqTRB()
 
 	// Agrupamentos e Ordens
 	If _cCanal $ "GERAL"
-		cGroup1 := "%D2_FILIAL,F2_X_CANAL%"
+		cGroup1 := "%D2_FILIAL,X5_DESCRI%"
 		cOrder1 := "%Filial,Reais DESC,Canal%"
 		If Empty(_cGrupo)
 			cGroup2 := "%D2_FILIAL,BM_DESC%"
@@ -246,6 +244,7 @@ Static Function GeraArqTRB()
 			INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA %Exp:cInner1% AND SF2.%notDel% 
 			INNER JOIN %table:SB1% SB1 ON D2_COD = B1_COD AND SB1.%notDel% %Exp:cWhere%
 			INNER JOIN %table:SBM% SBM ON D2_FILIAL = BM_FILIAL AND B1_GRUPO = BM_GRUPO AND SBM.%notDel%
+			INNER JOIN %table:SX5% SX5 ON D2_FILIAL = X5_FILIAL AND X5_TABELA = 'CN' AND F2_X_CANAL = X5_CHAVE AND SX5.%notDel%
 			WHERE F4_DUPLIC = 'S' 
 				AND D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_TIPO = 'N' 
 				AND D2_TIPO = 'N'
@@ -380,7 +379,6 @@ Local _cVend      := ""
 Local _TabTRB     := CriaTrab(Nil,.F.)
 Local _IndTRB     := CriaTrab(Nil,.F.)
 Local _cString    := GetMv("ES_GERENCN")
-Local _cRegionais := GetMv("ES_REGIONA")
 Local _cArquivo   := ""
 
 DbSelectArea('TRC')
@@ -397,12 +395,12 @@ If !_lSchedule
 	_oProcess:SetRegua1(nReguaB)
 Endif
 
-If _cCanal $ "DIRETORIA.GERAL"
-	_cArquivo := "\MODELOS\FAT_DIARIO_DIR.HTM"
+If _cCanal $ "GERAL"
+	_cArquivo := "\MODELOS\FAT_CANAL_DIR.HTM"
 ElseIf _cCanal $ "VENDEDORES"
 	_cArquivo := "\MODELOS\FAT_DIARIO_VND.HTM"
 Else
-	_cArquivo := "\MODELOS\FAT_DIARIO_GER.HTM"
+	_cArquivo := "\MODELOS\FAT_CANAL_GER.HTM"
 Endif
 
 If _cCanal <> 'VENDEDORES'
@@ -422,7 +420,7 @@ If TRB->(!Eof())
 		Endif
 		oHtml:ValByName("cHora"    , Substr(Time(),1,5))
 		oHtml:ValByName("cFilial"  , SM0->M0_FILIAL)
-		oHtml:ValByName("cRegional", _cCanal)
+		oHtml:ValByName("cCanal", If(_cCanal $ "GERAL",_cCanal,AllTrim(Posicione("SX5",1,xFilial("SX5")+"CN"+_cCanal,"X5_DESCRI"))))
 	EndIf
 		
 	If _cCanal $ "GERAL"
@@ -487,7 +485,7 @@ If TRB->(!Eof())
 		aAdd((oHTML:ValByName("aGrp.cVlrGrp"))   , Transform(_nTotReal, _cD2Total))
 		aAdd((oHTML:ValByName("aGrp.cVlrPrcGrp")), "100,00%")
 		
-	ElseIf _cCanal $ _cRegionais
+	ElseIf SX5->(dbSeek(xFilial("SX5")+"CN"+_cCanal))
 	
 		While TRB->(!Eof())	
 			_nTotQtd  += TRB->QTD
@@ -627,7 +625,7 @@ If TRB->(!Eof())
 			oHtml:ValByName("cDataAte" , DtoC(_cDataAte))
 			oHtml:ValByName("cHora"    , Substr(Time(),1,5))
 			oHtml:ValByName("cFilial"  , SM0->M0_FILIAL)
-			oHtml:ValByName("cRegional", AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_REGIAO")))
+			oHtml:ValByName("cCanal", AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_REGIAO")))
 			oHtml:ValByName("cVendedor", +AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_NOME")))
 
 			If !Empty(_cGrupo)
@@ -659,15 +657,15 @@ If TRB->(!Eof())
 			
 			If !Empty(_cNReduz)
 				If !Empty(_cGrupo)
-					_cSubject := _cTitulo+" - Regional "+AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_REGIAO"))+" - "+AllTrim(Posicione("SBM",1,xFilial("SBM")+AllTrim(_cGrupo),"BM_DESC"))+" - Rep "+_cNReduz+" ["+DTOC(Date())+"]"
+					_cSubject := _cTitulo+" - "+AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_REGIAO"))+" - "+AllTrim(Posicione("SBM",1,xFilial("SBM")+AllTrim(_cGrupo),"BM_DESC"))+" - Rep "+_cNReduz+" ["+DTOC(Date())+"]"
 				Else
-					_cSubject := _cTitulo+" - Regional "+AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_REGIAO"))+" - Rep "+_cNReduz+" ["+DTOC(Date())+"]"
+					_cSubject := _cTitulo+" - "+AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_REGIAO"))+" - Rep "+_cNReduz+" ["+DTOC(Date())+"]"
 				Endif
 			Else
 				If !Empty(_cGrupo)
-					_cSubject := _cTitulo+" - Regional "+AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_REGIAO"))+" - "+AllTrim(Posicione("SBM",1,xFilial("SBM")+AllTrim(_cGrupo),"BM_DESC"))+" - Rep "+AllTrim(SA3->A3_NOME)+" ["+DTOC(Date())+"]"
+					_cSubject := _cTitulo+" - "+AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_REGIAO"))+" - "+AllTrim(Posicione("SBM",1,xFilial("SBM")+AllTrim(_cGrupo),"BM_DESC"))+" - Rep "+AllTrim(SA3->A3_NOME)+" ["+DTOC(Date())+"]"
 				Else
-					_cSubject := _cTitulo+" - Regional "+AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_REGIAO"))+" - Rep "+AllTrim(SA3->A3_NOME)+" ["+DTOC(Date())+"]"
+					_cSubject := _cTitulo+" - "+AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_REGIAO"))+" - Rep "+AllTrim(SA3->A3_NOME)+" ["+DTOC(Date())+"]"
 				Endif
 			EndIf
 			                                                                 
@@ -695,10 +693,10 @@ If TRB->(!Eof())
 			_cSubject := _cTitulo+" - Geral - "+AllTrim(Posicione("SBM",1,xFilial("SBM")+AllTrim(_cGrupo),"BM_DESC"))+" ["+DTOC(Date())+"]"
 		ElseIf _cCanal $ "GERAL"
 			_cSubject := _cTitulo+" - Geral ["+DTOC(Date())+"]"
-		ElseIf _cCanal $ _cRegionais .And. !Empty(_cGrupo)
-			_cSubject := _cTitulo+" - Regional "+_cCanal+" - "+AllTrim(Posicione("SBM",1,xFilial("SBM")+AllTrim(_cGrupo),"BM_DESC"))+" ["+DTOC(Date())+"]"
-		ElseIf _cCanal $ _cRegionais
-			_cSubject := _cTitulo+" - Regional "+_cCanal+" ["+DTOC(Date())+"]"
+		ElseIf SX5->(dbSeek(xFilial("SX5")+"CN"+_cCanal)) .And. !Empty(_cGrupo)
+			_cSubject := _cTitulo+" - "+AllTrim(Posicione("SX5",1,xFilial("SX5")+"CN"+_cCanal,"X5_DESCRI"))+" - "+AllTrim(Posicione("SBM",1,xFilial("SBM")+AllTrim(_cGrupo),"BM_DESC"))+" ["+DTOC(Date())+"]"
+		ElseIf SX5->(dbSeek(xFilial("SX5")+"CN"+_cCanal))
+			_cSubject := _cTitulo+" - "+AllTrim(Posicione("SX5",1,xFilial("SX5")+"CN"+_cCanal,"X5_DESCRI"))+" ["+DTOC(Date())+"]"
 		Endif
 		
 		oProcess:cSubject := Upper(_cSubject)
