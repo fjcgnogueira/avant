@@ -30,15 +30,14 @@ User Function Fat_Canal(aParam)
 	ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	³ Exemplos de Relatorios:                                                                  |
 	ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
-	³ U_Fat_Diario({'GERAL','','DIARIO','','','',''})                                          |
-	³ U_Fat_Diario({'000001','','DIARIO','','','',.F.})                                        |
-	³ U_Fat_Diario({'VENDEDORES','','DIARIO','','','',.F.})                                    |
-	³ U_Fat_Diario({'','','DIARIO','','','',.F.})                                              ³
-	³ U_Fat_Diario({'GERAL','A070','20140110','20140120','','',.F.})                           |
-	³ U_Fat_Diario({'NO','',Date()-7,Date(),'','',''})                                         |
-	³ U_Fat_Diario({'000001','','ACUMULADO','','','',''})                                      |
-	³ U_Fat_Diario({'000001','A070','ACUMULADO','','fernando.nogueira@avantled.com.br','',''}) |
-	³ U_Fat_Diario({'GERAL','A070','20140110','20140120','',.F.})                              |	
+	³ U_Fat_Canal({'GERAL','','DIARIO','','','',''})                                           |
+	³ U_Fat_Canal({'000001','','DIARIO','','','',.F.})                                         |
+	³ U_Fat_Canal({'','','DIARIO','','','',.F.})                                               ³
+	³ U_Fat_Canal({'GERAL','A070','20140110','20140120','','',.F.})                            |
+	³ U_Fat_Canal({'NO','',Date()-7,Date(),'','',''})                                          |
+	³ U_Fat_Canal({'000001','','ACUMULADO','','','',''})                                       |
+	³ U_Fat_Canal({'000001','A070','ACUMULADO','','fernando.nogueira@avantled.com.br','',''})  |
+	³ U_Fat_Canal({'GERAL','A070','20140110','20140120','',.F.})                               |	
 	ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 	*/
 	
@@ -50,7 +49,7 @@ User Function Fat_Canal(aParam)
 	Private _cGrupo     := aParam[2]
 	Private _cDataDe    := ""
 	Private _cDataAte   := Date()
-	Private _cTitulo    := "Faturamento Diário"
+	Private _cTitulo    := "Faturamento Diário Canal"
 	Private _cEmail     := aParam[5]
 	Private _cEmailCC   := aParam[6]
 	Private _lSchedule  := aParam[7]
