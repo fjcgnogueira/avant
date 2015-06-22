@@ -2368,7 +2368,7 @@ Else
 		If !Empty(aSetOfBook[5])				// Indica qual o Plano Gerencial Anexado
 			// Monta Arquivo Lendo Plano Gerencial                                   
 			// Neste caso a filtragem de entidades contabeis é desprezada!
-			CtbPlGeren(	oMeter,oText,oDlg,lEnd,dDataIni,dDataFim,cMoeda,aSetOfBook,cAlias,;
+			U_CtbPlGeren(	oMeter,oText,oDlg,lEnd,dDataIni,dDataFim,cMoeda,aSetOfBook,cAlias,;
 						cIdent,lImpAntLP,dDataLP,lVlrZerado,cEntidIni,cEntidFim,aGeren,lImpSint,lRecDesp0,cRecDesp,dDtZeraRD,;
 						lMovPeriodo,cSaldos,lPlGerSint,lConsSaldo, cArqAux, lUsaNmVis,@cNomeVis,aSelfil,cQuadroCTB)
 			dbSetOrder(2)
@@ -2481,3 +2481,1985 @@ Endif
 RestArea(aSaveArea)
 
 Return cArqTmp
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡„o    ³CtbPlGeren ³ Autor ³ Pilar S Albaladejo    ³ Data ³ 15.12.99 		     ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡„o ³Retorna Array com o set of book                             			 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Sintaxe   ³CTBPlGeren(oMeter,oText,oDlg,lEnd,dDataIni,dDataFim,cMoeda,aSetOfBook) ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Retorno   ³Nenhum                                                                 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³ Uso      ³ Generico                                                  			 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³ ExpO1 = Objeto oMeter                     	                 		 ³±±
+±±³          ³ ExpO2 = Objeto oText                      	                 		 ³±±
+±±³          ³ ExpO3 = Objeto oDlg                       	                 		 ³±±
+±±³          ³ ExpL1 = Acao do CodeBlock                 	                 		 ³±±
+±±³          ³ ExpD1 = Data Inicial                      	                 		 ³±±
+±±³          ³ ExpD2 = Data Final                        	                 		 ³±±
+±±³          ³ ExpC1 = Moeda                              	                 		 ³±±
+±±³          ³ ExpA1 = Array Set Of Book                  	                 		 ³±±
+±±³          ³ lPlGerSint  = Imprime visao gerencial sintetica? Padrao .F.           ³±±
+±±³          ³ lConsSaldo  = Consolida saldo ? Padrao .F.                            ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Analista  ³ Data/Bops/Ver ³Manutencao Efetuada                         			 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Marcelo K ³26/06/06³8.11  ³-Bops 101068: Alteracao do nome da funcao de           ³±±
+±±³          ³        ³      ³ASCII para MsAscII.                         			 ³±±
+±±³          ³        ³      ³solicitado pela Tecnologia para             			 ³±±
+±±³          ³        ³      ³compatibilizar o Kernel do Protheus   			 	 ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+
+Function CtbPlGeren( oMeter,;     // 01
+                     oText,;      // 02
+                     oDlg,;       // 03
+                     lEnd,;       // 04
+                     dDataIni,;   // 05
+                     dDataFim,;   // 06
+                     cMoeda,;     // 07
+                     aSetOfBook,; // 08 { 1-Codigo Set, 2-Mascara Conta, 3-Decimais, 4-Picture Valores, 5-Plano Gerencial, 6-Mascara C Custo, 7-Mascara Item, 8-Mascara CLVL} // aSetOfBook := {	CTN->CTN_CODIGO,CTN->CTN_MASC1,CTN->CTN_DECIM,CTN->CTN_PICTV,CTN->CTN_PLAGER,CTN->CTN_MASC2,CTN->CTN_MASC3,CTN->CTN_MASC4,1,AllTrim(CTN_DESC)}
+                     cAlias,;     // 09
+                     cIdent,;     // 10
+                     lImpAntLP,;  // 11
+                     dDataLP,;    // 12
+                     lVlrZerado,; // 13
+                     cEntFil1,;   // 14
+                     cEntFil2,;   // 15
+                     aGeren,;     // 16
+                     lImpSint,;   // 17
+                     lRecDesp0,;  // 18
+                     cRecDesp,;   // 19
+                     dDtZeraRD,;  // 20
+                     lMovPeriodo,;// 21
+                     cSaldos,;    // 22
+                     lPlGerSint,; // 23
+                     lConsSaldo,; // 24
+                     cCTAlias,;   // 25
+                     lUsaNmVis,;  // 26
+                     cNomeVis,;   // 27
+                     aSelfil,;    // 28
+                     cQuadroCTB ; // 29
+                    )
+
+*/
+User Function CtbPlGeren(oMeter,oText,oDlg,lEnd,dDataIni,dDataFim,cMoeda,aSetOfBook,;
+					cAlias,cIdent,lImpAntLP,dDataLP,lVlrZerado,cEntFil1,cEntFil2,aGeren,lImpSint,;
+					lRecDesp0,cRecDesp,dDtZeraRD,lMovPeriodo,cSaldos,lPlGerSint,lConsSaldo,cCTAlias,lUsaNmVis,cNomeVis,aSelfil,cQuadroCTB)
+
+
+Local aSaveArea := GetArea()
+Local aSaldoAnt	
+Local aSaldoAtu
+Local aSaldoSEM
+Local aSaldoPER
+
+Local cConta
+Local cCodNor
+Local cNormal
+Local cContaSup
+Local cDesc
+Local cPlanGer := aSetOfBook[5]
+Local cZZZCT1	:= Repl("Z",Len(Criavar("CT1_CONTA")))
+Local cZZZCTT	:= Repl("Z",Len(Criavar("CTT_CUSTO")))
+Local cZZZCTD	:= Repl("Z",Len(Criavar("CTD_ITEM")))
+Local cZZZCTH	:= Repl("Z",Len(Criavar("CTH_CLVL")))   
+Local cContaIni	:= Space(Len(Criavar("CT1_CONTA")))
+Local cContaFim	:= cZZZCT1
+Local cCustoIni	:= Space(Len(Criavar("CTT_CUSTO")))
+Local cCustoFim	:= cZZZCTT
+Local cItemIni	:= Space(Len(Criavar("CTD_ITEM")))
+Local cItemFim	:= cZZZCTD
+Local cClvlIni	:= Space(Len(Criavar("CTH_CLVL")))
+Local cClVlFim	:= cZZZCTH
+Local _lCtbIsCube	:= FindFunction( "CtbIsCube" ) .And. CtbIsCube()
+
+Local cCtaFil1
+Local cCtaFil2
+Local cCCFil1
+Local cCCFil2
+Local cItemFil1
+Local cItemFil2
+Local cCLVLFil1
+Local cCLVLFil2
+Local lConta 	:= .F.
+Local lCusto	:= .F.
+Local lItem		:= .F.
+Local lClasse	:= .F.
+
+Local nReg
+Local nFator	 := 1
+Local nPos		:= 0	
+Local nSaldoAnt := 0
+Local nSaldoDeb := 0
+Local nSaldoCrd := 0
+
+Local nSaldoAtu := 0		// Saldo ate a data final
+Local nSaldoSEM := 0		// Saldo ate a variavel dSemestre
+Local nSaldoPER := 0		// Saldo ate a variavel dPeriodo0
+Local nMOVIMPER	:= 0
+Local nMovPerAnt	:= 0	//	Movimento do periodo anterior
+
+Local nSaldoAntD:= 0
+Local nSaldoAntC:= 0
+Local nSaldoAtuD:= 0
+Local nSaldoAtuC:= 0
+Local lSemestre := FieldPos("SALDOSEM") > 0		// Saldo por semestre
+Local lPeriodo0 := FieldPos("SALDOPER") > 0		// Saldo dois periodos anteriores
+
+Local lComNivel := FieldPos("NIVEL") > 0		// Nivel hierarquico
+Local lColuna	:= FieldPos("COLUNA") > 0
+Local nNivel	:= 0
+Local nContador	:= 0
+Local cFilCTS	:= xFilial("CTS")
+Local lMovCusto := CtbMovSaldo("CTT")
+Local lMovItem	:= CtbMovSaldo("CTD")
+Local lMovClass := CtbMovSaldo("CTH")
+Local nA:=1 
+Local aFator:={}
+Local nFatorS:=1       
+Local aAreaCTS:={}
+Local cTpSaldo		:= ""
+Local cMoedaDesc 	:= ""
+Local cCodVis		:= ""
+Local cEntidade		:= ""
+Local nAt			:= 0
+Local nAt2			:= 0
+Local aSaldoAux		:= {}
+Local xFator
+Local aParamCVQ:= {}
+Local cArqQuadro
+Local aArqQuadro:= {}
+Local xCVQ		:= ""
+Local lT			:= .T.
+Local aRegCT0
+
+Local cZZZEnt05		
+Local cEntid05Ini	
+Local cEntid05Fim	
+Local lMovEnt05	:= .F. 	
+Local cEnt05Fil1					
+Local cEnt05Fil2			
+
+Local cZZZEnt06		
+Local cEntid06Ini	
+Local cEntid06Fim	
+Local lMovEnt06 := .F.	
+Local cEnt06Fil1					
+Local cEnt06Fil2					        
+
+Local cZZZEnt07		
+Local cEntid07Ini	
+Local cEntid07Fim	
+Local lMovEnt07 := .F.
+Local cEnt07Fil1					
+Local cEnt07Fil2					
+
+Local cZZZEnt08		
+Local cEntid08Ini	
+Local cEntid08Fim	
+Local lMovEnt08 := .F.	
+Local cEnt08Fil1					
+Local cEnt08Fil2					
+	                 
+Local cZZZEnt09		
+Local cEntid09Ini	
+Local cEntid09Fim	
+Local lMovEnt09 := .F. 	
+Local cEnt09Fil1					
+Local cEnt09Fil2  
+
+Local lEnt05	:= .F.
+Local lEnt06	:= .F.
+Local lEnt07	:= .F.
+Local lEnt08	:= .F.								
+Local lEnt09	:= .F.
+
+Local cCodigoEnt := "" 
+
+Local aEntidIni	:= {} 
+Local aEntidFim	:= {}
+
+DEFAULT lConsSaldo:= .F.
+DEFAULT lPlGerSint:= .F.
+DEFAULT lImpSint	:= .T.
+DEFAULT lRecDesp0	:= .F.
+DEFAULT cRecDesp 	:= ""                
+DEFAULT dDtZeraRD	:= CTOD("  /  /  ")
+DEFAULT lMovPeriodo := .F.
+DEFAULT cCTAlias	:= "cArqTmp"
+DEFAULT lUsaNmVis	:= .F.
+DEFAULT cSaldos		:= " "
+DEFAULT aSelfil		:= {}
+DEFAULT cQuadroCTB:= ""
+
+//Disponibilizacao dos parametros da CtbPlGeren() como PARAMIXB para uso nas funções
+//chamadas pelas sintaxes SALDO= e ROTINA=
+//IMPORTANTE: Não incluir chamadas de ponto de entrada na CtbPlGeren(), pois a PARAMIXB será sobreposta
+Private PARAMIXB := {}
+Private PARAMIXC := {}
+AADD(PARAMIXB,oMeter)
+AADD(PARAMIXB,oText)
+AADD(PARAMIXB,oDlg)
+AADD(PARAMIXB,lEnd)
+AADD(PARAMIXB,dDataIni)
+AADD(PARAMIXB,dDataFim)
+AADD(PARAMIXB,cMoeda)
+AADD(PARAMIXB,aSetOfBook)
+AADD(PARAMIXB,cAlias)
+AADD(PARAMIXB,cIdent)
+AADD(PARAMIXB,lImpAntLP)
+AADD(PARAMIXB,dDataLP)
+AADD(PARAMIXB,lVlrZerado)
+AADD(PARAMIXB,cEntFil1)
+AADD(PARAMIXB,cEntFil2)
+AADD(PARAMIXB,aGeren)
+AADD(PARAMIXB,lImpSint)
+AADD(PARAMIXB,lRecDesp0)
+AADD(PARAMIXB,cRecDesp)
+AADD(PARAMIXB,dDtZeraRD)
+AADD(PARAMIXB,lMovPeriodo)
+AADD(PARAMIXB,cSaldos)
+AADD(PARAMIXB,lPlGerSint)
+AADD(PARAMIXB,lConsSaldo)
+AADD(PARAMIXB,cCTAlias)
+AADD(PARAMIXB,lUsaNmVis)
+AADD(PARAMIXB,cNomeVis)
+AADD(PARAMIXB,aSelfil)
+AADD(PARAMIXB,cQuadroCTB)
+
+//If nQtdEntid == NIL
+	nQtdEntid:= If(FindFunction("CtbQtdEntd"),CtbQtdEntd(),4) //sao 4 entidades padroes -> conta /centro custo /item contabil/ classe de valor
+//EndIf
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Novas entidades³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If _lCtbIsCube .And. CtbIsCube() 
+
+	//1-CT0->CT0_ALIAS ,2-CT0->CT0_ENTIDA,3-CT0->CT0_ID,4-CT0->CT0_CPOCHV,5-CT0->CT0_CPODSC,6-CT0->CT0_F3ENTI
+	aRegCT0 := CtbRegCt0()	// Registros da tabela CT0
+    
+    If nQtdEntid >=	5
+		cZZZEnt05	:= Repl("Z",Len(Criavar(aRegCT0[5][4])))   
+		cEntid05Ini	:= Space(Len(Criavar(aRegCT0[5][4])))
+		cEntid05Fim	:= cZZZEnt05 
+		lMovEnt05 	:= CtbMovSaldo("CT0",,'05')	 
+	EndIf
+                     
+    If nQtdEntid >=	6
+		cZZZEnt06	:= Repl("Z",Len(Criavar(aRegCT0[6][4])))   	                              
+		cEntid06Ini	:= Space(Len(Criavar(aRegCT0[6][4])))
+		cEntid06Fim	:= cZZZEnt06                   
+		lMovEnt06 	:= CtbMovSaldo("CT0",,'06')				
+	EndIf	
+                     
+    If nQtdEntid >=	7
+		cZZZEnt07	:= Repl("Z",Len(Criavar(aRegCT0[7][4])))   	
+		cEntid07Ini	:= Space(Len(Criavar(aRegCT0[7][4])))
+		cEntid07Fim	:= cZZZEnt07                   
+		lMovEnt07 	:= CtbMovSaldo("CT0",,'07')				
+	EndIf	
+	                 
+    If nQtdEntid >=	8	
+		cZZZEnt08	:= Repl("Z",Len(Criavar(aRegCT0[8][4])))   
+		cEntid08Ini	:= Space(Len(Criavar(aRegCT0[8][4])))
+		cEntid08Fim	:= cZZZEnt08                   
+		lMovEnt08 	:= CtbMovSaldo("CT0",,'08')				
+	EndIf		        
+	                 
+    If nQtdEntid == 9	
+		cZZZEnt09	:= Repl("Z",Len(Criavar(aRegCT0[9][4])))   
+		cEntid09Ini	:= Space(Len(Criavar(aRegCT0[9][4])))
+		cEntid09Fim	:= cZZZEnt09				    
+		lMovEnt09 	:= CtbMovSaldo("CT0",,'09')	 
+	EndIf	 
+	
+EndIf
+
+dbSelectArea("CVQ")
+dbsetorder(1)
+xCVQ		:= xfilial("CVQ")
+
+// tratativa para o tipo de saldo maior que 1, consolida saldo
+IF !Empty( cSaldos )
+	cSaldos := Alltrim( StrTran( cSaldos,";","','") )
+Endif
+
+lTRegCts	:= Type("lTRegCts") # "U" .And. ValType(lTRegCts) = "L" .And. lTRegCts
+cAlias		:= Iif(cAlias == Nil,"",cAlias)
+cIdent		:= Iif(cIdent == Nil,"",cIdent)
+lVlrZerado	:= Iif(lVlrZerado == Nil,.T.,lVlrZerado)
+
+If aGeren != Nil
+	cCtaFil1  :=	If(MsAscii(aGeren[1])== 13,"",aGeren[1])
+	cCtaFil2  :=	If(MsAscii(aGeren[2])== 13,"",aGeren[2])
+	cCCFil1   :=	If(MsAscii(aGeren[3])== 13,"",aGeren[3])
+	cCCFil2   :=	If(MsAscii(aGeren[4])== 13,"",aGeren[4])
+	cItemFil1 :=	If(MsAscii(aGeren[5])== 13,"",aGeren[5])
+	cItemFil2 :=	If(MsAscii(aGeren[6])== 13,"",aGeren[6])
+	cCLVLFil1 :=	If(MsAscii(aGeren[7])== 13,"",aGeren[7])
+	cCLVLFil2 :=	If(MsAscii(aGeren[8])== 13,"",aGeren[8])
+EndIf	
+
+lCT1Fil 	:= .F.
+lCTTFil 	:= .F.
+lCTDFil		:= .F.
+lCTHFil		:= .F.
+lEnt05Fil	:= .F.
+lEnt06Fil	:= .F.
+lEnt07Fil	:= .F.
+lEnt08Fil	:= .F.
+lEnt09Fil	:= .F.
+
+// Filtragem da entidade compositora do Plano Gerencial (Centro de Custo da Getdados)		
+If !Empty(cCtaFil1) .Or. !Empty(cCtaFil2)
+	lCT1Fil := .T.
+	If cCtaFil1 > cContaIni 
+		cContaIni := cCtaFil1
+	EndIf
+	If cCtaFil2 < cContaFim	
+		cContaFim := cCtaFil2
+	EndIf	
+EndIf	
+
+// Filtragem da entidade compositora do Plano Gerencial (Centro de Custo da Getdados)		
+If lMovCusto
+	If !Empty(cCCFil1) .Or. !Empty(cCCFil2)
+		lCTTFil := .T.
+		If cCCFil1 > cCustoIni 
+			cCustoIni := cCCFil1
+		EndIf
+		If cCCFil2 < cCustoFim	
+			cCustoFim := cCcFil2
+		EndIf	
+	EndIf	
+EndIf
+/* Observacoes:
+C.Custo do Plano Gerencial
+001	002	003
+			
+C.Custo Informado no Filtro
+000	001	002	003	004
+			
+O relatorio so podera imprimir: 001 002 003	*/
+
+// Filtragem da entidade compositora do Plano Gerencial (Item Contabil da Getdados)
+If lMovItem
+	If !Empty(cItemFil1) .Or. !Empty(cItemFil2)
+		lCTDFil := .T.
+		If cItemFil1 > cItemIni 
+			cItemIni := cItemFil1
+		EndIf
+		If cItemFil2 < cItemFim	
+			cItemFim := cItemFil2
+		EndIf	
+	EndIf	
+EndIf
+
+// Filtragem da entidade compositora do Plano Gerencial (Classe de Valor da Getdados)
+If lMovClass
+	If !Empty(cCLVLFil1) .Or. !Empty(cCLVLFil2)
+		lCTHFil := .T.
+		If cCLVLFil1 > cClVlIni 
+			cClVlIni := cClVlFil1
+		EndIf
+		If cCLVLFil2 < cClVlFim	
+			cClVlFim := cClVlFil2
+		EndIf	
+	EndIf	
+EndIf
+
+// TRATAMENTOS NECESSARIOS PARA FUNCIONAR O "QUADROCTB=" na "formula" ( CTS->CTS_FORMUL ) da visao gerencial .
+// NAO ESQUECER DE ADICIONAR O cQuadroCTB COMO PARAMETRO NA CTGERPLN() E COM DEFAULT cQuadroCTB := ""
+// TRATAR NO .INI O PARAMETRO QUADRO CONTABIL E PASSA-LO PARA A CTGERPLN()
+
+IF !EMPTY(cQuadroCTB)
+   // copia do PARAMIXB
+   PARAMIXC := aclone(PARAMIXB)
+
+   aParamCVQ:= {}
+   aadd(aParamCVQ , "")         // [01][C] := Código do Exercicio Contábil
+   aadd(aParamCVQ , dDataFim )  // [02][D] := Data de referencia
+   aadd(aParamCVQ , .T. )       // [03][L] := Demonstra período anteriord (S/N)  ?
+   aadd(aParamCVQ , lImpAntLP ) // [04][L] := Posicao anterior a LP (S/N)
+   aadd(aParamCVQ , dDataLP )   // [05][D] := Data de lucros e perdas
+   aadd(aParamCVQ , cMoeda )    // [06][C] := Moeda
+   aadd(aParamCVQ , cSaldos)    // [07][C] := Tipo de saldo
+   aadd(aParamCVQ , lConsSaldo) // [08][L] := Consolidar Saldo (S/N)
+   aadd(aParamCVQ , cSaldos )   // [09][C] := Saldos a Consolidar
+   aadd(aParamCVQ , dDataIni )  // [10][D] := dDataIni
+   aadd(aParamCVQ , dDataFim )  // [11][D] := dDataFin
+
+	CTBGERQDO(cQuadroCTB,aParamCVQ,@cArqQuadro,oMeter,oText,oDlg,aSetOfBook, @lEnd) 
+			dbSelectArea(cArqQuadro)
+         (cArqQuadro)->(dbgotop())
+			IF Select("F101Q") > 0
+			   DbSelectArea("F101Q")
+			   dbCloseArea()   
+			Endif
+			IF FILE("F101Q.DBF")
+			   FErase("F101Q.DBF")
+			ENDIF
+			COPY TO F101Q.DBF
+
+   PARAMIXB := aclone(PARAMIXC)
+	
+ENDIF
+
+dbSelectArea("CTS")
+If ValType(oMeter) == "O"
+	oMeter:nTotal := CTS->(RecCount())
+EndIf
+dbSetOrder(1)
+
+MsSeek(cFilCTS+cPlanGer,.T.)
+
+If lUsaNmVis
+	cNomeVis := CTS->CTS_NOME
+EndIf
+
+While !Eof() .And. 	CTS->CTS_FILIAL == cFilCTS .And.;
+					CTS->CTS_CODPLA == cPlanGer
+
+	// SOMENTE PODERÃO SER IMPRESSAS ENTIDADES SINTETICAS CUJO OS IDENTIFICADORES SEJAM
+	// 5- LINHA SEM VALOR
+	// 6- LINHA SEM VALOR EM NEGRITO
+	// 7- TRACO / SEPARADOR
+	// MOTIVO: ESTAS ENTIDADES SINTETICAS NAO SERAO FORMADAS PELAS ROTINA POIS NENHUMA ENTIDADE
+	// A UTILIZARA COMO SUPERIORA.
+	If CTS->CTS_CLASSE == "1" .And. IIf( lPlGerSint , !(CTS->CTS_IDENT $ "567" ) , .T. )
+		dbSkip()
+		Loop
+	EndIf
+
+	//Efetua o filtro dos parametros considerando o plano gerencial.
+	If !Empty(cEntFil1) .Or. !Empty(cEntFil2)
+		If CTS->CTS_CONTAG < cEntFil1 .Or. CTS->CTS_CONTAG > cEntFil2
+			dbSkip()
+			Loop
+		EndIf	
+	EndIf	                                   
+	// Recarrega variáveis
+	lConta 	:= .F.
+	lCusto	:= .F.
+	lItem	:= .F.
+	lClasse	:= .F.
+ 	lEnt05	:= .F.	
+ 	lEnt06	:= .F.	
+ 	lEnt07	:= .F.	                    
+ 	lEnt08	:= .F.	
+ 	lEnt09	:= .F.	 	 	
+
+	// Grava conta analitica
+	cConta 	:= CTS->CTS_CONTAG
+	cDesc	:= CTS->CTS_DESCCG
+	cOrdem	:= CTS->CTS_ORDEM
+
+	nSaldoAnt 	:= 0	// Zero as variaveis para acumular
+	nSaldoDeb 	:= 0
+	nSaldoCrd 	:= 0
+
+	nSaldoAtu 	:= 0
+	nSaldoSEM 	:= 0
+	nSaldoPer	:= 0
+
+	nSaldoAntD	:= 0
+	nSaldoAntC	:= 0
+	nSaldoAtuD	:= 0
+	nSaldoAtuC	:= 0
+	nMOVIMPER	:= 0
+	nMovPerAnt	:= 0
+	dbSelectArea("CTS")
+	dbSetOrder(1)
+
+	While !Eof() .And. CTS->CTS_FILIAL == cFilCTS .And.;
+						CTS->CTS_CODPLA == cPlanGer  .And. CTS->CTS_ORDEM	== cOrdem
+		aSaldoAnt	:= { 0, 0, 0, 0, 0, 0, 0, 0 }
+		aSaldoAtu	:= { 0, 0, 0, 0, 0, 0, 0, 0 }
+		aSaldoSEM	:= { 0, 0, 0, 0, 0, 0, 0, 0 }
+		aSaldoPER	:= { 0, 0, 0, 0, 0, 0, 0, 0 }
+
+		lClasse := .F.
+		lItem	:= .F.
+		lCusto	:= .F.
+		lConta	:= .F.
+		/*
+		ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		³ TRATATIVA DE TIPO DE SALDO NOS RELATORIOS DE DEMONSTRA-³
+		³ TIVOS (CTBR5XX)                                        ³
+		ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		*/
+		// Tipo de saldo configurado na visão gerencial
+		cTpSaldo := Alltrim( CTS->CTS_TPSALD )
+
+    // Caso o Tipo de saldo estiver configurado na visão gerencial com asterisco
+    // ou a rotina chamadora consolida os tipos de saldos, considero os parametros da tela (SX1)
+    If ( cTpSaldo == "*" .And. cSaldos <> "*" ) .OR. lConsSaldo
+        cTpSaldo := cSaldos
+    ElseIf ( cTpSaldo <> "*" .And. cSaldos <> "*" ) .And.  cTpSaldo <> cSaldos
+        nReg := Recno()
+        dbSkip()
+        Loop
+    EndIf
+		
+		//Entidade 09			
+		If !lEnt09Fil .And. nQtdEntid >= 9
+			If ( CTS->( FieldPos( "CTS_E09INI" ) ) > 0  .And. !Empty(CTS->CTS_E09INI) ) .Or. ;
+			   ( CTS->( FieldPos( "CTS_E09FIM" ) ) > 0  .And. !Empty(CTS->CTS_E09FIM)	)	// Saldo a partir da entidade 09
+				cEntid09Ini	:= CTS->CTS_E09INI
+				cEntid09Fim	:= CTS->CTS_E09FIM
+				lEnt09 := .T.
+			Else
+				cEntid09Ini	:= ""
+				cEntid09Fim	:= cZZZEnt09
+			EndIf
+		Else
+			lEnt09 := .T.
+		Endif	   
+		
+		//Entidade 08			
+		If !lEnt08Fil .And. nQtdEntid >= 8
+			If ( CTS->( FieldPos( "CTS_E08INI" ) ) > 0  .And. !Empty(CTS->CTS_E08INI) ) .Or. ;
+			   ( CTS->( FieldPos( "CTS_E08FIM" ) ) > 0  .And. !Empty(CTS->CTS_E08FIM)	)	// Saldo a partir da entidade 08
+				cEntid08Ini	:= CTS->CTS_E08INI
+				cEntid08Fim	:= CTS->CTS_E08FIM
+				lEnt08 := .T.
+			Else
+				cEntid08Ini	:= ""
+				cEntid08Fim	:= cZZZEnt08
+			EndIf
+		Else
+			lEnt08 := .T.
+		Endif						
+		        
+		//Entidade 07			
+		If !lEnt07Fil .And. nQtdEntid >= 7
+			If ( CTS->( FieldPos( "CTS_E07INI" ) ) > 0  .And. !Empty(CTS->CTS_E07INI) ) .Or. ;
+			   ( CTS->( FieldPos( "CTS_E07FIM" ) ) > 0  .And. !Empty(CTS->CTS_E07FIM)	)	// Saldo a partir da entidade 07
+				cEntid07Ini	:= CTS->CTS_E07INI
+				cEntid07Fim	:= CTS->CTS_E07FIM
+				lEnt07 := .T.
+			Else
+				cEntid07Ini	:= ""
+				cEntid07Fim	:= cZZZEnt07
+			EndIf 
+		Else
+			lEnt07 := .T.
+		Endif				
+
+		//Entidade 06			
+		If !lEnt06Fil .And. nQtdEntid >= 6
+			If ( CTS->( FieldPos( "CTS_E06INI" ) ) > 0  .And. !Empty(CTS->CTS_E06INI) ) .Or. ;
+			   ( CTS->( FieldPos( "CTS_E06FIM" ) ) > 0  .And. !Empty(CTS->CTS_E06FIM)	)	// Saldo a partir da entidade 06
+				cEntid06Ini	:= CTS->CTS_E06INI
+				cEntid06Fim	:= CTS->CTS_E06FIM
+				lEnt06 := .T.
+			Else
+				cEntid06Ini	:= ""
+				cEntid06Fim	:= cZZZEnt06
+			EndIf
+		Else
+			lEnt06 := .T.
+		Endif				
+
+		//Entidade 05			
+		If !lEnt05Fil .And. nQtdEntid >= 5
+			If ( CTS->( FieldPos( "CTS_E05INI" ) ) > 0  .And. !Empty(CTS->CTS_E05INI) ) .Or. ;
+			   ( CTS->( FieldPos( "CTS_E05FIM" ) ) > 0  .And. !Empty(CTS->CTS_E05FIM)	)	// Saldo a partir da entidade 05
+				cEntid05Ini	:= CTS->CTS_E05INI
+				cEntid05Fim	:= CTS->CTS_E05FIM
+				lEnt05 := .T.
+			Else
+				cEntid05Ini	:= ""
+				cEntid05Fim	:= cZZZEnt05
+			EndIf
+		Else
+			lEnt05 := .T.
+		Endif		
+
+		If !lCTHFil
+			If !Empty(CTS->CTS_CTHINI) .Or. !Empty(CTS->CTS_CTHFIM)		// Saldo a partir da classe
+				cClVlIni	:= CTS->CTS_CTHINI
+				cClVlFim	:= CTS->CTS_CTHFIM
+				lClasse := .T.
+			Else
+				cCLVLIni	:= ""
+				cCLVLFim	:= cZZZCTH
+			EndIf
+		Else
+			lClasse := .T.
+		Endif
+
+		If !lCTDFil
+			If !Empty(CTS->CTS_CTDINI) .Or. !Empty(CTS->CTS_CTDFIM)	// Saldo a partir do Item
+				cItemIni	:= CTS->CTS_CTDINI
+				cItemFim	:= CTS->CTS_CTDFIM			
+				lItem := .T.
+			Else
+				cItemIni	:= ""
+				cItemFim	:= cZZZCTD        		
+			EndIf
+		Else
+			lItem	:= .T.
+		Endif
+		
+		If !lCTTFil
+			If !Empty(CTS->CTS_CTTINI) .Or. !Empty(CTS->CTS_CTTFIM)	// Saldo a partir do C.Custo
+				cCustoIni	:= CTS->CTS_CTTINI
+				cCustoFim	:= CTS->CTS_CTTFIM
+				lCusto := .T.
+			Else
+				cCustoIni	:= ""
+				cCustoFim	:= cZZZCTT        
+			EndIf
+		Else
+			lCusto	:= .T.
+		Endif
+
+		If !lCT1Fil
+			If !Empty(CTS->CTS_CT1INI) .Or. !Empty(CTS->CTS_CT1FIM)	// Saldo a partir da Conta
+				cContaIni	:= CTS->CTS_CT1INI
+				cContaFim	:= CTS->CTS_CT1FIM
+				lConta := .T.
+			Else
+				cContaIni	:= ""
+				cContaFim	:= cZZZCT1
+			EndIf
+		Else
+			lConta	:= .T.		
+		EndIf
+
+		If lEnt09 .and. lMovEnt09  
+
+			cCodigoEnt	:= '09' 
+			aEntidIni	:= {} 
+			aEntidFim	:= {}			
+		
+			AADD( aEntidIni	,cContaIni )
+			AADD( aEntidIni	,cCustoIni )
+			AADD( aEntidIni	,cItemIni ) 
+			AADD( aEntidIni	,cClVlIni )
+			AADD( aEntidIni	,cEntid05Ini)			                             
+			AADD( aEntidIni	,cEntid06Ini)			                             
+			AADD( aEntidIni	,cEntid07Ini)			
+			AADD( aEntidIni	,cEntid08Ini) 
+			AADD( aEntidIni	,cEntid09Ini)			
+			                            
+			AADD( aEntidFim	,cContaFim )			
+			AADD( aEntidFim	,cCustoFim) 
+			AADD( aEntidFim	,cItemFim)
+			AADD( aEntidFim	,cClVlFim)
+			AADD( aEntidFim	,cEntid05Fim) 
+			AADD( aEntidFim	,cEntid06Fim)
+			AADD( aEntidFim	,cEntid07Fim)
+			AADD( aEntidFim	,cEntid08Fim)
+			AADD( aEntidFim	,cEntid09Fim)		 
+			
+			aSaldoAnt := CtbSldCubo(aEntidIni,aEntidFim,Ctod("//"),dDataIni-1,cMoeda,cTpSaldo,aSelFil)							 
+			aSaldoAtu := CtbSldCubo(aEntidIni,aEntidFim,dDataIni,dDataFim,cMoeda,cTpSaldo,aSelFil)													
+			If lSemestre
+				aSaldoSem := CtbSldCubo(aEntidIni,aEntidFim,StoD(Left(DtoS(dSemestre),4)+"0101"),dSemestre,cMoeda,cTpSaldo,aSelFil)
+			Endif
+			If lPeriodo0
+				aSaldoPer := CtbSldCubo(aEntidIni,aEntidFim,NIL,dPeriodo0,cMoeda,cTpSaldo,aSelFil)
+			Endif			
+			
+		ElseIf lEnt08 .and. lMovEnt08        
+		
+			cCodigoEnt	:= '08'		
+			aEntidIni	:= {} 
+			aEntidFim	:= {}			
+		
+			AADD( aEntidIni	,cContaIni )
+			AADD( aEntidIni	,cCustoIni )
+			AADD( aEntidIni	,cItemIni ) 
+			AADD( aEntidIni	,cClVlIni )
+			AADD( aEntidIni	,cEntid05Ini)			                             
+			AADD( aEntidIni	,cEntid06Ini)			                             
+			AADD( aEntidIni	,cEntid07Ini)			
+			AADD( aEntidIni	,cEntid08Ini) 
+			                            
+			AADD( aEntidFim	,cContaFim )			
+			AADD( aEntidFim	,cCustoFim) 
+			AADD( aEntidFim	,cItemFim)
+			AADD( aEntidFim	,cClVlFim)
+			AADD( aEntidFim	,cEntid05Fim) 
+			AADD( aEntidFim	,cEntid06Fim)
+			AADD( aEntidFim	,cEntid07Fim)
+			AADD( aEntidFim	,cEntid08Fim)       
+			
+			aSaldoAnt := CtbSldCubo(aEntidIni,aEntidFim,Ctod("//"),dDataIni-1,cMoeda,cTpSaldo,aSelFil)							 
+			aSaldoAtu := CtbSldCubo(aEntidIni,aEntidFim,dDataIni,dDataFim,cMoeda,cTpSaldo,aSelFil)													
+			If lSemestre
+				aSaldoSem := CtbSldCubo(aEntidIni,aEntidFim,StoD(Left(DtoS(dSemestre),4)+"0101"),dSemestre,cMoeda,cTpSaldo,aSelFil)
+			Endif
+			If lPeriodo0
+				aSaldoPer := CtbSldCubo(aEntidIni,aEntidFim,NIL,dPeriodo0,cMoeda,cTpSaldo,aSelFil)
+			Endif			
+		
+		ElseIf lEnt07 .and. lMovEnt07
+		
+			cCodigoEnt	:= '07'		
+			aEntidIni	:= {} 
+			aEntidFim	:= {}			
+		
+			AADD( aEntidIni	,cContaIni )
+			AADD( aEntidIni	,cCustoIni )
+			AADD( aEntidIni	,cItemIni ) 
+			AADD( aEntidIni	,cClVlIni )
+			AADD( aEntidIni	,cEntid05Ini)			                             
+			AADD( aEntidIni	,cEntid06Ini)			                             
+			AADD( aEntidIni	,cEntid07Ini)			
+			                            
+			AADD( aEntidFim	,cContaFim )			
+			AADD( aEntidFim	,cCustoFim) 
+			AADD( aEntidFim	,cItemFim)
+			AADD( aEntidFim	,cClVlFim)
+			AADD( aEntidFim	,cEntid05Fim) 
+			AADD( aEntidFim	,cEntid06Fim)
+			AADD( aEntidFim	,cEntid07Fim)
+		                                      
+			aSaldoAnt := CtbSldCubo(aEntidIni,aEntidFim,Ctod("//"),dDataIni-1,cMoeda,cTpSaldo,aSelFil)							 
+			aSaldoAtu := CtbSldCubo(aEntidIni,aEntidFim,dDataIni,dDataFim,cMoeda,cTpSaldo,aSelFil)													
+			If lSemestre
+				aSaldoSem := CtbSldCubo(aEntidIni,aEntidFim,StoD(Left(DtoS(dSemestre),4)+"0101"),dSemestre,cMoeda,cTpSaldo,aSelFil)
+			Endif
+			If lPeriodo0
+				aSaldoPer := CtbSldCubo(aEntidIni,aEntidFim,NIL,dPeriodo0,cMoeda,cTpSaldo,aSelFil)
+			Endif			
+		
+		ElseIf lEnt06 .and. lMovEnt06
+		
+			cCodigoEnt	:= '06'
+			aEntidIni	:= {} 
+			aEntidFim	:= {}			
+		
+			AADD( aEntidIni	,cContaIni )
+			AADD( aEntidIni	,cCustoIni )
+			AADD( aEntidIni	,cItemIni ) 
+			AADD( aEntidIni	,cClVlIni )
+			AADD( aEntidIni	,cEntid05Ini)			                             
+			AADD( aEntidIni	,cEntid06Ini)			                             
+			                            
+			AADD( aEntidFim	,cContaFim )			
+			AADD( aEntidFim	,cCustoFim) 
+			AADD( aEntidFim	,cItemFim)
+			AADD( aEntidFim	,cClVlFim)
+			AADD( aEntidFim	,cEntid05Fim) 
+			AADD( aEntidFim	,cEntid06Fim)  
+			
+			aSaldoAnt := CtbSldCubo(aEntidIni,aEntidFim,Ctod("//"),dDataIni-1,cMoeda,cTpSaldo,aSelFil)							 
+			aSaldoAtu := CtbSldCubo(aEntidIni,aEntidFim,dDataIni,dDataFim,cMoeda,cTpSaldo,aSelFil)													
+			If lSemestre
+				aSaldoSem := CtbSldCubo(aEntidIni,aEntidFim,StoD(Left(DtoS(dSemestre),4)+"0101"),dSemestre,cMoeda,cTpSaldo,aSelFil)
+			Endif
+			If lPeriodo0
+				aSaldoPer := CtbSldCubo(aEntidIni,aEntidFim,NIL,dPeriodo0,cMoeda,cTpSaldo,aSelFil)
+			Endif			
+		
+		ElseIf lEnt05 .and. lMovEnt05
+		
+			cCodigoEnt	:= '05'		
+			aEntidIni	:= {} 
+			aEntidFim	:= {}			
+		
+			AADD( aEntidIni	,cContaIni )
+			AADD( aEntidIni	,cCustoIni )
+			AADD( aEntidIni	,cItemIni ) 
+			AADD( aEntidIni	,cClVlIni )
+			AADD( aEntidIni	,cEntid05Ini)			                             
+			                            
+			AADD( aEntidFim	,cContaFim )			
+			AADD( aEntidFim	,cCustoFim) 
+			AADD( aEntidFim	,cItemFim)
+			AADD( aEntidFim	,cClVlFim)
+			AADD( aEntidFim	,cEntid05Fim)      
+			
+			aSaldoAnt := CtbSldCubo(aEntidIni,aEntidFim,Ctod("//"),dDataIni-1,cMoeda,cTpSaldo,aSelFil)							 
+			aSaldoAtu := CtbSldCubo(aEntidIni,aEntidFim,dDataIni,dDataFim,cMoeda,cTpSaldo,aSelFil)													
+			If lSemestre
+				aSaldoSem := CtbSldCubo(aEntidIni,aEntidFim,StoD(Left(DtoS(dSemestre),4)+"0101"),dSemestre,cMoeda,cTpSaldo,aSelFil)
+			Endif
+			If lPeriodo0
+				aSaldoPer := CtbSldCubo(aEntidIni,aEntidFim,NIL,dPeriodo0,cMoeda,cTpSaldo,aSelFil)
+			Endif			
+		
+		ElseIf lClasse .and. lMovClass
+
+			aSaldoAnt := SaldTotCTI(cClVlIni,cClVlFim,cItemIni,;
+									cItemFim,cCustoIni,cCustoFim,cContaIni,;
+									cContaFim,dDataIni,cMoeda,cTpSaldo,aSelFil,lRecDesp0,cRecDesp,dDtZeraRD,lImpAntLP,dDataLP,,lConsSaldo)
+								
+			aSaldoAtu := SaldTotCTI(cClVlIni,cClVlFim,cItemIni,;
+									cItemFim,cCustoIni,cCustoFim,cContaIni,;
+									cContaFim,dDataFim,cMoeda,cTpSaldo,aSelFil,lRecDesp0,cRecDesp,dDtZeraRD,lImpAntLP,dDataLP,,lConsSaldo)
+			If lSemestre
+				aSaldoSem := SaldTotCTI(cClVlIni,cClVlFim,cItemIni,;
+										cItemFim,cCustoIni,cCustoFim,cContaIni,;
+										cContaFim,dSemestre,cMoeda,cTpSaldo,aSelFil,,,,lImpAntLP,dDataLP,,lConsSaldo)
+			Endif
+			If lPeriodo0
+				aSaldoPer := SaldTotCTI(cClVlIni,cClVlFim,cItemIni,;
+										cItemFim,cCustoIni,cCustoFim,cContaIni,;
+										cContaFim,dPeriodo0,cMoeda,cTpSaldo,aSelFil,,,,lImpAntLP,dDataLP,,lConsSaldo)
+			Endif
+		
+		ElseIf lItem .and. lMovItem		
+		
+			aSaldoAnt := SaldTotCT4(cItemIni,cItemFim,cCustoIni,;
+									cCustoFim,cContaIni,cContaFim,;
+									dDataIni,cMoeda,cTpSaldo,aSelFil,lRecDesp0,cRecDesp,dDtZeraRD,lImpAntLP,dDataLP,,lConsSaldo)
+								
+			aSaldoAtu := SaldTotCT4(cItemIni,cItemFim,cCustoIni,;
+									cCustoFim,cContaIni,cContaFim,;
+									dDataFim,cMoeda,cTpSaldo,aSelFil,lRecDesp0,cRecDesp,dDtZeraRD,lImpAntLP,dDataLP,,lConsSaldo)
+			If lSemestre
+				aSaldoSem := SaldTotCT4(cItemIni,cItemFim,cCustoIni,;
+										cCustoFim,cContaIni,cContaFim,;
+										dSemestre,cMoeda,cTpSaldo,aSelFil,,,,lImpAntLP,dDataLP,,lConsSaldo)
+			Endif
+			If lPeriodo0
+				aSaldoPEr := SaldTotCT4(cItemIni,cItemFim,cCustoIni,;
+										cCustoFim,cContaIni,cContaFim,;
+										dPeriodo0,cMoeda,cTpSaldo,aSelFil,,,,lImpAntLP,dDataLP,,lConsSaldo)
+			Endif
+		
+		ElseIf lCusto .and. lMovCusto
+		
+			aSaldoAnt := SaldTotCT3(cCustoIni,cCustoFim,cContaIni,;
+									cContaFim,dDataIni,cMoeda,cTpSaldo,aSelFil,lRecDesp0,cRecDesp,dDtZeraRD,lImpAntLP,dDataLP,,lConsSaldo)
+			aSaldoAtu := SaldTotCT3(cCustoIni,cCustoFim,cContaIni,;
+									cContaFim,dDataFim,cMoeda,cTpSaldo,aSelFil,lRecDesp0,cRecDesp,dDtZeraRD,lImpAntLP,dDataLP,,lConsSaldo)
+
+			If lSemestre
+				aSaldoSem := SaldTotCT3(cCustoIni,cCustoFim,cContaIni,;
+										cContaFim,dSemestre,cMoeda,cTpSaldo,aSelFil,,,,lImpAntLP,dDataLP,,lConsSaldo)
+			Endif
+			If lPeriodo0
+				aSaldoPer := SaldTotCT3(cCustoIni,cCustoFim,cContaIni,;
+										cContaFim,dPeriodo0,cMoeda,cTpSaldo,aSelFil,,,,lImpAntLP,dDataLP,,lConsSaldo)
+			Endif
+		
+		ElseIf lConta
+		
+			aSaldoAnt := U_SaldTotCT7(cContaIni,cContaFim,dDataIni,cMoeda,cTpSaldo,lImpAntLP,dDataLP,aSelFil,lRecDesp0,cRecDesp,dDtZeraRD,,lConsSaldo)
+			aSaldoAtu := SaldTotCT7(cContaIni,cContaFim,dDataFim,cMoeda,cTpSaldo,lImpAntLP,dDataLP,aSelFil,lRecDesp0,cRecDesp,dDtZeraRD,,lConsSaldo)
+			If lSemestre
+				aSaldoSem := SaldTotCT7(cContaIni,cContaFim,dSemestre,cMoeda,cTpSaldo,lImpAntLP,dDataLP,aSelFil,,,,,lConsSaldo)
+			Endif
+			If lPeriodo0
+				aSaldoPer := SaldTotCT7(cContaIni,cContaFim,dPeriodo0,cMoeda,cTpSaldo,lImpAntLP,dDataLP,aSelFil,,,,,lConsSaldo)
+			Endif
+		EndIf		
+
+		If aSetOfBook[9] > 1	// Divisao por fator
+			nLSldAnt := Len(aSaldoAnt)
+			nLSldAtu := Len(aSaldoAtu)
+			nLSldSem := Len(aSaldoSem)
+			nLSldPer := Len(aSaldoPer)
+			For nPos := 1 To nLSldAnt
+				aSaldoAnt[nPos] := Round(NoRound((aSaldoAnt[nPos]/aSetOfBook[9]),3),2)
+			Next
+			For nPos := 1 To nLSldAtu
+				aSaldoAtu[nPos] := Round(NoRound((aSaldoAtu[nPos]/aSetOfBook[9]),3),2)
+			Next
+			If lSemestre
+				For nPos := 1 To nLSldSem
+					aSaldoSem[nPos] := Round(NoRound((aSaldoSem[nPos]/aSetOfBook[9]),3),2)
+				Next
+			Endif
+			If lPeriodo0
+				For nPos := 1 To nLSldPer
+					aSaldoPer[nPos] := Round(NoRound((aSaldoPer[nPos]/aSetOfBook[9]),3),2)
+				Next
+			Endif
+		Endif
+
+		If Left(CTS->CTS_FORMUL, 7) == "ROTINA="
+			nLSldAnt := Len(aSaldoAnt)
+			nLSldAtu := Len(aSaldoAtu)
+			nLSldSem := Len(aSaldoSem)
+			nLSldPer := Len(aSaldoPer)
+			nFator := &(Subs(CTS->CTS_FORMUL, 8))
+			For nPos := 1 To nLSldAnt
+				aSaldoAnt[nPos] *= nFator
+			Next
+			For nPos := 1 To nLSldAtu
+				aSaldoAtu[nPos] *= nFator
+			Next
+			If lSemestre
+				For nPos := 1 To nLSldSem
+					aSaldoSem[nPos] *= nFator
+				Next
+			Endif
+			If lPeriodo0
+				For nPos := 1 To nLSldPer
+					aSaldoPer[nPos] *= nFator
+				Next
+			Endif
+		ElseIf Left(CTS->CTS_FORMUL, 6) == "FATOR="
+			nLSldAnt := Len(aSaldoAnt)
+			nLSldAtu := Len(aSaldoAtu)
+			nLSldSem := Len(aSaldoSem)
+			nLSldPer := Len(aSaldoPer)
+			nFator := &(Subs(CTS->CTS_FORMUL, 7))
+			For nPos := 1 To nLSldAnt
+				aSaldoAnt[nPos] *= nFator
+			Next
+			For nPos := 1 To nLSldAtu
+				aSaldoAtu[nPos] *= nFator
+			Next
+			If lSemestre
+				For nPos := 1 To nLSldSem
+					aSaldoSem[nPos] *= nFator
+				Next
+			Endif
+			If lPeriodo0
+				For nPos := 1 To nLSldPer
+					aSaldoPer[nPos] *= nFator
+				Next
+			Endif
+		Elseif Left(CTS->CTS_FORMUL,6 ) == "SALDO="
+			nLSldAnt := Len(aSaldoAnt)
+			nLSldAtu := Len(aSaldoAtu)
+			nLSldSem := Len(aSaldoSem)
+			nLSldPer := Len(aSaldoPer)
+			
+			xFator := &(Subs(CTS->CTS_FORMUL, 7))			
+
+			IF ValType(xFator) == "N"
+
+				For nPos := 1 To nLSldAnt
+					aSaldoAnt[nPos] := xFator
+				Next
+				For nPos := 1 To nLSldAtu
+					aSaldoAtu[nPos] := xFator
+				Next
+				If lSemestre
+					For nPos := 1 To nLSldSem
+						aSaldoSem[nPos] := xFator
+					Next
+				Endif
+				If lPeriodo0
+					For nPos := 1 To nLSldPer
+						aSaldoPer[nPos] := xFator
+					Next
+				Endif  		
+
+			ELSEIF ValType(xFator) == "A" .AND. Len(xFator) >= 8
+			
+			//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+			//³ Conteúdo padrao do array de saldos                   ³
+			//³ [1] Saldo Atual (com sinal)                          ³
+			//³ [2] Debito na Data                                   ³
+			//³ [3] Credito na Data                                  ³
+			//³ [4] Saldo Atual Devedor                              ³
+			//³ [5] Saldo Atual Credor                               ³
+			//³ [6] Saldo Anterior (com sinal)                       ³
+			//³ [7] Saldo Anterior Devedor                           ³
+			//³ [8] Saldo Anterior Credor                            ³
+			//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+				For nPos := 1 To nLSldAnt
+					aSaldoAnt[nPos] := xFator[nPos]
+				Next
+				For nPos := 1 To nLSldAtu
+					aSaldoAtu[nPos] := xFator[nPos]
+				Next
+				If lSemestre
+					For nPos := 1 To nLSldSem
+						aSaldoSem[nPos] := xFator[nPos]
+					Next
+				Endif
+				If lPeriodo0
+					For nPos := 1 To nLSldPer
+						aSaldoPer[nPos] := xFator[nPos]
+					Next
+				Endif  		
+            ENDIF
+
+
+		ElseIf Left(CTS->CTS_FORMUL,6 ) == "VISAO="
+			nLSldAnt 	:= Len(aSaldoAnt)
+			nLSldAtu 	:= Len(aSaldoAtu)
+			nLSldSem 	:= Len(aSaldoSem)
+			nLSldPer 	:= Len(aSaldoPer)
+			cMoedaDesc 	:= IIf( Empty(mv_par14),mv_par03,mv_par14)
+			nAt			:= At( ",", CTS->CTS_FORMUL )
+			nAt2		:= At( "=", CTS->CTS_FORMUL )
+			IF nAt > 0
+				cCodVis		:= AllTrim( substr( CTS->CTS_FORMUL, 7, nAt - nAt2 - 1 ) )
+				cEntidade	:= AllTrim( substr( CTS->CTS_FORMUL, nAt + 1 ) )
+			ELSE
+	            cCodVis		:= AllTrim( substr( CTS->CTS_FORMUL,07) )
+				cEntidade	:= ""
+			ENDIF			
+
+			aSaldos  	:= GetSldVis( 	cCodVis, 0, oMeter, oText, oDlg, ;
+										lEnd, dDataIni,dDataFim, cSaldos, lVlrZerado, ;
+										cMoedaDesc, lMovPeriodo, aSetOfBook, cMoeda, ;
+										lImpAntLP, dDataLP, lConsSaldo, cEntidade,aSelFil )
+
+			If Len( aSaldos ) > 0
+				For nPos := 1 To nLSldAnt
+					aSaldoAnt[nPos] := aSaldos[nPos]
+				Next
+				For nPos := 1 To nLSldAtu
+					aSaldoAtu[nPos] := aSaldos[nPos]
+				Next
+				If lSemestre
+					For nPos := 1 To nLSldSem
+						aSaldoSem[nPos] := aSaldos[nPos]
+					Next
+				Endif
+				If lPeriodo0
+					For nPos := 1 To nLSldPer
+						aSaldoPer[nPos] := aSaldos[nPos]
+					Next
+				Endif  		
+			EndIf
+
+		ElseIf Left(CTS->CTS_FORMUL, 9) = "ENTIDADE="
+			nLSldAnt 	:= Len(aSaldoAnt)
+			nLSldAtu 	:= Len(aSaldoAtu)
+			nLSldSem 	:= Len(aSaldoSem)
+			nLSldPer 	:= Len(aSaldoPer)
+			aSaldos	:= GetSldEnt( substr( CTS->CTS_FORMUL, 10 ) /*cEntidade*/,;
+			                       /* cCodVis */,;
+			                       /*cOrdVis*/,;
+			                       0 /*nTpSaldo 0->RETORNA ARRAY*/ ,;
+			                       cCTAlias /*cArqTmp*/;
+			                     )
+	
+			If Len( aSaldos ) > 0
+				For nPos := 1 To nLSldAnt
+					aSaldoAnt[nPos] := aSaldos[nPos]
+				Next
+				For nPos := 1 To nLSldAtu
+					aSaldoAtu[nPos] := aSaldos[nPos]
+				Next
+				If lSemestre
+					For nPos := 1 To nLSldSem
+						aSaldoSem[nPos] := aSaldos[nPos]
+					Next
+				Endif
+				If lPeriodo0
+					For nPos := 1 To nLSldPer
+						aSaldoPer[nPos] := aSaldos[nPos]
+					Next
+				Endif  		
+			EndIf
+
+		ElseIf Left(CTS->CTS_FORMUL, 11) = "FTENTIDADE="
+			nLSldAnt 	:= Len(aSaldoAnt)
+			nLSldAtu 	:= Len(aSaldoAtu)
+			nLSldSem 	:= Len(aSaldoSem)
+			nLSldPer 	:= Len(aSaldoPer)
+			nAt			:= At( ",", CTS->CTS_FORMUL )
+			
+			IF nAt > 0
+	            cEntidade	:= AllTrim( substr( CTS->CTS_FORMUL,12,nAt-12) )
+				nFator		:= VAL(AllTrim( substr( CTS->CTS_FORMUL, nAt + 1 ) ) )
+			ELSE
+	            cEntidade	:= AllTrim( substr( CTS->CTS_FORMUL,12) )
+				nFator		:= 1
+			ENDIF			
+
+			aSaldos 	:= GetSldEnt( cEntidade, /* cCodVis */, /*cOrdVis*/, 0 /* nTpSaldo 0->RETORNA ARRAY */, cCTAlias /*cArqTmp*/)
+	
+			If Len( aSaldos ) > 0
+				For nPos := 1 To nLSldAnt
+					aSaldoAnt[nPos] := aSaldos[nPos] * nFator
+				Next
+				For nPos := 1 To nLSldAtu
+					aSaldoAtu[nPos] := aSaldos[nPos] * nFator
+				Next
+				If lSemestre
+					For nPos := 1 To nLSldSem
+						aSaldoSem[nPos] := aSaldos[nPos]  * nFator
+					Next
+				Endif
+				If lPeriodo0
+					For nPos := 1 To nLSldPer
+						aSaldoPer[nPos] := aSaldos[nPos]  * nFator
+					Next
+				Endif  		
+			EndIf
+
+		ElseIf Left(CTS->CTS_FORMUL, 9) = "VARIACAO="
+		
+			nLSldAnt 	:= Len(aSaldoAnt)
+			nLSldAtu 	:= Len(aSaldoAtu)
+			nLSldSem 	:= Len(aSaldoSem)
+			nLSldPer 	:= Len(aSaldoPer)
+			aSaldos	:= GetSldEnt( substr( CTS->CTS_FORMUL, 10 ) /*cEntidade*/,;
+			                       /* cCodVis */,;
+			                       /*cOrdVis*/,;
+			                       0 /*nTpSaldo 0->RETORNA ARRAY*/ ,;
+			                       cCTAlias /*cArqTmp*/;
+			                     )
+
+			If Len( aSaldos ) > 0
+				For nPos := 1 To nLSldAnt
+					aSaldoAnt[nPos] := 0.00 // Não é realizado tratamento de valor de variação anterior
+				Next
+				For nPos := 1 To nLSldAtu
+					aSaldoAtu[nPos] := aSaldos[9] // Variação
+				Next
+				If lSemestre
+					For nPos := 1 To nLSldSem
+						aSaldoSem[nPos] := aSaldos[nPos]
+					Next
+				Endif
+				If lPeriodo0
+					For nPos := 1 To nLSldPer
+						aSaldoPer[nPos] := aSaldos[nPos]
+					Next
+				Endif  		
+			EndIf
+
+		ElseIf Left(CTS->CTS_FORMUL, 10) = "MOVIMENTO="
+			nLSldAnt 	:= Len(aSaldoAnt)
+			nLSldAtu 	:= Len(aSaldoAtu)
+			nLSldSem 	:= Len(aSaldoSem)
+			nLSldPer 	:= Len(aSaldoPer)
+			aSaldoAux 	:= GetSldMov( substr( CTS->CTS_FORMUL, 11 ), dDataIni, dDataFim, cMoeda ,aSelFil )
+
+			For nPos := 1 To nLSldAnt
+				aSaldoAnt[nPos] += aSaldoAux[1]
+			Next
+			For nPos := 1 To nLSldAtu
+				aSaldoAtu[nPos] += aSaldoAux[2]
+			Next
+			If lSemestre
+				For nPos := 1 To nLSldSem
+					aSaldoSem[nPos] += aSaldoAux[2]
+				Next
+			EndIf
+			If lPeriodo0
+				For nPos := 1 To nLSldPer
+					aSaldoPer[nPos] += aSaldoAux[2]
+				Next
+			EndIf
+
+		ElseIf Left(CTS->CTS_FORMUL, 10) = "QUADROCTB="
+			nLSldAnt 	:= Len(aSaldoAnt)
+			nLSldAtu 	:= Len(aSaldoAtu)
+			nLSldSem 	:= Len(aSaldoSem)
+			nLSldPer 	:= Len(aSaldoPer)
+			// cItemQdro	:= SUBS(ALLTRIM(substr( CTS->CTS_FORMUL, 11 )) + SPACE(3), 1 , 3)
+			cItemQdro	:= alltrim(substr( CTS->CTS_FORMUL, 11 ))
+			//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+			//³ Conteúdo padrao do array de saldos                   ³
+			//³ [1] Saldo Atual (com sinal)                          ³
+			//³ [2] Debito na Data                                   ³
+			//³ [3] Credito na Data                                  ³
+			//³ [4] Saldo Atual Devedor                              ³
+			//³ [5] Saldo Atual Credor                               ³
+			//³ [6] Saldo Anterior (com sinal)                       ³
+			//³ [7] Saldo Anterior Devedor                           ³
+			//³ [8] Saldo Anterior Credor                            ³
+			//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			aSaldos 	:= {0,0,0,0,0,0,0,0}
+			dbSelectArea(cArqQuadro)
+         (cArqQuadro)->(dbgotop())
+			Do while ! (cArqQuadro)->(eof())
+				if ( (cArqQuadro)->FILIAL == xCVQ ) .and. ( cItemQdro $ (cArqQuadro)->DESCRICAO )
+				   nPos := 0
+				   DO WHILE .T. .AND. nPos < 1000
+						if Reclock((cArqQuadro), .F.)
+		   				aSaldos[1] += (cArqQuadro)->SALDOATU
+							aSaldos[6] += (cArqQuadro)->SALDOANT
+							(cArqQuadro)->(msunlock())
+							exit
+			   		endif
+					   nPos++
+					EndDo
+					if nPos >= 1000
+				      // ERRO!
+				      __Quit()
+					endif
+				endif  
+				(cArqQuadro)->(dbskip())
+         Enddo
+         
+			If Len( aSaldos ) > 0
+				For nPos := 1 To nLSldAnt
+					aSaldoAnt[nPos] := aSaldos[nPos]
+				Next
+				For nPos := 1 To nLSldAtu
+					aSaldoAtu[nPos] := aSaldos[nPos]
+				Next
+				If lSemestre
+					For nPos := 1 To nLSldSem
+						aSaldoSem[nPos] := aSaldos[nPos]
+					Next
+				Endif
+				If lPeriodo0
+					For nPos := 1 To nLSldPer
+						aSaldoPer[nPos] := aSaldos[nPos]
+					Next
+				Endif  		
+			EndIf
+			dbSelectArea("CTS")
+		Endif
+			
+		// Calculos com os Fatores
+		If CTS->CTS_IDENT = "1"				// Somo os saldos
+			nSaldoAnt 	+= aSaldoAnt[6]		// Saldo Anterior
+			nSaldoAtu 	+= aSaldoAtu[1]		// Saldo Atual
+			If lSemestre
+				nSaldoSem += aSaldoSEM[1]	// Saldo Semestre
+			Endif
+			If lPeriodo0
+				nSaldoPer += aSaldoPER[1]	// Saldo variavel dPeriodo0
+			Endif
+			// Calculando o Movimento do periodo anterior
+			If lMovPeriodo
+				nMovPerAnt += ( (aSaldoAnt[8] - aSaldoAnt[7]) - (aSaldoPer[8] - aSaldoPer[7]) )
+			EndIf
+				
+			nSaldoAntD 	+= aSaldoAnt[7]
+			nSaldoAntC 	+= aSaldoAnt[8]
+
+			nSaldoAtuD 	+= aSaldoAtu[4]
+			nSaldoAtuC 	+= aSaldoAtu[5] 
+		
+			nSaldoDeb  	:= (nSaldoAtuD - nSaldoAntD)
+			nSaldoCrd  	:= (nSaldoAtuC - nSaldoAntC)
+				
+		ElseIf CTS->CTS_IDENT = "2"			// Subtraio os saldos
+			nSaldoAnt 	-= aSaldoAnt[6]		// Saldo Anterior
+			nSaldoAtu 	-= aSaldoAtu[1]		// Saldo Atual
+			If lSemestre
+				nSaldoSem -= aSaldoSEM[1]	// Saldo Semestre
+			Endif
+			If lPeriodo0
+				nSaldoPer -= aSaldoPER[1]	// Saldo Periodo determinado
+			Endif
+			// Calculando o Movimento do periodo anterior
+			If lMovPeriodo
+				nMovPerAnt -= ( (aSaldoAnt[8] - aSaldoAnt[7]) - (aSaldoPer[8] - aSaldoPer[7]) )
+			EndIf
+				
+			nSaldoAntD 	-= aSaldoAnt[7]
+			nSaldoAntC 	-= aSaldoAnt[8]
+		
+			nSaldoAtuD 	-= aSaldoAtu[4]
+			nSaldoAtuC 	-= aSaldoAtu[5] 
+		
+			nSaldoDeb  	:= (nSaldoAtuD - nSaldoAntD)
+			nSaldoCrd  	:= (nSaldoAtuC - nSaldoAntC)
+		
+		EndIf
+       
+		nMOVIMPER += (aSaldoAnt[5] - aSaldoPer[8]) - (aSaldoAnt[4] - aSaldoPer[7])
+
+		dbSelectArea("CTS")
+		dbSetOrder(1)  
+		nReg := Recno()
+		dbSkip()
+		
+		If lTRegCts .And. CTS_COLUNA > 0	// A coluna 0 nao respeita desmembramento
+			Exit
+		Endif		
+	EnddO
+
+	dbSelectArea("CTS")
+	dbSetOrder(2)
+	dbGoTo(nReg)
+	cCodNor := CTS->CTS_NORMAL
+
+	If !lVlrZerado .And. (nSaldoCrd-nSaldoDeb = 0 .And. nSaldoAnt == 0 .And. nSaldoAtu == 0) .And. ;
+		(nSaldoDeb = 0 .And. nSaldoCRD = 0) 
+		///DbDelete()			/// RETIRADO DELETE 
+		
+		dbSelectArea("CTS")	
+		dbSetOrder(1)
+		dbGoTo(nReg)
+		dbSkip()
+   		Loop					/// SÓ INCLUI NO TMP SE O SALDO NÃO ESTIVER ZERADO (NAO PRECISA ATUALIZAR SUPERIORES)
+    EndIf	
+    
+	dbSelectArea(cCTAlias)
+	dbSetOrder(1)	
+	If !MsSeek(cConta)
+		dbAppend()                    
+		If cAlias = 'CTU'
+			Do Case
+			Case cIdent	= 'CTT'
+				Replace CUSTO 	With  cConta
+				Replace DESCCC	With cDesc						
+				Replace TIPOCC 	With CTS->CTS_CLASSE				
+			Case cIdent = 'CTD'
+				Replace ITEM 		With cConta
+				Replace DESCITEM    With cDesc			
+				Replace TIPOITEM	With CTS->CTS_CLASSE
+			Case cIdent = 'CTH'
+				Replace CLVL		With cConta
+				Replace DESCCLVL	With cDesc			
+				Replace TIPOCLVL	With CTS->CTS_CLASSE							
+			EndCase                          
+		Else
+			Replace CONTA 		With cConta
+			Replace DESCCTA    	With cDesc
+			If !Empty(cCodigoEnt)
+				Replace &("CODENT"+cCodigoEnt) With cConta
+				Replace &("DESCENT"+cCodigoEnt)    	With cDesc 
+			EndIF
+		EndIf
+		Replace SUPERIOR  	With CTS->CTS_CTASUP
+		Replace TIPOCONTA 	With CTS->CTS_CLASSE
+		Replace NORMAL    	With CTS->CTS_NORMAL
+		Replace ORDEM		With CTS->CTS_ORDEM
+		Replace IDENTIFI	With CTS->CTS_IDENT
+		Replace FILIAL		With xFilial( cCTAlias )
+
+		If CTS->( FieldPos( "CTS_TOTVIS" ) ) > 0
+			Replace TOTVIS 		With CTS->CTS_TOTVIS
+		EndIf
+
+		If CTS->( FieldPos( "CTS_VISENT" ) ) > 0
+			Replace VISENT 		With CTS->CTS_VISENT
+		EndIf
+
+		If CTS->( FieldPos( "CTS_SLDENT" ) ) > 0
+			Replace SLDENT 		With CTS->CTS_SLDENT
+		EndIf
+
+		If CTS->( FieldPos( "CTS_FATSLD" ) ) > 0
+			Replace FATSLD 		With CTS->CTS_FATSLD
+		EndIf
+
+		If lColuna
+			Replace COLUNA  With CTS->CTS_COLUNA
+		Endif
+
+		If lTRegCts
+			CT1->(DbSeek(xFilial("CT1") + CTS->CTS_CT1INI))
+			Replace DESCORIG 	With &("CT1->CT1_DESC" + cMoeda),;
+					TIPOCONTA 	With CT1->CT1_CLASSE,;
+					NORMAL    	With CT1->CT1_NORMAL
+		Endif		
+	EndIf
+
+	If Left(CTS->CTS_FORMUL, 6) = "TEXTO="		// Adiciona texto a descricao
+		Replace (cCTAlias)->DESCCTA With 	AllTrim( (cCTAlias)->DESCCTA) + Space(1) +;
+												&(Subs(CTS->CTS_FORMUL, 7))
+	Elseif Left(CTS->CTS_FORMUL, 9) = "TEXTOVAR="		// Substitui a descricao pelo retornado pela macro-execucao
+		Replace (cCTAlias)->DESCCTA With 	&(Subs(CTS->CTS_FORMUL, 10))
+		
+	Endif
+
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³Inverte o saldo se assim a entidade estiver configurada ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	If cArqTmp->FATSLD == "2"
+		nSaldoAnt	*= -1
+		nSaldoAtu	*= -1
+		nSaldoAtuD	*= -1
+		nSaldoAtuC	*= -1
+		nSaldoDeb	*= -1
+		nSaldoCrd	*= -1
+	EndIf
+
+	dbSelectArea(cCTAlias)
+	Replace	SALDOANT With SALDOANT+nSaldoAnt			// Saldo Anterior
+	Replace SALDOATU With SALDOATU+nSaldoAtu			// Saldo Atual
+
+	Replace SALDOATUDB With SALDOATUDB+nSaldoAtuD		//Saldo Atual Devedor
+	Replace SALDOATUCR With SALDOATUCR+nSaldoAtuC		//Saldo Atual Credor
+	
+	If lSemestre
+		Replace SALDOSEM With SALDOSEM+nSaldoSEM		// Saldo Semestre
+	Endif
+	
+	If lPeriodo0	// Saldo periodo determinado
+		Replace SALDOPER 	With SALDOPER+nSaldoPER
+		Replace MOVIMPER  	With MOVIMPER+nMOVIMPER 
+	Endif
+
+	If nSaldoDeb < 0 //.And. cCodNor == "1"
+		Replace SALDOCRD	With SALDOCRD+nSaldoDeb
+	ElseIf nSaldoDeb >= 0 //.And. cCodNor == "1"
+		Replace SALDODEB	With SALDODEB+nSaldoDeb
+	EndIf
+	If nSaldoCrd < 0// .And. cCodNor == "2"
+		Replace SALDODEB	With SALDODEB+nSaldoCrd
+	ElseIf nSaldoCrd >= 0 //.And. cCodNor == "2"
+		Replace SALDOCRD	With SALDOCRD+nSaldoCrd
+	EndIf
+	
+	Replace MOVIMENTO With MOVIMENTO+(nSaldoCrd-nSaldoDeb)
+    	
+	If lMovPeriodo
+		Replace MOVPERANT With MOVPERANT+nMovPerAnt
+	EndIf
+	If lComNivel
+		aNivel := {}
+		Aadd(aNivel, Recno())
+	Endif
+ 
+	If lImpSint
+		dbSelectArea("CTS")
+		dbSetOrder(2)
+		// Grava contas sinteticas
+		If !Empty(CTS->CTS_CTASUP)
+			While !Eof() .And. 	CTS->CTS_FILIAL == cFilCTS .And. ;
+									CTS->CTS_CODPLAN == cPlanGer
+		
+				cContaSup 	:= CTS->CTS_CTASUP
+				
+				dbSelectArea("CTS")
+				dbSetOrder(2)
+				If MsSeek(cFilCTS+cPlanGer+cContaSup)
+					cDesc 	:= CTS->CTS_DESCCG
+					cNormal := CTS->CTS_NORMAL
+				Else
+					cNormal	:= cCodNor	
+				EndIf
+   	
+				dbSelectArea(cCTAlias)
+				dbSetOrder(1)
+				If !MsSeek(cContaSup)
+					dbAppend() 
+					If cAlias = 'CTU'	                     
+						Do Case
+						Case cIdent = 'CTT'
+							Replace CUSTO 		With cContaSup			
+							Replace DESCCC		With cDesc								
+							Replace TIPOCC		With CTS->CTS_CLASSE
+						Case cIdent	= 'CTD'
+							Replace ITEM 		With cContaSup
+							Replace DESCITEM	With cDesc          
+							Replace TIPOITEM	With CTS->CTS_CLASSE
+						Case cIdent = 'CTH'
+							Replace CLVL 		With cContaSup
+							Replace DESCCLVL	With cDesc          
+						Replace TIPOCLVL	With CTS->CTS_CLASSE
+						EndCase
+					Else	
+						Replace CONTA	With cContaSup
+						Replace DESCCTA With cDesc		
+					EndIf
+					Replace SUPERIOR  	With CTS->CTS_CTASUP
+					Replace TIPOCONTA	With CTS->CTS_CLASSE
+					Replace NORMAL   	With CTS->CTS_NORMAL
+					Replace ORDEM		With CTS->CTS_ORDEM
+					Replace IDENTIFI	With CTS->CTS_IDENT
+					Replace FILIAL		With xFilial( cCTAlias )
+
+					If CTS->( FieldPos( "CTS_TOTVIS" ) ) > 0
+						Replace TOTVIS 		With CTS->CTS_TOTVIS
+					EndIf
+			
+					If CTS->( FieldPos( "CTS_VISENT" ) ) > 0
+						Replace VISENT 		With CTS->CTS_VISENT
+					EndIf
+			
+					If CTS->( FieldPos( "CTS_SLDENT" ) ) > 0
+						Replace SLDENT 		With CTS->CTS_SLDENT
+					EndIf
+			
+					If CTS->( FieldPos( "CTS_FATSLD" ) ) > 0
+						Replace FATSLD 		With CTS->CTS_FATSLD
+					EndIf
+
+					If lColuna
+						Replace COLUNA  With CTS->CTS_COLUNA
+					Endif
+					If lTRegCts
+						CT1->(DbSeek(xFilial("CT1") + CTS->CTS_CT1INI))
+						Replace DESCORIG 	With &("CT1->CT1_DESC" + cMoeda),;
+								TIPOCONTA 	With CT1->CT1_CLASSE,;
+								NORMAL    	With CT1->CT1_NORMAL
+					Endif
+					aAreaCTS:=CTS->(GetArea())
+					While CTS->(!EOF()) .AND. cFilCTS+cPlanGer+cContaSup ==  xFilial("CTS")+CTS->CTS_CODPLAN +CTS->CTS_CONTAG
+					
+						If Left(CTS->CTS_FORMUL, 7) == "ROTINA="
+							nFatorS := &(Subs(CTS->CTS_FORMUL, 8))
+							Aadd(aFator,{Recno(),nFatorS," ",.F.,0,.F.})
+					    ElseIf Left(CTS->CTS_FORMUL, 6) = "TEXTO="		// Adiciona texto a descricao
+							Aadd(aFator,{Recno(),1,Alltrim(&(Subs(CTS->CTS_FORMUL, 7))),.F.,0,.F.})
+					    ElseIf Left(CTS->CTS_FORMUL, 9) = "TEXTOVAR="		// Adiciona texto a descricao
+							Aadd(aFator,{Recno(),1,Alltrim(&(Subs(CTS->CTS_FORMUL, 10))),.F.,0,.T. })
+						ElseIf Left(CTS->CTS_FORMUL,6 ) == "SALDO="
+							nFatorS := &(Subs(CTS->CTS_FORMUL, 7))
+							Aadd(aFator,{Recno(),1," ",.T.,nFatorS,.F.})
+						EndIf
+
+						CTS->(Dbskip())
+					EndDo							
+					CTS->(RestArea(aAreaCTS))
+				EndIf    
+		
+				Replace	SALDOANT With SALDOANT + nSaldoAnt			// Saldo Anterior
+				Replace SALDOATU With SALDOATU + nSaldoAtu			// Saldo Atual
+				
+				Replace SALDOATUDB With SALDOATUDB + nSaldoAtuD		//Saldo Atual Devedor
+				Replace SALDOATUCR With SALDOATUCR + nSaldoAtuC		//Saldo Atual Credor
+				
+				If nSaldoDeb < 0 //.And. cNormal == "1"
+					Replace SALDOCRD	With SALDOCRD + nSaldoDeb
+				ElseIf nSaldoDeb >= 0 //.And. cNormal == "1"
+					Replace SALDODEB	With SALDODEB + nSaldoDeb
+				EndIf
+				If nSaldoCrd < 0 //.And. cNormal == "2"
+					Replace SALDODEB	With SALDODEB + nSaldoCrd
+				ElseIf nSaldoCrd >= 0 //.And. cNormal == "2"
+					Replace SALDOCRD	With SALDOCRD + nSaldoCrd
+				EndIf
+   	
+//				Replace MOVIMENTO With nSaldoCrd-nSaldoDeb
+				Replace MOVIMENTO With SALDOCRD-SALDODEB
+				
+				If lSemestre		// Saldo por semestre
+					Replace SALDOSEM With SALDOSEM + nSaldoSEM
+				Endif
+				If lPeriodo0		// Saldo periodo determinado
+					Replace SALDOPER With SALDOPER + nSaldoPER
+				Endif
+   	
+				If lMovPeriodo		// Movimento periodo anterior
+					Replace MOVPERANT With MOVPERANT + nMovPerAnt					
+				EndIf
+  	            If lComNivel
+					Aadd(aNivel, Recno())
+				Endif
+				
+				dbSelectArea("CTS")
+				If !Eof() .And. Empty(CTS->CTS_CTASUP)
+					dbSelectArea(cCTAlias)
+					Replace NIVEL1 With .T.
+					dbSelectArea("CTS")
+					Exit
+				EndIf
+			EndDo
+		
+			If lComNivel
+				dbSelectArea(cCTAlias)
+				nContador 	:= 1
+				For nNivel 	:= Len(aNivel) To 1 Step -1
+					DbGoto(aNivel[nNivel])
+					Replace NIVEL With nContador ++
+				Next		
+			Endif
+		
+		EndIf
+	Endif
+
+	dbSelectArea("CTS")
+	dbSetOrder(1)
+	dbGoTo(nReg)
+	dbSkip()
+
+EndDo
+dbSelectArea(cCTAlias)
+If Len(aFator) >0
+	For nA:=1 To Len(aFator)
+		Dbgoto(aFator[Na][1])
+		RecLock( cCTAlias, .f. )
+		Replace	SALDOANT 	With SALDOANT * aFator[Na][2]
+		Replace SALDOATU 	With SALDOATU * aFator[Na][2]
+		Replace SALDOATUDB 	With SALDOATUDB * aFator[Na][2]
+		Replace SALDOATUCR 	With SALDOATUCR * aFator[Na][2]
+		Replace SALDOCRD	With SALDOCRD * aFator[Na][2]
+		Replace SALDODEB	With SALDODEB * aFator[Na][2]
+		Replace SALDOCRD	With SALDOCRD * aFator[Na][2]
+		Replace MOVIMENTO 	With MOVIMENTO * aFator[Na][2]
+		If lSemestre
+			Replace SALDOSEM 	With SALDOSEM * aFator[Na][2]
+	    EndIf
+		If lPeriodo0
+			Replace SALDOPER 	With SALDOPER * aFator[Na][2]
+			Replace MOVPERANT 	With MOVPERANT * aFator[Na][2]				
+        EndIf
+        If aFator[Na][4]
+	        Replace	SALDOANT 	With aFator[Na][5]
+			Replace SALDOATU 	With aFator[Na][5]
+			Replace SALDOATUDB 	With aFator[Na][5]
+			Replace SALDOATUCR 	With aFator[Na][5]
+			Replace SALDOCRD	With aFator[Na][5]
+			Replace SALDODEB	With aFator[Na][5]
+			Replace SALDOCRD	With aFator[Na][5]
+			Replace MOVIMENTO 	With aFator[Na][5]
+	        If lSemestre
+				Replace SALDOSEM 	With aFator[Na][5]
+		    EndIf
+			If lPeriodo0
+				Replace SALDOPER 	With aFator[Na][5]
+				Replace MOVPERANT 	With aFator[Na][5]
+	        EndIf
+        EndIf
+        
+        If aFator[Na][6]
+	        Replace DESCCTA With 	Alltrim(aFator[Na][3])
+        Else
+	        Replace DESCCTA With 	Alltrim(DESCCTA)+" "+Alltrim(aFator[Na][3])
+	  	EndIf
+        MsUnlock()      
+	Next
+EndIf		
+
+RestArea(aSaveArea)
+
+Return
+
+/*/
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡„o	 ³SaldtotCT7 ³ Autor ³ Pilar S. Albaladejo 			   ³ Data ³ 27/11/00 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡„o ³Retorna os saldos do intervalo da conta ate a conta 			         ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Sintaxe	 ³SaldtotCT7(cContaIni,cContaFim,dData,cMoeda,cTpSald)		 			 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Retorno	 ³nSaldoAtu,nDebito,nCredito,nAtuDeb,nAtuCrd,nSaldoAnt,nAntDeb,nAntCrd   ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³ Uso		 ³ Generico 												 			 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³ ExpC1 = Conta Inicial                    				 			 ³±±
+±±³          ³ ExpC2 = Conta Final                      				 			 ³±±
+±±³          ³ ExpD1 = Data                              			 				 ³±±
+±±³          ³ ExpC3 = Moeda                            				 			 ³±±
+±±³          ³ ExpC4 = Tipo de Saldo                       				 			 ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/
+User Function SaldTotCT7(cContaIni,cContaFim,dData,cMoeda,cTpSald,lImpAntLP,dDataLP,aSelFil,lRecDesp0,cRecDesp,dDtZeraRD,cArqCt7,lConsSaldo)
+Local aSaveArea	:= CT7->(GetArea())
+Local aSaveAnt	:= GetArea()
+Local lNaoAchei	:= .F.
+Local nDebito	:= 0					// Valor Debito na Data
+Local nCredito 	:= 0					// Valor Credito na Data
+Local nAtuDeb  	:= 0					// Saldo Atual Devedor
+Local nAtuCrd	:= 0					// Saldo Atual Credor
+Local nVlDebAtu := 0					// Valor do Debito Atual
+Local nVlCrdAtu := 0                    // Valor do Credito Atual
+Local nVlDebAnt := 0					// Valor do Debito Anterior
+Local nVlCrdAnt := 0                    // Valor do Credito Anterior
+Local nAntDeb	:= 0					// Saldo Anterior Devedor
+Local nAntCrd	:= 0					// Saldo Anterior Credor
+Local nSaldoAnt	:= 0					// Saldo Anterior (com sinal)
+Local nSaldoAtu	:= 0					// Saldo Atual (com sinal)
+Local cChave, cChaveTot, bCondicao
+Local cConta	:= ""
+Local cQuery	:= ""                    
+Local nCont		:= 0 
+Local nTamRecDes:= Len(Alltrim(cRecDesp))
+Local aSldRecDes:= {}
+Local nSldRDAtuD:=	0
+Local nSldRDAtuC:=	0
+Local nSldAtuRD	:= 0
+Local cQryFil	:= ''
+Local cTipoSaldo:= ""
+Local lDefTop 		:= IfDefTopCTB() // verificar se pode executar query (TOPCONN)
+Local cCT7TmpFil
+
+DEFAULT cTpSald    := Iif(Empty(cTpSald),"1",cTpSald)
+DEFAULT lConsSaldo := .F.
+DEFAULT lImpAntLp  := .F.
+DEFAULT dDataLp    := CTOD("  /  /  ")
+DEFAULT lRecDesp0  := .F.
+DEFAULT cRecDesp   := ""                
+DEFAULT dDtZeraRD  := CTOD("  /  /  ")
+DEFAULT cArqCt7    := Nil
+DEFAULT aSelFil    := {}
+
+cTipoSaldo := StrTran(StrTran(cTpSald,"','",""),";","")
+
+If lRecDesp0 .And. ( Empty(cRecDesp) .Or. Empty(dDtZeraRD) )
+	lRecDesp0 := .F.
+EndIf
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Tratativa para o filtro de filiais           ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+cQryFil := GetRngFil( aSelFil,"CT7", .T., @cCT7TmpFil)
+
+If lDefTop
+
+		IF cArqCt7 == nil
+			cArqCt7 := RetSqlName("CT7")
+		Endif
+		
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³Query do Saldo Anterior³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		cQuery := " SELECT SUM(CT7_DEBITO) SLDANTDB, SUM(CT7_CREDIT) SLDANTCR "
+		cQuery += " FROM " + cArqCt7
+		cQuery += " WHERE CT7_FILIAL " + cQryFil 
+		cQuery += " AND CT7_CONTA >= '"+cContaIni+"' "
+		cQuery += " AND CT7_CONTA <= '"+cContaFim+"' "
+		
+		If !lImpAntLP .And. lRecDesp0
+			For nCont	:= 1 to nTamRecDes
+				If nCont == 1
+					cQuery += "	 			AND ( (CT7_CONTA NOT LIKE '"+Substr(cRecDesp,nCont,1)+"%')"				
+				Else
+					cQuery += "	 			AND  (CT7_CONTA NOT LIKE '"+Substr(cRecDesp,nCont,1)+"%')"						
+				EndIf
+			Next	                                                                                
+			cQuery += " OR "                                                                           	
+			cQuery += " ( "
+			For nCont	:= 1 to nTamRecDes
+				If nTamRecDes == 1
+					cQuery += " ( CT7_CONTA LIKE '"+Substr(cRecDesp,nCont,1)+"%')  AND "										
+				Else	
+					If nCont == 1
+						cQuery += " ( CT7_CONTA LIKE '"+Substr(cRecDesp,nCont,1)+"%' OR "										
+					ElseIf nCont < nTamRecDes
+						cQuery += "  CT7_CONTA LIKE '"+Substr(cRecDesp,nCont,1)+"%' OR "						
+					ElseIf nCont == nTamRecDes
+						cQuery += " CT7_CONTA LIKE '"+Substr(cRecDesp,nCont,1)+"%') AND "										
+					EndIf
+				EndIf
+			Next	                                                                        
+			cQuery += " CT7_DATA > '" +DTOS(dDtZeraRD)+"') "        	
+			cQuery += " ) "			
+		EndIf						
+		cQuery += " AND CT7_MOEDA = '"+cMoeda+"' "
+		cQuery += " AND CT7_TPSALD IN ('"+cTpSald+"') "
+		cQuery += " AND CT7_DATA < '"+DTOS(dData)+"' "
+		If lImpAntLP
+			cQuery += "  AND (CT7_LP <> 'Z' OR (CT7_LP = 'Z' AND CT7_DTLP <> ' ' AND CT7_DTLP <> '' AND CT7_DTLP < '"+DTOS(dDataLP)+"')) "
+		Endif
+		cQuery += " AND D_E_L_E_T_ <> '*' "
+
+		cQuery := ChangeQuery(cQuery)				
+		If Select("SLDTOTCT7") > 0
+			dbSelectArea("SLDTOTCT7")
+			SldTotCt7->(dbCloseArea())
+		Endif
+		dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"SLDTOTCT7",.T.,.F.)		
+
+		TcSetField("SLDTOTCT7","SLDANTDB","N",TamSX3("CT7_CREDIT")[1],TamSX3("CT7_CREDIT")[1])	
+		TcSetField("SLDTOTCT7","SLDANTCR","N",TamSX3("CT7_CREDIT")[1],TamSX3("CT7_CREDIT")[1])			        
+		
+		nAntDeb 	:= SLDTOTCT7->SLDANTDB
+		nAntCrd 	:= SLDTOTCT7->SLDANTCR
+
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³Query do Mov. no Dia   ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ	
+		cQuery := "SELECT SUM(CT7_DEBITO) DEBITO, SUM(CT7_CREDIT) CREDIT  "
+		cQuery += " FROM " + cArqCt7
+		cQuery += " WHERE CT7_FILIAL " + cQryFil 
+		cQuery += " AND CT7_CONTA >= '"+cContaIni+"' "
+		cQuery += " AND CT7_CONTA <= '"+cContaFim+"' "
+		cQuery += " AND CT7_MOEDA = '"+cMoeda+"' "
+		cQuery += " AND CT7_TPSALD IN ('"+cTpSald+"') "
+		cQuery += " AND CT7_DATA = '"+DTOS(dData)+"' "
+		If lImpAntLP
+			cQuery += "  AND (CT7_LP <> 'Z' OR (CT7_LP = 'Z' AND CT7_DTLP <> ' ' AND CT7_DTLP <> '' AND CT7_DTLP < '"+DTOS(dDataLP)+"')) "
+		Endif
+		cQuery += " AND D_E_L_E_T_ <> '*' "
+
+		cQuery := ChangeQuery(cQuery)				
+		If Select("SLDTOTCT7") > 0
+			dbSelectArea("SLDTOTCT7")
+			SldTotCt7->(dbCloseArea())
+		Endif
+		dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"SLDTOTCT7",.T.,.F.)		
+		
+		TcSetField("SLDTOTCT7","DEBITO"  ,"N",__aTamVlr[1],__aTamVlr[2])	
+		TcSetField("SLDTOTCT7","CREDIT"  ,"N",__aTamVlr[1],__aTamVlr[2])			
+		
+		dbSelectArea("SLDTOTCT7")
+		dbGoTop()
+		// Movimentacao da data
+		nDebito		:= SLDTOTCT7->DEBITO
+		nCredito	:= SLDTOTCT7->CREDIT
+	
+		nAtuDeb := nAntDeb + nDebito
+		nAtuCrd := nAntCrd + nCredito
+			
+		nSaldoAtu := nAtuCrd - nAtuDeb
+		nSaldoAnt := nAntCrd - nAntDeb		
+		If Select("SLDTOTCT7") > 0
+			dbSelectArea("SLDTOTCT7")
+			SldTotCt7->(dbCloseArea())
+			CtbTmpErase(cCT7TmpFil)
+		Endif
+
+Else
+
+	For nCont:=1 To Len(cTipoSaldo)
+		cTpSald := SubStr(cTipoSaldo,nCont,1)
+		
+		dbSelectArea("CT7")
+		dbSetOrder(1)
+		MsSeek(xFilial("CT7")+cMoeda+cTpSald+cContaIni,.T.) // Posiciona na primeira conta
+
+		// Processa todas as contas do intervalo
+		While CT7->CT7_FILIAL == xFilial("CT7") 	  .And.;
+			CT7->CT7_MOEDA  == cMoeda    .And.;
+			CT7->CT7_TPSALD == cTpSald   .And.;
+			CT7->CT7_CONTA  <= cContaFim .And. CT7->(!Eof()) 
+			
+			// Armazena a conta atual para ir para a proxima conta
+			cChaveTot := CT7_FILIAL+CT7->CT7_MOEDA+CT7->CT7_TpSald+CT7->CT7_CONTA
+			cChave    := CT7_FILIAL+CT7->CT7_CONTA+CT7->CT7_MOEDA+CT7->CT7_TpSald
+			cConta	  := CT7_CONTA
+		
+			CT7->(DbSetOrder(2))
+			
+			// Dentro da mesma conta, pesquisa o primeiro saldo anterior ou igual
+			// a data solicitada
+		 	If CT7->(MsSeek(cChave+DTOS(dData),.T.))
+				/// SE ENCONTROU REGISTRO DE SALDO NA DATA
+				nAntDeb		+= CT7->CT7_ANTDEB
+				nAntCrd		+= CT7->CT7_ANTCRD
+				nVLDebAnt 	:= CT7->CT7_ANTDEB
+				nVLCrdAnt  	:= CT7->CT7_ANTCRD						
+				
+				nDebito		+= CT7->CT7_DEBITO
+				nCredito	+= CT7->CT7_CREDIT	
+				
+				/// VERIFICA SE HÁ REGISTRO DE APURACAO NA DATA
+				lTeveAPLP	:= .F.
+				nRecOri		:= CT7->(Recno())
+				CT7->(dbSkip())
+				If CT7->CT7_LP == "Z" .and. CT7->(CT7_FILIAL+CT7_CONTA+CT7_MOEDA+CT7_TpSald) == cChave .And. CT7->CT7_DATA  <= dData
+					/// SE HOUVER REGISTRO DE APURACAO NA DATA SOMA A COLUNA DE MOVIMENTO
+					nDebito		+= CT7->CT7_DEBITO
+					nCredito	+= CT7->CT7_CREDIT
+					/// CONSIDERA O SALDO ACUMULADO DO REGISTRO DE APURACAO
+					nAtuDeb	  	+= CT7->CT7_ATUDEB
+					nAtuCrd   	+= CT7->CT7_ATUCRD
+					nVlDebAtu 	:= CT7->CT7_ATUDEB
+					nVlCrdAtu 	:= CT7->CT7_ATUCRD
+					lTeveAPLP := .T.
+				EndIf
+				CT7->(dbGoTo(nRecOri))
+		
+				If !lTeveAPLP
+					/// SE NAO HA REGISTRO DE APURACAO NA DATA
+					/// CONSIDERA O SALDO ACUMULADO DO REGISTRO NORMAL
+					nAtuDeb	  	+= CT7->CT7_ATUDEB
+					nAtuCrd   	+= CT7->CT7_ATUCRD
+					nVlDebAtu 	:= CT7->CT7_ATUDEB
+					nVlCrdAtu 	:= CT7->CT7_ATUCRD
+				EndIf
+	
+				If lImpAntLP .and. dDataLP <= CT7->CT7_DATA
+					// SE IMPRIME POSICAO ANTERIOR A LP E O SALDO FOR POSTERIOR À APURACAO INDICADA
+					If CT7->CT7_LP == "Z"
+						// SE O REGISTRO ATUAL É DE APURACAO (SÓ REGISTRO "Z" NA DATA)
+						nDebito		-= CT7->CT7_DEBITO
+						nCredito	-= CT7->CT7_CREDIT
+		
+						nAtuDeb		-= CT7->CT7_DEBITO
+						nAtuCrd		-= CT7->CT7_CREDIT
+						nVlDebAtu 	-= CT7->CT7_DEBITO
+						nVlCrdAtu 	-= CT7->CT7_CREDIT
+					Else
+						// SE O REGISTRO ATUAL NAO É DE APURACAO (TEM REGISTRO DE LANCAMENTO NA DATA)
+						CT7->(dbSkip())
+						If CT7->CT7_LP == "Z" .and. CT7->(CT7_FILIAL+CT7_CONTA+CT7_MOEDA+CT7_TpSald) == cChave .And. CT7->CT7_DATA  <= dData
+							// SE O PROXIMO REGISTRO FOR DE APURACAO E FOR DA MESMA CHAVE
+							// ABATE OS VALORES DA APURACAO NO VALOR DO SALDO
+				  			nDebito		-= CT7->CT7_DEBITO
+							nCredito	-= CT7->CT7_CREDIT
+		
+							nAtuDeb		-= CT7_DEBITO
+							nAtuCrd		-= CT7_CREDIT
+							nVlDebAtu 	-= CT7_DEBITO
+							nVlCrdAtu 	-= CT7_CREDIT
+						EndIf
+					EndIf
+				EndIf
+		
+				nSaldoAtu	+= (nVlCrdAtu - nVlDebAtu)
+				nSaldoAnt	+= (nVLCrdAnt - nVlDebAnt)
+			Else
+				/// SE NÃO ENCONTROU REGISTRO NA DATA
+				CT7->(dbSkip(-1))
+				/// VERIFICA O REGISTRO ANTERIOR
+				If CT7->(CT7_FILIAL+CT7_CONTA+CT7_MOEDA+CT7_TpSald) == cChave .And. CT7->CT7_DATA <= dData
+					nAntDeb		+= CT7->CT7_ATUDEB
+					nAntCrd		+= CT7->CT7_ATUCRD
+					nVLDebAnt	:= CT7->CT7_ATUDEB
+					nVLCrdAnt	:= CT7->CT7_ATUCRD
+					
+					nAtuDeb		+= CT7->CT7_ATUDEB
+					nAtuCrd		+= CT7->CT7_ATUCRD
+					nVlDebAtu	:= CT7->CT7_ATUDEB
+					nVlCrdAtu	:= CT7->CT7_ATUCRD
+					
+					If lImpAntLP .and. dDataLP <= CT7->CT7_DATA
+						If CT7->CT7_LP == "Z" .and. CT7->CT7_DATA == dDataLP
+							nAntDeb		-= CT7->CT7_ATUDEB
+							nAntCrd		-= CT7->CT7_ATUCRD
+							nAntDeb		+= CT7->CT7_ANTDEB
+							nAntCrd		+= CT7->CT7_ANTCRD
+							nVLDebAnt	:= CT7->CT7_ANTDEB
+							nVLCrdAnt	:= CT7->CT7_ANTCRD
+							
+							nAtuDeb		-= CT7->CT7_ATUDEB
+							nAtuCrd		-= CT7->CT7_ATUCRD
+							nAtuDeb		+= CT7->CT7_ANTDEB
+							nAtuCrd		+= CT7->CT7_ANTCRD
+							nVlDebAtu	:= CT7->CT7_ANTDEB
+							nVlCrdAtu	:= CT7->CT7_ANTCRD
+						Else
+							/// E FOR POSICAO ANTERIOR A LP
+							bCondLP  	:= { || (CT7->CT7_FILIAL == xFilial() .And.;
+							CT7->CT7_CONTA == cConta .And. CT7->CT7_MOEDA == cMoeda .And.;
+							CT7->CT7_TPSALD == cTpSald .And. CT7->CT7_LP == "Z" .And.;
+							dDataLp <= dData) }
+							CT7->(dbSetOrder(5))
+							CT7->(dbSeek(xFilial("CT7")+"Z"+cConta+cMoeda+cTpSald+DTOS(dDataLP),.T.))
+							aSldLP		:= CtbSldLP("CT7",dDataLP,bCondLP,dData)
+							nAtuDeb		-= aSldLP[1]
+							nAtuCrd		-= aSldLP[2]
+							nVLDebAnt  	-= aSldLP[1]
+							nVLCrdAnt  	-= aSldLP[2]
+		  	  	
+							nAntDeb		-= aSldLP[1]
+							nAntCrd		-= aSldLP[2]
+							nVlDebAtu 	-= aSldLP[1]
+							nVlCrdAtu 	-= aSldLP[2]
+						EndIf
+					EndIf
+					
+					nSaldoAtu	+= (nVlCrdAtu - nVlDebAtu)
+					nSaldoAnt	+= (nVLCrdAnt - nVlDebAnt)
+				EndIf
+			EndIf
+			
+			CT7->(DbSetOrder(1))
+			// Vai para a proxima conta
+			CT7->(MsSeek(IncLast(cChaveTot),.T.))
+			
+		Enddo
+		
+	Next nCont
+
+Endif
+
+CT7->(RestArea(aSaveArea))
+RestARea(aSaveAnt)
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Retorno:                                             ³
+//³ [1] Saldo Atual (com sinal)                          ³
+//³ [2] Debito na Data                                   ³
+//³ [3] Credito na Data                                  ³
+//³ [4] Saldo Atual Devedor                              ³
+//³ [5] Saldo Atual Credor                               ³
+//³ [6] Saldo Anterior (com sinal)                       ³
+//³ [7] Saldo Anterior Devedor                           ³
+//³ [8] Saldo Anterior Credor                            ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+//      [1]       [2]     [3]      [4]     [5]     [6]       [7]     [8]
+Return {nSaldoAtu,nDebito,nCredito,nAtuDeb,nAtuCrd,nSaldoAnt,nAntDeb,nAntCrd}
