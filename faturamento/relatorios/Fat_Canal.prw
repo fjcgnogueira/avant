@@ -232,7 +232,7 @@ Static Function GeraArqTRB()
 		BeginSql alias 'TRB'
 
 			SELECT D2_FILIAL Filial,
-				F2_REGIAO Regiao
+				%Exp:cField1%
 				SUM(D2_QUANT) QTD, 
 				SUM(D2_TOTAL) Reais
 			FROM %table:SD2% SD2
@@ -240,17 +240,17 @@ Static Function GeraArqTRB()
 			INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel% 
 			INNER JOIN %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel% 
 			INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel% 
-			INNER JOIN %table:SB1% SB1 ON D2_COD = B1_COD AND SB1.%notDel% 
+			INNER JOIN %table:SB1% SB1 ON D2_COD = B1_COD AND SB1.%notDel%
 			INNER JOIN %table:SBM% SBM ON D2_FILIAL = BM_FILIAL AND B1_GRUPO = BM_GRUPO AND SBM.%notDel%
 			INNER JOIN %table:SX5% SX5 ON D2_FILIAL = X5_FILIAL AND X5_TABELA = 'CN' AND F2_X_CANAL = X5_CHAVE AND SX5.%notDel%
-			WHERE F4_DUPLIC = 'S' 
+			WHERE F4_DUPLIC = 'S'
 				%Exp:cWhere%
 				AND D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_TIPO = 'N' 
 				AND D2_TIPO = 'N'
-				AND D2_FILIAL = %Exp:_cFilial%
+				AND D2_FILIAL = %Exp:_cFilial% 
 				AND SD2.%notDel%
-			GROUP BY D2_FILIAL,F2_REGIAO
-			ORDER BY Filial,Reais DESC,Regiao
+			GROUP BY %Exp:cGroup1%
+			ORDER BY %Exp:cOrder1%
 			
 		EndSql
 		         
