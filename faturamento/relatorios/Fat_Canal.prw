@@ -427,7 +427,7 @@ If _cCanal $ "GERAL"
 ElseIf _cCanal $ "VENDEDORES"
 	_cArquivo := "\MODELOS\FAT_DIARIO_VND.HTM"
 Else
-	_cArquivo := "\MODELOS\FAT_CANAL_GER_TMP.HTM"
+	_cArquivo := "\MODELOS\FAT_CANAL_GER.HTM"
 Endif
 
 If _cCanal <> 'VENDEDORES'
