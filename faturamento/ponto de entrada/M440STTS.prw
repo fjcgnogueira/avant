@@ -48,7 +48,8 @@ SE4->(DbSetOrder(1),DbSeek(xFilial("SE4")+SC5->C5_CONDPAG))
 
 If "ANTECIPADO" $ Upper(SE4->E4_DESCRI)
 	If !Empty(cGrpAprCR)
-		cGrpAprov	:= cGrpAprCR
+		// Comentado temporariamente para teste, pedidos de bonificacao com pgto antecipado estao entrando em aberto - Fernando Nogueira
+		//cGrpAprov	:= cGrpAprCR
 		If !IsBlind()
 			MsgInfo("A Condição de Pagamento do Pedido é de recebimento 'Antecipado'."+CRLF+;
 					 "Por isso a Alçada de Aprovação será gerada para o Grupo de Aprovação do Contas a Receber: " + cGrpAprov,"Alçada de Aprovação")
