@@ -772,6 +772,7 @@ If TRB->(!Eof())
 
 EndIf 
 
+TRA->(DbCloseArea())
 TRB->(DbCloseArea())
 TRC->(DbCloseArea())
         
