@@ -26,7 +26,7 @@ User Function ALTVOLU()
 	Local   aAreaSDB  := SDB->(GetArea())
 	Local   cTes      := ""
 	Local   cGeraNF   := Space(01)
-	Local   cNota     := ""
+	Local   cNota     := Space(09)
 	Local   cSerie    := "1  "
 	Local   cContinue := Space(01)
 	Local   cCondPag  := SC5->C5_CONDPAG
@@ -123,13 +123,15 @@ User Function ALTVOLU()
 			VtClear()
 			
 			@ 01,00 VTSay "Pedido :" + SC5->C5_NUM		
-			@ 02,00 VTSay "Gerar NF? (S/N)"
-			@ 03,00 VTGet cGeraNF Valid(If(cGeraNF $ ("SN"),.T.,Eval({||VtAlert("Somente S/N","Aviso",.T.,4000,3),.F.})))
+			@ 02,00 VTSay "Gerar NF? (1-S/2-N)"
+			@ 03,00 VTGet cGeraNF Valid(If(cGeraNF $ ("12"),.T.,Eval({||VtAlert("Somente 1/2","Aviso",.T.,4000,3),.F.})))
 			
 			VTRead
 			
-			If cGeraNF == "S"
+			If cGeraNF == "1"
 			
+				@ 04,00 VTSay "Gerando NF..."
+				
 				cNota := MaPvlNfs(aPVlNFs,cSerie,.F.,.F.,.T.,.F.,.F.,1,1,.T.,.F.,,,)
 								
 				/*/
@@ -157,8 +159,8 @@ User Function ALTVOLU()
 				Else
 					VtClear()
 					
-					@ 01,00 VTSay "Gerada a Nota "+cNota
-					@ 02,00 VTSay "Tecle Enter para Continuar"
+					@ 01,00 VTSay "Gerado Nota "+Right(cNota,8)
+					@ 02,00 VTSay "Enter para Continuar"
 					@ 03,00 VTGet cContinue
 					
 					VTRead
