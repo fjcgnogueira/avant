@@ -78,7 +78,7 @@ Static Function AjustaSX1(cPerg)
 	Local aHelpSpa := {}
 
 	aHelpPor := {"Definir Canal","Específico: GERAL","Obs: em branco dispara todas,","menos o específico"}
-	PutSX1(cPerg,"01","Canal ?","","","mv_ch1","C",06,0,0,"G","","CN","","","mv_par01","","","","","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
+	PutSX1(cPerg,"01","Canal ?","","","mv_ch1","C",06,0,0,"G","","T3","","","mv_par01","","","","","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 	aHelpPor := {"Definir o Grupo","Obs: definindo grupo, o relatório agrupa","por produto, em branco, por grupo"}
 	PutSX1(cPerg,"02","Grupo ?","","","mv_ch2","C",04,0,0,"G","","SBM","","","mv_par02","","","","","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 	aHelpPor := {"Tipos:","- Diario","- Acumulado (A partir do ultimo fech.)","- Personalizado (Parâmetros abaixo)"}

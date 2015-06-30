@@ -119,17 +119,19 @@ User Function Fat_Canal(aParam)
 	_cCanal := AllTrim(aParam[1])
 	
 	If Empty(_cCanal)
-		If SX5->(dbSeek(xFilial("SX5")+"CN"))
-			While SX5->(!EoF()) .And. SX5->X5_FILIAL+SX5->X5_TABELA = xFilial("SX5")+"CN"
+		If SX5->(dbSeek(xFilial("SX5")+"T3CN"))
+			While SX5->(!EoF()) .And. SX5->X5_FILIAL+SX5->X5_TABELA+LEFT(SX5->X5_CHAVE,2) = xFilial("SX5")+"T3CN"
 				_cCanal := SX5->X5_CHAVE
 				
-				If _lSchedule
-					GeraArqTRB()
-					EnviaEmail(lEnd,_oProcess)
-				Else
-					LjMsgRun("Montando massa de dados temporaria ...",,{|| CursorWait(),GeraArqTRB(),CursorArrow()})
-					_oProcess := MsNewProcess():New({|lEnd| EnviaEmail(lEnd,_oProcess)},"Processando...","Processando e-mail...",.T.)
-					_oProcess:Activate()
+				If _cCanal <> 'CN0001' // Retail esta estourando a string, conforme conversado com o Wesley, nao precisa - Fernando Nogueira
+					If _lSchedule
+						GeraArqTRB()
+						EnviaEmail(lEnd,_oProcess)
+					Else
+						LjMsgRun("Montando massa de dados temporaria ...",,{|| CursorWait(),GeraArqTRB(),CursorArrow()})
+						_oProcess := MsNewProcess():New({|lEnd| EnviaEmail(lEnd,_oProcess)},"Processando...","Processando e-mail...",.T.)
+						_oProcess:Activate()
+					Endif
 				Endif
 				
 				SX5->(dbSkip())
@@ -190,11 +192,11 @@ Static Function GeraArqTRB()
 	EndIf
 	
 	// Condicoes
-	If !Empty(_cGrupo) .And. SX5->(dbSeek(xFilial("SX5")+"CN"+_cCanal))
+	If !Empty(_cGrupo) .And. SX5->(dbSeek(xFilial("SX5")+"T3"+_cCanal))
 		cWhere := "% AND B1_GRUPO = '"+AllTrim(_cGrupo)+"' AND F2_X_CANAL = '"+_cCanal+"'%"
 	ElseIf !Empty(_cGrupo)
 		cWhere := "% AND B1_GRUPO = '"+AllTrim(_cGrupo)+"'%"
-	ElseIf SX5->(dbSeek(xFilial("SX5")+"CN"+_cCanal))
+	ElseIf SX5->(dbSeek(xFilial("SX5")+"T3"+_cCanal))
 		cWhere := "% AND F2_X_CANAL = '"+_cCanal+"'%"
 	EndIf
 
@@ -242,7 +244,7 @@ Static Function GeraArqTRB()
 			INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel% 
 			INNER JOIN %table:SB1% SB1 ON D2_COD = B1_COD AND SB1.%notDel%
 			INNER JOIN %table:SBM% SBM ON D2_FILIAL = BM_FILIAL AND B1_GRUPO = BM_GRUPO AND SBM.%notDel%
-			INNER JOIN %table:SX5% SX5 ON D2_FILIAL = X5_FILIAL AND X5_TABELA = 'CN' AND F2_X_CANAL = X5_CHAVE AND SX5.%notDel%
+			INNER JOIN %table:SX5% SX5 ON D2_FILIAL = X5_FILIAL AND X5_TABELA = 'T3' AND F2_X_CANAL = X5_CHAVE AND SX5.%notDel%
 			WHERE F4_DUPLIC = 'S'
 				%Exp:cWhere%
 				AND D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_TIPO = 'N' 
@@ -447,7 +449,7 @@ If TRB->(!Eof())
 		Endif
 		oHtml:ValByName("cHora"    , Substr(Time(),1,5))
 		oHtml:ValByName("cFilial"  , SM0->M0_FILIAL)
-		oHtml:ValByName("cCanal", If(_cCanal $ "GERAL",_cCanal,AllTrim(Posicione("SX5",1,xFilial("SX5")+"CN"+_cCanal,"X5_DESCRI"))))
+		oHtml:ValByName("cCanal", If(_cCanal $ "GERAL",_cCanal,AllTrim(Posicione("SX5",1,xFilial("SX5")+"T3"+_cCanal,"X5_DESCRI"))))
 	EndIf
 		
 	If _cCanal $ "GERAL"
@@ -512,7 +514,7 @@ If TRB->(!Eof())
 		aAdd((oHTML:ValByName("aGrp.cVlrGrp"))   , Transform(_nTotReal, _cD2Total))
 		aAdd((oHTML:ValByName("aGrp.cVlrPrcGrp")), "100,00%")
 		
-	ElseIf SX5->(dbSeek(xFilial("SX5")+"CN"+_cCanal))
+	ElseIf SX5->(dbSeek(xFilial("SX5")+"T3"+_cCanal))
 	
 		// Total por Regiao
 		While TRA->(!Eof())	
@@ -740,10 +742,10 @@ If TRB->(!Eof())
 			_cSubject := _cTitulo+" - Geral - "+AllTrim(Posicione("SBM",1,xFilial("SBM")+AllTrim(_cGrupo),"BM_DESC"))+" ["+DTOC(Date())+"]"
 		ElseIf _cCanal $ "GERAL"
 			_cSubject := _cTitulo+" - Geral ["+DTOC(Date())+"]"
-		ElseIf SX5->(dbSeek(xFilial("SX5")+"CN"+_cCanal)) .And. !Empty(_cGrupo)
-			_cSubject := _cTitulo+" - "+AllTrim(Posicione("SX5",1,xFilial("SX5")+"CN"+_cCanal,"X5_DESCRI"))+" - "+AllTrim(Posicione("SBM",1,xFilial("SBM")+AllTrim(_cGrupo),"BM_DESC"))+" ["+DTOC(Date())+"]"
-		ElseIf SX5->(dbSeek(xFilial("SX5")+"CN"+_cCanal))
-			_cSubject := _cTitulo+" - "+AllTrim(Posicione("SX5",1,xFilial("SX5")+"CN"+_cCanal,"X5_DESCRI"))+" ["+DTOC(Date())+"]"
+		ElseIf SX5->(dbSeek(xFilial("SX5")+"T3"+_cCanal)) .And. !Empty(_cGrupo)
+			_cSubject := _cTitulo+" - "+AllTrim(Posicione("SX5",1,xFilial("SX5")+"T3"+_cCanal,"X5_DESCRI"))+" - "+AllTrim(Posicione("SBM",1,xFilial("SBM")+AllTrim(_cGrupo),"BM_DESC"))+" ["+DTOC(Date())+"]"
+		ElseIf SX5->(dbSeek(xFilial("SX5")+"T3"+_cCanal))
+			_cSubject := _cTitulo+" - "+AllTrim(Posicione("SX5",1,xFilial("SX5")+"T3"+_cCanal,"X5_DESCRI"))+" ["+DTOC(Date())+"]"
 		Endif
 		
 		oProcess:cSubject := Upper(_cSubject)
