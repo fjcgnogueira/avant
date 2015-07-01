@@ -30,6 +30,7 @@ _cSerie     := ""
 nDescTot    := 0
 nCredito    := 0  
 nDebito     := 0
+nVlrTotal   := 0
 
 dbSelectArea("SE1")
 dbSetOrder(2)
@@ -104,8 +105,16 @@ While SD2->(!Eof()) .And. 	SD2->D2_FILIAL == xFilial("SD2") .And. SD2->D2_DOC ==
 	SA3->(dbSeek(xFilial("SA3")+SC5->C5_VEND1))
 	
 	If AllTrim(SC6->C6_TPOPERW) == 'VENDAS' .And. SC6->C6_X_GERE < SA3->A3_X_DSCGE .And. SC6->C6_X_RAMO < 19
-		nDescTot := (SC6->C6_X_VLORI * (1 - SA3->A3_X_DSCGE/100)) * SD2->D2_QUANT
-		nCredito := SD2->D2_TOTAL - nDescTot
+		
+		// Fernando Nogueira - Pega o preco de venda, caso ele seja maior que o de lista
+		If SC6->C6_X_VLORI <= SD2->D2_PRCVEN
+			nDescTot  := (SC6->C6_X_VLORI * (1 - SA3->A3_X_DSCGE/100)) * SD2->D2_QUANT
+		Else
+			nDescTot  := (SD2->D2_PRCVEN * (1 - SA3->A3_X_DSCGE/100)) * SD2->D2_QUANT
+		Endif
+		
+		nVlrTotal := SD2->D2_TOTAL
+		nCredito  := nVlrTotal - nDescTot
 		
 		// Credito Maior Igual 1, eliminando os arredondamentos
 		If nCredito >= 1 .And. nDescTot > 0
