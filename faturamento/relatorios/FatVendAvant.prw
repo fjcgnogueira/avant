@@ -58,6 +58,7 @@ oSection1 := TRSection():New(oReport,"Fat. por Vendedor",{"TRB"})
 TRCell():New(oSection1,"Codigo","TRB","Codigo",           ,TamSx3("F2_VEND1")[1])
 TRCell():New(oSection1,"Vendedor","TRB","Vendedor",           ,TamSx3("A3_NOME")[1])// ,,{||Posicione("SA3",1,xFilial("SA3")+TRB->Vendedor,"A3_NOME")})
 TRCell():New(oSection1,"Regiao"  ,"TRB","Regiao"  ,           ,TamSx3("F2_REGIAO")[1])
+TRCell():New(oSection1,"Canal"  ,"TRB","Canal"  ,           ,TamSx3("F2_X_CANAL")[1])
 TRCell():New(oSection1,"Quant"   ,"TRB","Quant"   ,"999999999",TamSx3("D2_QUANT")[1])
 TRCell():New(oSection1,"Valor"   ,"TRB","Valor"   ,cPctD2Total,TamSx3("D2_TOTAL")[1])
 
@@ -135,6 +136,7 @@ Static Function GeraArqTRB()
 			SF2.F2_VEND1 AS Codigo,
 			SA3.A3_NOME AS Vendedor,
 			SF2.F2_REGIAO AS Regiao,
+			SF2.F2_X_CANAL AS Canal,
 			SUM(SD2.D2_QUANT) AS Quant,
 			SUM(SD2.D2_TOTAL) AS Valor
 		FROM  %table:SF2% AS SF2
@@ -147,8 +149,8 @@ Static Function GeraArqTRB()
 		AND SF2.F2_REGIAO BETWEEN %Exp:MV_PAR03% AND %Exp:MV_PAR04% 
 		AND SF2.F2_FILIAL = %Exp:xFilial("SD2")% AND SF2.F2_EMISSAO BETWEEN %Exp:DTOS(MV_PAR05)% AND %Exp:DTOS(MV_PAR06)% 
 		AND SF2.%notDel% AND SF4.F4_DUPLIC = 'S' AND F2_TIPO='N'   
-		GROUP BY SF2.F2_VEND1,SA3.A3_NOME,SF2.F2_REGIAO
-		ORDER BY Codigo,Vendedor, Regiao
+		GROUP BY SF2.F2_VEND1,SA3.A3_NOME,SF2.F2_REGIAO, SF2.F2_X_CANAL
+		ORDER BY Codigo,Vendedor, Regiao, Canal
 
 	EndSql
 		

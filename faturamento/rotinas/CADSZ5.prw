@@ -234,11 +234,10 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 					{"A1_NMCOMP"	,UPPER(SZ5->Z5_PROPRIE), Nil},; 
 					{"A1_DESCWEB"	,SZ5->Z5_DESCWEB	   , Nil},;   
 					{"A1_CNAE"		,SZ5->Z5_CNAE		   , Nil},;
-					{"A1_X_HORA"	,SZ5->Z5_X_HORA	       , Nil}},;
-					{"A1_SATIV1"	,SZ5->Z5_X_CANAL       , Nil}},;
-					{"A1_SATIV2"	,SZ5->Z5_X_SEGME       , Nil}},;
-					{"A1_SATIV3"	,SZ5->Z5_X_PERFI       , Nil}}										
-										
+					{"A1_X_HORA"	,SZ5->Z5_X_HORA	       , Nil},;
+					{"A1_SATIV1"	,SZ5->Z5_X_CANAL       , Nil},;
+					{"A1_SATIV2"	,SZ5->Z5_X_SEGME       , Nil},;
+					{"A1_SATIV4"	,SZ5->Z5_X_PERFI       , Nil}}					
 
 	MSExecAuto({|x,y| MATA030(x,y)}, aValues, nOpc)			
 
