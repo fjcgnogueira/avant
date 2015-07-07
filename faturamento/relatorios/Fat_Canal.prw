@@ -758,7 +758,11 @@ If TRB->(!Eof())
 				oProcess:cBCC := "fernando.nogueira@avantled.com.br"				
 			Else
 				oProcess:cTo  := SepEmail(_cString,_cCanal)
-				oProcess:cCC  := SepEmail(_cString,"GERAL")+";"+_cEmailCC
+				If aParam[3] == "ACUMULADO" .And. _cGrupo = 'CN0002'
+					oProcess:cCC := SepEmail(_cString,"GERAL")+";"+_cEmailCC
+				Else
+					oProcess:cCC := _cEmailCC
+				Endif
 				oProcess:cBCC := "fernando.nogueira@avantled.com.br"				
 			Endif
 		Else

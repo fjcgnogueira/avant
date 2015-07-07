@@ -280,6 +280,20 @@ Static Function GeraArqTRB()
 		EndSql
 	
 	Else
+	
+		// Total por Canal Alimentar
+		BeginSql alias 'TRA'
+
+			SELECT SUM(D2_TOTAL) TOTAL FROM SD2010 SD2 
+			INNER JOIN  %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND SF4.%notDel%
+			INNER JOIN  %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel%
+			INNER JOIN  %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel%
+			INNER JOIN  %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel%
+			WHERE D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_TIPO = 'N' 
+				AND SD2.%notDel% AND D2_FILIAL = %Exp:_cFilial% AND F4_DUPLIC = 'S' AND F2_X_CANAL = 'CN0002'
+				%Exp:cWhere%
+		
+		EndSql
 
 		// Por Vendedor
 		BeginSql alias 'TRB'
@@ -316,6 +330,8 @@ Static Function GeraArqTRB()
 			ORDER BY %Exp:cOrder1%
 	
 		EndSql
+		
+		ConOut(GetLastQuery()[2])
 		
 		// Por Grupo de Produto	/ Produto
 		BeginSql alias 'TRC'
@@ -491,6 +507,8 @@ If TRB->(!Eof())
 		aAdd((oHTML:ValByName("aGrp.cVlrPrcGrp")), "100,00%")
 		
 	ElseIf _cRegiao $ _cRegionais
+	
+		oHtml:ValByName("cAlimentar", Transform(TRA->TOTAL, _cD2Total ))
 	
 		While TRB->(!Eof())	
 			_nTotQtd  += TRB->QTD
@@ -714,7 +732,11 @@ If TRB->(!Eof())
 				oProcess:cBCC := "fernando.nogueira@avantled.com.br"				
 			Else
 				oProcess:cTo  := SepEmail(_cString,_cRegiao)
-				oProcess:cCC  := SepEmail(_cString,"GERAL")+";"+_cEmailCC
+				If aParam[3] == "ACUMULADO"
+					oProcess:cCC := SepEmail(_cString,"GERAL")+";"+_cEmailCC
+				Else
+					oProcess:cCC := _cEmailCC
+				Endif
 				oProcess:cBCC := "fernando.nogueira@avantled.com.br"				
 			Endif
 		Else
@@ -730,6 +752,7 @@ If TRB->(!Eof())
 
 EndIf 
 
+TRA->(DbCloseArea())
 TRB->(DbCloseArea())
 TRC->(DbCloseArea())
         
