@@ -54,6 +54,7 @@ User Function Fat_Diario(aParam)
 	Private _cEmail     := aParam[5]
 	Private _cEmailCC   := aParam[6]
 	Private _lSchedule  := aParam[7]
+	Private lAcumulado  := aParam[3] == "ACUMULADO"
 	
 	// Padrao do Schedule eh Falso
 	If Empty(_lSchedule)
@@ -732,7 +733,7 @@ If TRB->(!Eof())
 				oProcess:cBCC := "fernando.nogueira@avantled.com.br"				
 			Else
 				oProcess:cTo  := SepEmail(_cString,_cRegiao)
-				If aParam[3] == "ACUMULADO"
+				If lAcumulado
 					oProcess:cCC := SepEmail(_cString,"GERAL")+";"+_cEmailCC
 				Else
 					oProcess:cCC := _cEmailCC
