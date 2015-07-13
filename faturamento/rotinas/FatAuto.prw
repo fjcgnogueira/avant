@@ -94,6 +94,26 @@ While TRB->(!EoF())
 		SC9->(dbSkip())
 	End
 	
+	/*/
+	ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	³Parametros³ExpA1: Array com os itens a serem gerados                                                 ³
+	³          ³ExpC2: Serie da Nota Fiscal                                                               ³
+	³          ³ExpL3: Mostra Lct.Contabil                                                                ³
+	³          ³ExpL4: Aglutina Lct.Contabil                                                              ³
+	³          ³ExpL5: Contabiliza On-Line                                                                ³
+	³          ³ExpL6: Contabiliza Custo On-Line                                                          ³
+	³          ³ExpL7: Reajuste de preco na nota fiscal                                                   ³
+	³          ³ExpN8: Tipo de Acrescimo Financeiro                                                       ³
+	³          ³ExpN9: Tipo de Arredondamento                                                             ³
+	³          ³ExpLA: Atualiza Amarracao Cliente x Produto                                               ³
+	³          ³ExplB: Cupom Fiscal                                                                       ³
+	³          ³ExpCC: Numero do Embarque de Exportacao                                                   ³
+	³          ³ExpBD: Code block para complemento de atualizacao dos titulos financeiros.                ³
+	³          ³ExpBE: Code block para complemento de atualizacao dos dados apos a geracao da nota fiscal.³
+	³          ³ExpBF: Code Block de atualizacao do pedido de venda antes da geracao da nota fiscal       ³
+	ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	/*/
+	
 	cNota := MaPvlNfs(aPVlNFs,cSerie,.F.,.F.,.T.,.F.,.F.,1,1,.T.,.F.,,,)
 	
 	ConOut("["+DtoC(Date())+" "+Time()+"] [FatAuto] Gerada a Nota: "+cNota)
