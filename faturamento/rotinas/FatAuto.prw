@@ -43,11 +43,11 @@ BeginSql alias 'TRB'
 	SELECT PEDIDO FROM
 		(SELECT * FROM
 			(SELECT C6_NUM PEDIDO,CASE WHEN ISNULL(SC9.C9_ITEM,'SL') = 'SL' THEN 'SL' ELSE 'OK' END C9_OK FROM %table:SC5% SC5
-			INNER JOIN (SELECT C9_PEDIDO FROM %table:SC9% SC9
+			INNER JOIN (SELECT C9_PEDIDO,C9_BLWMS FROM %table:SC9% SC9
 							WHERE SC9.%notDel% AND C9_FILIAL = %xfilial:SC9% AND C9_BLCRED = ' ' AND C9_BLEST = ' ' 
-							AND (C9_BLWMS = '05' AND C9_XCONF = 'S' OR C9_BLWMS = ' ')
-						GROUP BY C9_PEDIDO) PED
-						ON C5_NUM = PED.C9_PEDIDO
+							AND ((C9_BLWMS = '05' AND C9_XCONF = 'S') OR C9_BLWMS = ' ')
+						GROUP BY C9_PEDIDO,C9_BLWMS) PED
+						ON C5_NUM = PED.C9_PEDIDO AND ((C9_BLWMS = '05' AND C5_VOLUME1 > 0) OR C9_BLWMS = ' ')
 			INNER JOIN %table:SC6% SC6 ON C5_FILIAL = C6_FILIAL AND C5_NUM = C6_NUM AND SC6.%notDel%
 			LEFT  JOIN (SELECT C9_PEDIDO,C9_ITEM,SUM(C9_QTDLIB) C9_QTDLIB FROM %table:SC9% SC9
 							WHERE SC9.%notDel% AND C9_FILIAL = %xfilial:SC9% AND C9_BLCRED = ' ' AND C9_BLEST = ' ' 
@@ -68,6 +68,8 @@ While TRB->(!EoF())
 	SC9->(dbSetOrder(01))
 	SC9->(dbGoTop())
 	SC9->(dbSeek(xFilial("SC9")+TRB->PEDIDO))
+	
+	aPVlNFs  := {}
 	
 	While SC9->(!Eof()) .And. SC9->C9_PEDIDO == TRB->PEDIDO
 	
@@ -94,10 +96,14 @@ While TRB->(!EoF())
 	
 	cNota := MaPvlNfs(aPVlNFs,cSerie,.F.,.F.,.T.,.F.,.F.,1,1,.T.,.F.,,,)
 	
-	ConOut("Gerada a Nota: "+cNota)
+	ConOut("["+DtoC(Date())+" "+Time()+"] [FatAuto] Gerada a Nota: "+cNota)
 	
 	TRB->(dbSkip())
 End
+
+If Empty(cNota)
+	ConOut("["+DtoC(Date())+" "+Time()+"] [FatAuto] Nenhuma nota a gerar")
+Endif
 
 RESET ENVIRONMENT
 
