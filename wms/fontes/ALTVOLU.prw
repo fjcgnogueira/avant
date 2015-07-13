@@ -17,24 +17,11 @@
 */
 User Function ALTVOLU()
 
-	Local   aAreaSC9  := SC9->(GetArea())
-	Local   aAreaSC6  := SC6->(GetArea())
-	Local   aAreaSE4  := SE4->(GetArea())
-	Local   aAreaSB1  := SB1->(GetArea())
-	Local   aAreaSB2  := SB2->(GetArea())
-	Local   aAreaSF4  := SF4->(GetArea())
-	Local   aAreaSDB  := SDB->(GetArea())
-	Local   cTes      := ""
-	Local   cGeraNF   := Space(01)
-	Local   cNota     := Space(09)
-	Local   cSerie    := "1  "
-	Local   cContinue := Space(01)
-	Local   cCondPag  := SC5->C5_CONDPAG
-	Local   lGeraNota := .T.
+	Local   aAreaSC9 := SC9->(GetArea())
+	Local   aAreaSDB := SDB->(GetArea())
 
 	Private nVolumes := 0
-	Private nVolAtu	  := SC5->C5_VOLUME1
-	Private aPVlNFs  := {}
+	Private nVolAtu	 := SC5->C5_VOLUME1
 	
 	VtClear()
 	
@@ -91,96 +78,14 @@ User Function ALTVOLU()
 			
 				SDB->(dbSkip())
 			End
-			
-			// Alimenta o array para geracao da nota fiscal, conforme liberacoes do Pedido - Fernando Nogueira 27/06/2015
-			If Empty(SC9->C9_BLCRED) .And. Empty(SC9->C9_BLEST) .And. SC9->C9_XCONF == "S" .And. SC9->C9_BLWMS >= "05"
-				
-				cTes := Posicione("SC6",1,xFilial("SC6")+SC9->C9_PEDIDO+SC9->C9_ITEM,"C6_TES")
-				aadd(aPvlNfs,{	SC9->C9_PEDIDO,;
-								SC9->C9_ITEM,;
-								SC9->C9_SEQUEN,;
-								SC9->C9_QTDLIB,;
-								SC9->C9_PRCVEN,;
-								SC9->C9_PRODUTO,;
-								Posicione("SF4",1,xFilial("SF4")+cTes,"F4_ISS")=="S",;
-								SC9->(RecNo()),;
-								SC5->(Recno()),;
-								SC6->(Recno(Posicione("SC6",1,xFilial("SC6")+SC9->C9_PEDIDO+SC9->C9_ITEM,""))),;
-								SE4->(Recno(Posicione("SE4",1,xFilial("SE4")+cCondPag,""))),;
-								SB1->(Recno(Posicione("SB1",1,xFilial("SB1")+SC9->C9_PRODUTO,""))),;
-								SB2->(Recno(Posicione("SB2",1,xFilial("SB2")+SC9->C9_PRODUTO+SC9->C9_LOCAL,""))),;
-								SF4->(Recno(Posicione("SF4",1,xFilial("SF4")+cTes,"")))})
-			Else
-				lGeraNota := .F.
-			Endif
 							
 			SC9->(dbSkip())
 		End
-		
-		// Geracao da Nota Fiscal - Fernando Nogueira 27/06/2015
-		If Len(aPvlNfs) > 0 .And. lGeraNota
-		
-			VtClear()
-			
-			@ 01,00 VTSay "Pedido :" + SC5->C5_NUM		
-			@ 02,00 VTSay "Gerar NF? (1-S/2-N)"
-			@ 03,00 VTGet cGeraNF Valid(If(cGeraNF $ ("12"),.T.,Eval({||VtAlert("Somente 1/2","Aviso",.T.,4000,3),.F.})))
-			
-			VTRead
-			
-			If cGeraNF == "1"
-			
-				@ 04,00 VTSay "Gerando NF..."
-				
-				cNota := MaPvlNfs(aPVlNFs,cSerie,.F.,.F.,.T.,.F.,.F.,1,1,.T.,.F.,,,)
-								
-				/*/
-				ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-				³Parametros³ExpA1: Array com os itens a serem gerados                                                 ³
-				³          ³ExpC2: Serie da Nota Fiscal                                                               ³
-				³          ³ExpL3: Mostra Lct.Contabil                                                                ³
-				³          ³ExpL4: Aglutina Lct.Contabil                                                              ³
-				³          ³ExpL5: Contabiliza On-Line                                                                ³
-				³          ³ExpL6: Contabiliza Custo On-Line                                                          ³
-				³          ³ExpL7: Reajuste de preco na nota fiscal                                                   ³
-				³          ³ExpN8: Tipo de Acrescimo Financeiro                                                       ³
-				³          ³ExpN9: Tipo de Arredondamento                                                             ³
-				³          ³ExpLA: Atualiza Amarracao Cliente x Produto                                               ³
-				³          ³ExplB: Cupom Fiscal                                                                       ³
-				³          ³ExpCC: Numero do Embarque de Exportacao                                                   ³
-				³          ³ExpBD: Code block para complemento de atualizacao dos titulos financeiros.                ³
-				³          ³ExpBE: Code block para complemento de atualizacao dos dados apos a geracao da nota fiscal.³
-				³          ³ExpBF: Code Block de atualizacao do pedido de venda antes da geracao da nota fiscal       ³
-				ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-				/*/
-				
-				If Empty(cNota)
-					VtAlert("Nota nao gerada.","Aviso",.T.,4000,3)
-				Else
-					VtClear()
-					
-					@ 01,00 VTSay "Gerado Nota "+Right(cNota,8)
-					@ 02,00 VTSay "Enter para Continuar"
-					@ 03,00 VTGet cContinue
-					
-					VTRead
-				Endif
-
-			Endif
-		
-		Else		
-			VtAlert("Pedido: " + SC5->C5_NUM + " com iten(s) bloqueado(s)","Aviso",.T.,4000,3)
-		Endif
 		
 	Else
 		VtAlert("Registro Bloqueado","Aviso",.T.,4000,3)
 	Endif
 	
-	SC6->(RestArea(aAreaSC6))
-	SE4->(RestArea(aAreaSE4))
-	SB1->(RestArea(aAreaSB1))
-	SB2->(RestArea(aAreaSB2))
-	SF4->(RestArea(aAreaSF4))
 	SC9->(RestArea(aAreaSC9))
 	SDB->(RestArea(aAreaSDB))
 
