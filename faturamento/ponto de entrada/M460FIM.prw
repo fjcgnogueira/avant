@@ -24,6 +24,9 @@ _aAreaSD2 	:= getArea("SD2")
 _aAreaSC5 	:= getArea("SC5")
 _aAreaSC6 	:= getArea("SC6")
 _aAreaSA3 	:= getArea("SA3")
+_aAreaSB1 	:= getArea("SB1")
+_aAreaSBM 	:= getArea("SBM")
+_aAreaZZF 	:= getArea("ZZF")
 _cNota      := ""
 _cSerie     := ""
 
@@ -103,8 +106,11 @@ While SD2->(!Eof()) .And. 	SD2->D2_FILIAL == xFilial("SD2") .And. SD2->D2_DOC ==
 	SC5->(dbSeek(xFilial("SC5")+SD2->D2_PEDIDO))
 	SC6->(dbSeek(xFilial("SC6")+SD2->D2_PEDIDO+SD2->D2_ITEMPV))
 	SA3->(dbSeek(xFilial("SA3")+SC5->C5_VEND1))
+	SB1->(dbSeek(xFilial("SB1")+SD2->D2_COD))
+	SBM->(dbSeek(xFilial("SBM")+SB1->B1_GRUPO))
+	ZZF->(dbSeek(xFilial("ZZF")+SB1->B1_FAMAVAN))
 	
-	If AllTrim(SC6->C6_TPOPERW) == 'VENDAS' .And. SC6->C6_X_GERE < SA3->A3_X_DSCGE .And. SC6->C6_X_RAMO < 19
+	If AllTrim(SC6->C6_TPOPERW) == 'VENDAS' .And. SC6->C6_X_GERE < SA3->A3_X_DSCGE .And. SC6->C6_X_RAMO < 19 .And. SBM->BM_BLCRVND == 'N' .And. ZZF->ZZF_BLCRVN == 'N'
 		
 		// Fernando Nogueira - Pega o preco de venda, caso ele seja maior que o de lista
 		If SC6->C6_X_VLORI <= SD2->D2_PRCVEN
@@ -152,6 +158,9 @@ Restarea(_aAreaSE1)
 Restarea(_aAreaSC5)
 Restarea(_aAreaSC6)
 Restarea(_aAreaSA3)
+Restarea(_aAreaSB1)
+Restarea(_aAreaSBM)
+Restarea(_aAreaZZF)
 RestArea(aArea)
 
 Return
