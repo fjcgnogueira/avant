@@ -1,5 +1,4 @@
 #INCLUDE "Protheus.ch"
-
 /*/
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
@@ -13,9 +12,6 @@
 ±±»ÕÕÕÕÕÕÕÕÕÕœÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕº±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂ
-ManutenÁıes										Autor													Data
-Retirada dos bloqueios 						CÈsar Augusto Barbosa, Totvs Anikel			13/08/2013
-
 /*/
 User Function INTPEDIDO(cEmpInt, cFilInt, cPedWeb, cMensagem, cDocumen, lAutomatic)
 
@@ -25,13 +21,13 @@ Local cFileLog	:= "MATA410.LOG"
 Local cModulo	:= "FAT"
 Local cAliasC5	:= GetNextAlias()
 Local cPedidoW	:= PadL(Alltrim(cPedWeb),TamSx3("Z3_NPEDWEB")[01])
-Local cFilial  := SZ3->Z3_FILIAL
+Local cFilial   := SZ3->Z3_FILIAL
 Local lRetorno	:= .T.
 Local cPedNew	:= ""
 Local cArmazem	:= "01"
 Local cTES   	:= "990"
 Local dDtEmiss	:= CtoD("")
-Local cCodPag  := SuperGetMv("MV_XPEDPAG",.F.,"149") //-- Parametro para informar condiÁıes de pagamento que bloqueiam a liberaÁ„o autom·tica -- Gustavo Viana -- 18/02/2013
+Local cCodPag   := SuperGetMv("MV_XPEDPAG",.F.,"149") //-- Parametro para informar condiÁıes de pagamento que bloqueiam a liberaÁ„o autom·tica -- Gustavo Viana -- 18/02/2013
 Local aCabec 	:= {}
 Local aItens 	:= {}
 Local aLinha 	:= {}
@@ -49,7 +45,7 @@ Local nPrcOri   := 0
 
 Private cTpOper		:= ""
 Private lMsErroAuto	:= .F.
-Private lLiberAut 	:= .T.      //-- Se campo C6_QTDLIB ser· preenchido no processo de inclus„o -- Gustavo Viana -- 18/02/2013
+Private lLiberAut 	:= .T.      //-- Se campo C6_QTDLIB serah preenchido no processo de inclusao -- Gustavo Viana -- 18/02/2013
 Private cCod      	:= ""
 Private cLocal    	:= "01"
 Private nQuant    	:= 0
@@ -103,87 +99,51 @@ If lRetorno
 
 			Else
 
-				lLiberAut := .T. //-- Gustavo Viana -- RestriÁıes a liberaÁ„o autom·tica -- 18/02/2013
+				lLiberAut := .T. //-- Gustavo Viana -- Restricoes a liberacao automatica -- 18/02/2013
 				cTpOper	 := Left(SZ3->Z3_CODTSAC,2)
 				dDtEmiss := StoD(SZ3->Z3_EMISSAO)
 				cPedNew  := U_NUMPED()
 
-				aAdd(aCabec,{"C5_FILIAL" ,SZ3->Z3_FILIAL,NIL})
-				aAdd(aCabec,{"C5_NUM"    ,cPedNew,NIL})
-				aAdd(aCabec,{"C5_EMISSAO", dDtEmiss,NIL})
-				aAdd(aCabec,{"C5_TIPO"   ,"N",NIL} )
-				aAdd(aCabec,{"C5_CLIENTE",SA1->A1_COD,NIL} )
-				aAdd(aCabec,{"C5_LOJACLI",SA1->A1_LOJA,NIL} )
-				//	   	aAdd(aCabec,{ "C5_TIPOCLI"	, SA1->A1_TIPO			,NIL} )
-				aAdd(aCabec,{"C5_TRANSP" ,SZ3->Z3_CODTRAN,NIL} )
-				aAdd(aCabec,{"C5_CONDPAG",SZ3->Z3_CODPGTO,NIL} )
-				aAdd(aCabec,{"C5_TPFRETE",SZ3->Z3_FREPAGO,NIL} )
+				aAdd(aCabec,{"C5_FILIAL" ,SZ3->Z3_FILIAL ,NIL})
+				aAdd(aCabec,{"C5_NUM"    ,cPedNew        ,NIL})
+				aAdd(aCabec,{"C5_EMISSAO",dDtEmiss       ,NIL})
+				aAdd(aCabec,{"C5_TIPO"   ,"N"            ,NIL})
+				aAdd(aCabec,{"C5_CLIENTE",SA1->A1_COD    ,NIL})
+				aAdd(aCabec,{"C5_LOJACLI",SA1->A1_LOJA   ,NIL})
+				aAdd(aCabec,{"C5_TRANSP" ,SZ3->Z3_CODTRAN,NIL})
+				aAdd(aCabec,{"C5_CONDPAG",SZ3->Z3_CODPGTO,NIL})
+				aAdd(aCabec,{"C5_TPFRETE",SZ3->Z3_FREPAGO,NIL})
 				aAdd(aCabec,{"C5_MENNOTA",SZ3->Z3_OBS    ,NIL})
-				//			aAdd(aCabec,{ "C5_VEND1"	, SZ3->Z3_VEND			,NIL} )
 				aAdd(aCabec,{"C5_PEDWEB" ,Val(cPedidoW)  ,NIL})
 				aAdd(aCabec,{"C5_INTEGRA",SZ3->Z3_INTEGRA,NIL})
 				aAdd(aCabec,{"C5_PEDCLI" ,SZ3->Z3_NPEDCLI,NIL})
 				
-				//-- Gustavo Viana -- RestriÁıes a liberaÁ„o autom·tica -- 18/02/2013
-				//-- Se tiver observÁ„o preenchida P.V. dever· ser analisado, ou seja, P.V. sem liberaÁ„o automatica
-				//If !Empty(Alltrim(SZ3->Z3_OBS))
-				//	lLiberAut := .F.
-				//EndIf
-				//-- Se tiver condiÁ„o de pagamento no parametro P.V. dever· ser analisado, ou seja, P.V. sem liberaÁ„o automatica
+				//-- Gustavo Viana -- Restricoes a liberacao automatica -- 18/02/2013
+				//-- Se tiver condicao de pagamento no parametro P.V. deverah ser analisado, ou seja, P.V. sem liberacao automatica
 				//If AllTrim(SZ3->Z3_CODPGTO) $ cCodPag
 				//	lLiberAut := .F.
 				//EndIf
-				//-- Se Frete for diferente de CIF P.V. dever· ser analisado, ou seja, P.V. sem liberaÁ„o automatica
-				//If AllTrim(SZ3->Z3_FREPAGO) <> "C"
-				//	lLiberAut := .F.
-				//EndIf
-				//-- Fim das RestriÁıes -- 18/02/2013
 				
-				//If !Empty(SZ3->Z3_OBS)
-				//	lLiberAut := .F.
-				//EndIf
-				/*
-				If lLiberAut 
-					DbSelectarea("SZ4")
-					SZ4->(DbSetorder(1))
-					If SZ4->(DbSeek(xFilial("SZ4") + cPedidoW))
-						While !SZ4->(Eof()) .And. 	SZ4->Z4_FILIAL == xFilial("SZ4") .And.;
-							PadL(Alltrim(Str(SZ4->Z4_NUMPEDW)),TamSx3("Z4_NUMPEDW")[01]) == cPedidoW							
-						        
-						          cCod   := SZ4->Z4_CODPROD
-						          nQuant := SZ4->Z4_QTDE
-							   
-								lLiberAut := VALESTPRD(cCod,cLocal,nQuant)				  								  								    
-
-							SZ4->(DbSkip())
-						Enddo
-					EndIf
-				Endif
-		      */
 				DbSelectarea("SZ4")
 				SZ4->(DbSetorder(1))
+				
 				If SZ4->(DbSeek(xFilial("SZ4") + cPedidoW))
 					While SZ4->(!Eof()) .And. 	SZ4->Z4_FILIAL == xFilial("SZ4") .And.;
 						   Padl(Alltrim(Str(SZ4->Z4_NUMPEDW)),TamSx3("Z4_NUMPEDW")[01]) == cPedidoW						 
 						
 						aLinha := {}
-						aAdd(aLinha,{"C6_FILIAL"  ,SZ4->Z4_FILIAL	,NIL})
-						aAdd(aLinha,{"C6_ITEM"    ,SZ4->Z4_ITEMPED,NIL})
-						aAdd(aLinha,{"C6_PRODUTO" ,SZ4->Z4_CODPROD,NIL})
-						aAdd(aLinha,{"C6_QTDVEN"  ,SZ4->Z4_QTDE	,NIL})
-						aAdd(aLinha,{"C6_TPOPERW" ,SZ4->Z4_TPOPERW,NIL})
+						aAdd(aLinha,{"C6_FILIAL" ,SZ4->Z4_FILIAL ,NIL})
+						aAdd(aLinha,{"C6_ITEM"   ,SZ4->Z4_ITEMPED,NIL})
+						aAdd(aLinha,{"C6_PRODUTO",SZ4->Z4_CODPROD,NIL})
+						aAdd(aLinha,{"C6_QTDVEN" ,SZ4->Z4_QTDE   ,NIL})
+						aAdd(aLinha,{"C6_TPOPERW",SZ4->Z4_TPOPERW,NIL})
 
-						//-- Se Tipo de operaÁ„o web for BONIFICACAO P.V. dever· ser analisado, ou seja, P.V. sem liberaÁ„o automatica -- Gustavo Viana -- 18/02/2013
-						//If "BONIFICAC" $ Upper(AllTrim(SZ4->Z4_TPOPERW))
-						//	lLiberAut := .F.
-						//EndIf
-
-					   // Produtos de Marketing - Fernando Nogueira - Chamado 000796
-					   // Operacao Triangular
-					   If lLiberAut .And. SZ3->Z3_PRODMKT == 'N'
-							aAdd(aLinha,{"C6_QTDLIB", SZ4->Z4_QTDE       ,NIL} )
+					   	// Produtos de Marketing - Fernando Nogueira - Chamado 000796
+					   	// Operacao Triangular
+					   	If lLiberAut .And. SZ3->Z3_PRODMKT == 'N'
+							aAdd(aLinha,{"C6_QTDLIB",SZ4->Z4_QTDE,NIL})
 						Else
-							aAdd(aLinha,{"C6_QTDLIB", 0       ,NIL} )
+							aAdd(aLinha,{"C6_QTDLIB",0           ,NIL})
 						EndIf
 						
 						SB1->(dbSeek(xFilial("SB1")+SZ4->Z4_CODPROD))
@@ -194,16 +154,16 @@ If lRetorno
 							nPrcOri := nPrcOri * (1 - SZ4->Z4_DESCRA/100)
 						Endif
 						
-						aAdd(aLinha,{"C6_PRCVEN"  ,SZ4->Z4_PRLIQ  ,NIL})
-						aAdd(aLinha,{"C6_X_VLORI" ,nPrcOri        ,NIL})
-						aAdd(aLinha,{"C6_X_PLIST" ,SB1->B1_PRV1   ,NIL})
-						aAdd(aLinha,{"C6_OPER"    ,cTpOper		  ,NIL})
-						aAdd(aLinha,{"C6_PEDCLI"  ,SZ4->Z4_NUMPED ,NIL})
-						aAdd(aLinha,{"C6_X_RAMO"  ,SZ4->Z4_DESCRA ,NIL})
-						aAdd(aLinha,{"C6_X_GERE"  ,SZ4->Z4_DESCGE ,NIL})
-						aAdd(aLinha,{"C6_X_ESPEC" ,SZ4->Z4_DESCESP,NIL})
-						aAdd(aLinha,{"C6_DESCPRO" ,SZ4->Z4_PRODESC,NIL})
-						aAdd(aLinha,{"C6_LOCAL"	  ,cArmazem       ,NIL})
+						aAdd(aLinha,{"C6_PRCVEN" ,SZ4->Z4_PRLIQ  ,NIL})
+						aAdd(aLinha,{"C6_X_VLORI",nPrcOri        ,NIL})
+						aAdd(aLinha,{"C6_X_PLIST",SB1->B1_PRV1   ,NIL})
+						aAdd(aLinha,{"C6_OPER"   ,cTpOper		 ,NIL})
+						aAdd(aLinha,{"C6_PEDCLI" ,SZ4->Z4_NUMPED ,NIL})
+						aAdd(aLinha,{"C6_X_RAMO" ,SZ4->Z4_DESCRA ,NIL})
+						aAdd(aLinha,{"C6_X_GERE" ,SZ4->Z4_DESCGE ,NIL})
+						aAdd(aLinha,{"C6_X_ESPEC",SZ4->Z4_DESCESP,NIL})
+						aAdd(aLinha,{"C6_DESCPRO",SZ4->Z4_PRODESC,NIL})
+						aAdd(aLinha,{"C6_LOCAL"	 ,cArmazem       ,NIL})
 						aAdd(aItens,aLinha)
 						
 						lTesInt := .F.
@@ -243,7 +203,7 @@ If lRetorno
 					
 					//Atualiza Status da SZ3
 					RecLock("SZ3", .F.)
-					SZ3->Z3_STATUS	:= IIF(lRetorno, "3", "4")
+					SZ3->Z3_STATUS	:= IIF(lRetorno,"3","4")
 					// Status
 					// 1 = Parado na Web (Nao enviado)
 					// 2 = Pedido ainda nao Integrado com Estoque na Web
@@ -281,56 +241,6 @@ If lRetorno
 EndIf
 
 Return lRetorno
-
-/*
-‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±…ÕÕÕÕÕÕÕÕÕÕ—ÕÕÕÕÕÕÕÕÕÕÀÕÕÕÕÕÕÕ—ÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÀÕÕÕÕÕÕ—ÕÕÕÕÕÕÕÕÕÕÕÕÕª±±
-±±∫Programa  ≥INTPEDIDO ∫Autor  ≥Rodrigo Leite       ∫ Data ≥  23/07/13   ∫±±
-±±ÃÕÕÕÕÕÕÕÕÕÕÿÕÕÕÕÕÕÕÕÕÕ ÕÕÕÕÕÕÕœÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕ ÕÕÕÕÕÕœÕÕÕÕÕÕÕÕÕÕÕÕÕπ±±
-±±∫Desc.     ≥ Valida o saldo em estoque dos pedidos digitados na WEB     ∫±±
-±±∫          ≥                                                            ∫±±
-±±ÃÕÕÕÕÕÕÕÕÕÕÿÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕπ±±
-±±∫Uso       ≥ AP                                                         ∫±±
-±±»ÕÕÕÕÕÕÕÕÕÕœÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕº±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂ                     
-*/
-
-Static Function VALESTPRD(cCod,cLocal,nQuant)
-
-Local cProd  := cCod
-Local cLocal := cLocal 
-Local nQuant := nQuant
-Local lRet   := .T.
- 
-cQuery  := " SELECT B2_COD , B2_LOCAL , B2_QATU , B2_QTSEGUM  " + CRLF
-cQuery  += " FROM " + RETSQLNAME("SB2")  + CRLF
-cQuery  += " WHERE B2_COD = '"+cProd+"'"+ CRLF
-cQuery  += " AND B2_FILIAL = '" +xFilial("SB2")+ "'" + CRLF
-cQuery  += " AND B2_LOCAL = '"+cLocal+"' AND D_E_L_E_T_ = ' '  " + CRLF
-cQuery  += " ORDER BY B2_COD "                 
-cQuery := ChangeQuery(cQuery)
-ARQTMS := GetNextAlias()                                                       
-
-dbUseArea(.T., 'TOPCONN', TcGenQry( ,, cQuery) ,ARQTMS, .T., .F.)
-
-DBSelectArea((ARQTMS))
-(ARQTMS)->(dbGotop())                            
-
-IF (ARQTMS)->B2_QATU <= 0 
-    
-	lRet := .F.
-
-ElseIf(ARQTMS)->B2_QATU < nQuant
-
-	lRet := .F.
-	
-EndIf	
-
-(ARQTMS)->(dbClosearea())     
-
-Return(lRet)
 
 /*/
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
