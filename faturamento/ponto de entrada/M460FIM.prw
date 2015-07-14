@@ -70,8 +70,8 @@ While !Eof() .And. 	SF2->F2_FILIAL == xFilial("SF2") .And.;
 	RecLock("SF2",.F.)
 		SF2->F2_REGIAO  := Posicione("SA1",1,xfilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA,"A1_REGIAO")
 		SF2->F2_X_CANAL := Posicione("SA1",1,xfilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA,"A1_SATIV1")
-		SF2->F2_X_PERFI := Posicione("SA1",1,xfilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA,"A1_SATIV2")
-		SF2->F2_X_SEGME := Posicione("SA1",1,xfilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA,"A1_SATIV4")
+		SF2->F2_X_SEGME := Posicione("SA1",1,xfilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA,"A1_SATIV2")
+		SF2->F2_X_PERFI := Posicione("SA1",1,xfilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA,"A1_SATIV4")
 	MsUnlock()
 
 	dbSkip()
