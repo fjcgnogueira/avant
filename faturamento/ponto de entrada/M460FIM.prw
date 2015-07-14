@@ -112,8 +112,8 @@ While SD2->(!Eof()) .And. 	SD2->D2_FILIAL == xFilial("SD2") .And. SD2->D2_DOC ==
 	SBM->(dbSeek(xFilial("SBM")+SB1->B1_GRUPO))
 	ZZF->(dbSeek(xFilial("ZZF")+SB1->B1_FAMAVAN))
 	
-	nRamo  := Iif(SC6->C6_X_RAMO = 0, SA1->A1_DESCWEB, SC6->C6_X_RAMO)
-	nVlOri := Iif(SC6->C6_X_VLORI = 0, SD2->D2_TOTAL * (1 - nRamo/100), SC6->C6_X_VLORI)
+	nRamo  := Iif(SC6->C6_X_RAMO  = 0, SA1->A1_DESCWEB               , SC6->C6_X_RAMO)
+	nVlOri := Iif(SC6->C6_X_VLORI = 0, SB1->B1_PRV1 * (1 - nRamo/100), SC6->C6_X_VLORI)
 	
 	If AllTrim(SC6->C6_TPOPERW) == 'VENDAS' .And. SC6->C6_X_GERE < SA3->A3_X_DSCGE .And. nRamo < 19 .And. SBM->BM_BLCRVND == 'N' .And. ZZF->ZZF_BLCRVN == 'N'
 		
