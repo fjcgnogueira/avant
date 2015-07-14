@@ -53,7 +53,7 @@ User Function Fat_Canal(aParam)
 	Private _cEmail     := aParam[5]
 	Private _cEmailCC   := aParam[6]
 	Private _lSchedule  := aParam[7]
-	Private lAcumulado  := aParam[3] == "ACUMULADO"
+	Private lAcumulado  := IIf(ValType(aParam[3])=='C',aParam[3] == "ACUMULADO",.F.)
 	
 	// Padrao do Schedule eh Falso
 	If Empty(_lSchedule)

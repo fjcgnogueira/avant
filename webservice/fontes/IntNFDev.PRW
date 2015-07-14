@@ -5,7 +5,7 @@
 ฑฑษออออออออออัอออออออออออออหอออออออัออออออออออออออออออออหออออออัออออออออออปฑฑ
 ฑฑบPrograma  ณ IntNFDev()  บ Autor ณ Fernando Nogueira  บ Data ณ06/03/2014บฑฑ
 ฑฑฬออออออออออุอออออออออออออสอออออออฯออออออออออออออออออออสออออออฯออออออออออนฑฑ
-ฑฑบDescrio ณ Integra Nota de Devolucao Web                              บฑฑ
+ฑฑบDescrio ณ Integra Nota de Trocas/Devolucao Web                       บฑฑ
 ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
 ฑฑบUso       ณ Especifico AVANT.                                          บฑฑ
 ฑฑฬออออออออออฯอออัออออออออัอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
@@ -89,7 +89,7 @@ If lRetorno
 			EndIf
 			cDocumen := cNumero+"/"+cSerie
 			
-			// Cabecalho da Nota de Devolucao
+			// Cabecalho da Nota de Troca/Devolucao
 			Aadd(_aCabSF1,{"F1_FILIAL"    ,SZH->ZH_FILIAL     ,Nil})
 			Aadd(_aCabSF1,{"F1_DOC"       ,cNumero            ,Nil})
 			Aadd(_aCabSF1,{"F1_SERIE"     ,cSerie             ,Nil})
@@ -123,12 +123,12 @@ If lRetorno
 					SD2->(dbSetOrder(3))
 					SD2->(msSeek(cFilInt+SZI->ZI_NFORI+SZI->ZI_SERIORI+SZI->ZI_CLIENTE+SZI->ZI_LOJA+SZI->ZI_PRODUTO+SZI->ZI_ITEMORI))
 				
-					// Itens da Nota de Devolucao
+					// Itens da Nota de Troca/Devolucao
 					Aadd(_aItem,{"D1_COD"        ,SZI->ZI_PRODUTO ,Nil})
 					Aadd(_aItem,{"D1_UM"         ,SZI->ZI_UM      ,Nil})
 					Aadd(_aItem,{"D1_QUANT"      ,SZI->ZI_QUANT   ,Nil})
 					Aadd(_aItem,{"D1_VUNIT"      ,SZI->ZI_VLRUNIT ,Nil})
-					Aadd(_aItem,{"D1_TES"        ,Posicione("SF4",1,xFilial("SF4")+SD2->D2_TES,"F4_TESDV") ,Nil})
+					Aadd(_aItem,{"D1_TES"        ,Posicione("SF4",1,xFilial("SF4")+SD2->D2_TES,"F4_TESTRC") ,Nil})
 					Aadd(_aItem,{"D1_NFORI"      ,SZI->ZI_NFORI   ,Nil})
 					Aadd(_aItem,{"D1_SERIORI"    ,SZI->ZI_SERIORI ,Nil})
 					Aadd(_aItem,{"D1_ITEMORI"    ,SZI->ZI_ITEMORI ,Nil})

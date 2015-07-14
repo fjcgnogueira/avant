@@ -66,7 +66,6 @@ User Function Laudo_Troca()
 	SZI->(dbGoTop())
 	If SZI->(msSeek(_cChave))
 	
-		SZI->(dbGoTop())
 		While SZI->(!EoF()) .And. SZI->ZI_FILIAL+SZI->ZI_NUMTRC == _cChave
 			nNumItens++
 			nLinhas++
@@ -124,6 +123,9 @@ User Function Laudo_Troca()
 	OLE_ExecuteMacro(hWord,"Laudo_Troca")
 	
 	OLE_ExecuteMacro(hWord,"Fotos")
+	
+	// Dados do Rodape
+	OLE_SetDocumentVar(hWord,'DOT_DATA_LAUDO',Date())
 	
 	Sleep(5000)
 	
