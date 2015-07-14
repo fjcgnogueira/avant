@@ -59,13 +59,12 @@ If lAutomatic
 EndIf
 
 //Verifica se Pedido WEB ja esta no SC5 (Pedido Protheus)
-
 BeginSQL Alias cAliasC5
 	SELECT	R_E_C_N_O_	AS RECC5
 	FROM	%Table:SC5%
 	WHERE	%NotDel%
 	AND		C5_PEDWEB = %Exp:cPedidoW%
-	AND 		C5_FILIAL = %Exp:xFilial("SC5")%
+	AND 	C5_FILIAL = %Exp:xFilial("SC5")%
 EndSQL
 
 If !(cAliasC5)->(Eof())
