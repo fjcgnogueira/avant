@@ -34,6 +34,8 @@ nDescTot    := 0
 nCredito    := 0  
 nDebito     := 0
 nVlrTotal   := 0
+nRamo       := 0
+nVlOri      := 0
 
 dbSelectArea("SE1")
 dbSetOrder(2)
@@ -110,13 +112,16 @@ While SD2->(!Eof()) .And. 	SD2->D2_FILIAL == xFilial("SD2") .And. SD2->D2_DOC ==
 	SBM->(dbSeek(xFilial("SBM")+SB1->B1_GRUPO))
 	ZZF->(dbSeek(xFilial("ZZF")+SB1->B1_FAMAVAN))
 	
-	If AllTrim(SC6->C6_TPOPERW) == 'VENDAS' .And. SC6->C6_X_GERE < SA3->A3_X_DSCGE .And. SC6->C6_X_RAMO < 19 .And. SBM->BM_BLCRVND == 'N' .And. ZZF->ZZF_BLCRVN == 'N'
+	nRamo  := Iif(SC6->C6_X_RAMO = 0, SA1->A1_DESCWEB, SC6->C6_X_RAMO)
+	nVlOri := Iif(SC6->C6_X_VLORI = 0, SD2->D2_TOTAL * (1 - nRamo/100), SC6->C6_X_VLORI)
+	
+	If AllTrim(SC6->C6_TPOPERW) == 'VENDAS' .And. SC6->C6_X_GERE < SA3->A3_X_DSCGE .And. nRamo < 19 .And. SBM->BM_BLCRVND == 'N' .And. ZZF->ZZF_BLCRVN == 'N'
 		
 		// Fernando Nogueira - Pega o preco de venda, caso ele seja maior que o de lista
-		If SC6->C6_X_VLORI <= SD2->D2_PRCVEN
-			nDescTot  := (SC6->C6_X_VLORI * (1 - SA3->A3_X_DSCGE/100)) * SD2->D2_QUANT
-		Else
+		If nVlOri <= SD2->D2_PRCVEN
 			nDescTot  := (SD2->D2_PRCVEN * (1 - SA3->A3_X_DSCGE/100)) * SD2->D2_QUANT
+		Else
+			nDescTot  := (nVlOri * (1 - SA3->A3_X_DSCGE/100)) * SD2->D2_QUANT
 		Endif
 		
 		nVlrTotal := SD2->D2_TOTAL
