@@ -16,9 +16,7 @@
 
 User Function BLOQ_MOVIM()      
 
-	IF AllTrim(cUserName) == "pietro.amaral"
-		lReturn := .T.
-	ElseIF  AllTrim(cUserName) == "nfimportacao"
+	IF  AllTrim(cUserName) == "nfimportacao"
 		lReturn := Pertence("1")
 	Else 
 		lReturn := Pertence("2")
