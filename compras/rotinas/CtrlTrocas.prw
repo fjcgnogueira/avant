@@ -1,4 +1,5 @@
-#include "PROTHEUS.CH"
+#Include "Protheus.Ch"
+#INCLUDE 'FWMVCDEF.CH'
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
@@ -121,7 +122,8 @@ If SZH->(dbSeek(xFilial()+SF1->F1_NUMTRC))
 	    //³ Executa a Modelo 3                                  ³
 	    //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 	    
-	    aAdd( aBotoes,{ "PIN"    ,{|| MsAnxItem() },OemToAnsi("Anexo") })
+	    aAdd( aBotoes,{"ANEXO"  ,{|| MsAnxItem() },"Anexo"  })
+	    aAdd( aBotoes,{"ANALISE",{|| AnaliseTRC()},"Analise"})
 	
 	    lRetMod3 := Modelo3(cTitulo, cAliasEnch, cAliasGetDad, aCpoEnCh, cLinOk, cTudOk, nOpcE, nOpcG, cFieldOk, , , , , aBotoes)
 	    
@@ -298,3 +300,40 @@ Static Function Grv_Anexo(_cAnexo)
 	Endif
 
 Return()
+
+Static Function AnaliseTRC()
+
+	Local nRet	:= 0
+	
+	Private cString
+	Private cAlias		:= "SZO"
+	Private cCadastro 	:= "Analise de Trocas"
+	Private aRotina := { {"Pesquisar" 	,"AxPesqui" ,0,1} ,;
+	             		 {"Visualizar"	,"AxVisual" ,0,2} ,;
+	             		 {"Incluir"   	,"AxInclui" ,0,3} ,;
+	             		 {"Alterar"    	,"AxAltera" ,0,4} ,;
+	             		 {"Excluir"		,"AxDeleta" ,0,5} }
+	             		 
+	Private cDelFunc 	:= ".T." 
+	Private cString 	:= "SZO"
+
+	DbSelectArea("SZO")
+	DbSetOrder(1)
+	
+	mBrowse(6,1,22,75,"SZO",,,,,,,)
+
+Return()
+
+User Function NumAnalise()
+
+nNumAnalise := 1
+
+dbSelectArea("SZO")
+dbSetOrder(1)
+
+While SZO->(!EoF()) .And. dbSeek(xFilial("SZO")+M->ZH_NUMTRC+STRZERO(N,4)+StrZero(nNumAnalise,4))
+	nNumAnalise := nNumAnalise + 1
+	SZO->(dbSkip())
+End
+
+Return(StrZero(nNumAnalise,4))

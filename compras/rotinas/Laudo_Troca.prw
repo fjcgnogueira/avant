@@ -21,6 +21,8 @@ User Function Laudo_Troca()
 
 	Local cPathDot  := '\samples\Laudo_Troca.dot'
 	Local cPathEst  := 'c:\modelos\'
+	Local cPathDoc  := 'c:\modelos\fernando.docx'
+	Local cPathGrv  := '\web\ws\trocas\000004\'
 	Local _cChave   := xFilial("SF1")+SF1->F1_NUMTRC
 	Local _cA1Cep   := PesqPict("SA1","A1_CEP")
 	Local _cD1Qtd   := PesqPict("SD1","D1_QUANT")
@@ -31,6 +33,7 @@ User Function Laudo_Troca()
 	Private nNumItens := 0
 	Private nLinhas   := 0
 	Private _nFoto    := 0
+	Private _lian     := 0
 	
 	//Cria o diretorio local para copiar o documento Word
 	MontaDir(cPathEst)
@@ -117,6 +120,14 @@ User Function Laudo_Troca()
 			OLE_SetDocumentVar(hWord,'IT_QTDDVL' +AllTrim(Str(_li)),Transform(SZI->ZI_QTDDVL, _cD1Qtd))                             //Qtd Devolucao
 			OLE_SetDocumentVar(hWord,'IT_QTDTRC' +AllTrim(Str(_li)),Transform(SZI->ZI_QTDTRC, _cD1Qtd))                             //Qtd de Troca
 			SZI->(dbSkip())
+			
+			SZO->(dbSetOrder(1))
+			SZO->(dbSeek(xFilial("SZO")+SZI->ZI_NUMTRC+SZI->ZI_ITEM))
+			
+			While SZO->(!EoF()) .And. SZO->ZO_FILIAL+SZO->ZO_NUMTRC+SZO->ZO_ITEMTRC = xFilial("SZO")+SZI->ZI_NUMTRC+SZI->ZI_ITEM
+			
+				SZO->(dbSkip())
+			End
 		End
 	Endif
 	
@@ -130,5 +141,13 @@ User Function Laudo_Troca()
 	Sleep(5000)
 	
 	OLE_UpdateFields(hWord)
+	
+	Sleep(5000)
+	
+	OLE_ExecuteMacro(hWord,"Salva_Doc")
+	
+	Sleep(3000)
+	
+	CpyT2S(cPathDoc,cPathGrv,.T.)
 
 Return
