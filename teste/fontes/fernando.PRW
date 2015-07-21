@@ -2,110 +2,52 @@
 #INCLUDE "APWEBSRV.CH"
 #INCLUDE "FWMVCDEF.CH"
 
-User Function Fernando()
+User Function AfterLogin()
 
-cQuery := " SELECT CT1_CONTA CONTA,CT1_NORMAL NORMAL, CT1_RES CTARES, "
-cQuery += "	CT1_CTASUP SUPERIOR, CT1_CLASSE TIPOCONTA, CT1_GRUPO GRUPO,"
-cQuery += " CT1_NATCTA NATCTA, "
-cQuery += "		CT1_DESC01 DESCCTA, "                                                   	
-cQuery += " 		(SELECT SUM(CT7_DEBITO) "
-cQuery += "			 	FROM CT7010 CT7 "
-cQuery += " 			WHERE ARQ.CT1_CONTA	= CT7_CONTA "
-cQuery += " 			AND CT7_MOEDA = '01' "
-cQuery += " 			AND CT7_TPSALD = '1' "
-cQuery += " 			AND CT7_DATA <  '20140101' "
-cQuery += " 			AND CT7.D_E_L_E_T_ = '') "
-cQuery += "  SALDOANTDB, "  
-cQuery += " 		(SELECT SUM(CT7_DEBITO) "
-cQuery += "			 	FROM CT7010 CT7 "
-cQuery += " 			WHERE ARQ.CT1_CONTA	= CT7_CONTA "
-cQuery += " 			AND CT7_MOEDA = '01' "
-cQuery += " 			AND CT7_TPSALD = '1' "
-cQuery += " 			AND CT7_DATA <  '20140101' "
-cQuery += "				AND CT7_LP = 'Z' AND ((CT7_DTLP <> ' ' AND CT7_DTLP >= '20141231') OR (CT7_DTLP = '' AND CT7_DATA >= '20141231'))"	
-cQuery += " 			AND CT7.D_E_L_E_T_ = '') "
-cQuery += "  SLDLPANTDB, "  
-cQuery += " 	  	(SELECT SUM(CT7_CREDIT) "
-cQuery += " 			FROM CT7010 CT7 "
-cQuery += " 			WHERE ARQ.CT1_CONTA	= CT7_CONTA "
-cQuery += " 			AND CT7_MOEDA = '01' "
-cQuery += " 			AND CT7_TPSALD = '1' "
-cQuery += " 			AND CT7_DATA <  '20140101' "
-cQuery += " 			AND CT7.D_E_L_E_T_ = '') "
-cQuery += "  SALDOANTCR, "
-cQuery += " 	(SELECT SUM(CT7_CREDIT) "
-cQuery += " 			FROM CT7010 CT7 "
-cQuery += " 			WHERE ARQ.CT1_CONTA	= CT7_CONTA "
-cQuery += " 			AND CT7_MOEDA = '01' "
-cQuery += " 			AND CT7_TPSALD = '1' "
-cQuery += " 			AND CT7_DATA <  '20140101' "
-cQuery += "				AND CT7_LP = 'Z' AND ((CT7_DTLP <> ' ' AND CT7_DTLP >= '20141231') OR (CT7_DTLP = '' AND CT7_DATA >= '20141231'))"		
-cQuery += " 			AND CT7.D_E_L_E_T_ = '') "
-cQuery += "  SLDLPANTCR, "          
-cQuery += " 		(SELECT SUM(CT7_DEBITO) "
-cQuery += "			 	FROM CT7010 CT7 "
-cQuery += " 			WHERE ARQ.CT1_CONTA	= CT7_CONTA "
-cQuery += " 			AND CT7_MOEDA = '01' "
-cQuery += " 			AND CT7_TPSALD = '1' "
-cQuery += " 			AND CT7_DATA BETWEEN '20140101' AND '20141231' "		
-cQuery += " 			AND CT7.D_E_L_E_T_ = '') "
-cQuery += "  SALDODEB, " 
-cQuery += " 		(SELECT SUM(CT7_DEBITO) "
-cQuery += "			 	FROM CT7010 CT7 "
-cQuery += " 			WHERE ARQ.CT1_CONTA	= CT7_CONTA "
-cQuery += " 			AND CT7_MOEDA = '01' "
-cQuery += " 			AND CT7_TPSALD = '1' "
-cQuery += " 			AND CT7_DATA BETWEEN '20140101' AND '20141231' "		
-cQuery += "				AND CT7_LP = 'Z' AND ((CT7_DTLP <> ' ' AND CT7_DTLP >= '20141231') OR (CT7_DTLP = '' AND CT7_DATA >= '20141231'))"		
-cQuery += " 			AND CT7.D_E_L_E_T_ = '') "
-cQuery += "  MOVLPDEB, " 
-cQuery += " 		(SELECT SUM(CT7_CREDIT) "
-cQuery += " 			FROM CT7010 CT7 "
-cQuery += " 			WHERE ARQ.CT1_CONTA	= CT7_CONTA "
-cQuery += " 			AND CT7_MOEDA = '01' "
-cQuery += " 			AND CT7_TPSALD = '1' "
-cQuery += " 			AND CT7_DATA BETWEEN '20140101' AND '20141231' "		
-cQuery += " 			AND CT7.D_E_L_E_T_ = '') "
-cQuery += "  SALDOCRD "
-cQuery += ", 		(SELECT SUM(CT7_CREDIT) "
-cQuery += " 			FROM CT7010 CT7 "
-cQuery += " 			WHERE ARQ.CT1_CONTA	= CT7_CONTA "
-cQuery += " 			AND CT7_MOEDA = '01' "
-cQuery += " 			AND CT7_TPSALD = '1' "
-cQuery += " 			AND CT7_DATA BETWEEN '20140101' AND '20141231' "		
-cQuery += "				AND CT7_LP = 'Z' AND ((CT7_DTLP <> ' ' AND CT7_DTLP >= '20141231') OR (CT7_DTLP = '' AND CT7_DATA >= '20141231'))"		
-cQuery += " 			AND CT7.D_E_L_E_T_ = '') "
-cQuery += "  MOVLPCRD "
-cQuery += " 	FROM CT1010 ARQ "
-cQuery += " 	WHERE ARQ.CT1_FILIAL = ' ' "
-cQuery += " 	AND ARQ.CT1_CONTA BETWEEN '320302002' AND '480505004' "
-cQuery += " 	AND ARQ.CT1_CLASSE = '2' "    
-cQuery += " 	AND ARQ.D_E_L_E_T_ = ' ' "
-cQuery += " 	AND	((SELECT ROUND(SUM(CT7_DEBITO),2)- ROUND(SUM(CT7_CREDIT),2) "		
-cQuery += "			 	FROM CT7010 CT7 "
-cQuery += " 			WHERE ARQ.CT1_CONTA	= CT7_CONTA "
-cQuery += " 			AND CT7_MOEDA = '01' "
-cQuery += " 			AND CT7_TPSALD = '1' "
-cQuery += " 			AND CT7_DATA <  '20140101' "
-cQuery += " 			AND CT7.D_E_L_E_T_ = '') <> 0 "
-cQuery += " 	OR "	
-cQuery += " 			(SELECT SUM(CT7_DEBITO)  "
-cQuery += "			 	FROM CT7010 CT7 "
-cQuery += " 			WHERE ARQ.CT1_CONTA	= CT7_CONTA "
-cQuery += " 			AND CT7_MOEDA = '01' "
-cQuery += " 			AND CT7_TPSALD = '1' "
-cQuery += " 			AND CT7_DATA BETWEEN '20140101' AND '20141231' "		
-cQuery += " 			AND CT7.D_E_L_E_T_ = '')<> 0 "
-cQuery += " 	OR "	
-cQuery += " 			(SELECT SUM(CT7_CREDIT)  "
-cQuery += "			 	FROM CT7010 CT7 "
-cQuery += " 			WHERE ARQ.CT1_CONTA	= CT7_CONTA "
-cQuery += " 			AND CT7_MOEDA = '01' "
-cQuery += " 			AND CT7_TPSALD = '1' "
-cQuery += " 			AND CT7_DATA BETWEEN '20140101' AND '20141231' "		
-cQuery += " 			AND CT7.D_E_L_E_T_ = '')<> 0) "
-
-ConOut(cQuery)
+If Left(oMainWnd:cCaption,12) <> "Unitizadores" ;
+	.And. Left(oMainWnd:cCaption,17) <> "Pick List Pedidos" ;
+	.And. Left(oMainWnd:cCaption,13) <> "Pick List NFs" ;
+	.And. Left(oMainWnd:cCaption,13) <> "Pick List WMS" ;
+	.And. Left(oMainWnd:cCaption,12) <> "Habilita WMS" ;
+	.And. Left(oMainWnd:cCaption,06) <> "Normas" ;
+	.And. Left(oMainWnd:cCaption,17) <> "Zonas Armazenagem" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Estruturas Físicas" ;
+	.And. Left(oMainWnd:cCaption,07) <> "Funcoes" ;
+	.And. Left(oMainWnd:cCaption,16) <> "Recursos Humanos" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Conf.cod.endereços" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Excecoes Atividade" ;
+	.And. Left(oMainWnd:cCaption,09) <> "Endereços" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Seq. Abastecimento" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Tarefasxatividades" ;
+	.And. Left(oMainWnd:cCaption,16) <> "Serviçosxtarefas" ;
+	.And. Left(oMainWnd:cCaption,16) <> "Regra Convocacao" ;
+	.And. Left(oMainWnd:cCaption,13) <> "Etiqueta Lote" ;
+	.And. Left(oMainWnd:cCaption,15) <> "Etiqueta Volume" ;
+	.And. Left(oMainWnd:cCaption,16) <> "Etiq.Volume S/NF" ;
+	.And. Left(oMainWnd:cCaption,17) <> "Exec. de Servicos" ;
+	.And. Left(oMainWnd:cCaption,08) <> "O.s. Wms" ;
+	.And. Left(oMainWnd:cCaption,15) <> "Reabastecimento" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Monitor de Servico" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Monitor de Volumes" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Conf.o.s.wms Embal" ;
+	.And. Left(oMainWnd:cCaption,10) <> "Operadores" ;
+	.And. Left(oMainWnd:cCaption,15) <> "Local Impressao" ;
+	.And. Left(oMainWnd:cCaption,10) <> "Monitor Rf" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Controle de Tarefa" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Produto X Endereco" ;
+	.And. Left(oMainWnd:cCaption,17) <> "Mestre Inventario" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Lan. de Inventario" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Tipos de Embalagem" ;
+	.And. Left(oMainWnd:cCaption,16) <> "Etiq. Operadores" ;
+	.And. Left(oMainWnd:cCaption,14) <> "Etiq. Endereco" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Etiq. Recursos Prd" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Etiq. Transacao Pr" ;
+	.And. Left(oMainWnd:cCaption,17) <> "Reimpressao Etiq." ;
+	.And. Left(oMainWnd:cCaption,18) <> "Wizard Imp. Etique" ;
+	.And. Left(oMainWnd:cCaption,08) <> "Produtos" ;
+	.And. Left(oMainWnd:cCaption,18) <> "Altera Etiqueta Vo"
+	Final("Acesso não autorizado! Utilizar o ambiente Avant.")
+Endif
 
 Return
 
