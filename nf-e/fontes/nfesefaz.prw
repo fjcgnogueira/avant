@@ -1696,7 +1696,7 @@ If cTipo == "1"
 					//Tratamento para o campo F4_FORMULA,onde atraves do parametro MV_NFEMSF4 se determina se o conteudo da formula devera compor a mensagem do cliente(="C") ou do fisco(="F").
 					If !Empty(SF4->F4_FORMULA) .And. Formula(SF4->F4_FORMULA) <> NIL .And. ( ( cMVNFEMSF4=="C" .And. !AllTrim(Formula(SF4->F4_FORMULA)) $ cMensCli ) .Or. (cMVNFEMSF4=="F" .And. !AllTrim(Formula(SF4->F4_FORMULA))$cMensFis) )
 
-						If cMVNFEMSF4=="C"
+						If cMVNFEMSF4=="C" .And. SF4->F4_CODIGO <> '372' // Fernando Nogueira - TES de Estorno - Chamado 001559
 							If Len(cMensCli) > 0 .And. SubStr(cMensCli, Len(cMensCli), 1) <> " "
 								cMensCli += " "
 							EndIf
@@ -3126,7 +3126,7 @@ Else
 				If (cAliasSD1)->D1_FORMUL=="S"
 					If !Empty(SF4->F4_FORMULA) .And. Formula(SF4->F4_FORMULA) <> NIL .And. ( ( cMVNFEMSF4=="C" .And. !AllTrim(Formula(SF4->F4_FORMULA)) $ cMensCli ) .Or. (cMVNFEMSF4=="F" .And. !AllTrim(Formula(SF4->F4_FORMULA))$cMensFis) )
 	
-						If cMVNFEMSF4=="C"
+						If cMVNFEMSF4=="C" .And. SF4->F4_CODIGO <> '372' // Fernando Nogueira - TES de Estorno - Chamado 001559
 							If Len(cMensCli) > 0 .And. SubStr(cMensCli, Len(cMensCli), 1) <> " "
 								cMensCli += " "
 							EndIf
