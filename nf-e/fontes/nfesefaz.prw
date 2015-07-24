@@ -1701,7 +1701,7 @@ If cTipo == "1"
 								cMensCli += " "
 							EndIf
 							cMensCli	+=	SF4->(Formula(F4_FORMULA))
-						ElseIf cMVNFEMSF4=="F"
+						ElseIf cMVNFEMSF4=="F" .Or. SF4->F4_CODIGO == '372'
 							If Len(cMensFis) > 0 .And. SubStr(cMensFis, Len(cMensFis), 1) <> " "
 								cMensFis += " "
 							EndIf
@@ -3131,7 +3131,7 @@ Else
 								cMensCli += " "
 							EndIf
 							cMensCli	+=	SF4->(Formula(F4_FORMULA))
-						ElseIf cMVNFEMSF4=="F"
+						ElseIf cMVNFEMSF4=="F" .Or. SF4->F4_CODIGO == '372'
 							If Len(cMensFis) > 0 .And. SubStr(cMensFis, Len(cMensFis), 1) <> " "
 								cMensFis += " "
 							EndIf
