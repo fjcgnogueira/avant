@@ -332,7 +332,7 @@ dbSelectArea("SZO")
 dbSetOrder(1)
 
 While SZO->(!EoF()) .And. dbSeek(xFilial("SZO")+M->ZH_NUMTRC+STRZERO(N,4)+StrZero(nNumAnalise,4))
-	nNumAnalise := nNumAnalise + 1
+	nNumAnalise++
 	SZO->(dbSkip())
 End
 
