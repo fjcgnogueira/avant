@@ -19,15 +19,21 @@
 */
 User Function Laudo_Troca()
 
-	Local _oProcess := Nil
-	Local lEnd      := .F.
-	
-	Private cPerg   := PadR("MTA103",Len(SX1->X1_GRUPO))
-	
+Local _oProcess := Nil
+Local lEnd      := .F.
+
+Private cPerg   := PadR("MTA103",Len(SX1->X1_GRUPO))
+
+SZH->(dbSetOrder(1))
+
+If SZH->(dbSeek(xFilial()+SF1->F1_NUMTRC))
 	Pergunte(cPerg,.F.)
 	
 	_oProcess := MsNewProcess():New({|lEnd| ProcLaudo(lEnd,_oProcess)},"Processando...","Gerando Laudo...",.T.)
-	_oProcess:Activate()	
+	_oProcess:Activate()
+Else
+	ApMsgInfo("Essa nota não é de Troca!")
+Endif	
 
 Return()
 
