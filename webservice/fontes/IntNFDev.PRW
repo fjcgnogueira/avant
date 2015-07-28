@@ -124,31 +124,26 @@ If lRetorno
 					SD2->(msSeek(cFilInt+SZI->ZI_NFORI+SZI->ZI_SERIORI+SZI->ZI_CLIENTE+SZI->ZI_LOJA+SZI->ZI_PRODUTO+SZI->ZI_ITEMORI))
 				
 					// Itens da Nota de Troca/Devolucao
-					Aadd(_aItem,{"D1_COD"        ,SZI->ZI_PRODUTO ,Nil})
-					Aadd(_aItem,{"D1_UM"         ,SZI->ZI_UM      ,Nil})
-					Aadd(_aItem,{"D1_QUANT"      ,SZI->ZI_QUANT   ,Nil})
-					Aadd(_aItem,{"D1_VUNIT"      ,SZI->ZI_VLRUNIT ,Nil})
-					Aadd(_aItem,{"D1_TES"        ,Posicione("SF4",1,xFilial("SF4")+SD2->D2_TES,"F4_TESTRC") ,Nil})
-					Aadd(_aItem,{"D1_NFORI"      ,SZI->ZI_NFORI   ,Nil})
-					Aadd(_aItem,{"D1_SERIORI"    ,SZI->ZI_SERIORI ,Nil})
-					Aadd(_aItem,{"D1_ITEMORI"    ,SZI->ZI_ITEMORI ,Nil})
-					Aadd(_aItem,{"D1_FORNECE"    ,SZI->ZI_CLIENTE ,Nil})
-					Aadd(_aItem,{"D1_LOJA"       ,SZI->ZI_LOJA    ,Nil})
-					Aadd(_aItem,{"D1_LOCAL"      ,SZI->ZI_LOCAL   ,Nil})
-					If SZH->ZH_FORMUL == "N"
-						Aadd(_aItem,{"D1_DOC"    ,SZI->ZI_NFCLIEN ,Nil})
-						Aadd(_aItem,{"D1_SERIE"  ,SZI->ZI_SERICLI ,Nil})
-					Else
-						Aadd(_aItem,{"D1_DOC"    ,cNumero 		  ,Nil})
-						Aadd(_aItem,{"D1_SERIE"  ,"1  " 		  ,Nil})
-					Endif
-					Aadd(_aItem,{"D1_EMISSAO"    ,dDataBase       ,Nil})
+					Aadd(_aItem,{"D1_COD"    ,SZI->ZI_PRODUTO ,Nil})
+					Aadd(_aItem,{"D1_UM"     ,SZI->ZI_UM      ,Nil})
+					Aadd(_aItem,{"D1_QUANT"  ,SZI->ZI_QUANT   ,Nil})
+					Aadd(_aItem,{"D1_VUNIT"  ,SZI->ZI_VLRUNIT ,Nil})
+					Aadd(_aItem,{"D1_TES"    ,Posicione("SF4",1,xFilial("SF4")+SD2->D2_TES,"F4_TESTRC") ,Nil})
+					Aadd(_aItem,{"D1_NFORI"  ,SZI->ZI_NFORI   ,Nil})
+					Aadd(_aItem,{"D1_SERIORI",SZI->ZI_SERIORI ,Nil})
+					Aadd(_aItem,{"D1_ITEMORI",SZI->ZI_ITEMORI ,Nil})
+					Aadd(_aItem,{"D1_FORNECE",SZI->ZI_CLIENTE ,Nil})
+					Aadd(_aItem,{"D1_LOJA"   ,SZI->ZI_LOJA    ,Nil})
+					Aadd(_aItem,{"D1_LOCAL"  ,SZI->ZI_LOCAL   ,Nil})
+					Aadd(_aItem,{"D1_DOC"    ,cNumero 		  ,Nil})
+					Aadd(_aItem,{"D1_SERIE"  ,cSerie 		  ,Nil})
+					Aadd(_aItem,{"D1_EMISSAO",dDataBase       ,Nil})
 					If Empty(SD2->D2_LOTECTL)
-						Aadd(_aItem,{"D1_LOTECTL","10122013"	  ,Nil})
+						Aadd(_aItem,{"D1_LOTECTL",AllTrim(Formula("018")),Nil})
 					Else
-						Aadd(_aItem,{"D1_LOTECTL",SD2->D2_LOTECTL ,Nil})
+						Aadd(_aItem,{"D1_LOTECTL",SD2->D2_LOTECTL        ,Nil})
 					Endif
-					Aadd(_aItem,{"D1_NUMTRC"     ,SZI->ZI_NUMTRC  ,Nil})
+					Aadd(_aItem,{"D1_NUMTRC"     ,SZI->ZI_NUMTRC         ,Nil})
 					
 					Aadd(_aItensSD1, _aItem)
 					

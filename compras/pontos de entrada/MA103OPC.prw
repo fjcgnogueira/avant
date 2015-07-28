@@ -28,7 +28,7 @@ User Function MA103OPC()
 	aadd(aRotina2,{"Controle Trocas", "U_CtrlTrocas" , 0, 4, 0, nil})
 	aadd(aRotina2,{"Laudo"          , "U_Laudo_Troca", 0, 4, 0, nil})
 	aadd(aRotina2,{"Grv.Laudo Mod." , "U_GrvLaudo   ", 0, 4, 0, nil})
-	aadd(aRotina2,{"Enviar Laudo"   , "ApMsgAlert('Em desenvolvimento')", 0, 4, 0, nil})
+	aadd(aRotina2,{"Enviar Laudo"   , "U_EnviaLaudo" , 0, 4, 0, nil})
 	aadd(aRotina2,{"Gera Financ."   , "ApMsgAlert('Em desenvolvimento')", 0, 4, 0, nil})
 	aadd(aRotina2,{"Gera Pedido"    , "ApMsgAlert('Em desenvolvimento')", 0, 4, 0, nil})
 	
