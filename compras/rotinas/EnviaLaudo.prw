@@ -29,21 +29,23 @@ If SZH->(dbSeek(xFilial()+SF1->F1_NUMTRC))
 
 	If File(cAnexo)
 		If !Empty(cPara)
-			oProcess := TWFProcess():New("LAUDO_TRC","LAUDO DE TROCA")
-			oProcess:NewTask("Enviando Laudo",cArquivo)
-			oHTML := oProcess:oHTML
-			oHtml:ValByName("cTroca", SF1->F1_NUMTRC)
-			oHtml:ValByName("cNota" , SF1->F1_DOC+"/"+SF1->F1_SERIE)
-			oProcess:cSubject := "[SOTA Avant] Laudo de Trocas "+SF1->F1_NUMTRC
-			oProcess:USerSiga := "000000"
-			oProcess:cTo  := cPara
-			oProcess:cCC  := "sota@avantled.com.br"
-			oProcess:cBCC := "fernando.nogueira@avantled.com.br;tecnologia@avantled.com.br"
-			oProcess:AttachFile(cAnexo)
-			oProcess:Start()
-			oProcess:Finish()
-			
-			ApMsgInfo("Laudo da Troca "+SF1->F1_NUMTRC+" enviado.")
+			If MsgNoYes("Confirma envio do laudo para o cliente?")
+				oProcess := TWFProcess():New("LAUDO_TRC","LAUDO DE TROCA")
+				oProcess:NewTask("Enviando Laudo",cArquivo)
+				oHTML := oProcess:oHTML
+				oHtml:ValByName("cTroca", SF1->F1_NUMTRC)
+				oHtml:ValByName("cNota" , SF1->F1_DOC+"/"+SF1->F1_SERIE)
+				oProcess:cSubject := "[SOTA Avant] Laudo de Trocas "+SF1->F1_NUMTRC
+				oProcess:USerSiga := "000000"
+				oProcess:cTo  := cPara
+				oProcess:cCC  := "sota@avantled.com.br"
+				oProcess:cBCC := "fernando.nogueira@avantled.com.br;tecnologia@avantled.com.br"
+				oProcess:AttachFile(cAnexo)
+				oProcess:Start()
+				oProcess:Finish()
+				
+				ApMsgInfo("Laudo da Troca "+SF1->F1_NUMTRC+" enviado.")
+			Endif
 		Else
 			ApMsgInfo("Cliente "+SF1->F1_FORNECE+"/"+SF1->F1_LOJA+" ("+AllTrim(SA1->A1_NOME)+")."+Chr(13)+Chr(10)+"Sem e-mail cadastrado.")
 		Endif

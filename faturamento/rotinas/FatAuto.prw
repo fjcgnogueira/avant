@@ -116,6 +116,8 @@ While TRB->(!EoF())
 	
 	cNota := MaPvlNfs(aPVlNFs,cSerie,.F.,.F.,.T.,.F.,.F.,1,1,.T.,.F.,,,)
 	
+	Sleep(20000)
+	
 	ConOut("["+DtoC(Date())+" "+Time()+"] [FatAuto] Gerada a Nota: "+cNota)
 	
 	TRB->(dbSkip())
