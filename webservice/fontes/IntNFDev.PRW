@@ -99,7 +99,7 @@ If lRetorno
 			Aadd(_aCabSF1,{"F1_EST"       ,SZH->ZH_EST        ,Nil})
 			Aadd(_aCabSF1,{"F1_TIPO"      ,"D"                ,Nil})
 			Aadd(_aCabSF1,{"F1_FORMUL"    ,SZH->ZH_FORMUL     ,Nil})
-			Aadd(_aCabSF1,{"F1_ESPECIE"   ,"SPED"             ,Nil})
+			Aadd(_aCabSF1,{"F1_ESPECIE"   ,"NF"               ,Nil})
 			Aadd(_aCabSF1,{"F1_DTDIGIT"   ,dDatabase          ,Nil})
 			Aadd(_aCabSF1,{"F1_HORA"      ,SubStr(Time(),1,5) ,Nil})
 			Aadd(_aCabSF1,{"F1_NUMTRC"    ,SZH->ZH_NUMTRC     ,Nil})
