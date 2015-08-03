@@ -17,8 +17,8 @@
 User Function M030INC()
 
 Local cPara    := M->A1_EMAIL
-Local cBCC     := "rogerio.machado@avantled.com.br; tecnologia@avantled.com.br"
-Local cAssunto := "Bem-Vindo à Avant"
+Local cBCC     := "rogerio.machado@avantled.com.br"
+Local cAssunto := "Bem-vindo à Avant"
 	
 	cLog := "<html><body>"
 	cLog += "<img src='http://avantled.com.br/BI/Bem%20Vindo.png'/>
@@ -29,8 +29,6 @@ Local cAssunto := "Bem-Vindo à Avant"
 		SA1->(RecLock("SA1",.F.))
 		SA1->A1_X_WFLOW := "S"
 		SA1->(MsUnlock())
-	Else
-		Return
 	EndIf
 
 Return
