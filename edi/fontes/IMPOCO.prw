@@ -1,4 +1,8 @@
 #INCLUDE "Protheus.ch"
+#INCLUDE "Totvs.ch"
+#INCLUDE "FILEIO.ch"
+#INCLUDE "TbiConn.ch"
+#INCLUDE "AP5MAIL.CH"
 
 /*/
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
@@ -20,9 +24,14 @@ User Function IMPOCO()
 	Private tTabOCO				// Tabela tempor·ria do conhecimento
 	Private aCamposOCO := {}	// Campos da tabela intermedi·ria de CTRC
 
+	Prepare Environment EMPRESA '01' FILIAL '010104'
+
 	CriaTab()
 	Processa({|| Importacao()},"Importando arquivos", "")
 	GFEDelTab(tTabOCO)
+	
+	RESET ENVIRONMENT
+	
 Return
 
 
