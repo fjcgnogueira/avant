@@ -69,9 +69,9 @@ Static Function Importacao()
 	Local cFormatDt
 	Local cFormatTm
 	Local cNewNomeArq	:= ""
-	Local cDiretorio	:= "C:\EDI"
-	Local cDirOk		:= "C:\EDI\OK"
-	Local cDirErro		:= "C:\EDI\N-OK"
+	Local cDiretorio	:= "\system\EDI"
+	Local cDirOk		:= "\system\EDI\OK"
+	Local cDirErro		:= "\system\EDI\N-OK"
 	Private GFEResult := GFEViewProc():New()
 	Private cFilialOcor
 	Private cNomeArq
@@ -87,9 +87,9 @@ Static Function Importacao()
 	GFELog117:Add("Transportador De..: " + "")
 	GFELog117:Add("Transportador Até.: " + "ZZZ")
 	GFELog117:Add("Filial Ocorrências: " + "010104")
-	GFELog117:Add("Dir. Importação..: "  + "C:\EDI")
-	GFELog117:Add("Dir. Backup OK...: "  + "C:\EDI\OK")
-	GFELog117:Add("Dir. Backup Erros: "  + "C:\EDI\N-OK")
+	GFELog117:Add("Dir. Importação..: "  + "\system\EDI")
+	GFELog117:Add("Dir. Backup OK...: "  + "\system\EDI\OK")
+	GFELog117:Add("Dir. Backup Erros: "  + "\system\EDI\N-OK")
 	GFELog117:NewLine()
 
 	// Validação do diretório de importação
