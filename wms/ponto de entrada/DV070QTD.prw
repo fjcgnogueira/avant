@@ -19,7 +19,6 @@ User Function DV070QTD()
 	Local aRetorno	:= {}
 	Local lRetorno  := PARAMIXB[1]
 	Local nQtde     := PARAMIXB[2]
-	Local cProduto	:= PARAMIXB[3]
 	Local _cLeitura := Space(15)
 	Local _cProd    := ""
 	Local nPos		:= 0
@@ -31,8 +30,12 @@ User Function DV070QTD()
 	Local nItem     := 1
 	Local aUNI      := {}
 	Local aAreaSB1  := SB1->(GetArea())
-	Local nMultip   := 1
+	Local aAreaSB5  := SB5->(GetArea())
 	Local lContinua := .T.
+	
+	Private cProduto := PARAMIXB[3]
+	Private nMultip  := 1
+	Private cAlert   := ""
 	
 	Public ___cPassou
 	
@@ -48,35 +51,6 @@ User Function DV070QTD()
 		nQtdSys := __aProdAtu[nPos][03]
 		nQtdAtu := __aProdAtu[nPos][04]
 	
-		aAdd(aUNI,{"Unidade"})
-		aAdd(aUNI,{"Caixa Int."})
-		aAdd(aUNI,{"Caixa Ext."})
-	
-		VtClear()
-		
-		DLVTCabec()
-		DLVTRodaPe("Unidade p/confer?",.F.)
-		nItem := VTaBrowse(0,0,VTMaxRow()-3,VTMaxCol(),{"Unidade"},aUNI,{VTMaxCol()},,nItem)
-		
-		If nItem == 1
-			_cLeitura := Space(15)
-			_cProd    := Posicione("SB1",1,xFilial("SB1")+cProduto,"B1_CODBAR")
-			nMultip   := 1
-		Else
-			_cLeitura := Space(15)
-			If nItem == 2 
-				_cProd := Posicione("SB1",1,xFilial("SB1")+cProduto,"B1_X_BARI")
-			ElseIf nItem == 3
-				_cProd := Posicione("SB1",1,xFilial("SB1")+cProduto,"B1_X_BAR2")
-			Endif
-			nMultip := SB5->(FieldGet(FieldPos("B5_EAN14"+Left(_cProd,1))))
-			If nMultip == 0
-				VtClear()
-				VTALERT("O Multiplicador " + Left(_cProd,1) + " do produto " + AllTrim(cProduto) + " estah zerado!","AVISO",.T.,4000)
-				lContinua := .F.
-			Endif
-		Endif
-		
 		If VTLastKey() <> 27 .And. lContinua
 		
 			While .T. 
@@ -85,7 +59,7 @@ User Function DV070QTD()
 				_cLeitura := Space(15)
 				
 				@ 01,00 VTSay "Leitura:"		
-				@ 02,00 VTGet _cLeitura Valid(If(AllTrim(_cLeitura) == AllTrim(_cProd),.T.,Eval({||VTALERT("Codigo Invalido!","AVISO",.T.,4000),_cLeitura := Space(15),.F.})))
+				@ 02,00 VTGet _cLeitura Valid(If(VldCodBar(AllTrim(_cLeitura)),.T.,Eval({||_cLeitura := Space(15),.F.})))
 				@ 03,00 VTSay "Quant.: "+StrZero(nQtdSys-nQtdAtu-nQtdLida,4)+"/"+StrZero(nQtdSys,4)
 				
 				VTRead
@@ -169,5 +143,52 @@ User Function DV070QTD()
 	Endif
 	
 	SB1->(RestArea(aAreaSB1))
+	SB5->(RestArea(aAreaSB5))
 	
 Return aRetorno
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ VldCodBar() º Autor ³ Fernando Nogueira  º Data ³07/08/2015º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDescricao ³ Valida o Codigo de Barras e Define a Quantidade da Leitura º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+Static Function VldCodBar(cCodBar)
+
+Local _lReturn    := .T.
+Local _cCodBarras := ""
+
+If SB1->(dbSeek(xFilial("SB1")+AllTrim(cProduto)))
+	_cCodBarras := AllTrim(SB1->B1_X_BARI)+"."+AllTrim(SB1->B1_X_BAR2)+"."+AllTrim(SB1->B1_X_BARI2)+"."+AllTrim(SB1->B1_X_BARE2)
+	
+	If cCodBar == AllTrim(SB1->B1_CODBAR)
+		nMultip   := 1
+	ElseIf cCodBar $ _cCodBarras
+		If SB5->(dbSeek(xFilial("SB5")+AllTrim(cProduto)))
+			nMultip := SB5->(FieldGet(FieldPos("B5_EAN14"+Left(cCodBar,1))))
+			If nMultip == 0
+				vtAlert("O Multiplicador " + Left(cProduto,1) + " do produto " + AllTrim(cProduto) + " estah zerado!","AVISO",.T.,4000)
+				lContinua := .F.
+			Endif
+		Else
+			nMultip   := 0
+			vtAlert("Produto sem Complemento!","AVISO",.T.,4000)
+			lContinua := .F.
+		Endif
+	Else
+		nMultip   := 0
+		vtAlert("Código Inválido!","AVISO",.T.,4000)
+		lContinua := .F.
+	Endif
+Else
+	nMultip   := 0
+	vtAlert("Produto Inválido!","AVISO",.T.,4000)
+	lContinua := .F.
+Endif
+
+Return _lReturn
