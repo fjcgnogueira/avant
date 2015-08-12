@@ -46,4 +46,19 @@ IF valida
     EndIf
 ENDIF
 
+
+
+If M->A1_REGESP = "1"
+	If M->A1_TIPO <> "R" .OR. M->A1_GRPTRIB <> "060" .OR. M->A1_INSCR = " " .OR. M->A1_INSCR = "ISENTO"
+		valida := .F.
+		Msginfo("Cliente com Regime Especial. Verifique os campos de: Tipo, Grupo Trib. e Inscrição Estadual.")
+	EndIf
+Else
+	If Empty(M->A1_REGESP)
+		valida := .F.
+		MsgInfo("Campo Regime Especial vazio.")
+	EndIf
+EndIf
+
+
 Return(valida)
