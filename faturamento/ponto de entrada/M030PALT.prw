@@ -16,7 +16,7 @@
 
 User Function M030PALT()
 
-Local cPara    := M->A1_EMAIL
+Local cPara    := SA1->A1_EMAIL
 Local cBCC     := "rogerio.machado@avantled.com.br; tecnologia@avantled.com.br"
 Local cAssunto := "Bem-vindo à Avant"
 	
@@ -24,7 +24,7 @@ Local cAssunto := "Bem-vindo à Avant"
 	cLog += "<img src='http://avantled.com.br/BI/Bem%20Vindo.png'/>
 	cLog += "</body></html>"
 
-	If 	M->A1_X_WFLOW = " " .AND. M->A1_MSBLQL = "2" 
+	If 	SA1->A1_X_WFLOW = " " .AND. SA1->A1_MSBLQL = "2" 
 		U_MHDEnvMail(cPara, "", cBCC, cAssunto, cLog, "")
 		SA1->(RecLock("SA1",.F.))
 		SA1->A1_X_WFLOW := "S"
