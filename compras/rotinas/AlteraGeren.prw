@@ -17,7 +17,6 @@
 北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北
 哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌
 */
-
 User Function AlteraGeren()
 
 Local bGerenAtu := {|_x|oSayNomeAtu:=Posicione("SA3",1,xFilial("SA3")+oSayNomeAtu,"A3_NOME"),.T.}
