@@ -16,6 +16,6 @@
 User Function F070ACONT()
 
 // Altera a Database, igualando a Data de Credito
-dDataBase := SE5->E5_DTDISPO
+//dDataBase := SE5->E5_DTDISPO
 
 Return

@@ -22,7 +22,7 @@ User Function CtrlTrocas(cAlias,nReg,nOpcx)
 Local cTitulo      := "Controle de Trocas"
 Local cAliasEnch   := "SZH"
 Local cAliasGetDad := "SZI"
-Local cLinOk       := "AllwaysTrue()"
+Local cLinOk       := "U_VldLinTrc()"
 Local cTudOk       := "AllwaysTrue()"
 Local cFieldOk     := "AllwaysTrue()"
 Local aCpoEnch     := {}
@@ -30,6 +30,11 @@ Local nX           := 0
 
 Private nUsado  := 0
 Private aBotoes	:= {}
+Private nQtdTot := 0
+Private nVlrTot := 0
+Private oDlg
+Private nPosQtd := 0
+Private nPosVlr := 0
 
 cAlias := "SZH"
 nOpcx  := 4
@@ -76,7 +81,7 @@ If SZH->(dbSeek(xFilial()+SF1->F1_NUMTRC))
 			dbSkip()
 			Loop
 		Endif
-		If X3USO(x3_usado).And.cNivel>=x3_nivel
+		If X3USO(x3_usado).And.cNivel>=x3_nivel.And.cNivel<9
 			nUsado:=nUsado+1
 			AADD(aHeader,{ Trim(X3Titulo()), ;
 				X3_CAMPO,;
@@ -124,8 +129,18 @@ If SZH->(dbSeek(xFilial()+SF1->F1_NUMTRC))
 	    
 	    aAdd( aBotoes,{"ANEXO"  ,{|| MsAnxItem() },"Anexo"  })
 	    aAdd( aBotoes,{"ANALISE",{|| AnaliseTRC()},"Analise"})
-	
-	    lRetMod3 := Modelo3(cTitulo, cAliasEnch, cAliasGetDad, aCpoEnCh, cLinOk, cTudOk, nOpcE, nOpcG, cFieldOk, , , , , aBotoes)
+	    
+	    nPosQtd  := aScan(aHeader,{|x| AllTrim(x[2]) == "ZI_QUANT"})
+    	nPosVlr  := aScan(aHeader,{|x| AllTrim(x[2]) == "ZI_VLRTOTA"})
+    	
+    	For J := 1 To Len(aCols)
+			If !aCols[J,Len(aHeader)+1]
+				nQtdTot += aCols[J,nPosQtd]
+				nVlrTot += aCols[J,nPosVlr]
+			Endif
+		Next J
+    		
+	    lRetMod3 := U_ModeloFN(cTitulo, cAliasEnch, cAliasGetDad, aCpoEnCh, cLinOk, cTudOk, nOpcE, nOpcG, cFieldOk, , , , , aBotoes)
 	    
 	    /* 
 		Modelo3[1]  -> C (    7) [CTITULO]      Titulo do(a) "Dialog"/Janela
@@ -214,6 +229,51 @@ Else
 Endif
 
 Return 
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºFuncao    ³ VldLinTrc() º Autor ³ Fernando Nogueira  º Data ³10/08/2015º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³ Validacao da linha do controle de trocas				   	  º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+User Function VldLinTrc()
+
+Local nPosProd := aScan(aHeader,{|x| AllTrim(x[2]) == "ZI_PRODUTO"})
+Local cProduto := AllTrim(aCols[n,nPosProd])
+
+nQtdTot := 0
+nVlrTot := 0
+
+For J := 1 To Len(aCols)
+	If !aCols[J,Len(aHeader)+1]
+		nQtdTot += aCols[J,nPosQtd]
+		nVlrTot += aCols[J,nPosVlr]
+	Endif
+Next J
+
+Eval(oDlg:Cargo,nQtdTot,nVlrTot)
+
+If aCols[n,Len(aHeader)+1] .And. !Empty(GdFieldGet('ZI_NFORI'))
+	ApMsgInfo('Não pode deletar item original.')
+	Return .F.
+ElseIf !aCols[n,Len(aHeader)+1] .And. Empty(GdFieldGet('ZI_NFORI')) .And. GdFieldGet('ZI_QTDTRC') == 0
+	ApMsgInfo('Item não original deve ter quantidade de troca.')
+	Return .F.
+Else
+	 For I := 1 To Len(aCols)
+	 	If I <> n .And. AllTrim(aCols[I,nPosProd]) == cProduto .And. !aCols[n,Len(aHeader)+1] .And. !aCols[I,Len(aHeader)+1]
+	 		ApMsgInfo('Produto Repetido.')
+	 		Return .F.
+	 	Endif
+	 Next I
+Endif
+
+Return .T.
 
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
@@ -406,3 +466,111 @@ While SZO->(!EoF()) .And. dbSeek(xFilial("SZO")+M->ZH_NUMTRC+STRZERO(N,4)+StrZer
 End
 
 Return(StrZero(nNumAnalise,4))
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Funcao	 ³ ModeloFN	  ³ Autor ³ Fernando Nogueira   ³ Data ³ 12/08/15 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descricao ³Copia e adaptacao do Modelo3 da Totvs 					  ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³lRet:=Modelo3(cTitulo,cAlias1,cAlias2,aMyEncho,cLinOk, 	  ³±±
+±±³			 ³ cTudoOk,nOpcE,nOpcG,cFieldOk,lVirtual,nLinhas,aAltEnchoice)³±±
+±±³			 ³lRet=Retorno .T. Confirma / .F. Abandona					  ³±±
+±±³			 ³cTitulo=Titulo da Janela 									  ³±±
+±±³			 ³cAlias1=Alias da Enchoice									  ³±±
+±±³			 ³cAlias2=Alias da GetDados									  ³±±
+±±³			 ³aMyEncho=Array com campos da Enchoice						  ³±±
+±±³			 ³cLinOk=LinOk 												  ³±±
+±±³			 ³cTudOk=TudOk 												  ³±±
+±±³			 ³nOpcE=nOpc da Enchoice									  ³±±
+±±³			 ³nOpcG=nOpc da GetDados									  ³±±
+±±³			 ³cFieldOk=validacao para todos os campos da GetDados 		  ³±±
+±±³			 ³lVirtual=Permite visualizar campos virtuais na enchoice	  ³±±
+±±³			 ³nLinhas=Numero Maximo de linhas na getdados				  ³±±
+±±³			 ³aAltEnchoice=Array com campos da Enchoice Alteraveis		  ³±±
+±±³			 ³nFreeze=Congelamento das colunas.                           ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³ Uso		 ³RdMake 													  ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+User Function ModeloFN(cTitulo,cAlias1,cAlias2,aMyEncho,cLinOk,cTudoOk,nOpcE,nOpcG,cFieldOk,lVirtual,nLinhas,aAltEnchoice,nFreeze,aButtons,aCordW,nSizeHeader)
+Local lRet, nOpca := 0,cSaveMenuh,nReg:=(cAlias1)->(Recno())//,oDlg
+Local oEnchoice
+Local nDlgHeight   
+Local nDlgWidth
+Local nDiffWidth := 0 
+Local lMDI := .F.
+Local aPosObj  := {}
+Local aObjects := {}
+Local aSize    := {}
+Local aPosGet  := {}
+Local aInfo    := {}
+Local nGetLin  := 0
+Local oSAY1
+Local oSAY2
+
+Private Altera:=.t.,Inclui:=.t.,lRefresh:=.t.,aTELA:=Array(0,0),aGets:=Array(0),;
+bCampo:={|nCPO|Field(nCPO)},nPosAnt:=9999,nColAnt:=9999
+Private cSavScrVT,cSavScrVP,cSavScrHT,cSavScrHP,CurLen,nPosAtu:=0
+
+nOpcE := If(nOpcE==Nil,3,nOpcE)
+nOpcG := If(nOpcG==Nil,3,nOpcG)
+lVirtual := Iif(lVirtual==Nil,.F.,lVirtual)
+nLinhas:=Iif(nLinhas==Nil,99,nLinhas)
+
+If SetMDIChild()
+	oMainWnd:ReadClientCoors()
+	nDlgHeight := oMainWnd:nHeight
+	nDlgWidth := oMainWnd:nWidth
+	lMdi := .T.
+	nDiffWidth := 0
+Else           
+	nDlgHeight := 420
+	nDlgWidth	:= 632
+	nDiffWidth := 1
+EndIf
+
+Default aCordW := {135,000,nDlgHeight,nDlgWidth}
+Default nSizeHeader := 110
+
+aSize := MsAdvSize()
+aObjects := {}
+AAdd( aObjects, { 100, 100, .t., .t. } )
+AAdd( aObjects, { 100, 100, .t., .t. } )
+AAdd( aObjects, { 100, 020, .t., .f. } )
+
+aInfo := { aSize[ 1 ], aSize[ 2 ], aSize[ 3 ], aSize[ 4 ], 3, 3 }
+aPosObj := MsObjSize( aInfo, aObjects )
+
+aPosGet := MsObjGetPos(aSize[3]-aSize[1],315,;
+	{{020,040,080,100,200,220,260,280}} )
+
+DEFINE MSDIALOG oDlg TITLE cTitulo From aCordW[1],aCordW[2] to aCordW[3],aCordW[4] Pixel of oMainWnd
+If lMdi
+	oDlg:lMaximized := .T.
+EndIf
+
+oEnchoice := Msmget():New(cAlias1,nReg,nOpcE,,,,aMyEncho,{13,1,(nSizeHeader/2)+13,If(lMdi, (oMainWnd:nWidth/2)-2,__DlgWidth(oDlg)-nDiffWidth)},aAltEnchoice,3,,,,oDlg,,lVirtual,,,,,,,,.T.)       
+
+nGetLin := aPosObj[3,1]
+@ nGetLin+10,aPosGet[1,1]  SAY "Qtd. Original :"  SIZE 040,09 OF oDlg PIXEL
+@ nGetLin+10,aPosGet[1,2]  SAY oSAY1 VAR nQtdTot PICTURE PesqPict("SZI","ZI_QUANT") SIZE 060,09 OF oDlg	PIXEL
+@ nGetLin+10,aPosGet[1,3]  SAY "Valor Original :" SIZE 040,09 OF oDlg PIXEL
+@ nGetLin+10,aPosGet[1,4]  SAY oSAY2 VAR nVlrTot PICTURE PesqPict("SZI","ZI_QUANT") SIZE 060,09 OF oDlg	PIXEL
+@ nGetLin+10,aPosGet[1,5]  SAY "Qtd. Troca :"  SIZE 040,09 OF oDlg PIXEL
+@ nGetLin+10,aPosGet[1,6]  SAY oSAY1 VAR nQtdTot PICTURE PesqPict("SZI","ZI_QUANT") SIZE 060,09 OF oDlg	PIXEL
+@ nGetLin+10,aPosGet[1,7]  SAY "Valor Troca :" SIZE 040,09 OF oDlg PIXEL
+@ nGetLin+10,aPosGet[1,8]  SAY oSAY2 VAR nVlrTot PICTURE PesqPict("SZI","ZI_QUANT") SIZE 060,09 OF oDlg	PIXEL
+
+oDlg:Cargo := {|n1,n2| oSay1:SetText(n1),oSay2:SetText(n2)}
+
+oGetDados := MsGetDados():New((nSizeHeader/2)+13+2,1,If(lMdi, (oMainWnd:nHeight/2)-44,__DlgHeight(oDlg)),If(lMdi, (oMainWnd:nWidth/2)-2,__DlgWidth(oDlg)-nDiffWidth),nOpcG,cLinOk,cTudoOk,"",.T.,,nFreeze,,nLinhas,cFieldOk,,,,oDlg)
+
+ACTIVATE MSDIALOG oDlg ON INIT (EnchoiceBar(oDlg,{||nOpca:=1,If(oGetDados:TudoOk(),If(!obrigatorio(aGets,aTela),nOpca := 0,oDlg:End()),nOpca := 0)},{||oDlg:End()},,aButtons))
+
+lRet:=(nOpca==1)
+Return lRet
