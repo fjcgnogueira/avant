@@ -237,7 +237,8 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 					{"A1_X_HORA"	,SZ5->Z5_X_HORA	       , Nil},;
 					{"A1_SATIV1"	,SZ5->Z5_X_CANAL       , Nil},;
 					{"A1_SATIV2"	,SZ5->Z5_X_SEGME       , Nil},;
-					{"A1_SATIV4"	,SZ5->Z5_X_PERFI       , Nil}}					
+					{"A1_SATIV4"	,SZ5->Z5_X_PERFI       , Nil},;
+					{"A1_XREGESP"	,SZ5->Z5_XREGESP       , Nil}}					
 
 	MSExecAuto({|x,y| MATA030(x,y)}, aValues, nOpc)			
 

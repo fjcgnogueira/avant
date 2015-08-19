@@ -59,7 +59,8 @@ While (!Eof('TRB'))
 		cLog += "<p <strong>Data: </strong>" +RIGHT(TRB->Z3_EMISSAO,2)+ "/" +SUBSTR(TRB->Z3_EMISSAO,5,2)+ "/" +LEFT(TRB->Z3_EMISSAO,4)+ "</p>"
 		cLog += "<p <strong>Cliente/Loja: </strong>"+CValToChar(TRB->A1_COD) +' / '+CValToChar(TRB->A1_LOJA) +' - '+ CValToChar(TRB->A1_NOME)+"</p>"
 		cLog += "<p <strong>Mensagem: </strong> Favor entrar em contato com nossos Analistas de IT. (11) 3355-2220</p>"
-		cLog += "<p <strong>Observação: </strong> Se o seu pedido tem Desconto Especial, ele está parado na tela de aprovação do Wesley Pazini. Nesse caso, favor desconsiderar esse e-mail.</p>"
+		//Ewerson solicitou a retirada da mensagem abaixo
+		//cLog += "<p <strong>Observação: </strong> Se o seu pedido tem Desconto Especial, ele está parado na tela de aprovação do Wesley Pazini. Nesse caso, favor desconsiderar esse e-mail.</p>"
 		
 		cLog += cFim
 		cAssunto := "Erro Pedido Web "+CValToChar(TRB->Z3_NPEDWEB)+ " não enviado para a Avant"
