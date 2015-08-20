@@ -2,7 +2,59 @@
 #INCLUDE "APWEBSRV.CH"
 #INCLUDE "FWMVCDEF.CH"
 
-User Function AfterLogin()
+User Function TesteWs(cEmpInt, cFilInt, cNumTroca, cDocumento)
+//IntNFDev(cEmpInt, cFilInt, cNumTroca)
+//U_IntNFDev("01","010104","000004","DEVOLUCAO")
+//U_TesteWs("01","010104","000004","DEVOLUCAO")
+//U_INTPEDIDO("01","010104", "124114","PEDIDO","")
+//U_TesteWs("01","010104", "124114","PEDIDO","")
+ 
+Local oWs := NIL
+
+If Upper(AllTrim(cDocumento)) == "PEDIDO"
+	oWs := WSPEDWEBAVANT():New()
+ElseIf Upper(AllTrim(cDocumento)) == "DEVOLUCAO"
+	oWs := WSDEVWEBAVANT():New()
+Endif
+ 
+If oWs:CONNECT(cEmpInt, cFilInt, cNumTroca)
+	If IsMemVar(oWs:oWSCONNECTRESULT:cDOCUMENTO)
+		alert('Documento: '+ oWs:oWSCONNECTRESULT:cDOCUMENTO)
+	Endif
+	If IsMemVar(oWs:oWSCONNECTRESULT:cMENSAGEM)
+		alert('Mensagem: '+ oWs:oWSCONNECTRESULT:cMENSAGEM)
+	Endif
+Else 
+	alert('Erro de Execução : '+GetWSCError())
+Endif
+ 
+Return
+
+/*User Function TesteWs(ccnpj,cinscsuf)
+ 
+Local oWs := NIL
+
+cCep := '09694010'
+
+oWs := WSCadastroConsultasWSService():New()
+
+If MsgYesNo('Suframa - sim, CNPJ - nao')
+	oWs:consultarSituacaoInscsuf(cinscsuf)
+	alert (oWs:nconsultarSituacaoInscsufReturn)
+Else
+	oWs:consultarSituacaoInscCnpj(ccnpj,cinscsuf)
+	alert (oWs:nconsultarSituacaoInscCnpjReturn)
+Endif
+
+oCep := WSCEPService():New()
+oCep:obterLogradouro(cCep)
+alert(oCep:cobterLogradouroResponse)
+
+conout('teste')
+  
+Return*/
+
+/*User Function AfterLogin()
 
 If Left(oMainWnd:cCaption,12) <> "Unitizadores" ;
 	.And. Left(oMainWnd:cCaption,17) <> "Pick List Pedidos" ;
@@ -49,7 +101,7 @@ If Left(oMainWnd:cCaption,12) <> "Unitizadores" ;
 	Final("Acesso não autorizado! Utilizar o ambiente Avant.")
 Endif
 
-Return
+Return*/
 
 /*User Function AfterLogin()
 	Local cId	:= ParamIXB[1]
@@ -438,31 +490,6 @@ END WSMETHOD
 
 oXmlRet := NIL
 Return .T.
-
-
-/*User Function TesteWs(ccnpj,cinscsuf)
- 
-Local oWs := NIL
-
-cCep := '09694010'
-
-oWs := WSCadastroConsultasWSService():New()
-
-If MsgYesNo('Suframa - sim, CNPJ - nao')
-	oWs:consultarSituacaoInscsuf(cinscsuf)
-	alert (oWs:nconsultarSituacaoInscsufReturn)
-Else
-	oWs:consultarSituacaoInscCnpj(ccnpj,cinscsuf)
-	alert (oWs:nconsultarSituacaoInscCnpjReturn)
-Endif
-
-oCep := WSCEPService():New()
-oCep:obterLogradouro(cCep)
-alert(oCep:cobterLogradouroResponse)
-
-conout('teste')
-  
-Return*/
 
 
 /*
