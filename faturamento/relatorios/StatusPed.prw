@@ -38,7 +38,7 @@ User Function STATUSPED()
 				INNER JOIN %table:SA1% SA1 ON F2_CLIENTE+F2_LOJA = A1_COD+A1_LOJA AND SA1.%notDel%
 				INNER JOIN %table:SD2% SD2 ON F2_FILIAL = D2_FILIAL AND F2_DOC+F2_SERIE = D2_DOC+D2_SERIE AND SD2.%notDel%
 				INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND SF4.%notDel%
-				WHERE SF2.%notDel% AND  F2_FILIAL = '010104' AND F2_EXPEDID <> '' AND F2_X_WFPED = ''
+				WHERE SF2.%notDel% AND  F2_FILIAL = '010104' AND F2_EXPEDID <> '' AND F2_X_WFPWD = ''
 							
 	EndSql
 
@@ -94,7 +94,7 @@ User Function STATUSPED()
 		SF2->(DBSeek(xFilial("SF2")+TRB->Nota))
 		
 		If SF2->(RecLock("SF2",.F.))
-			SF2->F2_X_WFPED := "S"
+			SF2->F2_X_WFPWD := "S"
 		Endif
 		SF2->(MsUnlock())
 				
@@ -103,6 +103,4 @@ User Function STATUSPED()
 	EndDo
 		
 		
-	MsgInfo("OK")
-	
 Return
