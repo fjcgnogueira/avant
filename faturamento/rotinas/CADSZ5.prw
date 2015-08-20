@@ -119,7 +119,10 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
     Local cCodPa		:= ""
 	Local lAchou		:= .F.
 	Local nOpc			:= 3
-    
+	
+	Local _cTipo	    := ""
+	Local _cGRPTRIB	    := ""
+	    
 	Private aRotAuto 	:= Nil
 	Private lMsErroAuto := .F.
 
@@ -191,6 +194,16 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 	cEndEnt	:= Alltrim(SZ5->Z5_ENDENT)  + " ," + IIF(!Empty(SZ5->Z5_ENDNREN), SZ5->Z5_ENDNREN, "SN") + IIF(!Empty(SZ5->Z5_COMPEN), " - " + SZ5->Z5_COMPEN, "")
 	cCodPa	:= Posicione("SYA",2,xFilial("SYA") + Upper(SZ5->Z5_PAIS), "SYA->YA_CODGI")
 	
+
+	If SZ5->Z5_XREGESP = "S"
+		_cTipo    := "R"
+		_cGRPTRIB := "060"
+	Else
+		_cTipo    := "S"
+		_cGRPTRIB := SZ5->Z5_GRPTRIB
+	EndIf
+	
+	
 	aValues	:= {	{"A1_LOJA"		,cLojaCli			   , Nil},;
 					{"A1_COD"		,cCodCli			   , Nil},;
 					{"A1_NOME"		,UPPER(SZ5->Z5_RAZASOC), Nil},;
@@ -237,8 +250,10 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 					{"A1_X_HORA"	,SZ5->Z5_X_HORA	       , Nil},;
 					{"A1_SATIV1"	,SZ5->Z5_X_CANAL       , Nil},;
 					{"A1_SATIV2"	,SZ5->Z5_X_SEGME       , Nil},;
-					{"A1_SATIV4"	,SZ5->Z5_X_PERFI       , Nil},;
-					{"A1_XREGESP"	,SZ5->Z5_XREGESP       , Nil}}					
+					{"A1_SATIV4"	,SZ5->Z5_X_PERFI       , Nil},;		
+					{"A1_XREGESP"	,SZ5->Z5_XREGESP       , Nil},;
+					{"A1_TIPO"	    ,_cTipo                , Nil},;
+					{"A1_GRPTRIB"	,_cGRPTRIB             , Nil}}					
 
 	MSExecAuto({|x,y| MATA030(x,y)}, aValues, nOpc)			
 
