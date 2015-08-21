@@ -17,7 +17,7 @@
 User Function STATUSPED()
 
 	Local cPara    := ""
-	Local cBCC     := "rogerio.machado@avantled.com.br"
+	Local cBCC     := "rogerio.machado@avantled.com.br; tecnologia@avantled.com.br"
 	Local cAssunto := "AVANT - Pedido na Transportadora"
 	Local cNota    := ""
 	Local cData    := ""
@@ -87,7 +87,7 @@ User Function STATUSPED()
 		cLog += "</html>"
 		
 		
-		U_MHDEnvMail(cPara, cBCC, "", cAssunto, cLog, "")
+		U_MHDEnvMail(cPara, "", cBCC, cAssunto, cLog, "")
 		
 		SF2->(DBSetOrder(1))
 		SF2->(DbGoTop())
