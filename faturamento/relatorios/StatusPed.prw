@@ -1,4 +1,8 @@
-#INCLUDE "Protheus.CH"
+#INCLUDE "PROTHEUS.CH"           
+#INCLUDE "Totvs.ch"
+#INCLUDE "FILEIO.ch"
+#INCLUDE "TbiConn.ch"
+#INCLUDE "AP5MAIL.CH"
 
 /*/
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
@@ -29,7 +33,7 @@ User Function STATUSPED()
 	//Local cTel     := ""
 	Local cPara    := ""
 
-
+	Prepare Environment EMPRESA '01' FILIAL '010104'
 
 	BeginSql alias 'TRB'
 	
@@ -102,5 +106,6 @@ User Function STATUSPED()
 		
 	EndDo
 		
+	RESET ENVIRONMENT	
 		
 Return
