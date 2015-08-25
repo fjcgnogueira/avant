@@ -30,6 +30,7 @@ Endif
  
 Return
 
+
 /*User Function TesteWs(ccnpj,cinscsuf)
  
 Local oWs := NIL
