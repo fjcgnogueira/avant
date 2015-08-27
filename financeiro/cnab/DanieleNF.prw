@@ -18,6 +18,7 @@ User Function DANIELENF()
 
 Local cCHVNFE := ""
 
-	cCHVNFE := POSICIONE("SF2",1,xFilial("SF2")+SE1->E1_NUM+SE1->E1_PREFIXO,"SF2->F2_CHVNFE")
+	cCHVNFE := POSICIONE("SF2",1,xFilial("SF2")+SE1->E1_NUM,"SF2->F2_CHVNFE")
+	
 
 Return(cCHVNFE)
