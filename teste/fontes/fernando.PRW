@@ -2,6 +2,16 @@
 #INCLUDE "APWEBSRV.CH"
 #INCLUDE "FWMVCDEF.CH"
 
+User Function ListarFuncoes()
+
+Local aIntFunctions := __FunArr()
+
+For _nX := 1 To Len(aIntFunctions) 
+	ConOut(aIntFunctions[_nX,1])
+Next
+ 
+Return
+
 User Function TesteWs(cEmpInt, cFilInt, cNumTroca, cDocumento)
 //IntNFDev(cEmpInt, cFilInt, cNumTroca)
 //U_IntNFDev("01","010104","000004","DEVOLUCAO")
