@@ -108,7 +108,8 @@ If Left(oMainWnd:cCaption,12) <> "Unitizadores" ;
 	.And. Left(oMainWnd:cCaption,17) <> "Reimpressao Etiq." ;
 	.And. Left(oMainWnd:cCaption,18) <> "Wizard Imp. Etique" ;
 	.And. Left(oMainWnd:cCaption,08) <> "Produtos" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Altera Etiqueta Vo"
+	.And. Left(oMainWnd:cCaption,18) <> "Altera Etiqueta Vo";
+	.And. Left(oMainWnd:cCaption,18) <> "Enderecar Produtos"
 	Final("Acesso não autorizado! Utilizar o ambiente Avant.")
 Endif
 
