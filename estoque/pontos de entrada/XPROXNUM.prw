@@ -17,9 +17,10 @@
 /*/
 User Function xProxNum()
 
-Local cNumSeq := ""
+Local cNumSeq   := ""
+Local cAliasTRB := GetNextAlias()
 
-BeginSQL Alias 'TRB'
+BeginSQL Alias cAliasTRB
 	SELECT MAX(NUMSEQ) NUMSEQ FROM
 	(SELECT MAX(D1_NUMSEQ) NUMSEQ FROM %Table:SD1%
 	UNION
@@ -30,9 +31,9 @@ BeginSQL Alias 'TRB'
 	SELECT MAX(DCF_NUMSEQ) NUMSEQ FROM %Table:DCF%) QRY_NUMSEQ
 EndSQL
 
-cNumSeq := Soma1(PadR(TRB->NUMSEQ,TamSx3("D3_NUMSEQ")[1]),,,.T.)
+cNumSeq := Soma1(PadR((cAliasTRB)->NUMSEQ,TamSx3("D3_NUMSEQ")[1]),,,.T.)
 PutMV("MV_DOCSEQ",cNumSeq)
 
-TRB->(DbCloseArea())
+(cAliasTRB)->(DbCloseArea())
 
 Return cNumSeq
