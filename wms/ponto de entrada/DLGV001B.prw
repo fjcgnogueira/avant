@@ -17,12 +17,15 @@
 User Function DLGV001B()
 
 Local aArea      := GetArea()
+Local aAreaSDB   := SDB->(GetArea())
 Local cAlias1SDB := GetNextAlias()
 Local cAlias2SDB := GetNextAlias()
 Local cAliasDCF  := GetNextAlias()
 Local cLocal     := SDB->DB_LOCAL
 Local cItem      := SDB->DB_SERIE 
+Local cRecHum    := ParamIXB[1]
 Local cTarefa    := ParamIXB[4]
+Local cAtivid    := ParamIXB[5]
 Local cPedido    := ParamIXB[7]
 Local lConvoca   := ParamIXB[8]
 Local cFuncao    := AllTrim(ParamIXB[9])
@@ -73,6 +76,8 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 				VTRead
 			Endif
 		Endif
+				
+		DefRecHum(cLocal,cPedido,cTarefa,cAtivid,cRecHum)
 	
 	// Se a chamada for de conferencia
 	ElseIf cFuncao == 'DLCONFEREN()' .And. !(cAlias1SDB)->(Eof())
@@ -131,8 +136,13 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 				
 				aReturn := {.F.}
 			Endif
-			
+						
 			(cAlias2SDB)->(dbCloseArea())
+			
+			If aReturn[1]
+				DefRecHum(cLocal,cPedido,cTarefa,cAtivid,cRecHum)
+			Endif
+			
 		Endif
 		
 		(cAliasDCF)->(dbCloseArea())
@@ -141,6 +151,63 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 	(cAlias1SDB)->(dbCloseArea())	
 Endif
 
+SDB->(RestArea(aAreaSDB))
 RestArea(aArea)
 
 Return aReturn
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ DefRecHum º Autor ³ Fernando Nogueira  º Data ³ 14/09/2015 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³ Define o mesmo recurso humano para todo o documento        º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+Static Function DefRecHum(cLocal,cPedido,cTarefa,cAtivid,cRecHum)
+
+Local cAlias3SDB := GetNextAlias()
+
+// Lista os servicos pendentes de separacao
+BeginSQL Alias cAlias3SDB
+	SELECT * FROM SDB010 SDB
+	WHERE SDB.%notDel%
+		AND DB_FILIAL    = %Exp:xFilial("SDB")%
+		AND DB_STATUS    = '4'
+		AND DB_TAREFA    = %Exp:cTarefa%
+		AND DB_ATIVID    = %Exp:cAtivid%
+		AND DB_DOC       = %Exp:cPedido%
+		AND DB_LOCAL     = %Exp:cLocal%
+EndSQL
+
+(cAlias3SDB)->(dbGoTop())
+
+While (cAlias3SDB)->(!Eof())
+	SDB->(dbGoTop())
+	SDB->(dbSetOrder(8))
+	If SDB->(dbSeek(xFilial("SDB")+(cAlias3SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)))
+		While SDB->(DB_FILIAL+DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM) == xFilial("SDB")+(cAlias3SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)
+			If Empty(SDB->DB_ESTORNO)
+				If SDB->(RecLock("SDB",.F.))
+					SDB->DB_RECHUM := cRecHum
+					SDB->(MsUnlock())
+				Else
+					VtClear()
+					@ 01,00 VTSay PadR("Registro bloqueado")
+					VTPause()
+					VTRead
+					Final()
+				Endif
+			Endif
+			SDB->(dbSkip())
+		End
+	Endif
+	(cAlias3SDB)->(dbSkip())
+End
+
+(cAlias3SDB)->(dbCloseArea())
+
+Return
