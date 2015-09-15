@@ -58,7 +58,7 @@ EndIf
 
 (cAliasSC9)->(DbCloseArea())
 
-// Fernando Nogueira - Verifica se tem do Pedido que nao gerou execucao
+// Fernando Nogueira - Verifica se tem item do Pedido que nao gerou execucao
 BeginSQL Alias cAliasDCF
 	SELECT * FROM
 	(SELECT	C6_ITEM ITEMC6,ISNULL(DCF_SERIE,'00') ITEMDCF FROM %Table:SC6% SC6
