@@ -18,12 +18,28 @@
 User Function DLGA150E()
 
 Local _aArea    := GetArea()
+Local aAreaSDB  := SDB->(GetArea())
 Local _cDoc     := AllTrim(ParamIXB[3])
 Local _cSerie   := AllTrim(ParamIXB[4])
 Local cMens1    := ""
 Local cMens2    := ""
 Local cAliasSC9 := GetNextAlias()
 Local cAliasDCF := GetNextAlias()
+
+Public __cRecHum := ""
+
+SDB->(dbSetOrder(6))
+
+// Fernando Nogueira - Verifica se ja tem servico para esse documento
+If SDB->(dbSeek(xFilial('SDB')+DCF->DCF_DOCTO))
+	While SDB->(DB_FILIAL+DB_DOC) == xFilial('SDB')+DCF->DCF_DOCTO
+		If SDB->(DB_TAREFA+DB_TIPO) == '002E' .And. Empty(SDB->DB_ESTORNO) .And. !Empty(SDB->DB_RECHUM)
+			__cRecHum := SDB->DB_RECHUM
+			Exit
+		Endif
+		SDB->(dbSkip())
+	End
+Endif
 
 // Fernando Nogueira - Verifica se tem item nao liberado no Pedido de Vendas
 BeginSQL Alias cAliasSC9
