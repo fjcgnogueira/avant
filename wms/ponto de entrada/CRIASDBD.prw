@@ -18,9 +18,10 @@ Local aAreaSDB := SDB->(GetArea())
 
 // Se tiver recurso humano para esse documento mantem nos proximos servicos
 If IsMemVar("__cRecHum")
-	If !Empty(__cRecHum) .And. SDB->DB_TAREFA = "002"
+	If !Empty(__cRecHum) .And. SDB->DB_TAREFA = "002" .And. SDB->DB_STATUS == '4'
 		SDB->(RecLock("SDB",.F.))
 		SDB->DB_RECHUM := __cRecHum
+		SDB->DB_STATUS := '3'
 		SDB->(MsUnlock())
 	Endif
 Endif
