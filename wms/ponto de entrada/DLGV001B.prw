@@ -20,6 +20,7 @@ Local aArea      := GetArea()
 Local aAreaSDB   := SDB->(GetArea())
 Local cAlias1SDB := GetNextAlias()
 Local cAlias2SDB := GetNextAlias()
+Local cAlias3SDB := GetNextAlias()
 Local cAliasDCF  := GetNextAlias()
 Local cLocal     := SDB->DB_LOCAL
 Local cItem      := SDB->DB_SERIE 
@@ -28,6 +29,8 @@ Local cTarefa    := ParamIXB[4]
 Local cAtivid    := ParamIXB[5]
 Local cPedido    := ParamIXB[7]
 Local lConvoca   := ParamIXB[8]
+Local cStatus    := "3"
+Local cStAnt     := "4"
 Local cFuncao    := AllTrim(ParamIXB[9])
 Local aReturn    := {}
 
@@ -58,6 +61,30 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 	// Se a chamada for de apanhe
 	If cFuncao == 'DLAPANHE()'
 	
+		// Verifica se tem alguma separacao com outro recurso humano
+		BeginSQL Alias cAlias3SDB
+			SELECT * FROM SDB010 SDB
+			WHERE SDB.%notDel%
+				AND DB_FILIAL    = %Exp:xFilial("SDB")%
+				AND DB_DOC       = %Exp:cPedido%
+				AND DB_TAREFA    = '002' 
+				AND DB_LOCAL     = %Exp:cLocal%
+				AND DB_TIPO      = 'E' 
+				AND DB_ESTORNO   = ' '
+				AND DB_STATUS    <> '1'
+				AND DB_RECHUM    <> ' '
+				AND DB_RECHUM    <> %Exp:cRecHum%
+		EndSQL
+	
+		(cAlias3SDB)->(dbGoTop())
+		
+		If (cAlias3SDB)->(!Eof())
+			(cAlias3SDB)->(dbCloseArea())
+			aReturn  := {.F.}
+			Return aReturn	
+		Endif
+		(cAlias3SDB)->(dbCloseArea())
+	
 		If (cAlias1SDB)->(Eof()) .And. DLVTAviso("Apanhe","Pedido "+cPedido+CHR(13)+CHR(10)+"Item: "+cItem+CHR(13)+CHR(10)+"Continua Nesse?",{"Sim","Nao"}) <> 1
 			aReturn  := {.F.}
 			Return aReturn
@@ -77,7 +104,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 			Endif
 		Endif
 				
-		DefRecHum(cLocal,cPedido,cTarefa,cAtivid,cRecHum)
+		U_DefRecHum(cLocal,cPedido,cTarefa,cAtivid,cRecHum,cStatus,cStAnt)
 	
 	// Se a chamada for de conferencia
 	ElseIf cFuncao == 'DLCONFEREN()' .And. !(cAlias1SDB)->(Eof())
@@ -96,14 +123,16 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 		
 		If !(cAliasDCF)->(Eof())
 		
-			VtClear()
+			//VtClear()
+			//
+			//	@ 01,00 VTSay PadR("Pedido: "+AllTrim(cPedido), VTMaxCol())
+			//	@ 02,00 VTSay PadR("Incompleto na" , VTMaxCol())
+			//	@ 03,00 VTSay PadR("Execucao" , VTMaxCol())
+			//
+			//VTPause()
+			//VTRead
 			
-				@ 01,00 VTSay PadR("Pedido: "+AllTrim(cPedido), VTMaxCol())
-				@ 02,00 VTSay PadR("Incompleto na" , VTMaxCol())
-				@ 03,00 VTSay PadR("Execucao" , VTMaxCol())
-			
-			VTPause()
-			VTRead
+			vtAlert("Pedido: "+AllTrim(cPedido)+" Incompleto na Execucao!","AVISO",.T.,4000)
 			
 			aReturn := {.F.}
 		
@@ -125,14 +154,16 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 			
 			If !(cAlias2SDB)->(Eof())
 	
-				VtClear()
+				//VtClear()
+				//
+				//	@ 01,00 VTSay PadR("Pedido: "+AllTrim(cPedido), VTMaxCol())
+				//	@ 02,00 VTSay PadR("Incompleto na" , VTMaxCol())
+				//	@ 03,00 VTSay PadR("Separacao" , VTMaxCol())
 				
-					@ 01,00 VTSay PadR("Pedido: "+AllTrim(cPedido), VTMaxCol())
-					@ 02,00 VTSay PadR("Incompleto na" , VTMaxCol())
-					@ 03,00 VTSay PadR("Separacao" , VTMaxCol())
+				//VTPause()
+				//VTRead
 				
-				VTPause()
-				VTRead
+				vtAlert("Pedido: "+AllTrim(cPedido)+" Incompleto na Separacao!","AVISO",.T.,4000)
 				
 				aReturn := {.F.}
 			Endif
@@ -140,7 +171,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 			(cAlias2SDB)->(dbCloseArea())
 			
 			If aReturn[1]
-				DefRecHum(cLocal,cPedido,cTarefa,cAtivid,cRecHum)
+				U_DefRecHum(cLocal,cPedido,cTarefa,cAtivid,cRecHum,cStatus,cStAnt)
 			Endif
 			
 		Endif
@@ -167,33 +198,37 @@ Return aReturn
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
-Static Function DefRecHum(cLocal,cPedido,cTarefa,cAtivid,cRecHum)
+User Function DefRecHum(cLocal,cPedido,cTarefa,cAtivid,cRecHum,cStatus,cStAnt)
 
-Local cAlias3SDB := GetNextAlias()
+Local cAlias4SDB := GetNextAlias()
 
-// Lista os servicos pendentes de separacao
-BeginSQL Alias cAlias3SDB
+// Lista os servicos a serem alterados
+BeginSQL Alias cAlias4SDB
 	SELECT * FROM SDB010 SDB
 	WHERE SDB.%notDel%
 		AND DB_FILIAL    = %Exp:xFilial("SDB")%
-		AND DB_STATUS    = '4'
+		AND DB_STATUS    <> '1'
 		AND DB_TAREFA    = %Exp:cTarefa%
 		AND DB_ATIVID    = %Exp:cAtivid%
 		AND DB_DOC       = %Exp:cPedido%
 		AND DB_LOCAL     = %Exp:cLocal%
 EndSQL
 
-(cAlias3SDB)->(dbGoTop())
+(cAlias4SDB)->(dbGoTop())
 
-While (cAlias3SDB)->(!Eof())
+While (cAlias4SDB)->(!Eof())
 	SDB->(dbGoTop())
 	SDB->(dbSetOrder(8))
-	If SDB->(dbSeek(xFilial("SDB")+(cAlias3SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)))
-		While SDB->(DB_FILIAL+DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM) == xFilial("SDB")+(cAlias3SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)
-			If Empty(SDB->DB_ESTORNO) .And. SDB->DB_STATUS $ ('2.4')
+	If SDB->(dbSeek(xFilial("SDB")+(cAlias4SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)))
+		While SDB->(DB_FILIAL+DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM) == xFilial("SDB")+(cAlias4SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)
+			If Empty(SDB->DB_ESTORNO) .And. SDB->DB_STATUS $ ('2.'+cStAnt)
 				If SDB->(RecLock("SDB",.F.))
-					SDB->DB_RECHUM := cRecHum
-					SDB->DB_STATUS := '3'
+					If SDB->DB_RECHUM <> cRecHum
+						SDB->DB_RECHUM := cRecHum
+					Endif
+					If !(SDB->DB_STATUS == "2" .And. cStatus == "3")
+						SDB->DB_STATUS := cStatus
+					Endif
 					SDB->(MsUnlock())
 				Else
 					VtClear()
@@ -206,9 +241,9 @@ While (cAlias3SDB)->(!Eof())
 			SDB->(dbSkip())
 		End
 	Endif
-	(cAlias3SDB)->(dbSkip())
+	(cAlias4SDB)->(dbSkip())
 End
 
-(cAlias3SDB)->(dbCloseArea())
+(cAlias4SDB)->(dbCloseArea())
 
 Return
