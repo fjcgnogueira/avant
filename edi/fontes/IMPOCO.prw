@@ -21,7 +21,7 @@
 
 
 User Function IMPOCO()
-	Private tTabOCO				// Tabela temporária do conhecimento
+	Private tTabOCO	   := ""		// Tabela temporária do conhecimento
 	Private aCamposOCO := {}	// Campos da tabela intermediária de CTRC
 
 	Prepare Environment EMPRESA '01' FILIAL '010104'
