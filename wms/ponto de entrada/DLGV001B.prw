@@ -123,15 +123,6 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 		
 		If !(cAliasDCF)->(Eof())
 		
-			//VtClear()
-			//
-			//	@ 01,00 VTSay PadR("Pedido: "+AllTrim(cPedido), VTMaxCol())
-			//	@ 02,00 VTSay PadR("Incompleto na" , VTMaxCol())
-			//	@ 03,00 VTSay PadR("Execucao" , VTMaxCol())
-			//
-			//VTPause()
-			//VTRead
-			
 			vtAlert("Pedido: "+AllTrim(cPedido)+" Incompleto na Execucao!","AVISO",.T.,4000)
 			
 			aReturn := {.F.}
@@ -154,15 +145,6 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 			
 			If !(cAlias2SDB)->(Eof())
 	
-				//VtClear()
-				//
-				//	@ 01,00 VTSay PadR("Pedido: "+AllTrim(cPedido), VTMaxCol())
-				//	@ 02,00 VTSay PadR("Incompleto na" , VTMaxCol())
-				//	@ 03,00 VTSay PadR("Separacao" , VTMaxCol())
-				
-				//VTPause()
-				//VTRead
-				
 				vtAlert("Pedido: "+AllTrim(cPedido)+" Incompleto na Separacao!","AVISO",.T.,4000)
 				
 				aReturn := {.F.}
