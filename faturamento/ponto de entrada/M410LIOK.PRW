@@ -53,7 +53,7 @@ Endif
 
 // Faz uma varredura no aCols
 For _n := 1 to Len(aCols)
-	// Caso a linda naum esteja deletada
+	// Caso a linha nao esteja deletada
 	If !aCols[_n,Len(aHeader)+1]
 		// Chamado 001447 - Fernando Nogueira
 		If !Empty(cDuplic) .And. cDuplic <> Posicione('SF4',1,xFilial('SF4')+aCols[_n][nPosTes],'F4_DUPLIC')
@@ -69,5 +69,15 @@ End
 //	MsgInfo('Estoque diferente de "01" somente é permitido aos usuários de logística!', 'Atenção')
 //	lReturn := .F.
 //Endif
+
+IIF(!SD1->D1_TIPO$"B,D",SD1->D1_VALIRR,0)
+
+If (aCols[n][nPosOper]$"6,51,06") .And. !lIsBlind
+	lReturn := .T.
+Else
+	MsgInfo('Não é permitido usar esse Tipo de Operação!', 'Atenção')
+	lReturn := .F.
+EndIf
+	
 	
 Return lReturn
