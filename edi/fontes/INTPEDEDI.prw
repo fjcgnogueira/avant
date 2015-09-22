@@ -133,7 +133,13 @@ If lRetorno
 							aAdd(aLinha, {"C6_FILIAL" , SZK->ZK_FILIAL, NIL} )
 							aAdd(aLinha, {"C6_ITEM"   , SZK->ZK_ITEM  , NIL} )
 							aAdd(aLinha, {"C6_PRODUTO", cCodProd      , NIL} )
-							_cQtdMult := SZK->ZK_QUANT*SB1->B1_X_QTDE2
+							
+							If SA1->A1_COD = "024198"
+								_cQtdMult := SZK->ZK_QUANT*SB1->B1_X_QTDE2
+							Else
+								_cQtdMult := SZK->ZK_QUANT
+							EndIf
+							
 							aAdd(aLinha, {"C6_QTDVEN" , _cQtdMult , NIL} )
 							aAdd(aLinha, {"C6_QTDLIB" , cQtdLib       , NIL} )
 							aAdd(aLinha, {"C6_OPER"   , cTpOper		  , NIL} )
