@@ -26,7 +26,6 @@ Local cLocal     := SDB->DB_LOCAL
 Local cItem      := SDB->DB_SERIE 
 Local cRecHum    := ParamIXB[1]
 Local cTarefa    := ParamIXB[4]
-Local cAtivid    := ParamIXB[5]
 Local cPedido    := ParamIXB[7]
 Local lConvoca   := ParamIXB[8]
 Local cStatus    := "3"
@@ -104,11 +103,35 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 			Endif
 		Endif
 				
-		U_DefRecHum(cLocal,cPedido,cTarefa,cAtivid,cRecHum,cStatus,cStAnt)
+		U_DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt)
 	
 	// Se a chamada for de conferencia
 	ElseIf cFuncao == 'DLCONFEREN()' .And. !(cAlias1SDB)->(Eof())
 	
+		// Verifica se tem alguma conferencia com outro recurso humano
+		BeginSQL Alias cAlias3SDB
+			SELECT * FROM SDB010 SDB
+			WHERE SDB.%notDel%
+				AND DB_FILIAL    = %Exp:xFilial("SDB")%
+				AND DB_DOC       = %Exp:cPedido%
+				AND DB_TAREFA    = '003' 
+				AND DB_LOCAL     = %Exp:cLocal%
+				AND DB_TIPO      = 'E' 
+				AND DB_ESTORNO   = ' '
+				AND DB_RECHUM    <> ' '
+				AND DB_RECHUM    <> %Exp:cRecHum%
+		EndSQL
+	
+		(cAlias3SDB)->(dbGoTop())
+		
+		If (cAlias3SDB)->(!Eof())
+			(cAlias3SDB)->(dbCloseArea())
+			aReturn  := {.F.}
+			Return aReturn	
+		Endif
+		(cAlias3SDB)->(dbCloseArea())
+
+
 		// Verifica se tem alguma execucao pendente
 		BeginSQL Alias cAliasDCF
 			SELECT * FROM DCF010 DCF
@@ -153,7 +176,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 			(cAlias2SDB)->(dbCloseArea())
 			
 			If aReturn[1]
-				U_DefRecHum(cLocal,cPedido,cTarefa,cAtivid,cRecHum,cStatus,cStAnt)
+				U_DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt)
 			Endif
 			
 		Endif
@@ -180,7 +203,7 @@ Return aReturn
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
-User Function DefRecHum(cLocal,cPedido,cTarefa,cAtivid,cRecHum,cStatus,cStAnt)
+User Function DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt)
 
 Local cAlias4SDB := GetNextAlias()
 
@@ -191,7 +214,6 @@ BeginSQL Alias cAlias4SDB
 		AND DB_FILIAL    = %Exp:xFilial("SDB")%
 		AND DB_STATUS    <> '1'
 		AND DB_TAREFA    = %Exp:cTarefa%
-		AND DB_ATIVID    = %Exp:cAtivid%
 		AND DB_DOC       = %Exp:cPedido%
 		AND DB_LOCAL     = %Exp:cLocal%
 EndSQL
