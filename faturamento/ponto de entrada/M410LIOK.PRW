@@ -70,9 +70,8 @@ End
 //	lReturn := .F.
 //Endif
 
-IIF(!SD1->D1_TIPO$"B,D",SD1->D1_VALIRR,0)
 
-If (aCols[n][nPosOper]$"6,51,06") .And. !lIsBlind
+If (aCols[n][nPosOper]$"6,51,06") .And. !IsBlind()
 	lReturn := .T.
 Else
 	MsgInfo('Não é permitido usar esse Tipo de Operação!', 'Atenção')

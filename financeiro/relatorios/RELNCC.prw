@@ -1,4 +1,5 @@
-#include "PROTHEUS.CH"
+#include "PROTHEUS.CH"         
+
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
@@ -22,7 +23,7 @@ User Function RELNCC()
 	Private cPerg := PadR("RELNCC",Len(SX1->X1_GRUPO))
 
 	AjustaSX1(cPerg)
-	Pergunte(cPerg,.F.)
+	Pergunte(cPerg,.T.)
 	
 	oReport := ReportDef()
 	oReport:PrintDialog()
@@ -34,21 +35,22 @@ Static Function ReportDef()
 	Local oReport
 	Local oSection1
 	
-	oReport := TReport():New("RELNCC","NCC's em aberto","RELNCC",{|oReport| PrintReport(oReport)},"NCC's em aberto")
+	oReport := TReport():New("RELNCC","NCCs em aberto","RELNCC",{|oReport| PrintReport(oReport)},"NCCs em aberto")
+
 	
-	oSection1 := TRSection():New(oReport,"NCC's em aberto",{"TRZ"})
+	oSection1 := TRSection():New(oReport,"NCCs em aberto",{"TRG"})
 	
-	TRCell():New(oSection1,"E1_FILIAL"    ,"TRZ","Filial")
-	TRCell():New(oSection1,"E1_NUM"   ,"TRZ","Titulo")
-	TRCell():New(oSection1,"E1_PARCELA"   ,"TRZ","Parcela")
-	TRCell():New(oSection1,"E1_TIPO" ,"TRZ","Tipo")
-	TRCell():New(oSection1,"E1_CLIENTE" ,"TRZ","Cod. Cliente")
-	TRCell():New(oSection1,"E1_LOJA" ,"TRZ","Loja")
-	TRCell():New(oSection1,"A1_NOME" ,"TRZ","Cliente")
-	TRCell():New(oSection1,"E1_EMISSAO" ,"TRZ","Emissão")
-	TRCell():New(oSection1,"E1_VALOR" ,"TRZ","Valor")
-	TRCell():New(oSection1,"E1_SALDO" ,"TRZ","Saldo")
-	TRCell():New(oSection1,"F3_OBSERV" ,"TRZ","Observações",,,,{||Stod(TRZ->E1_EMISSAO)})
+	TRCell():New(oSection1,"E1_FILIAL"    ,"TRG","Filial")
+	TRCell():New(oSection1,"E1_NUM"   ,"TRG","Titulo")
+	TRCell():New(oSection1,"E1_PARCELA"   ,"TRG","Parcela")
+	TRCell():New(oSection1,"E1_TIPO" ,"TRG","Tipo")
+	TRCell():New(oSection1,"E1_CLIENTE" ,"TRG","Cod. Cliente")
+	TRCell():New(oSection1,"E1_LOJA" ,"TRG","Loja")
+	TRCell():New(oSection1,"A1_NOME" ,"TRG","Cliente")
+	TRCell():New(oSection1,"E1_EMISSAO" ,"TRG","Emissão")
+	TRCell():New(oSection1,"E1_VALOR" ,"TRG","Valor")
+	TRCell():New(oSection1,"E1_SALDO" ,"TRG","Saldo")
+	TRCell():New(oSection1,"F3_OBSERV" ,"TRG","Observações",,,,{||Stod(TRG->E1_EMISSAO)})
 
 Return oReport
 
@@ -56,9 +58,9 @@ Static Function PrintReport(oReport)
 
 	Local oSection1 := oReport:Section(1)
 	
-	LjMsgRun("Montando massa de dados ...",,{|| CursorWait(),GeraArqTRB(),CursorArrow()})
+	LjMsgRun("Montando massa de dados ...",,{|| CursorWait(),GeraArqTRG(),CursorArrow()})
 	
-	DbSelectArea('TRZ')
+	DbSelectArea('TRG')
 	DbGotop()
 	Count To nRegua
 	DbGotop()
@@ -78,20 +80,21 @@ Static Function PrintReport(oReport)
 	
 	oSection1:Finish()
 	
-	TRZ->(DbCloseArea())
+	TRG->(DbCloseArea())
 
 Return
 
 
-Static Function GeraArqTRB()
+Static Function GeraArqTRG()
 	
-	BeginSql alias 'TRZ'
+	BeginSql alias 'TRG'
 
 		SELECT E1_FILIAL, E1_NUM, E1_PARCELA, E1_TIPO, E1_CLIENTE, E1_LOJA, A1_NOME, E1_EMISSAO, E1_VALOR, E1_SALDO, F3_OBSERV 
 		FROM %table:SE1% SE1 
 		INNER JOIN %table:SA1% SA1 ON E1_CLIENTE = A1_COD AND E1_LOJA = A1_LOJA AND SA1.%notDel%
 		INNER JOIN %table:SF3% SF3 ON E1_FILIAL = F3_FILIAL AND E1_SERIE = F3_SERIE AND E1_NUM = F3_NFISCAL AND SF3.%notDel%
 		WHERE SE1.%notDel% AND E1_SALDO > '0' AND E1_TIPO = 'NCC'
+		ORDER BY A1_NOME, E1_EMISSAO
 	
 	EndSql
 
