@@ -44,7 +44,7 @@ User Function FlagE5()
 If Empty(SE5->E5_LA)
 	ApMsgInfo("Já está sem o Flag de Contabilização!")
 ElseIf MsgNoYes("Retirar o Flag da Mov. Financeira: "+AllTrim(SE5->E5_NUMERO)+"-"+AllTrim(SE5->E5_PREFIXO)+"-"+AllTrim(SE5->E5_PARCELA)+"-"+AllTrim(SE5->E5_SEQ)+" ?")
-	If SE5->(RecLock("SF1",.F.))
+	If SE5->(RecLock("SE5",.F.))
 		SE5->E5_LA := ' '
 		SE5->(MsUnlock())
 		ApMsgInfo("Flag Retirado")

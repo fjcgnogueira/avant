@@ -13,7 +13,8 @@
 User Function F050ROT()
 
 Local aRotina := ParamIxb
-aAdd( aRotina, {"Consulta Aprovacao", 'U_ConsultAprov("TP",SE2->(E2_PREFIXO+E2_NUM+E2_TIPO+E2_FORNECE+E2_LOJA+E2_PARCELA),"Título a Pagar",SE2->E2_NUM,SE2->E2_X_USUAR)', 0, 8,, .F. } )  
+aAdd( aRotina, {"Consulta Aprovacao", 'U_ConsultAprov("TP",SE2->(E2_PREFIXO+E2_NUM+E2_TIPO+E2_FORNECE+E2_LOJA+E2_PARCELA),"Título a Pagar",SE2->E2_NUM,SE2->E2_X_USUAR)', 0, 8,, .F. } )
+aadd( aRotina, {'Tirar Flag',"U_FlagE2", 0, 4, 0, nil})  
 
 Return aRotina  
 
@@ -141,3 +142,28 @@ aHeader := aClone(aHeaderAnt)
 RestArea(aAreaAnt)
 
 Return nOpca
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ FlagE2()    º Autor ³ Fernando Nogueira  º Data ³23/09/2015º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDescricao ³ Retira o Flag da Movimentacao Financeira                   º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+User Function FlagE2()
+
+If Empty(SE2->E2_LA)
+	ApMsgInfo("Já está sem o Flag de Contabilização!")
+ElseIf MsgNoYes("Retirar o Flag do Tit. a Pagar: "+AllTrim(SE2->E5_NUM)+"-"+AllTrim(SE2->E2_PREFIXO)+"-"+AllTrim(SE2->E2_PARCELA)+" ?")
+	If SE2->(RecLock("SE2",.F.))
+		SE2->E2_LA := ' '
+		SE2->(MsUnlock())
+		ApMsgInfo("Flag Retirado")
+	Endif
+Endif
+
+Return
