@@ -23,7 +23,10 @@ User Function RELNCC()
 	Private cPerg := PadR("RELNCC",Len(SX1->X1_GRUPO))
 
 	AjustaSX1(cPerg)
-	Pergunte(cPerg,.T.)
+	Pergunte(cPerg,.F.)
+	
+	//oReport:lParamPage     := .F.
+ 	//oReport:lParamReadOnly := .T.
 	
 	oReport := ReportDef()
 	oReport:PrintDialog()
@@ -47,16 +50,18 @@ Static Function ReportDef()
 	TRCell():New(oSection1,"E1_CLIENTE" ,"TRG","Cod. Cliente")
 	TRCell():New(oSection1,"E1_LOJA" ,"TRG","Loja")
 	TRCell():New(oSection1,"A1_NOME" ,"TRG","Cliente")
-	TRCell():New(oSection1,"E1_EMISSAO" ,"TRG","Emissão")
+	TRCell():New(oSection1,"E1_EMISSAO" ,"TRG","Emissão",,,,{||StoD(TRG->E1_EMISSAO)})
 	TRCell():New(oSection1,"E1_VALOR" ,"TRG","Valor")
 	TRCell():New(oSection1,"E1_SALDO" ,"TRG","Saldo")
-	TRCell():New(oSection1,"F3_OBSERV" ,"TRG","Observações",,,,{||Stod(TRG->E1_EMISSAO)})
+	TRCell():New(oSection1,"F3_OBSERV" ,"TRG","Observações")
 
 Return oReport
 
 Static Function PrintReport(oReport)
 
 	Local oSection1 := oReport:Section(1)
+	
+	TRG->(DbCloseArea())
 	
 	LjMsgRun("Montando massa de dados ...",,{|| CursorWait(),GeraArqTRG(),CursorArrow()})
 	
@@ -99,19 +104,12 @@ Static Function GeraArqTRG()
 	EndSql
 
 	
-	
-	
 Return()
 
 
 Static Function AjustaSX1(cPerg)
 
 	Local aAreaAnt := GetArea()
-	
-	aHelpPor := {"De data?"}
-	PutSX1(cPerg,"01","De data?","De data?","De data?","mv_ch1","D",8,0,0,"G","","","","","mv_par01","","","","","","","","","","","","","","","","",aHelpPor,"","")
-	aHelpPor := {"Até Data?"}
-	PutSX1(cPerg,"02","Até Data?","Até Data?","Até Data?","mv_ch2","D",8,0,0,"G","","","","","mv_par02","","","","","","","","","","","","","","","","",aHelpPor,"","")
 	
 	RestArea(aAreaAnt)      
 
