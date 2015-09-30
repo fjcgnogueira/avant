@@ -4,7 +4,7 @@
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ RELNCC()    º Autor ³ Rogerio Machado    º Data ³17/09/2015º±±
+±±ºPrograma  ³ RELATNCC()  º Autor ³ Rogerio Machado    º Data ³17/09/2015º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍ¹±±
 ±±ºDescri‡„o ³ Relacao de NCC's em aberto                                 º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
@@ -18,9 +18,9 @@
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 
-User Function RELNCC()
+User Function RELATNCC()
 
-	Private cPerg := PadR("RELNCC",Len(SX1->X1_GRUPO))
+	Private cPerg := PadR("RELATNCC",Len(SX1->X1_GRUPO))
 
 	AjustaSX1(cPerg)
 	Pergunte(cPerg,.F.)
@@ -38,7 +38,7 @@ Static Function ReportDef()
 	Local oReport
 	Local oSection1
 	
-	oReport := TReport():New("RELNCC","NCCs em aberto","RELNCC",{|oReport| PrintReport(oReport)},"NCCs em aberto")
+	oReport := TReport():New("RELATNCC","NCCs em aberto","RELATNCC",{|oReport| PrintReport(oReport)},"NCCs em aberto")
 
 	
 	oSection1 := TRSection():New(oReport,"NCCs em aberto",{"TRG"})
@@ -97,7 +97,7 @@ Static Function GeraArqTRG()
 		SELECT E1_FILIAL, E1_NUM, E1_PARCELA, E1_TIPO, E1_CLIENTE, E1_LOJA, A1_NOME, E1_EMISSAO, E1_VALOR, E1_SALDO, F3_OBSERV 
 		FROM %table:SE1% SE1 
 		INNER JOIN %table:SA1% SA1 ON E1_CLIENTE = A1_COD AND E1_LOJA = A1_LOJA AND SA1.%notDel%
-		INNER JOIN %table:SF3% SF3 ON E1_FILIAL = F3_FILIAL AND E1_SERIE = F3_SERIE AND E1_NUM = F3_NFISCAL AND SF3.%notDel%
+		INNER JOIN %table:SF3% SF3 ON E1_FILIAL = F3_FILIAL AND E1_SERIE = F3_SERIE AND E1_NUM = F3_NFISCAL  AND A1_COD+A1_LOJA = F3_CLIEFOR+F3_LOJA AND SF3.%notDel%
 		WHERE SE1.%notDel% AND E1_SALDO > '0' AND E1_TIPO = 'NCC'
 		ORDER BY A1_NOME, E1_EMISSAO
 	
