@@ -79,6 +79,15 @@ If SZF->(dbSeek(xFilial("SZF")+cBanco+cCartBanc))
 	Endif
 Endif
 
+
+//Rogerio Machado - Chamado 001945
+If cBanco = '707'   // Banco Daycoval
+	If dDataCred = dbaixa
+		dDataCred := (DataValida(dDataCred, .T.))
+	EndIf
+EndIf
+
+
 SE1->(RestArea(aAreaSE1))
 
 Return
