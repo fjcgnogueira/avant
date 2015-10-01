@@ -14,7 +14,7 @@
 /*/
 User Function FA070TIT()
 
-If Month(dDtCredito) <> Month(Date())
+If Month(dDtCredito) <> Month(dDataBase)
 	ApMsgInfo("A data de crédito deve estar no mesmo mês da data da baixa.")
 	Return .F.
 Endif
