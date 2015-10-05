@@ -15,8 +15,15 @@
 /*/
 User Function MT100CLA()
 
+Local cUsrCod := PswRet()[1][1]
+Local nBlqMov := MV_PAR17
+
 If Left(DtoS(dDataBase),6) <> Left(DtoS(SF1->F1_DTDIGIT),6)
 	Final('Classificação deve ser no mesmo mês da entrada.')
+ElseIf cUsrCod == "000405" .And. nBlqMov == 2
+	Final('O Usuário de Importação deve classificar a nota com Bloqueio de','Movimento.')
+ElseIf cUsrCod <> "000405" .And. nBlqMov == 1
+	Final('A Classificação com Bloqueio de Movimento só pode ser utilizada pelo','usuário de importação.')
 Endif 
 
 Return .T.
