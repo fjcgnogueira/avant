@@ -71,12 +71,12 @@ End
 //Endif
 
 
-If (aCols[n][nPosOper]$"6,51,06") .And. !IsBlind()
+/*If (aCols[n][nPosOper]$"6,51,06") .And. !IsBlind()
 	lReturn := .T.
 Else
 	MsgInfo('Não é permitido usar esse Tipo de Operação!', 'Atenção')
 	lReturn := .F.
-EndIf
+EndIf*/
 	
 	
 Return lReturn
