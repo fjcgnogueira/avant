@@ -41,6 +41,12 @@ Endif
 Return
 
 
+/*User Function TESTLOT()
+
+ConOut("Teste")
+
+Return &("Eval({||cAlias:='SB1',.T.})")*/
+
 /*User Function TesteWs(ccnpj,cinscsuf)
  
 Local oWs := NIL
