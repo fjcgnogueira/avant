@@ -38,7 +38,7 @@ User Function SupManager(w,y,nOpc)
 	Private aHeadLbx := {}
 	Private aChamados:= {{ "","","","","","","","","","","","","","","","","","","","","","","","" }}
 
-	Private dDataIni := ddatabase - 120
+	Private dDataIni := ddatabase - 1500
 	Private dDataFim := ddatabase
 	Private cEquipe	 := Space(2)
 	Private cCliente := Space(6)
