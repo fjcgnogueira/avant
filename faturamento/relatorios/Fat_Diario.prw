@@ -259,6 +259,8 @@ Static Function GeraArqTRB()
 			ORDER BY %Exp:cOrder1%
 			
 		EndSql
+		
+		//ConOut(GetLastQuery()[2])
 		         
 		// Por Grupo de Produto / Produto
 		BeginSql alias 'TRC'
@@ -331,8 +333,6 @@ Static Function GeraArqTRB()
 			ORDER BY %Exp:cOrder1%
 	
 		EndSql
-		
-		ConOut(GetLastQuery()[2])
 		
 		// Por Grupo de Produto	/ Produto
 		BeginSql alias 'TRC'
