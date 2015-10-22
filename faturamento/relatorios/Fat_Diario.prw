@@ -334,6 +334,8 @@ Static Function GeraArqTRB()
 	
 		EndSql
 		
+		ConOut(GetLastQuery()[2])
+		
 		// Por Grupo de Produto	/ Produto
 		BeginSql alias 'TRC'
 		
@@ -528,12 +530,12 @@ If TRB->(!Eof())
 			_cVend    := TRB->Vendedor
 			
 			aAdd((oHTML:ValByName("aReg.cVendedor")), AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_NOME")))
-			aAdd((oHTML:ValByName("aReg.cQtd"))     , Transform(TRB->QTD                      , _cPctQtd ))
-			aAdd((oHTML:ValByName("aReg.cQtdPrc"))  , Transform(TRB->QTD/_nTotQtd*100         , _cD2Total)+'%')
+			aAdd((oHTML:ValByName("aReg.cQtd"))     , Transform(TRB->Total_QTD                , _cPctQtd ))
+			aAdd((oHTML:ValByName("aReg.cQtdPrc"))  , Transform(TRB->Total_QTD/_nTotQtd*100   , _cD2Total)+'%')
 			aAdd((oHTML:ValByName("aReg.cVlr"))     , Transform(TRB->Total_Reais              , _cD2Total))
 			aAdd((oHTML:ValByName("aReg.cVlrPrc"))  , Transform(TRB->Total_Reais/_nTotReal*100, _cD2Total)+'%')
 		
-			While TRB->(!Eof()) .And. TRB->Vendedor == _cVend		
+			While TRB->(!Eof()) .And. TRB->Vendedor == _cVend
 				TRB->(dbSkip())
 				If !_lSchedule
 					_oProcess:IncRegua1()
