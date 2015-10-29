@@ -117,6 +117,10 @@ If lRetorno
 				aAdd(aCabec,{"C5_INTEGRA",SZ3->Z3_INTEGRA,NIL})
 				aAdd(aCabec,{"C5_PEDCLI" ,SZ3->Z3_NPEDCLI,NIL})
 				
+				If SZ3->Z3_PRODMKT <> 'N'
+					aAdd(aCabec,{"C5_X_BLQ" ,"S",NIL})
+				Endif
+				
 				//-- Gustavo Viana -- Restricoes a liberacao automatica -- 18/02/2013
 				//-- Se tiver condicao de pagamento no parametro P.V. deverah ser analisado, ou seja, P.V. sem liberacao automatica
 				//If AllTrim(SZ3->Z3_CODPGTO) $ cCodPag
