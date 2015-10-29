@@ -32,6 +32,7 @@ Local _cChave    := cFilInt+cNumTroca
 Local cNumero    := ""
 Local cSerie     := ""
 Local dEmissao   := dDataBase
+Local cArmazem   := GetMV("ES_ARMTROC")
 
 Default cMensagem   := ""
 Default cDocumen    := ""
@@ -134,7 +135,7 @@ If lRetorno
 					Aadd(_aItem,{"D1_ITEMORI",SZI->ZI_ITEMORI ,Nil})
 					Aadd(_aItem,{"D1_FORNECE",SZI->ZI_CLIENTE ,Nil})
 					Aadd(_aItem,{"D1_LOJA"   ,SZI->ZI_LOJA    ,Nil})
-					Aadd(_aItem,{"D1_LOCAL"  ,SZI->ZI_LOCAL   ,Nil})
+					Aadd(_aItem,{"D1_LOCAL"  ,cArmazem        ,Nil})
 					Aadd(_aItem,{"D1_DOC"    ,cNumero 		  ,Nil})
 					Aadd(_aItem,{"D1_SERIE"  ,cSerie 		  ,Nil})
 					Aadd(_aItem,{"D1_EMISSAO",dDataBase       ,Nil})
