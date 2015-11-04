@@ -248,6 +248,11 @@ End
 (cAliasZER)->(dbCloseArea())
 (cAliasABC)->(dbCloseArea())
 
+// Caso seja disparado via workflow
+If _lSchedule
+	RESET ENVIRONMENT
+Endif
+
 Return
 
 /*
