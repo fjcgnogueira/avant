@@ -135,7 +135,11 @@ If lRetorno
 							aAdd(aLinha, {"C6_PRODUTO", cCodProd      , NIL} )
 							
 							If SA1->A1_COD = "024198"
-								_cQtdMult := SZK->ZK_QUANT*SB1->B1_X_QTDE2
+								If cCodProd$(GetMv("ES_PRDM20"))
+									_cQtdMult := SZK->ZK_QUANT*SB1->B1_X_QTDI2
+								Else
+									_cQtdMult := SZK->ZK_QUANT*SB1->B1_X_QTDE2
+								EndIf
 							Else
 								_cQtdMult := SZK->ZK_QUANT
 							EndIf
