@@ -54,6 +54,7 @@ If !(lRet := cTes $ nTesBon)
 EndIf
 */
 
+
 DbCloseArea()
 
 RestArea(aArea)
