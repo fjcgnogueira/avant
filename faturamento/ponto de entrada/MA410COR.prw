@@ -3,28 +3,25 @@
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ M440SC9I º Autor ³ Fernando Nogueira  º Data ³ 19/10/2015 º±±
+±±ºPrograma  ³ MA410COR º Autor ³ Fernando Nogueira  º Data ³ 10/11/2015 º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Ponto de Entrada Anterior a Implantacao da Liberacao do   º±±
+±±ºDescricao ³ Ponto de Entrada Para Alterar as Cores da Tela Browse do  º±±
 ±±º          ³ Pedido de Vendas                                          º±±
+±±º          ³ Chamado 001777                                            º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
 ±±ºUso       ³ Especifico Avant                                          º±±
 ±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
-User Function M440SC9I()
+User Function MA410COR()
 
-//Bloqueia pedidos antecipados mesmo com limite de credito :: chamado 002138
-If IsBlind() .Or. AllTrim(FunName()) == 'MATA410'
-	If SC5->C5_CONDPAG = '149' .And. SC6->C6_TPOPERW = 'VENDAS' 
-		SC9->C9_BLCRED := '01'
-	EndIf
-	// Chamado 001777 - Fernando Nogueira
-	If AllTrim(SC5->C5_X_BLQ) == 'S'
-		SC9->C9_BLCRED  := '01'
-		SC9->C9_BLOQUEI := '01'
-	Endif
-Endif
+Local aCores := {}
 
-Return
+Aadd(aCores,{"AllTrim(C5_X_BLQ) == 'S' .And. AllTrim(C5_LIBEROK) == 'S' ","BR_PRETO"})
+
+For _i := 1 to Len(ParamIXB)
+	Aadd(aCores,ParamIXB[_i])
+Next _i
+
+Return aCores

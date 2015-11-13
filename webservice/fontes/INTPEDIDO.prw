@@ -117,6 +117,7 @@ If lRetorno
 				aAdd(aCabec,{"C5_INTEGRA",SZ3->Z3_INTEGRA,NIL})
 				aAdd(aCabec,{"C5_PEDCLI" ,SZ3->Z3_NPEDCLI,NIL})
 				
+				// Chamado 001777 - Bloqueio Avant - Fernando Nogueira
 				If SZ3->Z3_PRODMKT <> 'N'
 					aAdd(aCabec,{"C5_X_BLQ" ,"S",NIL})
 				Endif
@@ -143,11 +144,11 @@ If lRetorno
 
 					   	// Produtos de Marketing - Fernando Nogueira - Chamado 000796
 					   	// Operacao Triangular
-					   	If lLiberAut .And. SZ3->Z3_PRODMKT == 'N'
+					   	//If lLiberAut .And. SZ3->Z3_PRODMKT == 'N'
 							aAdd(aLinha,{"C6_QTDLIB",SZ4->Z4_QTDE,NIL})
-						Else
-							aAdd(aLinha,{"C6_QTDLIB",0           ,NIL})
-						EndIf
+						//Else
+							//aAdd(aLinha,{"C6_QTDLIB",0           ,NIL})
+						//EndIf
 						
 						SB1->(dbSeek(xFilial("SB1")+SZ4->Z4_CODPROD))
 												
@@ -216,6 +217,13 @@ If lRetorno
 					// 6 = Pedido com Desconto Especial
 					// 7 = Pedido com Desconto Especial nao Aprovado pelo Gerente Nacional
 					// 8 = Pedido Bonificado
+					// 9 = Pedido com Bonificacao Parado na Tela do Gerente Nacional
+					// A = Pedido de Venda com Desconto Especial Parado na Tela do Gerente Regional
+					// B = Pedido de Venda com Desconto Especial Parado na Tela do Gerente Nacional
+					// C = Pedido de Venda sem Desconto Especial Parado na Tela do Gerente Regional
+					// D = Pedido de Venda sem Desconto Especial Parado na Tela do Gerente Nacional
+					// E = Solicitacao de Bonificacao Parado na Tela do Gerente Regional
+					// F = Solicitacao de Bonificacao Aprovada na Tela do Gerente Regional
 					
 					MsUnlock()
 					

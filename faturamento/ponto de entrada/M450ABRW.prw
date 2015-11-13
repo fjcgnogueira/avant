@@ -3,28 +3,21 @@
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ M440SC9I º Autor ³ Fernando Nogueira  º Data ³ 19/10/2015 º±±
+±±ºPrograma  ³ M450ABRW º Autor ³ Fernando Nogueira  º Data ³ 10/11/2015 º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Ponto de Entrada Anterior a Implantacao da Liberacao do   º±±
-±±º          ³ Pedido de Vendas                                          º±±
+±±ºDescricao ³ Ponto de Entrada no Filtro da Rotina de Analise de        º±±
+±±º          ³ Credito do Cliente                                        º±±
+±±º          ³ Chamado 001777                                            º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
 ±±ºUso       ³ Especifico Avant                                          º±±
 ±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
-User Function M440SC9I()
+User Function M450ABRW()
 
-//Bloqueia pedidos antecipados mesmo com limite de credito :: chamado 002138
-If IsBlind() .Or. AllTrim(FunName()) == 'MATA410'
-	If SC5->C5_CONDPAG = '149' .And. SC6->C6_TPOPERW = 'VENDAS' 
-		SC9->C9_BLCRED := '01'
-	EndIf
-	// Chamado 001777 - Fernando Nogueira
-	If AllTrim(SC5->C5_X_BLQ) == 'S'
-		SC9->C9_BLCRED  := '01'
-		SC9->C9_BLOQUEI := '01'
-	Endif
-Endif
+Local cQuery := ParamIXB[1]
 
-Return
+cQuery += " AND SC9.C9_BLOQUEI <> '01' AND SC5.C5_X_BLQ <> 'S' "
+
+Return cQuery
