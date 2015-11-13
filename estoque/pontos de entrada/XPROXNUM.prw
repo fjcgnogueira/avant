@@ -18,7 +18,10 @@
 User Function xProxNum()
 
 Local cNumSeq   := ""
+Local cNumSeq1  := ""
+Local cNumSeq2  := ""
 Local cAliasTRB := GetNextAlias()
+Local nTamSeq	:= TamSx3("D3_NUMSEQ")[1]
 
 BeginSQL Alias cAliasTRB
 	SELECT MAX(NUMSEQ) NUMSEQ FROM
@@ -31,7 +34,15 @@ BeginSQL Alias cAliasTRB
 	SELECT MAX(DCF_NUMSEQ) NUMSEQ FROM %Table:DCF%) QRY_NUMSEQ
 EndSQL
 
-cNumSeq := Soma1(PadR((cAliasTRB)->NUMSEQ,TamSx3("D3_NUMSEQ")[1]),,,.T.)
+cNumSeq1 := Soma1(PadR((cAliasTRB)->NUMSEQ    ,nTamSeq),,,.T.)
+cNumSeq2 := Soma1(PadR(SuperGetMv("MV_DOCSEQ"),nTamSeq),,,.T.)
+
+If cNumSeq1 >= cNumSeq2
+	cNumSeq := cNumSeq1
+Else
+	cNumSeq := cNumSeq2
+Endif
+
 PutMV("MV_DOCSEQ",cNumSeq)
 
 (cAliasTRB)->(DbCloseArea())
