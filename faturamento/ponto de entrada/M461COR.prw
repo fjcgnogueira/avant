@@ -1,20 +1,17 @@
 #INCLUDE "Protheus.ch"
-
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ M461COR  º Autor ³ Amedeo D. P. Filho º Data ³  24/07/12   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Cores do C9 no Browse.                                     º±±
-±±º          ³                                                            º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ AVANT.                                                     º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ M461COR  º Autor ³ Amedeo D. P. Filho º Data ³ 24/07/2012 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDescricao ³ Cores do C9 no Browse.                                    º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ AVANT.                                                    º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
-
 User Function M461COR
 	Local aPadrao	:= PARAMIXB
 	Local aLegNew	:= {}
@@ -24,15 +21,16 @@ User Function M461COR
     
 	//LjMsgRun("Atualizando Legenda","Por Favor Aguarde...", { || U_ATUAC9COR() })
 	
-	//Aadd(aLegNew, { 'Empty(SC9->C9_BLEST) .And. Empty(SC9->C9_BLCRED) .And. SC9->C9_BLWMS$"05,06,07,  " .And. SC9->C9_XCONF == "N"' , "BR_LARANJA" })
+	Aadd(aLegNew, { '!Empty(SC9->C9_BLOQUEI)', "BR_PRETO" })
+	Aadd(aLegNew, { 'Empty(SC9->C9_BLEST)   .And. Empty(SC9->C9_BLCRED) .And. SC9->C9_BLWMS$"05,06,07,  " .And. SC9->C9_XCONF <> "S"' , "BR_LARANJA" })
 	Aadd(aLegNew, { '(Empty(SC9->C9_BLEST)  .And. Empty(SC9->C9_BLCRED) .And. (SC9->C9_BLWMS$"01,02,03" .Or. (SC9->C9_BLWMS$"05,06,07" .And. SC9->C9_XCONF <> "S")))', "BR_LARANJA" })
 	Aadd(aLegNew, { '(Empty(SC9->C9_BLEST)  .And. Empty(SC9->C9_BLCRED) .And. SC9->C9_BLWMS$"05,06,07,  ")', "ENABLE" })
 	Aadd(aLegNew, { 'SC9->C9_BLEST=="10"    .And. SC9->C9_BLCRED=="10"  .And. SC9->C9_BLWMS$"05,06,07,  "'           , "DISABLE" })
 	Aadd(aLegNew, { '!(Empty(SC9->C9_BLEST) .And. Empty(SC9->C9_BLCRED) .And. SC9->C9_BLWMS$"01,02,03,05,06,07,  ")' , "BR_AZUL" })
 	
-	/*For nX := 1 To Len(aPadrao)
-		Aadd(aLegNew, { aPadrao[nX][01],aPadrao[nX][02] })
-	Next nX*/
+	//For nX := 1 To Len(aPadrao)
+		//Aadd(aLegNew, { aPadrao[nX][01],aPadrao[nX][02] })
+	//Next nX
 
 	//Adiciona botao de Filtro na Rotina de Prep. DOC de Saida
 	//Aadd(aRotina, { 'Filtro (Avant)'		,'U_FLTM461("1")', 0 , 9} )
