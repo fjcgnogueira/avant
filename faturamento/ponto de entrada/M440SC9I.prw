@@ -17,9 +17,14 @@ User Function M440SC9I()
 
 //Bloqueia pedidos antecipados mesmo com limite de credito :: chamado 002138
 If IsBlind() .Or. AllTrim(FunName()) == 'MATA410'
-	If SC5->C5_CONDPAG = '149' .And. SC6->C6_TPOPERW = 'VENDAS' 
+	If SC5->C5_CONDPAG = '149' .And. SC6->C6_TPOPERW = 'VENDAS'
 		SC9->C9_BLCRED := '01'
 	EndIf
+	
+	If AllTrim(SC5->C5_X_BLQ) == 'C'
+		SC5->C5_X_BLQ := 'S'
+	Endif
+	
 	// Chamado 001777 - Fernando Nogueira
 	If AllTrim(SC5->C5_X_BLQ) == 'S'
 		SC9->C9_BLCRED  := '01'

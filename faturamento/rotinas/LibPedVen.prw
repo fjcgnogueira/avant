@@ -16,20 +16,20 @@
 User Function LibPedVen()
 
 Local nVlrCred := 0
-Local cBlqCred := ""
 Local aPedidos := {}
 Local cPedido  := SC5->C5_NUM
 Local cCliente := SC5->C5_CLIENTE
+Local cLoja    := SC5->C5_LOJACLI
 
 If SC5->(AllTrim(C5_X_BLQ)+AllTrim(C5_LIBEROK)) $ ('CS.SS')
 
-	If PedBloq(cCliente,cPedido) .AND. AllTrim(SC5->C5_X_BLQ) == 'S'
+	If PedBloq(cCliente,cLoja,cPedido) .AND. AllTrim(SC5->C5_X_BLQ) == 'S'
 		SC5->(RecLock("SC5",.F.))
 			SC5->C5_X_BLQ := 'C'
 		SC5->(MsUnlock())
 		ApMsgInfo("Pedido "+cPedido+" Bloqueado por Cliente!")
 		
-	ElseIf PedBloq(cCliente,cPedido) .AND. AllTrim(SC5->C5_X_BLQ) == 'C'	
+	ElseIf PedBloq(cCliente,cLoja,cPedido) .AND. AllTrim(SC5->C5_X_BLQ) == 'C'	
 		ApMsgInfo("Pedido "+cPedido+" Bloqueado por Cliente!")
 		
 	ElseIf MsgNoYes("Liberar o Pedido "+cPedido+" ?")
@@ -42,7 +42,7 @@ If SC5->(AllTrim(C5_X_BLQ)+AllTrim(C5_LIBEROK)) $ ('CS.SS')
 				SC5->(MsUnlock())
 			Endif
 			
-			aPedidos := RelPed(cCliente)
+			aPedidos := RelPed(cCliente,cLoja)
 
 			For _i := 1 to Len(aPedidos)
 				ExecLib(aPedidos[_i])
@@ -50,6 +50,14 @@ If SC5->(AllTrim(C5_X_BLQ)+AllTrim(C5_LIBEROK)) $ ('CS.SS')
 			
 			SC5->(dbSetOrder(01))
 			SC5->(msSeek(xFilial("SC5")+cPedido))
+			
+			SA1->(dbSetOrder(01))
+			SA1->(dbSeek(xFilial("SA1")+cCliente+cLoja))
+			
+			// Atualiza Total com impostos no cadastro de clientes
+			SA1->(RecLock("SA1",.F.))
+				SA1->A1_X_VLRTO := U_TotPedCred(cCliente,cLoja)
+			SA1->(MsUnlock())
 		
 		End Transaction
 		
@@ -75,7 +83,7 @@ Return
 北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北
 哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌
 /*/
-Static Function PedBloq(cCliente,cPedido)
+Static Function PedBloq(cCliente,cLoja,cPedido)
 
 Local cAliasSC5 := GetNextAlias()
 Local lReturn   := .F.
@@ -83,7 +91,7 @@ Local lReturn   := .F.
 BeginSql alias cAliasSC5
 
 	SELECT C5_NUM FROM %table:SC5% SC5
-	WHERE SC5.%notDel% AND C5_FILIAL = %xfilial:SC5% AND C5_X_BLQ = 'S' AND C5_CLIENTE = %exp:cCliente% AND C5_NUM <> %exp:cPedido%
+	WHERE SC5.%notDel% AND C5_FILIAL = %xfilial:SC5% AND C5_X_BLQ = 'S' AND C5_LIBEROK = 'S' AND C5_CLIENTE+C5_LOJACLI = %exp:cCliente+cLoja% AND C5_NUM <> %exp:cPedido%
 
 EndSql
 
@@ -108,6 +116,8 @@ Return lReturn
 哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌
 /*/
 Static Function ExecLib(cPedido)
+
+Local cBlqCred := ""
 
 SC5->(dbSetOrder(01))
 SC5->(msSeek(xFilial("SC5")+cPedido))
@@ -157,7 +167,7 @@ Return
 北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北
 哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌
 /*/
-Static Function RelPed(cCliente)
+Static Function RelPed(cCliente,cLoja)
 
 Local cAliasSC5 := GetNextAlias()
 Local lReturn   := .F.
@@ -166,7 +176,7 @@ Local aPedidos  := {}
 BeginSql alias cAliasSC5
 
 	SELECT C5_NUM FROM %table:SC5% SC5
-	WHERE SC5.%notDel% AND C5_FILIAL = %xfilial:SC5% AND C5_X_BLQ = 'C' AND C5_CLIENTE = %exp:cCliente%
+	WHERE SC5.%notDel% AND C5_FILIAL = %xfilial:SC5% AND C5_X_BLQ = 'C' AND C5_LIBEROK = 'S' AND C5_CLIENTE+C5_LOJACLI = %exp:cCliente+cLoja%
 	ORDER BY C5_NUM
 
 EndSql
