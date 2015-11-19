@@ -79,7 +79,7 @@ Static Function MedProd(cProd,dDataRef)
 
 Local cFatProd  := GetNextAlias()
 Local dDataAte  := FirstDay(dDataBase)-1
-Local dDataDe   := FirstDay(LastDay(dDataBase)-185) // 6 meses
+Local dDataDe   := FirstDay(LastDay(dDataBase)-Val(Posicione("SX5",1,xFilial("SX5")+"ZA"+"0003","X5_DESCRI"))) 
 Local nFatMed   := 0
 Local nDivisor  := 6
 
