@@ -3,28 +3,26 @@
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ M440SC9I º Autor ³ Fernando Nogueira  º Data ³ 19/10/2015 º±±
+±±ºPrograma  ³ MAAVCRPR º Autor ³ Fernando Nogueira  º Data ³ 23/11/2015 º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Ponto de Entrada Anterior a Implantacao da Liberacao do   º±±
-±±º          ³ Pedido de Vendas                                          º±±
+±±ºDescricao ³ Ponto de Entrada Apos a Avaliacao de Credito, para fazer  º±±
+±±º          ³ uma avaliacao propria                                     º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
 ±±ºUso       ³ Especifico Avant                                          º±±
 ±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
-User Function M440SC9I()
+User Function MAAVCRPR()
+
+Local cCodigo := ParamIXB[8]
 
 If IsBlind() .Or. AllTrim(FunName()) == 'MATA410'
 
-	If AllTrim(SC5->C5_X_BLQ) == 'C'
-		SC5->C5_X_BLQ := 'S'
+	If !Empty(cCodigo) .Or. AllTrim(SC5->C5_X_BLQ) $ 'SC' .Or. (SC5->C5_CONDPAG = '149' .And. SC6->C6_TPOPERW = 'VENDAS')
+		Return .F.
 	Endif
-	
-	// Chamado 001777 - Fernando Nogueira
-	If AllTrim(SC5->C5_X_BLQ) == 'S'
-		SC9->C9_BLOQUEI := '01'
-	Endif
-Endif
 
-Return
+Endif
+	
+Return .T.
