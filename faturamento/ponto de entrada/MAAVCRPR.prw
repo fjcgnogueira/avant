@@ -17,12 +17,14 @@ User Function MAAVCRPR()
 
 Local cCodigo := ParamIXB[8]
 
-If IsBlind() .Or. AllTrim(FunName()) == 'MATA410'
+If !Empty(cCodigo)
+	Return .F.
+Endif
 
-	If !Empty(cCodigo) .Or. AllTrim(SC5->C5_X_BLQ) $ 'SC' .Or. (SC5->C5_CONDPAG = '149' .And. SC6->C6_TPOPERW = 'VENDAS')
+If IsBlind() .Or. AllTrim(FunName()) == 'MATA410'
+	If AllTrim(SC5->C5_X_BLQ) $ 'SC' .Or. (SC5->C5_CONDPAG = '149' .And. SC6->C6_TPOPERW = 'VENDAS')
 		Return .F.
 	Endif
-
 Endif
 	
 Return .T.
