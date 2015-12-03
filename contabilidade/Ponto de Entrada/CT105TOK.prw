@@ -21,6 +21,10 @@ User Function CT105TOK()
 	Local nValTCrd := ParamIXB[2]
 	Local lRet := .F.
 	
+	If AllTrim(FunName()) == "CTBA500"
+		Return .T.
+	Endif
+	
 	If nValTDeb == nValTCrd
 		lRet := .T.
 	Else
