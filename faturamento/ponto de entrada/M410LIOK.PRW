@@ -25,6 +25,8 @@ Local nPosLocal  := aScan(aHeader,{|x|Trim(x[2])=="C6_LOCAL"})
 Local nPosOper   := aScan(aHeader,{|x|Trim(x[2])=="C6_OPER"})
 Local nPosProd   := aScan(aHeader,{|x|Trim(x[2])=="C6_PRODUTO"})
 Local nPosTes    := aScan(aHeader,{|x|Trim(x[2])=="C6_TES"})
+Local nPosServic := aScan(aHeader,{|x|Trim(x[2])=="C6_SERVIC"})
+Local nPosEndPad := aScan(aHeader,{|x|Trim(x[2])=="C6_ENDPAD"})
 Local cDuplic    := ''
 
 If aCols[n][nPosQtdLib] > 0 .And. aCols[n][nPosQtdVen] > aCols[n][nPosQtdLib]
@@ -40,6 +42,9 @@ ElseIf Empty(M->C5_CLIENTE)
 ElseIf Empty(M->C5_TRANSP)
 	MsgInfo('Necessário definir a Transportadora antes de Incluir uma Linha!', 'Atenção')
 	aCols[n][nPosOper] := Space(02)
+	lReturn := .F.
+ElseIf !Empty(aCols[n][nPosServic]) .And. Empty(aCols[n][nPosEndPad]) //Fernando Nogueira - Chamado 002385
+	MsgInfo('Necessário definir o End. Destino!', 'Atenção')
 	lReturn := .F.
 Endif
 
