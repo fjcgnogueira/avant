@@ -134,14 +134,23 @@ If lRetorno
 							aAdd(aLinha, {"C6_ITEM"   , SZK->ZK_ITEM  , NIL} )
 							aAdd(aLinha, {"C6_PRODUTO", cCodProd      , NIL} )
 							
-							If SA1->A1_COD = "024198"
+							If SA7->A7_SERVTIM = "MAKRO"
 								If cCodProd$(GetMv("ES_PRDM20"))
 									_cQtdMult := SZK->ZK_QUANT*SB1->B1_X_QTDI2
 								Else
 									_cQtdMult := SZK->ZK_QUANT*SB1->B1_X_QTDE2
 								EndIf
 							Else
-								_cQtdMult := SZK->ZK_QUANT
+								If SA7->A7_SERVTIM = "ASSAI"
+									If cCodProd$(GetMv("ES_PRDM202"))
+										_cQtdMult := SZK->ZK_QUANT*SB1->B1_X_QTDI2
+									Else
+										_cQtdMult := SZK->ZK_QUANT*SB1->B1_X_QTDE2
+									EndIf
+								EndIf
+								If SA7->A7_SERVTIM = "HOME"
+									_cQtdMult := SZK->ZK_QUANT
+								EndIf
 							EndIf
 							
 							aAdd(aLinha, {"C6_QTDVEN" , _cQtdMult , NIL} )
