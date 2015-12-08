@@ -40,9 +40,11 @@ User Function SupManager(w,y,nOpc)
 
 	Private dDataIni := ddatabase - 1500
 	Private dDataFim := ddatabase
-	Private cEquipe	 := Space(2)
+	Private cEquipe	  := Space(2)
 	Private cCliente := Space(6)
 	Private cNomeCli := Space(10)
+	Private cTecnico := Space(6)
+	Private cNomeTec := Space(40)
 
 	Private lFirst		:= .T.
 	Private lAberto		:= .T.
@@ -78,7 +80,7 @@ User Function SupManager(w,y,nOpc)
 
 //	ChkFile("SX5")
 
-	SetKey(VK_F5,{ || Processa( {|| MTLoadLbx(dDataIni,dDataFim,cEquipe,IIF(lUser,cTecId,""),,,,cCliente) }, "Lista de chamados","Aguarde ...", .T. ) } )
+	SetKey(VK_F5,{ || Processa( {|| MTLoadLbx(dDataIni,dDataFim,cEquipe,IIF(lUser,cTecId,""),,,,cCliente,,cTecnico) }, "Lista de chamados","Aguarde ...", .T. ) } )
 
 	aAdd( aBut, { "BMPINCLUIR"	, { || u_WEB270EDIT(,0,3) } 	,OemToAnsi("Incluir") })
 	aAdd( aBut, { "EDIT_OCEAN"	, { || EditLbx( oLbx3:aArray[oLbx3:nAt,2] ) } 	,OemToAnsi("Editar") })
@@ -157,6 +159,7 @@ User Function SupManager(w,y,nOpc)
 		@ 005,079 Say "Data Final:" Size 027,008 COLOR CLR_BLACK PIXEL OF oPanel
 		@ 005,150 Say "Equipe:" Size 020,008 COLOR CLR_BLACK PIXEL OF oPanel
 		@ 017,006 Say "Cliente interno:" Size 037,008 COLOR CLR_BLACK PIXEL OF oPanel
+		@ 017,220 Say "Tecnico:" Size 037,008 COLOR CLR_BLACK PIXEL OF oPanel
 
 		@ 004,036 MsGet oDataIni Var dDataIni Size 033,009 COLOR CLR_BLACK PIXEL OF oPanel
 		@ 004,106 MsGet oDataFim Var dDataFim Size 033,009 COLOR CLR_BLACK PIXEL OF oPanel
@@ -165,15 +168,18 @@ User Function SupManager(w,y,nOpc)
 		@ 016,046 MsGet oCliente Var cCliente F3 "US4" Valid(VldCli(cCliente)) Size 025,009 COLOR CLR_BLACK PIXEL OF oPanel
 		@ 016,080 MsGet oNomeCli Var cNomeCli Size 122,009 COLOR CLR_BLACK WHEN .F.  PIXEL OF oPanel
 
-		@ 005,226 CheckBox oStatus1 Var lAberto 		Prompt "Em aberto" 		ON CLICK(AtuOption(1))	Size 040,008 PIXEL OF oPanel
-		@ 015,226 CheckBox oStatus2 Var lAnalise 		Prompt "Em análise" 	ON CLICK(AtuOption(2))	Size 040,008 PIXEL OF oPanel
-		@ 025,226 CheckBox oStatus3 Var lTransf			Prompt "Transferidos" 	ON CLICK(AtuOption(3))	Size 042,008 PIXEL OF oPanel
+		@ 016,246 MsGet oTecnico Var cTecnico F3 "SZC" Size 025,009 COLOR CLR_BLACK PIXEL OF oPanel
+		@ 016,280 MsGet oNomeTec Var cNomeTec Size 122,009 COLOR CLR_BLACK WHEN .F.  PIXEL OF oPanel
 
-		@ 005,270 CheckBox oStatus4 Var lPendente 		Prompt "Pendentes" 		ON CLICK(AtuOption(4))	Size 048,008 PIXEL OF oPanel
-		@ 015,270 CheckBox oStatus5 Var lEncerrado 		Prompt "Encerrados" 	ON CLICK(AtuOption(5))	Size 048,008 PIXEL OF oPanel
-		@ 025,270 CheckBox oStatus6 Var lTodos 			Prompt "Todos" 			ON CLICK(AtuOption(6))	Size 048,008 PIXEL OF oPanel
+		@ 005,430 CheckBox oStatus1 Var lAberto 		Prompt "Em aberto" 		ON CLICK(AtuOption(1))	Size 040,008 PIXEL OF oPanel
+		@ 015,430 CheckBox oStatus2 Var lAnalise 		Prompt "Em análise" 	ON CLICK(AtuOption(2))	Size 040,008 PIXEL OF oPanel
+		@ 025,430 CheckBox oStatus3 Var lTransf			Prompt "Transferidos" 	ON CLICK(AtuOption(3))	Size 042,008 PIXEL OF oPanel
 
-		@ 005,314 CheckBox oStatus7 Var lUser 			Prompt "Filtra ID" 		ON CLICK(AtuOption(7))	Size 048,008 PIXEL OF oPanel
+		@ 005,474 CheckBox oStatus4 Var lPendente 		Prompt "Pendentes" 		ON CLICK(AtuOption(4))	Size 048,008 PIXEL OF oPanel
+		@ 015,474 CheckBox oStatus5 Var lEncerrado 		Prompt "Encerrados" 	ON CLICK(AtuOption(5))	Size 048,008 PIXEL OF oPanel
+		@ 025,474 CheckBox oStatus6 Var lTodos 			Prompt "Todos" 			ON CLICK(AtuOption(6))	Size 048,008 PIXEL OF oPanel
+
+		@ 005,518 CheckBox oStatus7 Var lUser 			Prompt "Filtra ID" 		ON CLICK(AtuOption(7))	Size 048,008 PIXEL OF oPanel
 
 	ACTIVATE MSDIALOG oDlgChamados ON INIT EnchoiceBar(oDlgChamados,bOk,bCancel,,aBut)
 
@@ -350,7 +356,7 @@ Static Function EditLbx( cChamado )
 
 		If u_Web270Edit(,,4)
 
-			aRegs := MTLoadLbx(dDataIni,dDataFim,cEquipe,IIF(lUser,cTecId,""),,,,cCliente,cChamado)
+			aRegs := MTLoadLbx(dDataIni,dDataFim,cEquipe,IIF(lUser,cTecId,""),,,,cCliente,cChamado,cTecnico)
 			nCps		:= Len(aRegs[1])
 
 			For o := 1 To nCps
@@ -461,7 +467,7 @@ Return( lRet )
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
-Static Function MTLoadLbx(cDTAbrIni,cDTAbrFim,cFilArea,cFilTec,cFilStatus,cDTEncIni,cDTEncFim,cFilCli,cNumChamado)
+Static Function MTLoadLbx(cDTAbrIni,cDTAbrFim,cFilArea,cFilTec,cFilStatus,cDTEncIni,cDTEncFim,cFilCli,cNumChamado,cFilTec2)
 
 	Local aRet	:= {}
 	Local lRetSimples := .F.
@@ -500,6 +506,11 @@ Static Function MTLoadLbx(cDTAbrIni,cDTAbrFim,cFilArea,cFilTec,cFilStatus,cDTEnc
 		IF lUser
 			cSQL += "ZU_TECNICO = '" + cFilTec + "' AND " + cEOL
 		Endif
+		
+	    IF !lUser .And. !EMPTY(cFilTec2)
+			cSQL += "ZU_TECNICO = '" + cFilTec2 + "' AND " + cEOL
+		Endif
+	
 
 	 	If !lTodos
 	 		IF !lPendente
@@ -640,7 +651,7 @@ Static Function MTFilterU()
 
 	lUser := .T.
 
-	Processa( {|| MTLoadLbx(dDataIni,dDataFim,cEquipe,cTecPos,,,,cCliente) } , "Lista de chamados","Aguarde ...", .T. )
+	Processa( {|| MTLoadLbx(dDataIni,dDataFim,cEquipe,cTecPos,,,,cCliente,,cTecnico) } , "Lista de chamados","Aguarde ...", .T. )
 
 	lUser := .F.
 
