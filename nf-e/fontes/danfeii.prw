@@ -2585,6 +2585,10 @@ oDanfe:Say(719,000,"DADOS ADICIONAIS",oFont08N:oFont)
 oDanfe:Box(721,000,865,351)
 oDanfe:Say(729,002,"INFORMAÇÕES COMPLEMENTARES",oFont08N:oFont)
 
+//Exibir valores de PIS e COFINS na DANFE - Rogerio Machado
+oDanfe:Say(735,002,"PIS: " + CVALTOCHAR(SF2->F2_VALIMP6),oFont08:oFont)
+oDanfe:Say(735,050,"COFINS: " + CVALTOCHAR(SF2->F2_VALIMP5),oFont08:oFont)
+
 nLenMensagens:= Len(aMensagem)
 nLin:= 741
 nMensagem := 0
