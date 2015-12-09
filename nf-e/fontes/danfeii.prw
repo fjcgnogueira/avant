@@ -331,6 +331,10 @@ If Pergunte("NFSIGW",.T.)
 									    	EndIf	
 								    	Endif					    
 								    EndiF
+								ElseIf MsSeek(xFilial("SF2")+aNotas[nX][05]+aNotas[nX][04]+aNotas[nX][06]+aNotas[nX][07]) .And. Alltrim(aXML[nX][8])$"1,3,4,6" .Or. ( Alltrim(aXML[nX][8]) $ "2,5"  .And. cModalidade == "7" ) // Contingencia FSDA
+									RecLock("SF2")
+									SF2->F2_CHVNFE := SubStr(NfeIdSPED(aXML[nX][2],"Id"),4)
+									MsUnlock()
 								EndIf
 								
 								// Atualização dos campos da Tabela GFE
@@ -549,7 +553,7 @@ If Pergunte("NFSIGW",.T.)
 						dbSelectArea("SFT")
 						dbSetOrder(1)
 						If SFT->(FieldPos("FT_CHVNFE"))>0
-							cChaveSFT	:=	(xFilial("SFT")+aNotas[nX][02]+aNotas[nX][04]+aNotas[nX][05])
+							cChaveSFT	:=	(xFilial("SFT")+aNotas[nX][02]+aNotas[nX][04]+padr(aNotas[nX][05],TamSx3("FT_NFISCAL")[1],""))
 							MsSeek(cChaveSFT)
 							Do While !(cAliasSFT)->(Eof ()) .And.;
 								cChaveSFT==(cAliasSFT)->FT_FILIAL+(cAliasSFT)->FT_TIPOMOV+(cAliasSFT)->FT_SERIE+(cAliasSFT)->FT_NFISCAL
@@ -561,7 +565,6 @@ If Pergunte("NFSIGW",.T.)
 									If aScan(aGrvSF3,{|aX|aX[1]+aX[2]+aX[3]+aX[4]+aX[5]==(cAliasSFT)->(FT_SERIE+FT_NFISCAL+FT_CLIEFOR+FT_LOJA+FT_IDENTF3)})==0
 										aAdd(aGrvSF3, {(cAliasSFT)->FT_SERIE,(cAliasSFT)->FT_NFISCAL,(cAliasSFT)->FT_CLIEFOR,(cAliasSFT)->FT_LOJA,(cAliasSFT)->FT_IDENTF3,(cAliasSFT)->FT_CHVNFE})
 									EndIf
-									DbSkip()
 								EndIf
 								DbSkip()
 							EndDo
@@ -773,15 +776,15 @@ Local nMaxItemP2    := MAXITEM // Variável utilizada para tratamento de quantos 
 Local cAux          := ""
 Local cSitTrib      := ""
 Local cUF		 	:= ""  
-Local cMVCODREG		:= SuperGetMV("MV_CODREG", ," ")
+Local cMVCODREG		:= Alltrim( SuperGetMV("MV_CODREG", ," ") )
 Local cChaveCont 	:= ""
 Local cLogo      	:= FisxLogo("1")
 Local cGuarda       := ""  
 Local cEsp		    := "" 
 Local cLogoD	    := ""
 local cEndDest      := ""
-local cLogoTotvs := "Powered_by_TOTVS.bmp"
-local cStartPath := GetSrvProfString("Startpath","")
+local cLogoTotvs 	:= "Powered_by_TOTVS.bmp"
+local cStartPath 	:= GetSrvProfString("Startpath","")
 
 Local lPreview      := .F.
 Local lFlag         := .T.
@@ -812,10 +815,18 @@ Local cUnCom		:= ""
 Local nQtdCom		:= 0
 Local nVUnitCom		:= 0
 
+Local lUf_MG		:= ( SuperGetMv("MV_ESTADO") $ "MG" )	// Criado esta variavel para atender o RICMS de MG para totalizar por CFOP
+Local nSequencia	:= 0
+Local nSubTotal		:= 0
+Local cCfop			:= ""
+Local cCfopAnt		:= ""
+Local aItensAux     := {}
+Local aArray		:= {}
+
 Default cDtHrRecCab := ""
 Default dDtReceb    := CToD("")
-Private aInfNf    := {}
 
+Private aInfNf    := {}
 Private oDPEC     := oNfeDPEC
 Private oNF       := oNFe:_NFe
 Private oEmitente := oNF:_InfNfe:_Emit
@@ -826,11 +837,9 @@ Private oTransp   := oNF:_InfNfe:_Transp
 Private oDet      := oNF:_InfNfe:_Det
 Private oFatura   := IIf(Type("oNF:_InfNfe:_Cobr")=="U",Nil,oNF:_InfNfe:_Cobr)
 Private oImposto
-
 Private nPrivate  := 0
 Private nPrivate2 := 0
 Private nXAux	  := 0
-
 Private lArt488MG := .F.
 Private lArt274SP := .F. 
 
@@ -1112,47 +1121,56 @@ EndIf
 //³Especie Nota de Entrada                                                 ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 If(MV_PAR04==1) .And. Empty(aTransp[12])
-	If (SF1->(FieldPos("F1_ESPECI1")) <>0 .And. !Empty( SF1->(FieldGet(FieldPos( "F1_ESPECI1" )))  )) .Or.;
-		(SF1->(FieldPos("F1_ESPECI2")) <>0 .And. !Empty( SF1->(FieldGet(FieldPos( "F1_ESPECI2" )))  )) .Or.;
-		(SF1->(FieldPos("F1_ESPECI3")) <>0 .And. !Empty( SF1->(FieldGet(FieldPos( "F1_ESPECI3" )))  )) .Or.;
-		(SF1->(FieldPos("F1_ESPECI4")) <>0 .And. !Empty( SF1->(FieldGet(FieldPos( "F1_ESPECI4" )))  ))
-		
-		aEspecie := {}
-		aadd(aEspecie,SF1->F1_ESPECI1)
-		aadd(aEspecie,SF1->F1_ESPECI2)
-		aadd(aEspecie,SF1->F1_ESPECI3)
-		aadd(aEspecie,SF1->F1_ESPECI4)
-		
-		cEsp := ""
-		nx 	 := 0
-		For nE := 1 To Len(aEspecie)
-			If !Empty(aEspecie[nE])
-				nx ++
-				cEsp := aEspecie[nE]
+	
+	dbSelectArea("SF1")
+	dbSetOrder(1)
+	If MsSeek(xFilial("SF1")+aNota[5]+aNota[4]+aNota[6]+aNota[7])
+     
+		If (SF1->(FieldPos("F1_ESPECI1")) <>0 .And. !Empty( SF1->(FieldGet(FieldPos( "F1_ESPECI1" )))  )) .Or.;
+			(SF1->(FieldPos("F1_ESPECI2")) <>0 .And. !Empty( SF1->(FieldGet(FieldPos( "F1_ESPECI2" )))  )) .Or.;
+			(SF1->(FieldPos("F1_ESPECI3")) <>0 .And. !Empty( SF1->(FieldGet(FieldPos( "F1_ESPECI3" )))  )) .Or.;
+			(SF1->(FieldPos("F1_ESPECI4")) <>0 .And. !Empty( SF1->(FieldGet(FieldPos( "F1_ESPECI4" )))  ))
+			
+			aEspecie := {}
+			aadd(aEspecie,SF1->F1_ESPECI1)
+			aadd(aEspecie,SF1->F1_ESPECI2)
+			aadd(aEspecie,SF1->F1_ESPECI3)
+			aadd(aEspecie,SF1->F1_ESPECI4)
+			
+			cEsp := ""
+			nx 	 := 0
+			For nE := 1 To Len(aEspecie)
+				If !Empty(aEspecie[nE])
+					nx ++
+					cEsp := aEspecie[nE]
+				EndIf
+			Next
+			
+			cGuarda := ""
+			If nx > 1
+				cGuarda := "Diversos"
+			Else
+				cGuarda := cEsp
 			EndIf
-		Next
-		
-		cGuarda := ""
-		If nx > 1
-			cGuarda := "Diversos"
+			
+			If  !Empty(cGuarda)
+				aadd(aEspVol,{cGuarda,Iif(SF1->F1_PLIQUI>0,str(SF1->F1_PLIQUI),""),Iif(SF1->F1_PBRUTO>0, str(SF1->F1_PBRUTO),"")})
+			Else
+				/*
+				//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ1
+				//³Aqui seguindo a mesma regra da criação da TAG de Volumes no xml  ³
+				//³ caso não esteja preenchida nenhuma das especies de Volume não se³
+				//³ envia as informações de volume.                   				³
+				//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ1
+				*/
+				aadd(aEspVol,{cGuarda,"",""})
+			Endif
 		Else
-			cGuarda := cEsp
+			aadd(aEspVol,{cGuarda,"",""})
 		EndIf
 		
-		If  !Empty(cGuarda)
-			aadd(aEspVol,{cGuarda,Iif(SF1->F1_PLIQUI>0,str(SF1->F1_PLIQUI),""),Iif(SF1->F1_PBRUTO>0, str(SF1->F1_PBRUTO),"")})
-		Else
-			/*
-			//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ1
-			//³Aqui seguindo a mesma regra da criação da TAG de Volumes no xml  ³
-			//³ caso não esteja preenchida nenhuma das especies de Volume não se³
-			//³ envia as informações de volume.                   				³
-			//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ1
-			*/
-			aadd(aEspVol,{cGuarda,"",""})
-		Endif
-	Else
-		aadd(aEspVol,{cGuarda,"",""})
+		MsUnlock()
+		DbSkip()		
 	EndIf
 EndIf
 
@@ -1198,28 +1216,34 @@ If lMv_ItDesc
 EndIf
 
 For nZ := 1 To nLenDet
+
 	If lMv_ItDesc
 		nX := aIndImp[nZ]
 	Else
 		nX := nZ
 	EndIf
+
 	nPrivate := nX
-    If lArt488MG .And. SuperGetMv("MV_ESTADO")$"MG"
+
+    If lArt488MG .And. lUf_MG
         nVTotal  := 0
         nVUnit   := 0 
     Else
 	    nVTotal  := Val(oDet[nX]:_Prod:_vProd:TEXT)//-Val(IIF(Type("oDet[nPrivate]:_Prod:_vDesc")=="U","",oDet[nX]:_Prod:_vDesc:TEXT))
 	    nVUnit   := Val(oDet[nX]:_Prod:_vUnTrib:TEXT)
 	EndIf
-	nQtd     := Val(oDet[nX]:_Prod:_qTrib:TEXT)
-	nBaseICM := 0
-	nValICM  := 0
-	nValIPI  := 0
-	nPICM    := 0
-	nPIPI    := 0
-	oImposto := oDet[nX]
-	cSitTrib := ""
-    lPontilhado := .F.	
+
+	nQtd     	:= Val(oDet[nX]:_Prod:_qTrib:TEXT)
+	nBaseICM 	:= 0
+	nValICM  	:= 0
+	nValIPI  	:= 0
+	nPICM    	:= 0
+	nPIPI    	:= 0
+	oImposto 	:= oDet[nX]
+	cSitTrib 	:= ""
+
+    lPontilhado	:= .F.	
+
 	If Type("oImposto:_Imposto")<>"U"
 		If Type("oImposto:_Imposto:_ICMS")<>"U"
 			nLenSit := Len(aSitTrib)
@@ -1232,9 +1256,17 @@ For nZ := 1 To nLenDet
 						nPICM    := Val(&("oImposto:_Imposto:_ICMS:_ICMS"+aSitTrib[nY]+":_PICMS:TEXT")) 
 					ElseIf Type("oImposto:_Imposto:_ICMS:_ICMS"+aSitTrib[nPrivate2]+":_MOTDESICMS") <> "U" .And. Type("oImposto:_PROD:_VDESC:TEXT") <> "U"   //SINIEF 25/12, efeitos a partir de 20.12.12 
 						If oNF:_INFNFE:_VERSAO:TEXT >= "3.10" .and. &("oImposto:_Imposto:_ICMS:_ICMS"+aSitTrib[nY]+":_CST:TEXT") <> "40"
-							nValICM  := Val(&("oImposto:_Imposto:_ICMS:_ICMS"+aSitTrib[nY]+":_vICMSDESON:TEXT"))
+							If AllTrim(&("oImposto:_Imposto:_ICMS:_ICMS"+aSitTrib[nY]+":_motDesICMS:TEXT")) == "7" .And. &("oImposto:_Imposto:_ICMS:_ICMS"+aSitTrib[nY]+":_CST:TEXT") == "30"
+								nValICM  := 0
+							Else
+								nValICM  := Val(&("oImposto:_Imposto:_ICMS:_ICMS"+aSitTrib[nY]+":_vICMSDESON:TEXT")) 
+							EndIf
 						Elseif &("oImposto:_Imposto:_ICMS:_ICMS"+aSitTrib[nY]+":_CST:TEXT") <> "40"
-							nValICM  := Val(&("oImposto:_Imposto:_ICMS:_ICMS"+aSitTrib[nY]+":_vICMS:TEXT"))
+							If AllTrim(&("oImposto:_Imposto:_ICMS:_ICMS"+aSitTrib[nY]+":_motDesICMS:TEXT")) == "7" .And. &("oImposto:_Imposto:_ICMS:_ICMS"+aSitTrib[nY]+":_CST:TEXT") == "30"
+								nValICM  := 0
+							Else
+								nValICM  := Val(&("oImposto:_Imposto:_ICMS:_ICMS"+aSitTrib[nY]+":_vICMS:TEXT"))
+							EndIf
 						EndIf
 					EndIf
 					cSitTrib := &("oImposto:_Imposto:_ICMS:_ICMS"+aSitTrib[nY]+":_ORIG:TEXT")
@@ -1253,7 +1285,8 @@ For nZ := 1 To nLenDet
 							nValICM  := Val(&("oImposto:_Imposto:_ICMS:_ICMSSN"+aSitSN[nY]+":_vICMS:TEXT"))
 							nPICM    := Val(&("oImposto:_Imposto:_ICMS:_ICMSSN"+aSitSN[nY]+":_PICMS:TEXT"))                   
 						EndIf
-						cSitTrib := &("oImposto:_Imposto:_ICMS:_ICMSSN"+aSitSN[nY]+":_CSOSN:TEXT")				
+						cSitTrib := &("oImposto:_Imposto:_ICMS:_ICMSSN"+aSitSN[nY]+":_ORIG:TEXT")
+						cSitTrib += &("oImposto:_Imposto:_ICMS:_ICMSSN"+aSitSN[nY]+":_CSOSN:TEXT")				
 					EndIf
 				Next nY	
 			EndIf			
@@ -1297,6 +1330,28 @@ For nZ := 1 To nLenDet
 		AllTrim(TransForm(nPIPI,"@r 99.99%"));
 	})
 
+	// Tratamento somente para o estado de MG, para totalizar por CFOP conforme RICMS-MG
+	If lUf_MG
+		aadd(aItensAux,{;
+			SubStr(oDet[nX]:_Prod:_cProd:TEXT,1,nMaxCod),;
+			SubStr(NoChar(oDet[nX]:_Prod:_xProd:TEXT,lConverte),1,nMaxDes),;
+			IIF(Type("oDet[nPrivate]:_Prod:_NCM")=="U","",oDet[nX]:_Prod:_NCM:TEXT),;
+			cSitTrib,;
+			oDet[nX]:_Prod:_CFOP:TEXT,;
+			oDet[nX]:_Prod:_utrib:TEXT,;
+			SubStr(aAux[1], 1, PosQuebrVal(aAux[1])),;
+			SubStr(aAux[2], 1, PosQuebrVal(aAux[2])),;
+			SubStr(aAux[3], 1, PosQuebrVal(aAux[3])),;
+			SubStr(aAux[4], 1, PosQuebrVal(aAux[4])),;
+			SubStr(aAux[5], 1, PosQuebrVal(aAux[5])),;
+			SubStr(aAux[6], 1, PosQuebrVal(aAux[6])),;
+			AllTrim(TransForm(nPICM,"@r 99.99%")),;
+			AllTrim(TransForm(nPIPI,"@r 99.99%")),;
+			StrZero( ++nSequencia, 4 ),;
+			nVTotal;
+		})
+	Endif
+	
 	// Tramento quando houver diferença entre as unidades uCom e uTrib ( SEFAZ MT )
 	If "MT" $ Alltrim( Upper( SuperGetMv("MV_ESTADO") ) ) .And. ( oDet[nX]:_Prod:_uTrib:TEXT <> oDet[nX]:_Prod:_uCom:TEXT )
 
@@ -1357,6 +1412,27 @@ For nZ := 1 To nLenDet
 			"",;
 			"";
 		})
+
+		If lUf_MG
+			aadd(aItensAux,{;
+				SubStr(cAuxItem,1,nMaxCod),;
+				SubStr(cAux,1,nMaxDes),;
+				"",;
+				"",;
+				oDet[nX]:_Prod:_CFOP:TEXT,;
+				"",;
+				SubStr(aAux[1], 1, PosQuebrVal(aAux[1])),;
+				SubStr(aAux[2], 1, PosQuebrVal(aAux[2])),;
+				SubStr(aAux[3], 1, PosQuebrVal(aAux[3])),;
+				SubStr(aAux[4], 1, PosQuebrVal(aAux[4])),;
+				SubStr(aAux[5], 1, PosQuebrVal(aAux[5])),;
+				SubStr(aAux[6], 1, PosQuebrVal(aAux[6])),;
+				"",;
+				"",;
+				StrZero( ++nSequencia, 4 ),;
+				0;
+			})
+		Endif
 		
 		// Popula as informações para as próximas linhas adicionais
 		cAux        := SubStr(cAux,(nMaxDes+1))
@@ -1390,10 +1466,33 @@ For nZ := 1 To nLenDet
 				"",;
 				"";
 			})
+
+			If lUf_MG
+				aadd(aItensAux,{;
+					"",;
+					SubStr(cAux,1,nMaxDes),;
+					"",;
+					"",;
+					oDet[nX]:_Prod:_CFOP:TEXT,;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					StrZero( ++nSequencia, 4 ),;
+					0;
+				})
+            Endif
+            
 			cAux := SubStr(cAux,(nMaxDes + 1))
 	    	lPontilhado := .T.	
 		EndDo
 	EndIf
+
 	If lPontilhado
 		aadd(aItens,{;
 			"-",;
@@ -1411,10 +1510,213 @@ For nZ := 1 To nLenDet
 			"-",;
 			"-";
 		})
-	EndIf
 
-Next nX
-  
+		If lUf_MG
+			aadd(aItensAux,{;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				oDet[nX]:_Prod:_CFOP:TEXT,;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				StrZero( ++nSequencia, 4 ),;
+				0;
+			})
+		Endif
+
+	EndIf 
+
+Next nZ
+
+//----------------------------------------------------------------------------------
+// Tratamento somente para o estado de MG, para totalizar por CFOP conforme RICMS-MG
+//----------------------------------------------------------------------------------
+If lUf_MG  
+
+	If 	Len( aItensAux ) > 0
+
+		aItensAux	:= aSort( aItensAux,,, { |x,y| x[5]+x[15] < y[5]+y[15] } )
+
+		nSubTotal	:= 0
+
+		aItens		:= {}
+	  
+		cCfop		:= aItensAux[1,5]
+		cCfopAnt	:= aItensAux[1,5]			
+		
+		For nX := 1 To Len( aItensAux )
+
+			aArray		:= ARRAY(14)
+			
+			aArray[01]	:= aItensAux[nX,01]
+			aArray[02]	:= aItensAux[nX,02]
+			aArray[03]	:= aItensAux[nX,03]
+			aArray[04]	:= aItensAux[nX,04]
+			
+			If Empty( aItensAux[nX,03] ) .Or. aItensAux[nX,03] == "-"
+				aArray[05] := ""
+			Else
+				aArray[05] := aItensAux[nX,05]
+			Endif
+
+			aArray[06]	:= aItensAux[nX,06]
+			aArray[07]	:= aItensAux[nX,07]
+			aArray[08]	:= aItensAux[nX,08]
+			aArray[09]	:= aItensAux[nX,09]
+			aArray[10]	:= aItensAux[nX,10]
+			aArray[11]	:= aItensAux[nX,11]
+			aArray[12]	:= aItensAux[nX,12]
+			aArray[13]	:= aItensAux[nX,13]
+			aArray[14]	:= aItensAux[nX,14]
+
+			If aItensAux[nX,5] == cCfop
+
+				aadd( aItens, {; 
+					aArray[01],;
+					aArray[02],;
+					aArray[03],;
+					aArray[04],;
+					aArray[05],;
+					aArray[06],;
+					aArray[07],;
+					aArray[08],;
+					aArray[09],;
+					aArray[10],;
+					aArray[11],;
+					aArray[12],;
+					aArray[13],;
+					aArray[14];
+				} )
+
+				nSubTotal += aItensAux[nX,16]
+
+			Else
+
+				aadd(aItens,{;
+					"-",;
+					"-",;
+					"-",;
+					"-",;
+					"-",;
+					"-",;
+					"-",;
+					"-",;
+					"-",;
+					"-",;
+					"-",;
+					"-",;
+					"-",;
+					"-";
+				})
+				
+				aadd(aItens,{;
+					"",;
+					"SUB-TOTAL",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					AllTrim(TransForm(nSubTotal,TM(nSubTotal,TamSX3("D2_TOTAL")[1],TamSX3("D2_TOTAL")[2]))),;
+					"",;
+					"",;
+					"",;
+					"",;
+					"";
+				})
+
+				aadd(aItens,{;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"",;
+					"";
+				})
+				
+				cCfop 		:= aItensAux[nX,05]
+				nSubTotal 	:= aItensAux[nX,16]
+
+				aadd( aItens, {; 
+					aArray[01],;
+					aArray[02],;
+					aArray[03],;
+					aArray[04],;
+					aArray[05],;
+					aArray[06],;
+					aArray[07],;
+					aArray[08],;
+					aArray[09],;
+					aArray[10],;
+					aArray[11],;
+					aArray[12],;
+					aArray[13],;
+					aArray[14];
+				} )
+
+			Endif
+			
+		Next nX
+		
+		If cCfopAnt <> cCfop .And. nSubTotal > 0
+
+			aadd(aItens,{;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-",;
+				"-";
+			})
+			
+			aadd(aItens,{;
+				"",;
+				"SUB-TOTAL",;
+				"",;
+				"",;
+				"",;
+				"",;
+				"",;
+				"",;
+				AllTrim(TransForm(nSubTotal,TM(nSubTotal,TamSX3("D2_TOTAL")[1],TamSX3("D2_TOTAL")[2]))),;
+				"",;
+				"",;
+				"",;
+				"",;
+				"";
+			})		
+		
+		Endif
+		
+	Endif
+	
+Endif
+
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³Quadro ISSQN                                                            ³
@@ -1900,9 +2202,9 @@ EndIf
 
 If nfolha==1
 	If lMv_Logod
-		oDanfe:SayBitmap(042,000,cLogoD,095,096)
+		oDanfe:SayBitmap(045,005,cLogoD,090,090)
 	Else
-		oDanfe:SayBitmap(042,000,cLogo,095,096)
+		oDanfe:SayBitmap(045,005,cLogo,090,090)
 	EndIF
 Endif
 
@@ -2283,10 +2585,6 @@ oDanfe:Say(719,000,"DADOS ADICIONAIS",oFont08N:oFont)
 oDanfe:Box(721,000,865,351)
 oDanfe:Say(729,002,"INFORMAÇÕES COMPLEMENTARES",oFont08N:oFont)
 
-//Exibir valores de PIS e COFINS na DANFE - Rogerio Machado
-oDanfe:Say(735,002,"PIS: " + CVALTOCHAR(SF2->F2_VALIMP6),oFont08:oFont)
-oDanfe:Say(735,050,"COFINS: " + CVALTOCHAR(SF2->F2_VALIMP5),oFont08:oFont)
-
 nLenMensagens:= Len(aMensagem)
 nLin:= 741
 nMensagem := 0
@@ -2393,7 +2691,7 @@ aAuxCabec := {;
 	"COD. PROD",;
 	"DESCRIÇÃO DO PROD./SERV.",;
 	"NCM/SH",;
-	"CST",;
+	IIf( cMVCODREG == "1", "CSOSN","CST" ),;
 	"CFOP",;
 	"UN",;
 	"QUANT.",;
@@ -2422,7 +2720,13 @@ oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[3])
 oDanfe:Say(450, nAuxH + 2, "NCM/SH", oFont08N:oFont)
 nAuxH += aTamCol[3]
 oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[4])
-oDanfe:Say(450, nAuxH + 2, "CST", oFont08N:oFont)
+
+If cMVCODREG == "1"
+	oDanfe:Say(450, nAuxH + 2, "CSOSN", oFont08N:oFont)
+Else
+	oDanfe:Say(450, nAuxH + 2, "CST", oFont08N:oFont)
+Endif
+
 nAuxH += aTamCol[4]
 oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[5])
 oDanfe:Say(450, nAuxH + 2, "CFOP", oFont08N:oFont)
@@ -2553,9 +2857,9 @@ For nY := 1 To nLenItens
 			oDanfe:Code128C(036+nLinhavers,370,SubStr(oNF:_InfNfe:_ID:Text,4), nFontSize )
 			
 			If lMv_Logod
-				oDanfe:SayBitmap(000+nLinhavers,000,cLogoD,095,096)
+				oDanfe:SayBitmap(003+nLinhavers,005,cLogoD,090,090)
 			Else
-				oDanfe:SayBitmap(000+nLinhavers,000,cLogo,095,096)
+				oDanfe:SayBitmap(003+nLinhavers,005,cLogo,090,090)
 			EndIf
 			
 			If Empty(cChaveCont)
@@ -2636,7 +2940,13 @@ For nY := 1 To nLenItens
 			oDanfe:Say(171+nLinhavers, nAuxH + 2, "NCM/SH", oFont08N:oFont)
 			nAuxH += aTamCol[3]
 			oDanfe:Box(163+nLinhavers, nAuxH, nColLim, nAuxH + aTamCol[4])
-			oDanfe:Say(171+nLinhavers, nAuxH + 2, "CST", oFont08N:oFont)
+
+			If cMVCODREG == "1"
+				oDanfe:Say(171+nLinhavers, nAuxH + 2, "CSOSN", oFont08N:oFont)
+			Else
+				oDanfe:Say(171+nLinhavers, nAuxH + 2, "CST", oFont08N:oFont)
+			Endif
+
 			nAuxH += aTamCol[4]
 			oDanfe:Box(163+nLinhavers, nAuxH, nColLim, nAuxH + aTamCol[5])
 			oDanfe:Say(171+nLinhavers, nAuxH + 2, "CFOP", oFont08N:oFont)
@@ -2792,9 +3102,9 @@ For nY := 1 To nLenItens
 		oDanfe:Code128C(036,370,SubStr(oNF:_InfNfe:_ID:Text,4), nFontSize )
 		
 		If lMv_Logod
-			oDanfe:SayBitmap(000,000,cLogoD,095,096)
+			oDanfe:SayBitmap(003,005,cLogoD,090,090)
 		Else
-			oDanfe:SayBitmap(000,000,cLogo,095,096)
+			oDanfe:SayBitmap(003,005,cLogo,090,090)
 		EndIf
 		
 		If Empty(cChaveCont)
@@ -2871,7 +3181,13 @@ For nY := 1 To nLenItens
 		oDanfe:Say(171, nAuxH + 2, "NCM/SH", oFont08N:oFont)
 		nAuxH += aTamCol[3]
 		oDanfe:Box(163, nAuxH, nColLim, nAuxH + aTamCol[4])
-		oDanfe:Say(171, nAuxH + 2, "CST", oFont08N:oFont)
+
+		If cMVCODREG == "1"
+			oDanfe:Say(171, nAuxH + 2, "CSOSN", oFont08N:oFont)
+		Else
+			oDanfe:Say(171, nAuxH + 2, "CST", oFont08N:oFont)
+		Endif
+		
 		nAuxH += aTamCol[4]
 		oDanfe:Box(163, nAuxH, nColLim, nAuxH + aTamCol[5])
 		oDanfe:Say(171, nAuxH + 2, "CFOP", oFont08N:oFont)
@@ -3160,9 +3476,9 @@ If lMensagens
 	oDanfe:Code128C(036,370,SubStr(oNF:_InfNfe:_ID:Text,4), nFontSize )
 	
 	If lMv_Logod
-		oDanfe:SayBitmap(000,000,cLogoD,095,096)
+		oDanfe:SayBitmap(003,005,cLogoD,090,090)
 	Else
-		oDanfe:SayBitmap(000,000,cLogo,095,096)
+		oDanfe:SayBitmap(003,005,cLogo,090,090)
 	EndIf
 	
 	If Empty(cChaveCont)
@@ -3995,26 +4311,7 @@ nVPage := oDanfe:nVertRes()
 nVPage *= (300/PixelY)
 nVPage -= VBOX 
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³Logotipo                                     ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-If lMv_Logod
-	cLogoD := GetSrvProfString("Startpath","") + "DANFE" + cEmpAnt + cFilAnt + ".BMP"
-	If !File(cLogoD)
-		cLogoD	:= GetSrvProfString("Startpath","") + "DANFE" + cEmpAnt + ".BMP"
-		If !File(cLogoD)
-			lMv_Logod := .F.
-		EndIf
-	EndIf
-EndIf 
 
-If nfolha==1
-	If lMv_Logod
-		oDanfe:SayBitmap(042,000,cLogoD,095,096)
-	Else
-		oDanfe:SayBitmap(042,000,cLogo,095,096)
-	EndIF
-Endif
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³Definicao do Box - Recibo de entrega                                    ³
@@ -4081,6 +4378,29 @@ Else
 	nLinCalc+=10
 	oDanfe:Say(nLinCalc,098, "Fone: "+IIf(Type("oEmitente:_EnderEmit:_Fone")=="U","",oEmitente:_EnderEmit:_Fone:Text),oFont08N:oFont)
 EndIf 
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Logotipo                                     ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If lMv_Logod
+	cLogoD := GetSrvProfString("Startpath","") + "DANFE" + cEmpAnt + cFilAnt + ".BMP"
+	If !File(cLogoD)
+		cLogoD	:= GetSrvProfString("Startpath","") + "DANFE" + cEmpAnt + ".BMP"
+		If !File(cLogoD)
+			lMv_Logod := .F.
+		EndIf
+	EndIf
+EndIf 
+
+If nfolha==1
+	If lMv_Logod
+		oDanfe:SayBitmap(043,001,cLogoD,095,096)
+	Else
+		oDanfe:SayBitmap(043,001,cLogo,095,096)
+	EndIF
+Endif
+
+
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³Codigo de barra                                                         ³
@@ -4342,7 +4662,7 @@ For nZ := 1 To nLenDet
 		})
 	EndIf
 
-Next nX
+Next nZ
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³Calculo do numero de folhas                                             ³
