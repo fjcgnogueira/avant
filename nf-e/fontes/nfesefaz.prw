@@ -1671,7 +1671,7 @@ If cTipo == "1"
 						If !Empty(cFieldMsg) .and. SC5->(FieldPos(cFieldMsg)) > 0 .and. !Empty(&("SC5->"+cFieldMsg))
 							cMensCli := alltrim(&("SC5->"+cFieldMsg))
 						Else
-							cMensCli += IIF( SF2->(FieldPos("F2_MENNOTA")) > 0, AllTrim(SF2->F2_MENNOTA),AllTrim(SC5->C5_MENNOTA))
+							cMensCli += AllTrim(SC5->C5_MENNOTA)
 						EndIf
 						
 					EndIf
