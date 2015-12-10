@@ -44,6 +44,7 @@ Static Function ReportDef()
 	oSection1 := TRSection():New(oReport,"NCCs em aberto",{"TRG"})
 	
 	TRCell():New(oSection1,"E1_FILIAL"    ,"TRG","Filial")
+	TRCell():New(oSection1,"A1_REGIAO"    ,"TRG","Regional")
 	TRCell():New(oSection1,"E1_NUM"   ,"TRG","Titulo")
 	TRCell():New(oSection1,"E1_PARCELA"   ,"TRG","Parcela")
 	TRCell():New(oSection1,"E1_TIPO" ,"TRG","Tipo")
@@ -94,7 +95,7 @@ Static Function GeraArqTRG()
 	
 	BeginSql alias 'TRG'
 
-		SELECT E1_FILIAL, E1_NUM, E1_PARCELA, E1_TIPO, E1_CLIENTE, E1_LOJA, A1_NOME, E1_EMISSAO, E1_VALOR, E1_SALDO, F3_OBSERV 
+		SELECT E1_FILIAL, A1_REGIAO, E1_NUM, E1_PARCELA, E1_TIPO, E1_CLIENTE, E1_LOJA, A1_NOME, E1_EMISSAO, E1_VALOR, E1_SALDO, F3_OBSERV 
 		FROM %table:SE1% SE1 
 		INNER JOIN %table:SA1% SA1 ON E1_CLIENTE = A1_COD AND E1_LOJA = A1_LOJA AND SA1.%notDel%
 		INNER JOIN %table:SF3% SF3 ON E1_FILIAL = F3_FILIAL AND E1_SERIE = F3_SERIE AND E1_NUM = F3_NFISCAL  AND A1_COD+A1_LOJA = F3_CLIEFOR+F3_LOJA AND SF3.%notDel%
