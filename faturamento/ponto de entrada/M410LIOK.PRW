@@ -53,7 +53,7 @@ If n <> 1 .AND. !aCols[n,Len(aHeader)+1]
 	If Posicione("SB1",1,xFilial("SB1")+aCols[n][nPosProd],"B1_UTLCOMS") <> Posicione("SB1",1,xFilial("SB1")+aCols[n-1][nPosProd],"B1_UTLCOMS")
 		MsgAlert('Existe conflito de produtos que geram comissão com produtos que não geram! Será necessário fazer pedidos separados.', 'Atenção')
 		lReturn := .F.
-	Endif  
+	Endif
 Endif
 
 // Faz uma varredura no aCols
@@ -74,6 +74,12 @@ End
 //	MsgInfo('Estoque diferente de "01" somente é permitido aos usuários de logística!', 'Atenção')
 //	lReturn := .F.
 //Endif
+
+// Verifica se a quantidade liberada eh maior que o saldo disponivel em estoque na inclusao do Pedido de Vendas
+If Inclui .And. aCols[n][nPosQtdLib] > U_SaldoProd(aCols[n][nPosProd])
+	MsgInfo('Quantidade liberada do produto '+AllTrim(aCols[n][nPosProd])+' maior que o saldo disponível em estoque!', 'Atenção')
+	lReturn := .F.
+Endif
 
 
 /*If (aCols[n][nPosOper]$"6,51,06") .And. !IsBlind()
