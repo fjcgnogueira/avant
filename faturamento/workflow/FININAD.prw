@@ -271,7 +271,6 @@ User Function INADGER()
 		WHERE SE1.%notDel%
 		AND E1_SALDO > 0
 		AND E1_TIPO IN ('NF')
-		AND A3_MSBLQL = '2'
 		AND E1_VENCREA <= %exp:cDtcorte%
 		GROUP BY A1_REGIAO, A3_NOME
 		ORDER BY Regional, Saldo DESC
@@ -318,7 +317,7 @@ User Function INADGER()
 		cLog += "</table>"
 		cLog += cFim
 		cAssunto := "INADIMPLÊNCIA REGIONAL - " + _cRegiao
-		cPara := "rogerio.machado@avantled.com.br; ewerson@avantled.com.br"
+		cPara := "rogerio.machado@avantled.com.br"
 		U_MHDEnvMail(cPara, "", "", cAssunto, cLog, "")
 	End
 	
