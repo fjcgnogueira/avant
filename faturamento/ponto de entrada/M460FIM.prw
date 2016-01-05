@@ -112,6 +112,13 @@ While SD2->(!Eof()) .And. 	SD2->D2_FILIAL == xFilial("SD2") .And. SD2->D2_DOC ==
 	SBM->(dbSeek(xFilial("SBM")+SB1->B1_GRUPO))
 	ZZF->(dbSeek(xFilial("ZZF")+SB1->B1_FAMAVAN))
 	
+	// Fernando Nogueira - Alimenta Volume na Nota de Saida
+	If SF2->F2_VOLUME1 <> SC5->C5_VOLUME1
+		SF2->(RecLock("SF2",.F.))
+			SF2->F2_VOLUME1 := SC5->C5_VOLUME1
+		SF2->(MsUnlock())
+	Endif
+	
 	nRamo  := Iif(SC6->C6_X_RAMO  = 0, SA1->A1_DESCWEB               , SC6->C6_X_RAMO)
 	nVlOri := Iif(SC6->C6_X_VLORI = 0, SB1->B1_PRV1 * (1 - nRamo/100), SC6->C6_X_VLORI)
 	
