@@ -76,6 +76,15 @@ While TRC->(!Eof())
 	cLog += "<html><body>"
 	
 	cLog += "<span style='color: rgb(1, 0, 0);'></span>"
+	cLog += "Caro representante,
+	cLog += "<br>"
+	cLog += "<br>"
+	cLog += "Abaixo segue sua carteira de inadimplentes. Pedimos a gentileza, de entrar em contato o mais breve possível com seus clientes, solicitando os comprovantes de pagamentos e encaminhando a Sede (Cobrança Avant) para efetivação das baixas e liberação do sistema para novos pedidos. "
+	cLog += "<br>"
+	cLog += "<br>"
+	cLog += "Em caso de dúvidas, ligue 0xx11 3355.2222 – Financeiro / Setor Cobrança."
+	cLog += "<br>"
+	cLog += "<br>"
 	cLog += "<table style='text-align: left; width: 100%;' border='1'"
  	cLog += "cellpadding='2' cellspacing='2'>"
 	cLog += "<tbody>"
@@ -84,12 +93,9 @@ While TRC->(!Eof())
 	cLog += "colspan='8' rowspan='1'><span"
 	cLog += "style='font-weight: bold;'><strong>Relação de Títulos em Aberto</strong></span></td>"
 	cLog += "</tr>"
-	cLog += "  </tbody>"
-	cLog += "</table>"
+	cLog += "</tbody>"
 	cLog += "<span style='color: rgb(1, 0, 0);'>"
 	cLog += "</span>"
-	cLog += "<table style='text-align: left; width: 100%;' border='1'"
- 	cLog += "cellpadding='2' cellspacing='2'>"
   	cLog += "<tbody>"
    	cLog += "<tr align='center'>"
    	cLog += "<td style='background-color: rgb(191, 225, 214);'"
@@ -117,7 +123,7 @@ While TRC->(!Eof())
 			cTotSaldo += TRC->Saldo
 			cLog += "<td>" + CValToChar(TRC->CNPJ)    + "</td>"
 			cLog += "</tr>"
-			cPara := TRC->Email		
+			cPara := TRC->A3_EMAIL		
 			DbSkip()
 	End
 	cLog += "<td  align='center' style='background-color: rgb(191, 225, 214);' colspan='8' rowspan='1'><strong>Total: " + Transform(cTotSaldo, _cMascara) + "</strong></td>"	
@@ -130,7 +136,7 @@ While TRC->(!Eof())
 End
 
 
-
+Return
 
 
 
@@ -214,7 +220,7 @@ User Function INADNAC()
 	cLog += "</table>"
 	cLog += cFim
 	cAssunto := "INADIMPLÊNCIA GERAL POR REGIONAL"
-	cPara := "rogerio.machado@avantled.com.br"
+	cPara := ALLTRIM(GETMV("ES_GERENAC"))
 	U_MHDEnvMail(cPara, "", "", cAssunto, cLog, "")
 	
 
@@ -321,6 +327,7 @@ User Function INADGER()
 		U_MHDEnvMail(cPara, "", "", cAssunto, cLog, "")
 	End
 	
+
 Return
 
 
