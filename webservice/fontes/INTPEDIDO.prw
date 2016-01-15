@@ -107,6 +107,7 @@ If lRetorno
 				aAdd(aCabec,{"C5_NUM"    ,cPedNew        ,NIL})
 				aAdd(aCabec,{"C5_EMISSAO",dDtEmiss       ,NIL})
 				aAdd(aCabec,{"C5_TIPO"   ,"N"            ,NIL})
+				aAdd(aCabec,{"C5_SEED"   ,SZ3->Z3_SEED   ,NIL})
 				aAdd(aCabec,{"C5_CLIENTE",SA1->A1_COD    ,NIL})
 				aAdd(aCabec,{"C5_LOJACLI",SA1->A1_LOJA   ,NIL})
 				aAdd(aCabec,{"C5_TRANSP" ,SZ3->Z3_CODTRAN,NIL})
