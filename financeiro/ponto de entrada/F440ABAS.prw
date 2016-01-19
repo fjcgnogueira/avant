@@ -17,7 +17,18 @@
 
 User Function F440ABAS()
 
+/* ParamIXB
+ [1][Codigo do Vendedor]  
+ [2][Base da Comissao]                             
+ [3][Base na Emissao ]                              
+ [4][Base na Baixa   ]                             
+ [5][Vlr  na Emissao ]                              
+ [6][Vlr  na Baixa   ]                              
+ [7][% da Comissao/Se "Zero" diversos %'s]
+*/
+
 Local aAreaSF2  := SF2->(GetArea())
+Local aAreaSA6  := SA6->(GetArea())
 Local cAliasSE1 := GetNextAlias()
 Local aBases    := ParamIXB
 Local cNota     := SE1->E1_NUM
@@ -31,9 +42,17 @@ Local _dEmisNF  := SF2->F2_EMISSAO
 Local nQtdParc  := 0
 Local nVlrParc  := 0
 Local nVlrTit   := 0
+Local lComiss   := Posicione("SA6",1,xFilial("SA6")+SE5->E5_BANCO+SE5->E5_AGENCIA+SE5->E5_CONTA,"A6_COMISS") == "S"
 
+// Se a Conta Bancaria nao gerar comissao zera os valores de comissao
+// Fernando Nogueira - Chamado 002505
+If !lComiss
 
-If !Empty(cParcela) .And. nFrete > 0 .And. _dEmisNF >= CTOD("16/10/2014")   // Data que comecou a separar o frete na primeira parcela
+	aBases[1][2] := 0
+	aBases[1][4] := 0
+	aBases[1][6] := 0
+
+ElseIf !Empty(cParcela) .And. nFrete > 0 .And. _dEmisNF >= CTOD("16/10/2014")   // Data que comecou a separar o frete na primeira parcela
 
 	// Numero de Parcelas
 	BeginSQL Alias cAliasSE1
@@ -63,8 +82,8 @@ If !Empty(cParcela) .And. nFrete > 0 .And. _dEmisNF >= CTOD("16/10/2014")   // D
 	aBases[1][6] := NoRound((aBases[1][2] * aBases[1][7]) / 100, 3)
 	
 Endif
-
 	
-RestArea(aAreaSF2)
+SF2->(RestArea(aAreaSF2))
+SA6->(RestArea(aAreaSA6))
 
 Return aBases
