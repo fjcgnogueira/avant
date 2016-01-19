@@ -43,6 +43,7 @@ Local _nItens    := 0
 Local nDescSuf   := 0
 Local _cC5xTot   := PesqPict("SC5","C5_XTOTPED")
 Local lBonif     := .F.
+Local lEstoque   := .F.
 
 If aCols[n][nPosQtdLib] > 0 .And. aCols[n][nPosQtdVen] > aCols[n][nPosQtdLib]
 	MsgInfo('Não é permitido liberação parcial!', 'Atenção')
@@ -83,13 +84,19 @@ If lReturn
 	For _n := 1 to Len(aCols)
 		nDescSuf  := 0
 		
-		// Verifica se o Pedido eh de Bonificacao
-		If !lBonif .And. Right(AllTrim(aCols[_n][nPosCF]),3) == '910'
-			lBonif := .T.
-		Endif
-		
 		// Caso a linha nao esteja deletada
 		If !aCols[_n,Len(aHeader)+1]
+		
+			// Verifica se o Pedido eh de Bonificacao
+			If !lBonif .And. Right(AllTrim(aCols[_n][nPosCF]),3) == '910'
+				lBonif := .T.
+			Endif
+
+			// Verifica se a Tes Controla Estoque
+			If Posicione('SF4',1,xFilial('SF4')+aCols[_n][nPosTes],'F4_ESTOQUE') == "S"
+				lEstoque := .T.
+			Endif
+
 			// Chamado 001447 - Fernando Nogueira
 			If !Empty(cDuplic) .And. cDuplic <> Posicione('SF4',1,xFilial('SF4')+aCols[_n][nPosTes],'F4_DUPLIC')
 				ApMsgAlert('Incompatibilidade de Geração de Duplicatas!'+cEOL+'Item que gera duplicata e item que não gera.')
@@ -185,6 +192,7 @@ If lReturn
 		MsgInfo('Valor com impostos do Pedido ('+AllTrim(Transform(nTotPed, _cC5xTot))+') maior que o saldo em crédito de marketing do vendedor ('+AllTrim(Transform(SA3->A3_ACMMKT, _cC5xTot))+') !', 'Atenção')
 		lReturn := .F.
 	Endif
+	
 Endif
 
 //If AllTrim(SM0->M0_CODFIL) == "010104" .And. aScan(PswRet(1)[1][10],'000057') == 0 .And. aCols[n][nPosLocal] <> '01'
@@ -193,7 +201,7 @@ Endif
 //Endif
 
 // Verifica se a quantidade liberada eh maior que o saldo disponivel em estoque na inclusao do Pedido de Vendas
-If lReturn .And. Inclui .And. aCols[n][nPosQtdLib] > U_SaldoProd(aCols[n][nPosProd])
+If lReturn .And. Inclui .And. lEstoque .And. aCols[n][nPosQtdLib] > U_SaldoProd(aCols[n][nPosProd])
 	MsgInfo('Quantidade liberada do produto '+AllTrim(aCols[n][nPosProd])+' maior que o saldo disponível em estoque!', 'Atenção')
 	lReturn := .F.
 Endif
