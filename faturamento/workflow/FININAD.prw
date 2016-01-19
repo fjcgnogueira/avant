@@ -123,7 +123,8 @@ While TRC->(!Eof())
 			cTotSaldo += TRC->Saldo
 			cLog += "<td>" + CValToChar(TRC->CNPJ)    + "</td>"
 			cLog += "</tr>"
-			cPara := TRC->A3_EMAIL		
+			cPara := TRC->A3_EMAIL
+			cPara += "; rogerio.machado@avantled.com.br"		
 			DbSkip()
 	End
 	cLog += "<td  align='center' style='background-color: rgb(191, 225, 214);' colspan='8' rowspan='1'><strong>Total: " + Transform(cTotSaldo, _cMascara) + "</strong></td>"	
@@ -221,6 +222,7 @@ User Function INADNAC()
 	cLog += cFim
 	cAssunto := "INADIMPLÊNCIA GERAL POR REGIONAL"
 	cPara := ALLTRIM(GETMV("ES_GERENAC"))
+	cPara += "; rogerio.machado@avantled.com.br"  
 	U_MHDEnvMail(cPara, "", "", cAssunto, cLog, "")
 	
 
