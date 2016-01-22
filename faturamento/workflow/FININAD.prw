@@ -21,11 +21,14 @@ User Function INADREP()
 Local cLog     	 := ""
 Local cFim       := "</body></html>"
 Local cAssunto   := ""
+Local _cPara     := ""
+Local _cCcopia   := ""
 Local cDtcorte   := ""
 Local cVend		 := ""
 Local cRepres    := ""
 Local cTotSaldo  := 0
-Local _cMascara   := "@E 999,999,999.99"
+Local _cMascara  := "@E 999,999,999.99"
+
 
 Prepare Environment EMPRESA '01' FILIAL '010104'
 
@@ -71,7 +74,7 @@ While TRC->(!Eof())
 	cRepres   := TRC->Representante
 	cTotSaldo := 0
 	cAssunto  := ""
-	cPara     := ""
+	_cPara     := ""
 	cLog := ""
 	cLog += "<html><body>"
 	
@@ -123,8 +126,8 @@ While TRC->(!Eof())
 			cTotSaldo += TRC->Saldo
 			cLog += "<td>" + CValToChar(TRC->CNPJ)    + "</td>"
 			cLog += "</tr>"
-			cPara := TRC->Email
-			//cPara += "; rogerio.machado@avantled.com.br"		
+			_cPara := TRC->Email
+			//_cPara += "; rogerio.machado@avantled.com.br"		
 			DbSkip()
 	End
 	cLog += "<td  align='center' style='background-color: rgb(191, 225, 214);' colspan='8' rowspan='1'><strong>Total: " + Transform(cTotSaldo, _cMascara) + "</strong></td>"	
@@ -132,7 +135,7 @@ While TRC->(!Eof())
 	cLog += "</table>"
 	cLog += cFim
 	cAssunto := "TÍTULOS EM ABERTO - " + cRepres
-	U_MHDEnvMail(cPara, "", "", cAssunto, cLog, "")
+	U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
 	DbSkip()
 End
 
@@ -158,11 +161,14 @@ User Function INADNAC()
 	Local cLog     	 := ""
 	Local cFim       := "</body></html>"
 	Local cAssunto   := ""
+	Local _cPara     := ""
+	Local _cCcopia   := ""
 	Local cDtcorte   := ""
 	Local cVend		 := ""
 	Local cRepres    := ""
 	Local cTotSaldo  := 0
-	Local _cMascara   := "@E 999,999,999.99"
+	Local _cMascara  := "@E 999,999,999.99"
+	
 	
 	Prepare Environment EMPRESA '01' FILIAL '010104'
 
@@ -221,9 +227,13 @@ User Function INADNAC()
 	cLog += "</table>"
 	cLog += cFim
 	cAssunto := "INADIMPLÊNCIA GERAL POR REGIONAL"
-	cPara := ALLTRIM(GETMV("ES_GERENAC"))
-	//cPara += "; rogerio.machado@avantled.com.br"  
-	U_MHDEnvMail(cPara, "", "", cAssunto, cLog, "")
+	
+	//_cPara   := ALLTRIM(GETMV("ES_GERENAC"))
+	_cCcopia   := "rogerio.machado1@gmail.com"
+	_cPara := "rogerio.machado@avantled.com.br"
+
+	
+	U_MHDEnvMail(_cPara, "", "", cAssunto, cLog, "")
 	
 
 Return
@@ -251,11 +261,16 @@ User Function INADGER()
 	Local cLog     	 := ""
 	Local cFim       := "</body></html>"
 	Local cAssunto   := ""
+	Local _cPara     := ""
+	Local _cCcopia   := ""
 	Local cDtcorte   := ""
-	Local _cRegiao		 := ""
+	Local _cRegiao	 := ""
 	Local cRepres    := ""
 	Local cTotSaldo  := 0
-	Local _cMascara   := "@E 999,999,999.99"
+	Local _cMascara  := "@E 999,999,999.99"
+	Local _cString   := AllTrim(GetMv("ES_GERENRE"))
+	Local _cMailTo 	 := ""
+	
 	
 	Prepare Environment EMPRESA '01' FILIAL '010104'
 
@@ -291,7 +306,7 @@ User Function INADGER()
 
 	While TRD->(!Eof())
 		cAssunto := ""
-		cPara := ""
+		_cPara := ""
 		cLog := ""
 		_cRegiao := TRD->Regional
 		cTotSaldo := 0
@@ -324,9 +339,14 @@ User Function INADGER()
 		cLog += "</tbody>
 		cLog += "</table>"
 		cLog += cFim
-		cAssunto := "INADIMPLÊNCIA REGIONAL - " + _cRegiao
-		cPara := "rogerio.machado@avantled.com.br"
-		U_MHDEnvMail(cPara, "", "", cAssunto, cLog, "")
+		_cMailTo := U_SepEmail(_cString,AllTrim(_cRegiao))
+		cAssunto := "INADIMPLÊNCIA REGIONAL - " + _cRegiao + " - " + AllTrim(_cMailTo)
+		
+		//_cPara   := _cMailTo
+		_cCcopia   := "rogerio.machado1@gmail.com"
+		_cPara := "rogerio.machado@avantled.com.br"
+		
+		U_MHDEnvMail(_cPara, "", "", cAssunto, cLog, "")
 	End
 	
 
@@ -334,5 +354,29 @@ Return
 
 
 
-RESET ENVIRONMENT
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Programa  ³ SepEmail  ³ Autor ³ Rogerio Machado    ³ Data  ³ 22/12/15 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descricao ³                                                           ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/
+
+User Function SepEmail(_cString,_cRegiao)
+
+Local _cTarget   := _cRegiao + "@"
+Local _nDe       := At(_cTarget,_cString)+Len(_cTarget)
+Local _nAte      := 6
+Local _cVendedor := Substr(_cString,_nDe,_nAte)
+Local _cEmail    := Posicione("SA3",1,xFilial("SA3")+_cVendedor,"A3_EMAIL")
+
+Return _cEmail
+
+
+
+//RESET ENVIRONMENT
 	
