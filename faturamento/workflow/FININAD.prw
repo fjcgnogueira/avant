@@ -127,14 +127,15 @@ While TRC->(!Eof())
 			cLog += "<td>" + CValToChar(TRC->CNPJ)    + "</td>"
 			cLog += "</tr>"
 			_cPara := TRC->Email
-			//_cPara += "; rogerio.machado@avantled.com.br"		
 			DbSkip()
 	End
 	cLog += "<td  align='center' style='background-color: rgb(191, 225, 214);' colspan='8' rowspan='1'><strong>Total: " + Transform(cTotSaldo, _cMascara) + "</strong></td>"	
 	cLog += "</tbody>
 	cLog += "</table>"
+	cLog += "<br>"
 	cLog += cFim
 	cAssunto := "TÍTULOS EM ABERTO - " + cRepres
+	//_cPara += "rogerio.machado@avantled.com.br"
 	U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
 	DbSkip()
 End
@@ -228,12 +229,12 @@ User Function INADNAC()
 	cLog += cFim
 	cAssunto := "INADIMPLÊNCIA GERAL POR REGIONAL"
 	
-	//_cPara   := ALLTRIM(GETMV("ES_GERENAC"))
-	_cCcopia   := "rogerio.machado1@gmail.com"
-	_cPara := "rogerio.machado@avantled.com.br"
+	_cPara   := ALLTRIM(GETMV("ES_GERENAC"))
+	_cCcopia   := "rogerio.machado@avantled.com.br"
+	//_cPara := "rogerio.machado@avantled.com.br"
 
 	
-	U_MHDEnvMail(_cPara, "", "", cAssunto, cLog, "")
+	U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
 	
 
 Return
@@ -339,14 +340,14 @@ User Function INADGER()
 		cLog += "</tbody>
 		cLog += "</table>"
 		cLog += cFim
-		_cMailTo := U_SepEmail(_cString,AllTrim(_cRegiao))
-		cAssunto := "INADIMPLÊNCIA REGIONAL - " + _cRegiao + " - " + AllTrim(_cMailTo)
+		_cPara := U_SepEmail(_cString,AllTrim(_cRegiao))
+		cAssunto := "INADIMPLÊNCIA REGIONAL - " + _cRegiao //+ " - " + AllTrim(_cMailTo)
 		
 		//_cPara   := _cMailTo
-		_cCcopia   := "rogerio.machado1@gmail.com"
-		_cPara := "rogerio.machado@avantled.com.br"
+		_cCcopia   := "rogerio.machado@avantled.com.br"
+		//_cMailTo := "rogerio.machado@avantled.com.br"
 		
-		U_MHDEnvMail(_cPara, "", "", cAssunto, cLog, "")
+		U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
 	End
 	
 
