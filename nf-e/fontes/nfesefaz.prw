@@ -101,6 +101,8 @@ Local cMensONU   	:= ""
 Local cMensFis   	:= ""
 Local cNFe       	:= ""
 Local cMVSUBTRIB 	:= ""
+Local cAvSubtrib	:= ""
+Local cAvInscSubs	:= ""
 Local cLJTPNFE		:= ""
 Local cWhere		:= ""
 Local cMunISS		:= ""
@@ -2581,6 +2583,19 @@ If cTipo == "1"
 	              EndIf	
 	              //Tratamento para que o valor de PIS ST,COFINS ST venha a compor o valor total da nota.
 					aTotal[03]+= (cAliasSD2)->D2_VALPS3 + (cAliasSD2)->D2_VALCF3
+					
+					// Fernando Nogueira - Chamado 002583
+					cAvSubtrib := cMVSUBTRIB
+					dbSelectArea("SF3")
+					dbSetOrder(4)
+					If MsSeek(xFilial("SF3")+SF2->F2_CLIENTE+SF2->F2_LOJA+SF2->F2_DOC+SF2->F2_SERIE)
+						If At (SF3->F3_ESTADO, cAvSubtrib)>0
+							nPosI	:=	At (SF3->F3_ESTADO, cAvSubtrib)+2
+							nPosF	:=	At ("/", SubStr (cAvSubtrib, nPosI))-1
+							nPosF	:=	IIf(nPosF<=0,len(cAvSubtrib),nPosF)
+							cAvInscSubs := SubStr(cAvSubtrib, nPosI, nPosF) //01 - IE_ST
+						EndIf
+					EndIf
 	              						
 					If lCalSol .OR.  lMVCOMPET
 						dbSelectArea("SF3")
@@ -2651,10 +2666,15 @@ If cTipo == "1"
 		    	cMensCli += " - Insc. no Suframa: " + AllTrim(SA1->A1_SUFRAMA)
 		    Endif
 		    
+		    // Inscricao do Substituto - Fernando Nogueira - Chamado 002583
+		 	If !Empty(cAvInscSubs)
+		    	cMensCli += " - Insc.Estadual do Subst.Trib.: " + AllTrim(cAvInscSubs)
+		    Endif		    
+		    
 		    //Faz o Calculo de Cubagem - Fernando Nogueira
 		    If Len(_aCubagem) > 0
 		    	cMensCli += U_Cubagem(_aCubagem)
-		    Endif 
+		    Endif
 
 			//Tratamento para incluir a mensagem em informacoes adicionais do Suframa
 			If !Empty(aDest[15])
