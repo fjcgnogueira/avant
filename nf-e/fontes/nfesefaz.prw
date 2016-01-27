@@ -5042,7 +5042,7 @@ cString += NfeTag('<vSeg>'  ,ConvType(aProd[14],15,2))
 //Quando eh Zona Franca de Manaus
 If cVerAmb >= "3.10" .and. Len(aICMSZFM) > 0 .And. Len(aCST) > 0 .And. !Empty(aICMSZFM[1]) .And. (aCST[1] $ '30,40,41,50,00,10')   
 	If !(lMvNFLeiZF)	
-		cString += NfeTag('<vDesc>' ,ConvType((aProd[31]+aProd[32])+aProd[15],15,2))	
+		cString += NfeTag('<vDesc>' ,ConvType((aProd[31]+aProd[32])+aProd[15]/*+aProd[26]*/,15,2))	
 	Else	
 		cString += NfeTag('<vDesc>' ,ConvType(aProd[15],15,2))
 	Endif
