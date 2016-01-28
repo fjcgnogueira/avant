@@ -1,4 +1,4 @@
-#INCLUDE "PROTHEUS.CH"           
+#INCLUDE "PROTHEUS.CH"
 #INCLUDE "Totvs.ch"
 #INCLUDE "FILEIO.ch"
 #INCLUDE "TbiConn.ch"
@@ -25,7 +25,7 @@ User Function Fat_Canal(aParam)
 	//쿪Param     |  [01]  | [02]  |  [03]   |   [04]   |  [05]  |  [06] |  [07]    |  [08]   |  [09]  |
 	//�           | Canal  | Grupo | Data De | Data Ate | E-mail |   CC  | Schedule | Empresa | Filial |
 	//읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸
-	
+
 	/*
 	旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커
 	� Exemplos de Relatorios:                                                                  |
@@ -36,15 +36,15 @@ User Function Fat_Canal(aParam)
 	� U_Fat_Canal({'GERAL','A070','20140110','20140120','','',.F.})                            |
 	� U_Fat_Canal({'NO','',Date()-7,Date(),'','',''})                                          |
 	� U_Fat_Canal({'000001','','ACUMULADO','','','',''})                                       |
-	� U_Fat_Canal({'000001','A070','ACUMULADO','','fernando.nogueira@avantled.com.br','',''})  |
-	� U_Fat_Canal({'GERAL','A070','20140110','20140120','',.F.})                               |	
+	� U_Fat_Canal({'000001','A070','ACUMULADO','','fernando.nogueira@avantlux.com.br','',''})  |
+	� U_Fat_Canal({'GERAL','A070','20140110','20140120','',.F.})                               |
 	읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸
 	*/
-	
+
 	Local _oProcess := Nil
 	Local lEnd      := .F.
 
-	Private _lReturn    := .T.	
+	Private _lReturn    := .T.
 	Private _cFilial    := ""
 	Private _cGrupo     := aParam[2]
 	Private _cDataDe    := ""
@@ -54,12 +54,12 @@ User Function Fat_Canal(aParam)
 	Private _cEmailCC   := aParam[6]
 	Private _lSchedule  := aParam[7]
 	Private lAcumulado  := IIf(ValType(aParam[3])=='C',aParam[3] == "ACUMULADO",.F.)
-	
+
 	// Padrao do Schedule eh Falso
 	If Empty(_lSchedule)
 		_lSchedule := .F.
 	Endif
-	
+
 	// Caso seja disparado via workflow
 	If _lSchedule
 		PREPARE ENVIRONMENT EMPRESA aParam[8] FILIAL aParam[9]
@@ -67,11 +67,11 @@ User Function Fat_Canal(aParam)
 	Else
 		_cFilial := AllTrim(SM0->M0_CODFIL)
 	Endif
-	
+
 	dbSelectArea("SX5")
 	dbGoTop()
 	dbSetOrder(1)
-			
+
 	If Empty(aParam[3])
 		_lReturn := .F.
 		If _lSchedule
@@ -81,7 +81,7 @@ User Function Fat_Canal(aParam)
 		Endif
 	ElseIf ValType(aParam[3]) == "C" .And. aParam[3] == "DIARIO"
 		Private _cDataDe  := Date()
-		Private _cDataAte := Date()	
+		Private _cDataAte := Date()
 	ElseIf ValType(aParam[3]) == "C" .And. aParam[3] == "ACUMULADO"
 		dbSelectArea("ZZP")
 		dbSetOrder(2)
@@ -116,14 +116,14 @@ User Function Fat_Canal(aParam)
 		Endif
 		_cTitulo := "Faturamento Acumulado Canal"
 	EndIf
-	
+
 	_cCanal := AllTrim(aParam[1])
-	
+
 	If Empty(_cCanal)
 		If SX5->(dbSeek(xFilial("SX5")+"T3CN"))
 			While SX5->(!EoF()) .And. SX5->X5_FILIAL+SX5->X5_TABELA+LEFT(SX5->X5_CHAVE,2) = xFilial("SX5")+"T3CN"
 				_cCanal := SX5->X5_CHAVE
-				
+
 				If _cCanal <> 'CN0001' // Retail esta estourando a string, conforme conversado com o Wesley, nao precisa - Fernando Nogueira
 					If _lSchedule
 						GeraArqTRB()
@@ -134,7 +134,7 @@ User Function Fat_Canal(aParam)
 						_oProcess:Activate()
 					Endif
 				Endif
-				
+
 				SX5->(dbSkip())
 			End
 		Else
@@ -175,7 +175,7 @@ Static Function GeraArqTRB()
 	Local cOrder2 := "%%"
 	Local cWhere  := "%%"
 	Local cInner2 := "%%"
-	
+
 	// Campos
 	If _cCanal $ "GERAL"
 		cField1 := "%X5_DESCRI Canal,%"
@@ -191,7 +191,7 @@ Static Function GeraArqTRB()
 		cField1 := "%C5_VEND1 Vendedor,B1_DESC Produto,Total_Reais,Total_QTD,%"
 		cField2 := "%B1_DESC Produto%"
 	EndIf
-	
+
 	// Condicoes
 	If !Empty(_cGrupo) .And. SX5->(dbSeek(xFilial("SX5")+"T3"+_cCanal))
 		cWhere := "% AND B1_GRUPO = '"+AllTrim(_cGrupo)+"' AND F2_X_CANAL = '"+_cCanal+"'%"
@@ -227,36 +227,36 @@ Static Function GeraArqTRB()
 		cOrder2 := "%Filial,Total_Reais DESC,B1_DESC,Reais DESC%"
 		cInner2 := "%B1_DESC = Produto%"
 	End
-	
-	
+
+
 	If _cCanal $ "GERAL"
-		
+
 		// Por Canal
 		BeginSql alias 'TRB'
 
 			SELECT D2_FILIAL Filial,
 				%Exp:cField1%
-				SUM(D2_QUANT) QTD, 
+				SUM(D2_QUANT) QTD,
 				SUM(D2_TOTAL) Reais
 			FROM %table:SD2% SD2
 			INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND SF4.%notDel%
-			INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel% 
-			INNER JOIN %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel% 
-			INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel% 
+			INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel%
+			INNER JOIN %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel%
+			INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel%
 			INNER JOIN %table:SB1% SB1 ON D2_COD = B1_COD AND SB1.%notDel%
 			INNER JOIN %table:SBM% SBM ON D2_FILIAL = BM_FILIAL AND B1_GRUPO = BM_GRUPO AND SBM.%notDel%
 			INNER JOIN %table:SX5% SX5 ON D2_FILIAL = X5_FILIAL AND X5_TABELA = 'T3' AND F2_X_CANAL = X5_CHAVE AND SX5.%notDel%
 			WHERE F4_DUPLIC = 'S'
 				%Exp:cWhere%
-				AND D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_TIPO = 'N' 
+				AND D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_TIPO = 'N'
 				AND D2_TIPO = 'N'
-				AND D2_FILIAL = %Exp:_cFilial% 
+				AND D2_FILIAL = %Exp:_cFilial%
 				AND SD2.%notDel%
 			GROUP BY %Exp:cGroup1%
 			ORDER BY %Exp:cOrder1%
-			
+
 		EndSql
-		         
+
 		// Por Grupo de Produto / Produto
 		BeginSql alias 'TRC'
 
@@ -266,68 +266,68 @@ Static Function GeraArqTRB()
 				%Exp:cField2%
 			FROM %table:SD2% SD2
 			INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND F4_DUPLIC = 'S' AND D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_TIPO = 'N' AND D2_FILIAL = %Exp:_cFilial% AND D2_TIPO = 'N' AND SD2.%notDel% AND SF4.%notDel%
-			INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel% 
-			INNER JOIN %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel% 
-			INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel% 
+			INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel%
+			INNER JOIN %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel%
+			INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel%
 			INNER JOIN %table:SB1% SB1 ON D2_COD = B1_COD AND SB1.%notDel% %Exp:cWhere%
 			RIGHT JOIN %table:SBM% SBM ON B1_GRUPO = BM_GRUPO
-			WHERE BM_FILIAL = %Exp:_cFilial% AND SBM.%notDel%												
+			WHERE BM_FILIAL = %Exp:_cFilial% AND SBM.%notDel%
 			GROUP BY %Exp:cGroup2%
 			ORDER BY %Exp:cOrder2%
-			
+
 		EndSql
-	
+
 	Else
-	
+
 		// Por Regiao
 		BeginSql alias 'TRA'
 
 			SELECT D2_FILIAL Filial,
 				F2_REGIAO Regiao,
-				SUM(D2_QUANT) QTD, 
+				SUM(D2_QUANT) QTD,
 				SUM(D2_TOTAL) Reais
 			FROM %table:SD2% SD2
 			INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND SF4.%notDel%
-			INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel% 
-			INNER JOIN %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel% 
-			INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel% 
+			INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel%
+			INNER JOIN %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel%
+			INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel%
 			INNER JOIN %table:SB1% SB1 ON D2_COD = B1_COD AND SB1.%notDel%
 			INNER JOIN %table:SBM% SBM ON D2_FILIAL = BM_FILIAL AND B1_GRUPO = BM_GRUPO AND SBM.%notDel%
 			WHERE F4_DUPLIC = 'S'
-				%Exp:cWhere% 
-				AND D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_TIPO = 'N' 
+				%Exp:cWhere%
+				AND D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_TIPO = 'N'
 				AND D2_TIPO = 'N'
-				AND D2_FILIAL = %Exp:_cFilial% 
+				AND D2_FILIAL = %Exp:_cFilial%
 				AND SD2.%notDel%
 			GROUP BY D2_FILIAL,F2_REGIAO
 			ORDER BY Filial,Reais DESC,Regiao
-			
+
 		EndSql
 
 		// Por Vendedor
 		BeginSql alias 'TRB'
-		
+
 			SELECT D2_FILIAL Filial,
 				%Exp:cField1%
 				SUM(D2_QUANT) QTD, SUM(D2_TOTAL) Reais
 			FROM %table:SD2% SD2
 			INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND SF4.%notDel%
-			INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel% 
-			INNER JOIN %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel% 
-			INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel% 
+			INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel%
+			INNER JOIN %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel%
+			INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel%
 			INNER JOIN %table:SB1% SB1 ON D2_COD = B1_COD AND SB1.%notDel%
 			INNER JOIN %table:SBM% SBM ON D2_FILIAL = BM_FILIAL AND B1_GRUPO = BM_GRUPO AND SBM.%notDel%
 			INNER JOIN
 				(SELECT D2_FILIAL Filial, C5_VEND1 Vendedor, SUM(D2_QUANT) Total_QTD, SUM(D2_TOTAL) Total_Reais FROM %table:SD2% SD2
 					INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND SF4.%notDel%
-					INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel% 
+					INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel%
 					INNER JOIN %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel%
-					INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel%  
+					INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel%
 					INNER JOIN %table:SB1% SB1 ON D2_COD = B1_COD AND SB1.%notDel%
 					INNER JOIN %table:SBM% SBM ON D2_FILIAL = BM_FILIAL AND B1_GRUPO = BM_GRUPO AND SBM.%notDel%
-				WHERE D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_TIPO = 'N' 
-					AND SD2.%notDel% 
-					AND F4_DUPLIC = 'S'    
+				WHERE D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_TIPO = 'N'
+					AND SD2.%notDel%
+					AND F4_DUPLIC = 'S'
 					%Exp:cWhere%
 				GROUP BY D2_FILIAL,C5_VEND1) TOT_VEND ON D2_FILIAL = Filial AND C5_VEND1 = Vendedor
 			WHERE D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_TIPO = 'N'
@@ -337,23 +337,23 @@ Static Function GeraArqTRB()
 				%Exp:cWhere%
 			GROUP BY %Exp:cGroup1%
 			ORDER BY %Exp:cOrder1%
-	
+
 		EndSql
-		
+
 		ConOut(GETLASTQUERY()[2])
-		
+
 		// Por Grupo de Produto	/ Produto
 		BeginSql alias 'TRC'
-		
+
 			SELECT CASE WHEN D2_FILIAL IS NULL THEN %Exp:_cFilial% ELSE D2_FILIAL END Filial,
 				%Exp:cField1%
 				SUM(CASE WHEN D2_QUANT IS NULL THEN 0 ELSE D2_QUANT END) QTD,
 				SUM(CASE WHEN D2_TOTAL IS NULL THEN 0 ELSE D2_TOTAL END) Reais
 			FROM %table:SD2% SD2
 			INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND F4_DUPLIC = 'S' AND D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_FILIAL = %Exp:_cFilial% AND D2_TIPO = 'N' AND SD2.%notDel% AND SF4.%notDel%
-			INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel% 
-			INNER JOIN %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel% 
-			INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel% 
+			INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel%
+			INNER JOIN %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel%
+			INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel%
 			INNER JOIN %table:SB1% SB1 ON D2_COD = B1_COD AND SB1.%notDel% %Exp:cWhere%
 			RIGHT JOIN %table:SBM% SBM ON B1_GRUPO = BM_GRUPO
 			INNER JOIN
@@ -363,9 +363,9 @@ Static Function GeraArqTRB()
 					%Exp:cField2%
 					FROM %table:SD2% SD2
 					INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND F4_DUPLIC = 'S' AND D2_EMISSAO BETWEEN %Exp:DTOS(_cDataDe)% AND %Exp:DTOS(_cDataAte)% AND D2_TIPO = 'N' AND D2_FILIAL = %Exp:_cFilial% AND SD2.%notDel% AND SF4.%notDel%
-					INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel% 
+					INNER JOIN %table:SC6% SC6 ON D2_FILIAL = C6_FILIAL AND D2_PEDIDO = C6_NUM AND D2_ITEMPV = C6_ITEM AND SC6.%notDel%
 					INNER JOIN %table:SC5% SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.%notDel%
-					INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel%  
+					INNER JOIN %table:SF2% SF2 ON D2_FILIAL = F2_FILIAL AND D2_DOC = F2_DOC AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA AND SF2.%notDel%
 					INNER JOIN %table:SB1% SB1 ON D2_COD = B1_COD AND SB1.%notDel% %Exp:cWhere%
 					RIGHT JOIN %table:SBM% SBM ON B1_GRUPO = BM_GRUPO
 				WHERE BM_FILIAL = %Exp:_cFilial% AND SBM.%notDel%
@@ -373,11 +373,11 @@ Static Function GeraArqTRB()
 			WHERE BM_FILIAL = %Exp:_cFilial% AND SBM.%notDel%
 			GROUP BY %Exp:cGroup2%
 			ORDER BY %Exp:cOrder2%
-	
+
 		EndSql
-		
+
 	Endif
-	
+
 Return()
 
 /*/
@@ -395,7 +395,7 @@ Static Function EnviaEmail(lEnd,_oProcess)
 
 Local _cMailTo    := ""
 Local _cSubject   := ""
-Local _cNReduz    := "" 
+Local _cNReduz    := ""
 Local _cD2Total   := PesqPict("SD2","D2_TOTAL")
 Local _cPctQtd    := "@e 999,999,999"
 Local _nTotQtd    := 0
@@ -452,11 +452,11 @@ If TRB->(!Eof())
 		oHtml:ValByName("cFilial"  , SM0->M0_FILIAL)
 		oHtml:ValByName("cCanal", If(_cCanal $ "GERAL",_cCanal,AllTrim(Posicione("SX5",1,xFilial("SX5")+"T3"+_cCanal,"X5_DESCRI"))))
 	EndIf
-		
+
 	If _cCanal $ "GERAL"
-	
+
 		// Por Canal
-		While TRB->(!Eof())	
+		While TRB->(!Eof())
 			_nTotQtd  += TRB->QTD
 			_nTotReal += TRB->Reais
 			TRB->(dbSkip())
@@ -464,8 +464,8 @@ If TRB->(!Eof())
 				_oProcess:IncRegua1()
 			Endif
 		EndDo
-		
-		DbSelectArea('TRB')		
+
+		DbSelectArea('TRB')
 		DbGotop()
 
 		While TRB->(!Eof())
@@ -473,60 +473,60 @@ If TRB->(!Eof())
 			aAdd((oHTML:ValByName("aReg.cQuant"))    , Transform(TRB->QTD                , _cPctQtd ))
 			aAdd((oHTML:ValByName("aReg.cQuantPorc")), Transform(TRB->QTD/_nTotQtd*100   , _cD2Total)+'%')
 			aAdd((oHTML:ValByName("aReg.cValor"))    , Transform(TRB->Reais              , _cD2Total))
-			aAdd((oHTML:ValByName("aReg.cValorPorc")), Transform(TRB->Reais/_nTotReal*100, _cD2Total)+'%')						
-			TRB->(dbSkip()) 
+			aAdd((oHTML:ValByName("aReg.cValorPorc")), Transform(TRB->Reais/_nTotReal*100, _cD2Total)+'%')
+			TRB->(dbSkip())
 			If !_lSchedule
 				_oProcess:IncRegua1()
 			Endif
 		EndDo
-				
+
 		aAdd((oHTML:ValByName("aReg.cRegiao"))   , "TOTAL:")
 		aAdd((oHTML:ValByName("aReg.cQuant"))    , Transform(_nTotQtd, _cPctQtd))
 		aAdd((oHTML:ValByName("aReg.cQuantPorc")), "100,00%")
 		aAdd((oHTML:ValByName("aReg.cValor"))    , Transform(_nTotReal, _cD2Total))
-		aAdd((oHTML:ValByName("aReg.cValorPorc")), "100,00%")	
-		
+		aAdd((oHTML:ValByName("aReg.cValorPorc")), "100,00%")
+
 		// Por Grupo de Produto / Produto
-		oHtml:ValByName("cTitGrpPrd", If(Empty(_cGrupo),"Total por Grupo de Produto","Total por Produto"))			
-		oHtml:ValByName("cGrpPrd"   , If(Empty(_cGrupo),"Grupo","Produto"))		
-	 
+		oHtml:ValByName("cTitGrpPrd", If(Empty(_cGrupo),"Total por Grupo de Produto","Total por Produto"))
+		oHtml:ValByName("cGrpPrd"   , If(Empty(_cGrupo),"Grupo","Produto"))
+
 		DbSelectArea('TRC')
 		DbGotop()
 
 		While TRC->(!Eof())
-		
+
 			If !Empty(_cGrupo) .And. TRC->QTD == 0
 				TRC->(dbSkip())
 				Loop
 			Endif
-		
+
 			aAdd((oHTML:ValByName("aGrp.cRegGrp"))   , If(Empty(_cGrupo),TRC->Grupo,TRC->Produto))
 			aAdd((oHTML:ValByName("aGrp.cQtdGrp"))   , Transform(TRC->QTD                , _cPctQtd ))
 			aAdd((oHTML:ValByName("aGrp.cQtdPrcGrp")), Transform(TRC->QTD/_nTotQtd*100   , _cD2Total)+'%')
 			aAdd((oHTML:ValByName("aGrp.cVlrGrp"))   , Transform(TRC->Reais              , _cD2Total))
 			aAdd((oHTML:ValByName("aGrp.cVlrPrcGrp")), Transform(TRC->Reais/_nTotReal*100, _cD2Total)+'%')
 
-			TRC->(dbSkip()) 
+			TRC->(dbSkip())
 		EndDo
-		
+
 		aAdd((oHTML:ValByName("aGrp.cRegGrp"))   , "TOTAL:")
 		aAdd((oHTML:ValByName("aGrp.cQtdGrp"))   , Transform(_nTotQtd, _cPctQtd))
 		aAdd((oHTML:ValByName("aGrp.cQtdPrcGrp")), "100,00%")
 		aAdd((oHTML:ValByName("aGrp.cVlrGrp"))   , Transform(_nTotReal, _cD2Total))
 		aAdd((oHTML:ValByName("aGrp.cVlrPrcGrp")), "100,00%")
-		
+
 	ElseIf SX5->(dbSeek(xFilial("SX5")+"T3"+_cCanal))
-	
+
 		// Total por Regiao
-		While TRA->(!Eof())	
+		While TRA->(!Eof())
 			_nTotReg += TRA->QTD
 			_nTotVlr += TRA->Reais
-			TRA->(dbSkip()) 		
+			TRA->(dbSkip())
 		EndDo
-		
-		DbSelectArea('TRA')		
+
+		DbSelectArea('TRA')
 		DbGoTop()
-		
+
 		While TRA->(!Eof())
 			_cRegiao := TRA->Regiao
 
@@ -535,104 +535,104 @@ If TRB->(!Eof())
 			aAdd((oHTML:ValByName("aRg.cQtdPrc")), Transform(TRA->QTD/_nTotReg*100  , _cD2Total)+'%')
 			aAdd((oHTML:ValByName("aRg.cVlr"))   , Transform(TRA->Reais             , _cD2Total))
 			aAdd((oHTML:ValByName("aRg.cVlrPrc")), Transform(TRA->Reais/_nTotVlr*100, _cD2Total)+'%')
-			
+
 			TRA->(dbSkip())
-					
+
 		EndDo
 
 		oHtml:ValByName("cQtdRg", Transform(_nTotReg, _cPctQtd))
 		oHtml:ValByName("cVlrRg", Transform(_nTotVlr, _cD2Total))
-		
-		// Total por Vendedor	
-		While TRB->(!Eof())	
+
+		// Total por Vendedor
+		While TRB->(!Eof())
 			_nTotQtd  += TRB->QTD
 			_nTotReal += TRB->Reais
-			TRB->(dbSkip()) 		
+			TRB->(dbSkip())
 			If !_lSchedule
 				_oProcess:IncRegua1()
 			Endif
 		EndDo
-		
-		DbSelectArea('TRB')		
+
+		DbSelectArea('TRB')
 		DbGoTop()
-		
+
 		While TRB->(!Eof())
 			_cVend    := TRB->Vendedor
-			
+
 			aAdd((oHTML:ValByName("aReg.cVendedor")), AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_NOME")))
 			aAdd((oHTML:ValByName("aReg.cQtd"))     , Transform(TRB->Total_QTD                , _cPctQtd ))
 			aAdd((oHTML:ValByName("aReg.cQtdPrc"))  , Transform(TRB->Total_QTD/_nTotQtd*100   , _cD2Total)+'%')
 			aAdd((oHTML:ValByName("aReg.cVlr"))     , Transform(TRB->Total_Reais              , _cD2Total))
 			aAdd((oHTML:ValByName("aReg.cVlrPrc"))  , Transform(TRB->Total_Reais/_nTotReal*100, _cD2Total)+'%')
-		
-			While TRB->(!Eof()) .And. TRB->Vendedor == _cVend		
+
+			While TRB->(!Eof()) .And. TRB->Vendedor == _cVend
 				TRB->(dbSkip())
 				If !_lSchedule
 					_oProcess:IncRegua1()
 				Endif
 			EndDo
-		
+
 		EndDo
 
 		oHtml:ValByName("cQtdReg", Transform(_nTotQtd, _cPctQtd))
 		oHtml:ValByName("cVlrReg", Transform(_nTotReal, _cD2Total))
-		
+
 		// Total por Grupo de Produto / Produto
 		DbSelectArea('TRC')
 		DbGotop()
-		
+
 		oHtml:ValByName("cTitGrp", If(Empty(_cGrupo),"Total por Grupo de Produto","Total por Produto"))
 		oHtml:ValByName("cCmpGrp", If(Empty(_cGrupo),"Grupo","Produto"))
-		
+
 		While TRC->(!Eof())
-		
+
 			If !Empty(_cGrupo) .And. TRC->Total_QTD == 0
 				TRC->(dbSkip())
 				Loop
 			Endif
-			
+
 			_cGrpPrd := If(Empty(_cGrupo),TRC->Grupo,TRC->Produto)
-		
+
 			aAdd((oHTML:ValByName("aGrp.cGrpPrd")), _cGrpPrd)
 			aAdd((oHTML:ValByName("aGrp.cQtd"))   , Transform(TRC->Total_QTD                , _cPctQtd ))
 			aAdd((oHTML:ValByName("aGrp.cQtdPrc")), Transform(TRC->Total_QTD/_nTotQtd*100   , _cD2Total)+'%')
 			aAdd((oHTML:ValByName("aGrp.cVlr"))   , Transform(TRC->Total_Reais              , _cD2Total))
 			aAdd((oHTML:ValByName("aGrp.cVlrPrc")), Transform(TRC->Total_Reais/_nTotReal*100, _cD2Total)+'%')
-			
-			If Empty(_cGrupo)			
-				While TRC->(!Eof()) .And. TRC->Grupo == _cGrpPrd		
+
+			If Empty(_cGrupo)
+				While TRC->(!Eof()) .And. TRC->Grupo == _cGrpPrd
 					TRC->(dbSkip())
 				EndDo
 			Else
-				While TRC->(!Eof()) .And. TRC->Produto == _cGrpPrd		
+				While TRC->(!Eof()) .And. TRC->Produto == _cGrpPrd
 					TRC->(dbSkip())
 				EndDo
 			Endif
-			
+
 		EndDo
-		
+
 		oHtml:ValByName("cQtdGrp", Transform(_nTotQtd, _cPctQtd))
 		oHtml:ValByName("cVlrGrp", Transform(_nTotReal, _cD2Total))
 
 		// Vendedores
 		DbSelectArea('TRB')
 		DbGotop()
-		
-		oHtml:ValByName("cCmpVnd", If(Empty(_cGrupo),"Grupo","Produto"))		
 
-		While TRB->(!Eof())	
+		oHtml:ValByName("cCmpVnd", If(Empty(_cGrupo),"Grupo","Produto"))
+
+		While TRB->(!Eof())
 			_cVend    := TRB->Vendedor
 			_nQtdVend := TRB->Total_QTD
 			_nTotVend := TRB->Total_Reais
-			
+
 			aAdd((oHTML:ValByName("aVnd.cGrpPrd")), AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_NOME")))
 			aAdd((oHTML:ValByName("aVnd.cQtd"))   , "")
 			aAdd((oHTML:ValByName("aVnd.cQtdPrc")), "")
 			aAdd((oHTML:ValByName("aVnd.cVlr"))   , "")
 			aAdd((oHTML:ValByName("aVnd.cVlrPrc")), "")
-			
+
 			While TRB->(!Eof()) .And. TRB->Vendedor == _cVend
-			
+
 				aAdd((oHTML:ValByName("aVnd.cGrpPrd")), If(Empty(_cGrupo),TRB->Grupo,TRB->Produto))
 				aAdd((oHTML:ValByName("aVnd.cQtd"))   , Transform(TRB->QTD                       , _cPctQtd ))
 				aAdd((oHTML:ValByName("aVnd.cQtdPrc")), Transform(TRB->QTD/TRB->Total_QTD*100    , _cD2Total)+'%')
@@ -644,32 +644,32 @@ If TRB->(!Eof())
 					_oProcess:IncRegua1()
 				Endif
 			EndDo
-			
+
 			aAdd((oHTML:ValByName("aVnd.cGrpPrd")), "TOTAL:")
 			aAdd((oHTML:ValByName("aVnd.cQtd"))   , Transform(_nQtdVend, _cPctQtd))
 			aAdd((oHTML:ValByName("aVnd.cQtdPrc")), "100,00%")
 			aAdd((oHTML:ValByName("aVnd.cVlr"))   , Transform(_nTotVend, _cD2Total))
 			aAdd((oHTML:ValByName("aVnd.cVlrPrc")), "100,00%")
-			
+
 			aAdd((oHTML:ValByName("aVnd.cGrpPrd")), "")
 			aAdd((oHTML:ValByName("aVnd.cQtd"))   , "")
 			aAdd((oHTML:ValByName("aVnd.cQtdPrc")), "")
 			aAdd((oHTML:ValByName("aVnd.cVlr"))   , "")
 			aAdd((oHTML:ValByName("aVnd.cVlrPrc")), "")
-			
+
 		EndDo
-		
+
 	ElseIf _cCanal == 'VENDEDORES'
-	
+
 		While TRB->(!Eof())
 			oProcess := TWFProcess():New("FAT_DIARIO","FATURAMENTO DIARIO")
 			oProcess:NewTask("Gerando Relatorio",_cArquivo)
 			oHTML := oProcess:oHTML
-			
+
 			_cVend    := TRB->Vendedor
 			_nQtdVend := TRB->Total_QTD
 			_nTotVend := TRB->Total_Reais
-			
+
 			oHtml:ValByName("cTitulo"  , _cTitulo)
 			oHtml:ValByName("cDataDe"  , DtoC(_cDataDe))
 			oHtml:ValByName("cDataAte" , DtoC(_cDataAte))
@@ -690,7 +690,7 @@ If TRB->(!Eof())
 				aAdd((oHTML:ValByName("aReg.cQtdPrc")), Transform(TRB->QTD/_nQtdVend*100, _cD2Total)+'%')
 				aAdd((oHTML:ValByName("aReg.cVlr"))   , Transform(TRB->Reais, _cD2Total))
 				aAdd((oHTML:ValByName("aReg.cVlrPrc")), Transform(TRB->Reais/_nTotVend*100, _cD2Total)+'%')
-				
+
 				TRB->(dbSkip())
 				If !_lSchedule
 					_oProcess:IncRegua1()
@@ -702,9 +702,9 @@ If TRB->(!Eof())
 			aAdd((oHTML:ValByName("aReg.cQtdPrc")), "100,00%")
 			aAdd((oHTML:ValByName("aReg.cVlr"))   , Transform(_nTotVend, _cD2Total))
 			aAdd((oHTML:ValByName("aReg.cVlrPrc")), "100,00%")
-			
+
 			_cNReduz := AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_NREDUZ"))
-			
+
 			If !Empty(_cNReduz)
 				If !Empty(_cGrupo)
 					_cSubject := _cTitulo+" - "+AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_REGIAO"))+" - "+AllTrim(Posicione("SBM",1,xFilial("SBM")+AllTrim(_cGrupo),"BM_DESC"))+" - Rep "+_cNReduz+" ["+DTOC(Date())+"]"
@@ -718,27 +718,27 @@ If TRB->(!Eof())
 					_cSubject := _cTitulo+" - "+AllTrim(Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_REGIAO"))+" - Rep "+AllTrim(SA3->A3_NOME)+" ["+DTOC(Date())+"]"
 				Endif
 			EndIf
-			                                                                 
+
 			oProcess:cSubject := Upper(_cSubject)
 			oProcess:USerSiga := "000000"
-			
+
 			_cMailTo := Posicione("SA3",1,xFilial("SA3")+_cVend,"A3_EMAIL")
 
 			If !Empty(_cMailTo)
 				oProcess:cTo  := _cMailTo
 				oProcess:cCC  := _cEmailCC
-				oProcess:cBCC := "fernando.nogueira@avantled.com.br"
+				oProcess:cBCC := "fernando.nogueira@avantlux.com.br"
 				oProcess:Start()
 				oProcess:Finish()
 			EndIf
-			
+
 		EndDo
-	
+
 	Endif
 
 
 	If _cCanal <> 'VENDEDORES'
-		
+
 		If _cCanal $ "GERAL" .And. !Empty(_cGrupo)
 			_cSubject := _cTitulo+" - Geral - "+AllTrim(Posicione("SBM",1,xFilial("SBM")+AllTrim(_cGrupo),"BM_DESC"))+" ["+DTOC(Date())+"]"
 		ElseIf _cCanal $ "GERAL"
@@ -748,15 +748,15 @@ If TRB->(!Eof())
 		ElseIf SX5->(dbSeek(xFilial("SX5")+"T3"+_cCanal))
 			_cSubject := _cTitulo+" - "+AllTrim(Posicione("SX5",1,xFilial("SX5")+"T3"+_cCanal,"X5_DESCRI"))+" ["+DTOC(Date())+"]"
 		Endif
-		
+
 		oProcess:cSubject := Upper(_cSubject)
 		oProcess:USerSiga := "000000"
-		
+
 		If Empty(_cEmail)
 			If _cCanal $ "GERAL"
 				oProcess:cTo  := SepEmail(_cString,_cCanal)
 				oProcess:cCC  := _cEmailCC
-				oProcess:cBCC := "fernando.nogueira@avantled.com.br"				
+				oProcess:cBCC := "fernando.nogueira@avantlux.com.br"
 			Else
 				oProcess:cTo  := SepEmail(_cString,_cCanal)
 				If lAcumulado .And. _cCanal = 'CN0002'
@@ -764,25 +764,25 @@ If TRB->(!Eof())
 				Else
 					oProcess:cCC := _cEmailCC
 				Endif
-				oProcess:cBCC := "fernando.nogueira@avantled.com.br"				
+				oProcess:cBCC := "fernando.nogueira@avantlux.com.br"
 			Endif
 		Else
 			oProcess:cTo  := _cEmail
 			oProcess:cCC  := _cEmailCC
-			oProcess:cBCC := "fernando.nogueira@avantled.com.br"
+			oProcess:cBCC := "fernando.nogueira@avantlux.com.br"
 		Endif
 
 		oProcess:Start()
 		oProcess:Finish()
-		
+
 	EndIf
 
-EndIf 
+EndIf
 
 TRA->(DbCloseArea())
 TRB->(DbCloseArea())
 TRC->(DbCloseArea())
-        
+
 Return
 
 /*/

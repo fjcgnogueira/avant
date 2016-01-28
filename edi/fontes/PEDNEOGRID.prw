@@ -1,5 +1,5 @@
 #Include "PROTHEUS.CH"
-#Include "FILEIO.ch"  
+#Include "FILEIO.ch"
 
 /*
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
@@ -63,7 +63,7 @@ Local cBOL       := "'<p>'+DtoC(Date())+Space(01)+Time()+Space(01)"
 Local cEOL       := "</p>"+CHR(13)+CHR(10)
 Local cAssunto   := ""
 Local aRetInt    := {}
-Local _cQuant	   := "" 
+Local _cQuant	   := ""
 
 nRegua := Len(aDiretorio)
 _oProcess:SetRegua1(nRegua)
@@ -75,26 +75,26 @@ _oProcess:IncRegua2("Enviando E-mail")
 For _n := 1 to Len(aDiretorio)
 
 	_cArqEdi := aDiretorio[_n][1]
-	
+
 	_oProcess:IncRegua1("Integrando Pedidos")
-	
+
 	If File(cDirEdi+_cArqEdi)
-		
+
 		nHdl := FOpen(cDirEdi+_cArqEdi, 2)
-		
+
 		If nHdl > -1
 			cLog += &cBOL+"Abertura do arquivo "+_cArqEdi+" OK"+cEOL
-			
+
 			cNumPed := U_NumPedEdi()
-				
+
 			Begin Transaction
-			
+
 				nItem := 0
-			
+
 				While lRetorno .And. LeLinha( nHdl, @cBuff ) > 0
-	  			
+
 					cIdReg   := SubStr(cBuff, 1, 2) // IDENTIFICADOR DE REGISTRO
-					
+
 					Do Case
 						Case cIdReg == "01" // CABECALHO DO PEDIDO DO CLIENTE
 							/*
@@ -107,10 +107,10 @@ For _n := 1 to Len(aDiretorio)
 							06. CONDICAO DE ENTREGA (TIPO DE FRETE)
 							07. OBSERVACAO DO PEDIDO
 							*/
-							
+
 							// Pedido do Cliente
 							cPedCli  := Substr(cBuff, 009, 020)
-							
+
 							// Verifica se o Pedido jah foi importado
 							BeginSQL Alias cAliasSZJ
 								SELECT * FROM %Table:SZJ% SZJ
@@ -118,17 +118,17 @@ For _n := 1 to Len(aDiretorio)
 									AND ZJ_FILIAL  = %Exp:xFilial("SZJ")%
 									AND ZJ_PEDCLI  = %Exp:cPedCli%
 							EndSQL
-							
+
 							(cAliasSZJ)->(dbGoTop())
-							
+
 							If !(cAliasSZJ)->(Eof())
 								(cAliasSZJ)->(dbCloseArea())
 								lPedDup  := .T.
 								lRetorno := .F.
 								Exit
-							Else	
-	
-								AADD( aIdSZJ, {'ZJ_FILIAL' , xFilial("SZJ")} )         //FILIAL						
+							Else
+
+								AADD( aIdSZJ, {'ZJ_FILIAL' , xFilial("SZJ")} )         //FILIAL
 								AADD( aIdSZJ, {'ZJ_PEDEDI' , cNumPed} )                 //NUMERO DO PRE PEDIDO
 								AADD( aIdSZJ, {'ZJ_FUNCAO' , SubStr(cBuff, 003, 003)} ) //FUNCAO MENSAGEM
 								AADD( aIdSZJ, {'ZJ_TIPO'   , SubStr(cBuff, 006, 003)} ) //TIPO DE PEDIDO
@@ -137,14 +137,14 @@ For _n := 1 to Len(aDiretorio)
 								AADD( aIdSZJ, {'ZJ_CNPJENT', SubStr(cBuff, 209, 014)} ) //CNPJ DO LOCAL DE ENTREGA
 								AADD( aIdSZJ, {'ZJ_TPFRETE', SubStr(cBuff, 270, 003)} ) //CONDICAO DE ENTREGA (TIPO DE FRETE)
 								AADD( aIdSZJ, {'ZJ_OBSERV' , SubStr(cBuff, 276, 040)} ) //OBSERVACAO DO PEDIDO
-								AADD( aIdSZJ, {'ZJ_STATUS' , '1'} )                     //STATUS DO PEDIDO					
+								AADD( aIdSZJ, {'ZJ_STATUS' , '1'} )                     //STATUS DO PEDIDO
 								AADD( aIdSZJ, {'ZJ_PROCES' , 'N'} )                     //INTEGROU O PEDIDO NO SISTEMA
-								
+
 								lRetorno := U_AV_EDIGRV('SZJ', aIdSZJ, cNumPed, 1, xFilial("SZJ")) > 0
-								
+
 								(cAliasSZJ)->(dbCloseArea())
 							Endif
-																					
+
 						Case cIdReg == "04" // ITENS DO PEDIDO DO CLIENTE
 							/*
 							PRE ITENS DO PEDIDO AVANT - SZK
@@ -153,11 +153,11 @@ For _n := 1 to Len(aDiretorio)
 							03. DESCRICAO DO PRODUTO NO CLIENTE
 							04. QUANTIDADE PEDIDA
 							*/
-							
+
 							nItem++
 							aIdSZK := {}
 							cItem  := StrZero(nItem,2)
-							
+
 							AADD( aIdSZK, {'ZK_FILIAL' , xFilial("SZK")} )                   //FILIAL
 							AADD( aIdSZK, {'ZK_PEDEDI' , cNumPed} )                          //NUMERO DO PRE PEDIDO
 							AADD( aIdSZK, {'ZK_ITEM'   , cItem} )                            //ITEM DO PRE PEDIDO
@@ -167,40 +167,40 @@ For _n := 1 to Len(aDiretorio)
 							_cQuant := Val(SubStr(cBuff, 100, 015))
 							_cQuant := _cQuant/100
 							AADD( aIdSZK, {'ZK_QUANT'  , _cQuant} ) //QUANTIDADE PEDIDA
-							
+
 							lRetorno := U_AV_EDIGRV('SZK', aIdSZK, cNumPed+cItem, 1, xFilial("SZK")) > 0
-							
+
 					EndCase
-						
+
 				EndDo
-								
+
 				fClose( nHdl ) // Fechando arquivo texto aos geracao.
-				
+
 			End Transaction
 
 			If lRetorno
 				SZJ->(dbSelectArea("SZJ"))
 				SZJ->(dbGoTop())
 				SZJ->(dbSeek(xFilial("SZJ")+cNumPed))
-				
+
 				// Gravando a Hora e a Data que importou no sistema
 				SZJ->(RecLock('SZJ', .F.))
 				SZJ->ZJ_HRPROC := Time()
 				SZJ->ZJ_DTPROC := Date()
 				SZJ->(MsUnlock())
-				
+
 				cLog += &cBOL+'Pedido Cliente '+AllTrim(cPedCli)+' importado com sucesso.'+cEOL
-				
+
 				// Integra o Pedido de Vendas
 				cLog += U_IntPedEdi(cNumPed)
-				
+
 				// Tratamento do arquivo apos Processamento
 				cArqNoExt := Left(_cArqEdi, At(".", _cArqEdi)-1)
-				
+
 				If !ExistDir(cDirProc)
 					MakeDir(cDirProc)
 				Endif
-				
+
 				fRename(cDirEdi+_cArqEdi, cDirProc+cArqNoExt+".PRC")
 			Else
 				RollBackSx8()
@@ -209,25 +209,25 @@ For _n := 1 to Len(aDiretorio)
 				Else
 					cLog += &cBOL+"Erro na IntegraÁ„o do Pedido EDI "+AllTrim(cPedCli)+cEOL
 				Endif
-				
+
 				// Tratamento do arquivo em caso de erro
 				cArqNoExt := Left(_cArqEdi, At(".", _cArqEdi)-1)
-				
+
 				If !ExistDir(cDirErr)
 					MakeDir(cDirErr)
 				Endif
-				
+
 				fRename(cDirEdi+_cArqEdi, cDirErr+cArqNoExt+".PRC")
 			Endif
-							
+
 		Else
 			cLog += &cBOL+"Abertura do arquivo "+_cArqEdi+" com Erro"+cEOL
 			lRetorno := .F.
 		EndIf
 	Else
 		cLog += &cBOL+'Erro na abertura do arquivo EDI '+_cArqEdi+cEOL
-	EndIf	
-	
+	EndIf
+
 Next _n
 
 // Envia e-mail com as mensagens de Log
@@ -238,7 +238,7 @@ Endif
 cLog += cFim
 cAssunto := DtoC(Date())+Space(01)+Time()+Space(01)+"Log da Importacao EDI ["+AllTrim(SM0->M0_CODFIL)+" / "+AllTrim(SM0->M0_FILIAL)+"]"
 _oProcess:IncRegua2("Enviando E-mail")
-U_MHDEnvMail("fernando.nogueira@avantled.com.br; rogerio.machado@avantled.com.br; ewerson.silva@avantled.com.br, marcia.pimentel@avantled.com.br ", "", "", cAssunto, cLog, "")
+U_MHDEnvMail("fernando.nogueira@avantlux.com.br; rogerio.machado@avantled.com.br; ewerson.silva@avantled.com.br, marcia.pimentel@avantled.com.br ", "", "", cAssunto, cLog, "")
 _oProcess:IncRegua2("Enviando E-mail")
 
 Return lRetorno

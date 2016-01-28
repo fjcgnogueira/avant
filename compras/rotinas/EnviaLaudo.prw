@@ -1,5 +1,5 @@
-#Include "Protheus.Ch"           
-#Include "TopConn.Ch"              
+#Include "Protheus.Ch"
+#Include "TopConn.Ch"
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
@@ -39,11 +39,11 @@ If SZH->(dbSeek(xFilial()+SF1->F1_NUMTRC))
 				oProcess:USerSiga := "000000"
 				oProcess:cTo  := cPara
 				oProcess:cCC  := "sota@avantled.com.br"
-				oProcess:cBCC := "fernando.nogueira@avantled.com.br;tecnologia@avantled.com.br"
+				oProcess:cBCC := "fernando.nogueira@avantlux.com.br;tecnologia@avantled.com.br"
 				oProcess:AttachFile(cAnexo)
 				oProcess:Start()
 				oProcess:Finish()
-				
+
 				ApMsgInfo("Laudo da Troca "+SF1->F1_NUMTRC+" enviado.")
 			Endif
 		Else
@@ -54,6 +54,6 @@ If SZH->(dbSeek(xFilial()+SF1->F1_NUMTRC))
 	Endif
 Else
 	ApMsgInfo("Essa nota não é de Troca!")
-Endif	
+Endif
 
 Return

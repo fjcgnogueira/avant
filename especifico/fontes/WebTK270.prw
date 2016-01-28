@@ -257,7 +257,7 @@ User Function GrvMemo( cVariavel , _CampoCod )
 				xCpo := xCpo + "<br>"
 			Endif
 		Next
-		
+
 		For s := 1 To Len(xCpo)
 			If ASC(Substr(xCpo,s,1)) == 32 .And. Mod(s-1,80) == 0
 				xCpo2 := xCpo2 + Substr(xCpo,s,1) + " "
@@ -265,7 +265,7 @@ User Function GrvMemo( cVariavel , _CampoCod )
 				xCpo2 := xCpo2 + Substr(xCpo,s,1)
 			Endif
 		Next
-		
+
 		xVariavel := xCpo2
 
 		DbSelectArea("SYP")
@@ -279,7 +279,7 @@ User Function GrvMemo( cVariavel , _CampoCod )
 				SYP->YP_CAMPO 	:= _CampoCod
 			MsUnLock()
 		Next
-		
+
 		ConfirmSX8()
 
 	Endif
@@ -306,13 +306,13 @@ User Function NextSYP()
 	_cProximo := Soma1(_cNumAtu)
 	_cPadrao  := GetSxeNum("SYP","YP_CHAVE")
 
-	If _cProximo < _cPadrao   
+	If _cProximo < _cPadrao
 		//Aviso("Tabela SYP",	"Um erro foi detectado no controle da numeração sequencial dos itens dos chamados. Não é possível a inserção de registros." + CHR(10) + ;
 		//					"Para que você não perca sua movimentação um ajuste nesta sequencia será feito e a gravação irá continuar normalmente." + CHR(10) + ;
-		//					"A sequencia atual " + _cProximo + " será ajustada para " + Soma1(_cPadrao) , {"     Ok     "} ,3 ,"Informação")		
+		//					"A sequencia atual " + _cProximo + " será ajustada para " + Soma1(_cPadrao) , {"     Ok     "} ,3 ,"Informação")
 		_cProximo := Soma1(_cPadrao)
 	Endif
-                      
+
 	// Acerta deletados SYP
 	U_Acerta_SYP()
 
@@ -1084,7 +1084,7 @@ Return()
 User Function LjVerHist()
 
 	Local aArea		:= GetArea()
-	
+
 	Private cChamado 	:= SZU->ZU_CHAMADO
 	Private cCodigo 	:= SZU->ZU_CODUSR
 	Private cNome 		:= SZU->ZU_NOMEUSR
@@ -1093,7 +1093,7 @@ User Function LjVerHist()
 	Private	bCancel 	:= {|| xOpc:=0,oDlg2:End() }
 	Private xOpc		:= 0
 	Private cView 		:= Space(1)
-	
+
 	// Acerta deletados SYP
 	U_Acerta_SYP()
 
@@ -1348,7 +1348,7 @@ User Function OpenProc(cChamado,cOp,nAcao,cArqTrb)
 	// C - Complemento de chamados
 	// T - Alocacao de analista para o chamado
 	// E ou W - Chamado Encerrado (W - envia com pesquisa de satisfacao
-	
+
 	cMsg_2 := ""
 
 	If cOp == "A"
@@ -1490,7 +1490,7 @@ User Function OpenProc(cChamado,cOp,nAcao,cArqTrb)
 		oProcess:USerSiga	:= "000000"
 		oProcess:cTo		:= cMailList
 		oProcess:cCC		:= If(cOp == "W",'',alltrim(lower(GetMv("ES_CRMMAIL"))))+If(lower(alltrim(u_usr_campos(SZU->ZU_TECNICO)[3]))$cMailList,'','; '+lower(alltrim(u_usr_campos(SZU->ZU_TECNICO)[3])))
-		oProcess:cBCC		:= If(cOp == "W",'FERNANDO.NOGUEIRA@AVANTLED.COM.BR','')
+		oProcess:cBCC		:= If(cOp == "W",'FERNANDO.NOGUEIRA@AVANTLUX.COM.BR','')
 		oProcess:Start()
 		oProcess:Finish()
 		If cOp == "E"

@@ -1,5 +1,5 @@
-#INCLUDE "PROTHEUS.CH"           
-#INCLUDE "TOPCONN.CH"  
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "TOPCONN.CH"
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
@@ -55,7 +55,7 @@ If ParamBox(aPerg,"Exp.Bordero",,,,.T.,,,,"EXPBOR",.T.,.T.)
 	Else
 		Alert("Borderô Inválido!")
 		Return
-	Endif	
+	Endif
 
 	If !File(AllTrim(MV_PAR02))
 		Alert("Arquivo de Remessa não Existe!")
@@ -67,7 +67,7 @@ If ParamBox(aPerg,"Exp.Bordero",,,,.T.,,,,"EXPBOR",.T.,.T.)
 		_oProcess := MsNewProcess():New({|lEnd| ProcBorde(lEnd,_oProcess)},"Processando...","Gerando XMLs...",.T.)
 		_oProcess:Activate()
 	Endif
-	
+
 Endif
 
 Return
@@ -103,7 +103,7 @@ Private nRegua2  := 4
 Private nTempArq := 2
 Private cBordero := MV_PAR01
 Private cLocDir  := "\workflow\xmlnfe\" + cBordero + "\"
-Private cCompact := "\workflow\xmlnfe\" + cBordero + ".rar" 
+Private cCompact := "\workflow\xmlnfe\" + cBordero + ".rar"
 Private cLocRar  := "E:\Protheus_data\workflow\xmlnfe\" + cBordero
 Private cArqRar  := "E:\Protheus_data\workflow\WinRAR\Rar.exe a -s -m5 E:\Protheus_data\workflow\xmlnfe\" + cBordero + ".rar"
 Private lEnviou  := .F.
@@ -111,7 +111,7 @@ Private lEnviou  := .F.
 aAdd(aArrBut, {1, .T., {|| lExeFun := .T., FechaBatch()}})
 aAdd(aArrBut, {2, .T., {|| lExeFun := .F., FechaBatch()}})
 
-// Definicao do nRegua1 para barra de processamento 
+// Definicao do nRegua1 para barra de processamento
 SEA->(dbSeek(xFilial("SEA")+cBordero))
 While SEA->EA_FILIAL+SEA->EA_NUMBOR == xFilial("SEA")+cBordero
 	nRegua1++
@@ -124,57 +124,57 @@ SEA->(dbSeek(xFilial("SEA")+cBordero))
 If SEA->EA_STMAIL == "G"   //Gerado XML
 	ApMsgInfo("XMLs desse Borderô já foram gerados")
 ElseIf nRegua1 == 0
-	ApMsgInfo("Não tem XML a ser Gerado")	
+	ApMsgInfo("Não tem XML a ser Gerado")
 Else
 	MontaDir(cLocDir)
 	nRegua1 += nTempArq
 	_oProcess:SetRegua1(nRegua1)
 	_oProcess:SetRegua2(nRegua2)
-	
+
 	_oProcess:IncRegua1()
 
 	While SEA->EA_FILIAL+SEA->EA_NUMBOR == xFilial("SEA")+cBordero
-		
+
 		_oProcess:IncRegua1()
-	
+
 		dDataEmis := Posicione("SF2",1,xFilial("SF2")+SEA->EA_NUM+SEA->EA_PREFIXO,"F2_EMISSAO")
-		
+
 		cTemp := ExpXmlNfs(dDataEmis,SEA->EA_PREFIXO,SEA->EA_NUM,SF2->F2_CLIENTE,SF2->F2_LOJA,cLocDir) + Chr(13)+Chr(10)
 		cMensagem += cTemp
 		aAdd(aMensagem, cTemp)
-		
+
 		cNumTit := SEA->EA_NUM
-		
+
 		SEA->(RecLock("SEA",.F.))
 		SEA->EA_STMAIL := "G"
 		SEA->(MsUnlock())
-		
+
 		SEA->(dbSkip())
-		
+
 		While SEA->EA_NUM == cNumTit
 			_oProcess:IncRegua1()
 			SEA->(RecLock("SEA",.F.))
 			SEA->EA_STMAIL := "G"
 			SEA->(MsUnlock())
 			SEA->(dbSkip())
-		End		
+		End
 	End
-	
+
 	MemoWrite(cPathLog,cMensagem)
-	
+
 	CpyT2S(AllTrim(MV_PAR02), cLocDir, .F.)
-	
+
 	// Gera arquivo compactado em Rar
 	WaitRunSrv(cArqRar,.T.,cLocRar)
-	
+
 	aFiles := Directory(cLocDir + "*.*")
-	
+
 	// Remove arquivos e diretorio, deixando apenas o compactado
 	For nX := 1 to Len(aFiles)
     	FErase(cLocDir + aFiles[nX,1])
 	Next nX
 	DirRemove(cLocDir)
-	
+
 	// Janela com log de geracao dos XMLs e confirmacao de envio
 	DEFINE MSDIALOG oDlg TITLE "Log Geração dos XMLs" From 3,0 to 340,417 PIXEL
 	@ 5,5 GET oMemo VAR cMensagem MEMO SIZE 200,145 OF oDlg PIXEL READONLY
@@ -214,7 +214,7 @@ Static Function ExpXmlNfs(dDataEmis,cSerie,cNumero,cCodCli,cLojCli,cLocDir)
 Local cMensagem := ""
 
 Private cAviso      := ""
-Private cErro       := ""     
+Private cErro       := ""
 Private cModalidade := ""
 Private cChave      := ""
 Private cAnexo      := ""
@@ -223,7 +223,7 @@ Private nHdlXml     := 0
 Private aNotas      := {}
 Private aXml        := {}
 Private oNFe
-          
+
 aadd(aNotas,{})
 aadd(Atail(aNotas),.F.)
 aadd(Atail(aNotas),"S")
@@ -254,7 +254,7 @@ nHdlXml := FCreate(cAnexo,0)
 If nHdlXml > 0
      FWrite(nHdlXml,cXmlDados)
      FClose(nHdlXml)
-Endif                              
+Endif
 
 Return(cMensagem)
 
@@ -296,7 +296,7 @@ oProcess:cSubject := "[Financeiro Avant - "+DtoC(Date())+"] "+"XMLs CNAB - Arq. 
 oProcess:USerSiga := "000000"
 oProcess:cTo  := cPara
 oProcess:cCC  := "financeiro@avantled.com.br"
-oProcess:cBCC := "fernando.nogueira@avantled.com.br"
+oProcess:cBCC := "fernando.nogueira@avantlux.com.br"
 If File(cCompact)
 	oProcess:AttachFile(cCompact)
 	oProcess:Start()

@@ -1,4 +1,4 @@
-#INCLUDE "PROTHEUS.CH"           
+#INCLUDE "PROTHEUS.CH"
 #INCLUDE "Totvs.ch"
 #INCLUDE "FILEIO.ch"
 #INCLUDE "TbiConn.ch"
@@ -30,29 +30,29 @@ Prepare Environment EMPRESA '01' FILIAL '010104'
 
 BeginSql alias 'TRB'
 
-	SELECT SZ3.Z3_FILIAL, SZ3.Z3_NPEDWEB, SA1.A1_COD, SA1.A1_LOJA, SA1.A1_NOME, SA3.A3_NOME, SA3.A3_EMAIL, SZ3.Z3_EMISSAO  
-	FROM %table:SZ3% SZ3		
-	
+	SELECT SZ3.Z3_FILIAL, SZ3.Z3_NPEDWEB, SA1.A1_COD, SA1.A1_LOJA, SA1.A1_NOME, SA3.A3_NOME, SA3.A3_EMAIL, SZ3.Z3_EMISSAO
+	FROM %table:SZ3% SZ3
+
 	INNER JOIN %table:SA1% SA1 ON
 		SZ3.Z3_CNPJ = SA1.A1_CGC AND SA1.%notDel%
-	    
+
 	INNER JOIN %table:SA3% SA3 ON
 		SZ3.Z3_VEND = SA3.A3_COD AND SA3.%notDel%
-		
+
 
 	//WHERE SZ3.%notDel% AND SZ3.Z3_STATUS = '2' AND SZ3.Z3_EMISSAO = '20140910' AND SZ3.Z3_NPEDWEB NOT IN (
-	WHERE SZ3.%notDel% AND SZ3.Z3_STATUS = '2' AND SZ3.Z3_EMISSAO = CONVERT(CHAR(10), GETDATE(),112) AND SZ3.Z3_NPEDWEB NOT IN (	
-	SELECT SC5.C5_PEDWEB FROM %table:SC5% SC5 WHERE SC5.%notDel% AND SC5.C5_EMISSAO = CONVERT(CHAR(10), GETDATE(),112))	
+	WHERE SZ3.%notDel% AND SZ3.Z3_STATUS = '2' AND SZ3.Z3_EMISSAO = CONVERT(CHAR(10), GETDATE(),112) AND SZ3.Z3_NPEDWEB NOT IN (
+	SELECT SC5.C5_PEDWEB FROM %table:SC5% SC5 WHERE SC5.%notDel% AND SC5.C5_EMISSAO = CONVERT(CHAR(10), GETDATE(),112))
 
 EndSql
 
 
 While (!Eof('TRB'))
 
-		cPara := "elir.ribeiro@avantled.com.br; rogerio.machado@avantled.com.br; fernando.nogueira@avantled.com.br; ewerson.silva@avantled.com.br; "
+		cPara := "elir.ribeiro@avantled.com.br; rogerio.machado@avantled.com.br; fernando.nogueira@avantlux.com.br; ewerson.silva@avantled.com.br; "
 		//cPara := "rogerio.machado@avantled.com.br; "
 		cPara += TRB->A3_EMAIL
-		
+
 		cLog := "<html><body>"
 		cLog += "<p align='center' class='style1'><strong>AVISO  -  PEDIDO WEB NÃO ENVIADO PARA A AVANT</strong></p>"
 		cLog += "<p <strong>Pedido Web: </strong>"+ CValToChar(TRB->Z3_NPEDWEB) + "</p>"
@@ -61,14 +61,14 @@ While (!Eof('TRB'))
 		cLog += "<p <strong>Mensagem: </strong> Favor entrar em contato com nossos Analistas de IT. (11) 3355-2220</p>"
 		//Ewerson solicitou a retirada da mensagem abaixo
 		//cLog += "<p <strong>Observação: </strong> Se o seu pedido tem Desconto Especial, ele está parado na tela de aprovação do Wesley Pazini. Nesse caso, favor desconsiderar esse e-mail.</p>"
-		
+
 		cLog += cFim
 		cAssunto := "Erro Pedido Web "+CValToChar(TRB->Z3_NPEDWEB)+ " não enviado para a Avant"
 		U_MHDEnvMail(cPara, "", "", cAssunto, cLog, "")
 		DbSkip()
-		
+
 End
 
 RESET ENVIRONMENT
-	
+
 Return
