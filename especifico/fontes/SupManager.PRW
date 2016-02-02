@@ -70,6 +70,7 @@ User Function SupManager(w,y,nOpc)
 	Private oFlwS 	 := LoadBitmap( GetResources(), "BR_VERMELHO_OCEAN.BMP" )
 	Private oFlwU 	 := LoadBitmap( GetResources(), "BMPUSER.BMP" )
 	Private oFlwT 	 := LoadBitmap( GetResources(), "IC_20_USUARIO.GIF" )
+	Private oFlwP 	 := LoadBitmap( GetResources(), "IC_SCORECARD.GIF" )
 
 	aAdd(aObjects,{100,100,.T.,.T.})
 	aAdd(aObjects,{100,030,.T.,.F.})
@@ -132,7 +133,7 @@ User Function SupManager(w,y,nOpc)
                                	aChamados[oLbx3:nAt,2],;
                 		       	aChamados[oLbx3:nAt,3],;
 		                       	aChamados[oLbx3:nAt,4],;
-								IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , oFlwS ) ),;
+								IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , IIF( aChamados[oLbx3:nAt,21] == "P", oFlwP , oFlwS ) ) ),;
 								aChamados[oLbx3:nAt,19],;	// No de dias TOTAl
 								aChamados[oLbx3:nAt,22],;	// Atualizado em
 								aChamados[oLbx3:nAt,23],;	// No de dias da Ult. Atualizacao
@@ -224,7 +225,7 @@ Static Function LbxSort(nCol)
 	                            aChamados[oLbx3:nAt,2],;
 	                		    aChamados[oLbx3:nAt,3],;
 		                       	aChamados[oLbx3:nAt,4],;
-								IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , oFlwS ) ),;
+								IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , IIF( aChamados[oLbx3:nAt,21] == "P", oFlwP , oFlwS ) ) ),;
 								aChamados[oLbx3:nAt,19],;	// No de dias TOTAl
 								aChamados[oLbx3:nAt,22],;	// Atualizado em
 								aChamados[oLbx3:nAt,23],;	// No de dias da Ult. Atualizacao
@@ -341,6 +342,7 @@ Static Function EditLbx( cChamado )
 	Private oFlwS 	 := LoadBitmap( GetResources(), "BR_VERMELHO_OCEAN.BMP" )
 	Private oFlwU 	 := LoadBitmap( GetResources(), "BMPUSER.BMP" )
 	Private oFlwT 	 := LoadBitmap( GetResources(), "IC_20_USUARIO.GIF" )
+	Private oFlwP 	 := LoadBitmap( GetResources(), "IC_SCORECARD.GIF" )
 
 	// Acerta deletados SYP
 	U_Acerta_SYP()
@@ -368,7 +370,7 @@ Static Function EditLbx( cChamado )
 	                               	aChamados[oLbx3:nAt,2],;
 	                		       	aChamados[oLbx3:nAt,3],;
 			                       	aChamados[oLbx3:nAt,4],;
-									IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , oFlwS ) ),;
+									IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , IIF( aChamados[oLbx3:nAt,21] == "P", oFlwP , oFlwS ) ) ),;
 									aChamados[oLbx3:nAt,19],;	// No de dias TOTAl
 									aChamados[oLbx3:nAt,22],;	// Atualizado em
 									aChamados[oLbx3:nAt,23],;	// No de dias da Ult. Atualizacao
@@ -586,7 +588,7 @@ Static Function MTLoadLbx(cDTAbrIni,cDTAbrFim,cFilArea,cFilTec,cFilStatus,cDTEnc
 	                            aRet[oLbx3:nAt,2],;
 	 							aRet[oLbx3:nAt,3],;
 		                       	aRet[oLbx3:nAt,4],;
-								IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , oFlwS ) ),;
+								IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , IIF( aChamados[oLbx3:nAt,21] == "P", oFlwP , oFlwS ) ) ),;
 		                       	aRet[oLbx3:nAt,19],;
 								aRet[oLbx3:nAt,22],;	// Atualizado em
 								aRet[oLbx3:nAt,23],;	// No de dias da Ult. Atualizacao
@@ -773,7 +775,7 @@ Static Function MTAlocFun(cChamado,cIDTecnico)
                                	aChamados[oLbx3:nAt,2],;
                 		       	aChamados[oLbx3:nAt,3],;
 		                       	aChamados[oLbx3:nAt,4],;
-								IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , oFlwS ) ),;
+								IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , IIF( aChamados[oLbx3:nAt,21] == "P", oFlwP , oFlwS ) ) ),;
 								aChamados[oLbx3:nAt,19],;	// No de dias TOTAl
 								aChamados[oLbx3:nAt,22],;	// Atualizado em
 								aChamados[oLbx3:nAt,23],;	// No de dias da Ult. Atualizacao
