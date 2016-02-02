@@ -54,6 +54,7 @@ User Function SupManager(w,y,nOpc)
 	Private lEncerrado	:= .F.
 	Private lTodos		:= .F.
 	Private lUser		:= .T.
+	Private lFilaPrj	:= .F.
 	Private lProjeto	:= .F.
 	Private lSort		:= .F.
 	Private aRecursos	:= {}
@@ -182,7 +183,8 @@ User Function SupManager(w,y,nOpc)
 		@ 025,474 CheckBox oStatus6 Var lTodos 			Prompt "Todos" 			ON CLICK(AtuOption(6))	Size 048,008 PIXEL OF oPanel
 
 		@ 005,518 CheckBox oStatus7 Var lUser 			Prompt "Filtra ID" 		ON CLICK(AtuOption(7))	Size 048,008 PIXEL OF oPanel
-		@ 015,518 CheckBox oStatus7 Var lProjeto		Prompt "Tira Fila Prj"	ON CLICK(AtuOption(8))	Size 048,008 PIXEL OF oPanel
+		@ 015,518 CheckBox oStatus8 Var lFilaPrj		Prompt "Tira Fila Prj"	ON CLICK(AtuOption(8))	Size 048,008 PIXEL OF oPanel
+		@ 025,518 CheckBox oStatus9 Var lProjeto		Prompt "Projeto"		ON CLICK(AtuOption(9))	Size 048,008 PIXEL OF oPanel
 
 	ACTIVATE MSDIALOG oDlgChamados ON INIT EnchoiceBar(oDlgChamados,bOk,bCancel,,aBut)
 
@@ -515,8 +517,12 @@ Static Function MTLoadLbx(cDTAbrIni,cDTAbrFim,cFilArea,cFilTec,cFilStatus,cDTEnc
 			cSQL += "ZU_TECNICO = '" + cFilTec2 + "' AND " + cEOL
 		Endif
 		
-		IF lProjeto
+		IF lFilaPrj
 			cSQL += "ZU_FEEDBAC <> 'P' AND " + cEOL
+		Endif	
+
+		IF lProjeto
+			cSQL += "ZU_ROTINA = '000011' AND " + cEOL
 		Endif	
 
 	 	If !lTodos
