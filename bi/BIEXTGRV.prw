@@ -16,34 +16,22 @@ Local nPLivre7 := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_LIVRE7"})
 Local nPLivre8 := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_LIVRE8"})
 Local nPLivre9 := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_LIVRE9"})
 
-Local _cNf := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_NUMNF"})
-Local _cSer:= aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_SERNF"})
-Local _cIte:= aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_NMITNF"})  //ITEM DA NOTA FISCAL
-Local _cCliente:= aScan(aRet, {|x| AllTrim(x[1]) == "A1_COD"})
-Local _cLoja:= aScan(aRet, {|x| AllTrim(x[1]) == "A1_LOJA"})
-Local _cProd:= aScan(aRet, {|x| AllTrim(x[1]) == "B1_COD"})
-Local _cSeek    := ''
+Local nPCliente := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_CODIGO"})
+Local nPLojaCli := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_LOJA"})
 
-If cAlias == 'HJC'
+
+If cAlias == 'HJ7'
 	
-	//A3_XREGION
-	DbSelectArea("SA3")
+	//A1_END
+	DbSelectArea("SA1")
 	DbSetOrder(1)
-	If DbSeek(aRet[1][2] + aRet[2][2])
-		If SA3->(FieldPos('A3_XREGION'))> 0
-			_cSeek := ''
-			DbSelectArea("SX5")        
-			DbSetOrder(1)
-			If DbSeek(xFilial("SX5") + 'ZF' + SA3->A3_XREGION)
-				_cSeek := SX5->X5_DESCRI                      
-			Else
-				_cSeek    := 'ND -' + SA3->A3_XREGION
-			EndIf
-			aRet[nPlivre0][2] := IIF(!Empty(SA3->A3_XREGION),_cSeek,'')
+	If DbSeek(aRet[nPCliente][2] + aRet[nPLojaCli][2])
+		If SA1->(FieldPos('A1_END'))> 0
+			aRet[nPlivre0][2] := SA1->A1_END 
 		EndIf
 	EndIf
-	
-ElseIf cAlias = 'HJ7'
+
+ /* ElseIf cAlias = 'HJ7'
 
 	DbSelectArea("SA1")
 	DbSetOrder(1)
@@ -53,7 +41,7 @@ ElseIf cAlias = 'HJ7'
         	DbSelectArea("ACY")
         	DbSetOrder(1)
         	If DbSeek(xFilial("ACY") + SA1->A1_GRPVEN)
-				_cSeek := ACY->ACY_DESCRI
+				_cSeek := ACY->ACY_DESCRI 
 			Else
 				_cSeek := 'ND -'+ SA1->A1_GRPVEN
         	EndIf
@@ -227,6 +215,8 @@ ElseIf cAlias == 'HL5' .and. !Empty(aRet)
 	Else
 		conout("Nao achou a meta " +xFilial("SCT") + aRet[16][2]  )
     EndIf
+*/
 EndIf
+
 
 Return aRet
