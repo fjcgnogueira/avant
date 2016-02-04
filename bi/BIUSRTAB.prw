@@ -4,7 +4,7 @@ Local aRet   := {}
 
 Do Case 
 	Case cAlias == "HJ7"  //CLIENTE
-		aRet := {"SA1","SX5"}
+		aRet := {"SA1"}
 EndCase	
 
 Return aRet
