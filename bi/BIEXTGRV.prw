@@ -1,5 +1,6 @@
 #Include "topconn.ch"
-User Function BIEXTGRV
+#include "protheus.ch"
+User Function BIEXTGRV BIEXTGRV 
 
 Local cAlias   := PARAMIXB[1] // Alias da Fato ou Dimensão em gravação no momento
 Local aRet     := PARAMIXB[2] // Array contendo os dados do registro para manipulação
@@ -21,15 +22,38 @@ Local nPLojaCli := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_LOJA"})
 
 
 If cAlias == 'HJ7'
-	
+ConOut("Passou pelo ponto SA1")
 	//A1_END
 	DbSelectArea("SA1")
 	DbSetOrder(1)
-	If DbSeek(aRet[nPCliente][2] + aRet[nPLojaCli][2])
+ConOut (aRet[nPCliente][2] + aRet[nPLojaCli][2])
+	If DbSeek(xFilial('SA1')+AllTrim(aRet[nPCliente][2]) + AllTrim(aRet[nPLojaCli][2])) 
+ConOut(A1_END)
 		If SA1->(FieldPos('A1_END'))> 0
-			aRet[nPlivre0][2] := SA1->A1_END 
+ConOut("Ewerson")
+			aRet[nPlivre0][2] := SA1->A1_END
 		EndIf
 	EndIf
  EndIf
+
+ElseIf cAlias == 'HJ7'
+ConOut("Passou pelo ponto SA1")
+	//A1_MUN
+	DbSelectArea("SA1")
+	DbSetOrder(1)
+ConOut (aRet[nPCliente][2] + aRet[nPLojaCli][2])
+	If DbSeek(xFilial('SA1')+AllTrim(aRet[nPCliente][2]) + AllTrim(aRet[nPLojaCli][2])) 
+ConOut(A1_MUN)
+		If SA1->(FieldPos('A1_MUN'))> 0
+ConOut("Municipio")
+			aRet[nPlivre1][2] := SA1->A1_MUN
+		EndIf
+	EndIf
+ EndIf
+
+
+
+
+
 
 Return aRet

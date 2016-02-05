@@ -5,6 +5,7 @@ Local aRet   := {}
 Do Case 
 	Case cAlias == "HJ7"  //CLIENTE
 		aRet := {"SA1"}
+		ConOut("Passou pelo ponto HJ7")
 EndCase	
 
 Return aRet
