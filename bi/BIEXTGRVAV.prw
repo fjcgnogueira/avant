@@ -13,7 +13,7 @@
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
-User Function BIEXTGRV 
+User Function BIEXTGRV()
 
 Local cAlias := PARAMIXB[1] // Alias da Fato ou Dimensao em gravação no momento
 Local aRet    := PARAMIXB[2] // Array contendo os dados do registro para manipulacao
