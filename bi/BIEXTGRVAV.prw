@@ -42,14 +42,22 @@ If cAlias == 'HJ7'
 		EndIf
 	EndIf
 		
-ElseIf cAlias == 'HJ7'
-	DbSelectArea("SA1")
-	DbSetOrder(1)
-	If DbSeek(xFilial('SA1')+AllTrim(aRet[nPCliente][2]) + AllTrim(aRet[nPLojaCli][2])) 
-		If SA1->(FieldPos('A1_MUN'))> 0
-			aRet[nPlivre1][2] := SA1->A1_MUN
+If SA1->(FieldPos('A1_BAIRRO'))> 0
+			aRet[nPlivre1][2] := SA1->A1_BAIRRO
 		EndIf
+	 
+ If SA1->(FieldPos('A1_CONTATO'))> 0
+			aRet[nPlivre2][2] := SA1->A1_CONTATO
 	EndIf
-Endif
- 
+
+ If SA1->(FieldPos('A1_EMAIL'))> 0
+			aRet[nPlivre3][2] := SA1->A1_EMAIL
+	EndIf
+	
+ If SA1->(FieldPos('A1_TEL'))> 0
+			aRet[nPlivre4][2] := SA1->A1_TEL
+	EndIf	
+
+EndIf
+	
 Return aRet
