@@ -62,7 +62,8 @@ BeginSql alias 'TRC'
 	AND E1_SALDO > 0
 	AND E1_TIPO IN ('NF')
 	AND A3_MSBLQL = '2'
-	AND E1_VENCREA <= %exp:cDtcorte%
+	AND A1_VEND IN ('000034')
+		AND E1_VENCREA <= %exp:cDtcorte%
 	ORDER BY A3_COD, A3_NOME, A1_NOME, E1_FILIAL, E1_NUM, E1_PARCELA
 
 EndSql
@@ -85,9 +86,12 @@ While TRC->(!Eof())
 	cLog += "Abaixo segue sua carteira de inadimplentes. Pedimos a gentileza, de entrar em contato o mais breve possível com seus clientes, solicitando os comprovantes de pagamentos e encaminhando a Sede (Cobrança Avant) para efetivação das baixas e liberação do sistema para novos pedidos. "
 	cLog += "<br>"
 	cLog += "<br>"
-	cLog += "Em caso de dúvidas, ligue 0xx11 3355.2222 – Financeiro / Setor Cobrança."
+	cLog += "Em caso de dúvidas, 0xx11 3355-2222 – marcelino.goncalves@avantlux.com.br - Financeiro / Setor Cobrança."
 	cLog += "<br>"
 	cLog += "<br>"
+	cLog += "<strong>Atenção!! E-mail enviado automaticamente pelo sistema. Utilize os contatos acima para qualquer questionamento. </strong>"
+	cLog += "<br>"
+	cLog += "<br>"	
 	cLog += "<table style='text-align: left; width: 100%;' border='1'"
  	cLog += "cellpadding='2' cellspacing='2'>"
 	cLog += "<tbody>"
@@ -126,7 +130,8 @@ While TRC->(!Eof())
 			cTotSaldo += TRC->Saldo
 			cLog += "<td>" + CValToChar(TRC->CNPJ)    + "</td>"
 			cLog += "</tr>"
-			_cPara := TRC->Email
+			//_cPara := TRC->Email
+			_cPara := "rogerio.machado@avantlux.com.br"
 			DbSkip()
 	End
 	cLog += "<td  align='center' style='background-color: rgb(191, 225, 214);' colspan='8' rowspan='1'><strong>Total: " + Transform(cTotSaldo, _cMascara) + "</strong></td>"	
@@ -135,9 +140,8 @@ While TRC->(!Eof())
 	cLog += "<br>"
 	cLog += cFim
 	cAssunto := "TÍTULOS EM ABERTO - " + cRepres
-	//_cPara += "rogerio.machado@avantled.com.br"
+	_cPara := "rogerio.machado@avantlux.com.br"
 	U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
-	DbSkip()
 End
 
 
