@@ -2939,7 +2939,7 @@ Else
 				aadd(aDest,IIF(Empty(SA2->A2_PAIS),"BRASIL",Posicione("SYA",1,xFilial("SYA")+SA2->A2_PAIS,"YA_DESCR")))
 				aadd(aDest,SA2->A2_DDD+SA2->A2_TEL)
 				If !Upper(SA2->A2_EST) == "EX"				
-					aadd(aDest,VldIE(SA2->A2_INSCR,.F.))
+					aadd(aDest,VldIE(SA2->A2_INSCR)) // Fernando Nogueira - Chamado 002621
 				Else
 					aadd(aDest,"")							
 				EndIf
