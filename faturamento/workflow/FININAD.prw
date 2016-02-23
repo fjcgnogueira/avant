@@ -68,6 +68,8 @@ BeginSql alias 'TRC'
 
 EndSql
 
+conout("Iniciando INADREP()")
+
 TRC->(DbGoTop())
 
 While TRC->(!Eof())
@@ -142,6 +144,7 @@ While TRC->(!Eof())
 	cAssunto := "TÍTULOS EM ABERTO - " + cRepres
 	//_cPara := "rogerio.machado@avantlux.com.br"
 	U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
+	conout("Enviado para: "+ _cPara +"; "+ _cCcopia)
 End
 
 
@@ -201,8 +204,11 @@ User Function INADNAC()
 		ORDER BY Saldo DESC
 	EndSql
 
+
+
 	TRB->(DbGoTop())
 
+conout("Iniciado INADNAC()")
 
 	cLog += "<html><body>"
 	cLog += "<span style='color: rgb(1, 0, 0);'></span>"
@@ -234,11 +240,12 @@ User Function INADNAC()
 	cAssunto := "INADIMPLÊNCIA GERAL POR REGIONAL"
 	
 	_cPara   := ALLTRIM(GETMV("ES_GERENAC"))
-	_cCcopia   := "rogerio.machado@avantled.com.br"
+	_cCcopia   := "rogerio.machado@avantlux.com.br"
 	//_cPara := "rogerio.machado@avantled.com.br"
 
 	
 	U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
+	conout("Enviado para: "+ _cPara +"; "+ _cCcopia)
 	
 
 Return
@@ -291,6 +298,7 @@ User Function INADGER()
 		cDtcorte := Dtos(date()-4)
 	EndIf
 	
+conout("Iniciado INADGER()")
 	
 	BeginSql alias 'TRD'
 		SELECT A1_REGIAO AS Regional, A3_NOME AS Representante, SUM(E1_SALDO) AS Saldo FROM %table:SE1% SE1
@@ -348,10 +356,11 @@ User Function INADGER()
 		cAssunto := "INADIMPLÊNCIA REGIONAL - " + _cRegiao //+ " - " + AllTrim(_cMailTo)
 		
 		//_cPara   := _cMailTo
-		_cCcopia   := "rogerio.machado@avantled.com.br"
+		_cCcopia   := "rogerio.machado@avantlux.com.br"
 		//_cMailTo := "rogerio.machado@avantled.com.br"
 		
 		U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
+		conout("Enviado para: "+ _cPara +"; "+ _cCcopia)
 	End
 	
 
