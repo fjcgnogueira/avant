@@ -238,7 +238,7 @@ Endif
 cLog += cFim
 cAssunto := DtoC(Date())+Space(01)+Time()+Space(01)+"Log da Importacao EDI ["+AllTrim(SM0->M0_CODFIL)+" / "+AllTrim(SM0->M0_FILIAL)+"]"
 _oProcess:IncRegua2("Enviando E-mail")
-U_MHDEnvMail("fernando.nogueira@avantlux.com.br; rogerio.machado@avantled.com.br; ewerson.silva@avantled.com.br, marcia.pimentel@avantled.com.br ", "", "", cAssunto, cLog, "")
+U_MHDEnvMail("fernando.nogueira@avantlux.com.br; rogerio.machado@avantlux.com.br; ewerson.silva@avantlux.com.br, cristiane.alves@avantlux.com.br ", "", "", cAssunto, cLog, "")
 _oProcess:IncRegua2("Enviando E-mail")
 
 Return lRetorno
