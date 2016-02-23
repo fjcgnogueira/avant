@@ -62,7 +62,7 @@ BeginSql alias 'TRC'
 	AND E1_SALDO > 0
 	AND E1_TIPO IN ('NF')
 	AND A3_MSBLQL = '2'
-	AND A1_VEND IN ('000034')
+	//AND A1_VEND IN ('000859')
 		AND E1_VENCREA <= %exp:cDtcorte%
 	ORDER BY A3_COD, A3_NOME, A1_NOME, E1_FILIAL, E1_NUM, E1_PARCELA
 
@@ -130,8 +130,8 @@ While TRC->(!Eof())
 			cTotSaldo += TRC->Saldo
 			cLog += "<td>" + CValToChar(TRC->CNPJ)    + "</td>"
 			cLog += "</tr>"
-			//_cPara := TRC->Email
-			_cPara := "rogerio.machado@avantlux.com.br"
+			_cPara := TRC->Email
+			_cCcopia := "rogerio.machado@avantlux.com.br"
 			DbSkip()
 	End
 	cLog += "<td  align='center' style='background-color: rgb(191, 225, 214);' colspan='8' rowspan='1'><strong>Total: " + Transform(cTotSaldo, _cMascara) + "</strong></td>"	
@@ -140,7 +140,7 @@ While TRC->(!Eof())
 	cLog += "<br>"
 	cLog += cFim
 	cAssunto := "TÍTULOS EM ABERTO - " + cRepres
-	_cPara := "rogerio.machado@avantlux.com.br"
+	//_cPara := "rogerio.machado@avantlux.com.br"
 	U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
 End
 
