@@ -15,33 +15,41 @@
 /*/
 User Function INTPEDIDO(cEmpInt, cFilInt, cPedWeb, cMensagem, cDocumen, lAutomatic)
 
-Local aTabelas	:= {"SA1","SC5","SC6","SC9"}
-Local cPathLog	:= SuperGetMV("AV_LOGWEB", Nil, "\LOGS\")
-Local cFileLog	:= "MATA410.LOG"
-Local cModulo	:= "FAT"
-Local cAliasC5	:= GetNextAlias()
-Local cPedidoW	:= PadL(Alltrim(cPedWeb),TamSx3("Z3_NPEDWEB")[01])
-Local cFilial   := SZ3->Z3_FILIAL
-Local lRetorno	:= .T.
-Local cPedNew	:= ""
-Local cArmazem	:= "01"
-Local cTES   	:= "990"
-Local dDtEmiss	:= CtoD("")
-Local cCodPag   := SuperGetMv("MV_XPEDPAG",.F.,"149") //-- Parametro para informar condições de pagamento que bloqueiam a liberação automática -- Gustavo Viana -- 18/02/2013
-Local aCabec 	:= {}
-Local aItens 	:= {}
-Local aLinha 	:= {}
-Local lLibera   := .T.
-Local aTesInt   := {}
-Local cGrpCli   := CriaVar("FM_GRTRIB")
-Local cCodCli   := CriaVar("FM_CLIENTE")
-Local cLojaCli  := CriaVar("FM_LOJACLI")
-Local cCodFor	:= CriaVar("FM_FORNECE")
-Local cLojaFor	:= CriaVar("FM_LOJAFOR")
-Local cCodProd	:= CriaVar("FM_PRODUTO")
-Local cEst  	:= CriaVar("FM_EST")
-Local cEstBranc	:= CriaVar("FM_EST")
-Local nPrcOri   := 0
+Local aTabelas		:= {"SA1","SC5","SC6","SC9"}
+Local cPathLog		:= SuperGetMV("AV_LOGWEB", Nil, "\LOGS\")
+Local cFileLog		:= "MATA410.LOG"
+Local cModulo		:= "FAT"
+Local cAliasC5		:= GetNextAlias()
+Local cPedidoW		:= PadL(Alltrim(cPedWeb),TamSx3("Z3_NPEDWEB")[01])
+Local cFilial   	:= SZ3->Z3_FILIAL
+Local lRetorno		:= .T.
+Local cPedNew		:= ""
+Local cArmazem		:= "01"
+Local cTES   		:= "990"
+Local dDtEmiss		:= CtoD("")
+Local cCodPag   	:= SuperGetMv("MV_XPEDPAG",.F.,"149") //-- Parametro para informar condições de pagamento que bloqueiam a liberação automática -- Gustavo Viana -- 18/02/2013
+Local aCabec 		:= {}
+Local aItens 		:= {}
+Local aLinha 		:= {}
+Local lLibera   	:= .T.
+Local aTesInt   	:= {}
+Local cGrpCli   	:= CriaVar("FM_GRTRIB")
+Local cCodCli   	:= CriaVar("FM_CLIENTE")
+Local cLojaCli  	:= CriaVar("FM_LOJACLI")
+Local cCodFor		:= CriaVar("FM_FORNECE")
+Local cLojaFor		:= CriaVar("FM_LOJAFOR")
+Local cCodProd		:= CriaVar("FM_PRODUTO")
+Local cEst  		:= CriaVar("FM_EST")
+Local cEstBranc		:= CriaVar("FM_EST")
+Local nPrcOri		:= 0
+Local nPosProd		:= 0
+Local nPosQtdVen	:= 0
+Local nPosPrcVen	:= 0
+Local aTesSaida		:= {}
+Local aImpostos		:= {}
+Local nDescSuf   	:= 0
+Local nTotBonif    	:= 0
+Local _cSA3Cred 	:= PesqPict("SC6","C6_VALOR")
 
 Private cTpOper		:= ""
 Private lMsErroAuto	:= .F.
@@ -81,7 +89,8 @@ EndIf
 
 (cAliasC5)->(DbCloseArea())
 
-If lRetorno 
+If lRetorno
+	DbSelectarea("SA3")
 	DbSelectarea("SZ3")
 	SZ3->(DbSetorder(1))
 	If SZ3->(DbSeek(xFilial("SZ3") + cPedidoW))
@@ -186,14 +195,107 @@ If lRetorno
 							aadd(aTesInt,{SB1->B1_COD,SB1->B1_DESC,SB1->B1_GRTRIB,SB1->B1_IPI,SB1->B1_POSIPI})
 						EndIf
 						
+						If SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST))
+							aAdd(aTesSaida,AllTrim(SFM->FM_TS))
+						ElseIf SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+cGrpCli+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST))
+							aAdd(aTesSaida,AllTrim(SFM->FM_TS))
+						ElseIf SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST))
+							aAdd(aTesSaida,AllTrim(SFM->FM_TS))
+						ElseIf SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEst))
+							aAdd(aTesSaida,AllTrim(SFM->FM_TS))
+						ElseIf SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEstBranc))
+							aAdd(aTesSaida,AllTrim(SFM->FM_TS))
+						Endif 
+						
 						SFM->(RestArea(_aAreaSFM))
 					
 						SZ4->(DbSkip())
 					Enddo
 					
+					nPosQtdVen := aScan(aLinha,{|x|Trim(x[1])=="C6_QTDVEN"})
+					nPosPrcVen := aScan(aLinha,{|x|Trim(x[1])=="C6_PRCVEN"})
+					nPosProd   := aScan(aLinha,{|x|Trim(x[1])=="C6_PRODUTO"})
+					
+					// Verifica se o Pedido eh de Bonificacao - Chamado 002553 - Fernando Nogueira
+					If cTpOper == '54'
+						// Faz uma varredura no aItens
+						For _n := 1 to Len(aItens)
+							nDescSuf  := 0
+
+							MaFisIni(	SA1->A1_COD		,;		// 01-Codigo Cliente
+										SA1->A1_LOJA	,;		// 02-Loja do Cliente
+										"C"				,;		// 03-C:Cliente , F:Fornecedor
+										"N"				,;		// 04-Tipo da NF
+										SA1->A1_TIPO	,;		// 05-Tipo do Cliente
+										Nil				,;		// 06-Relacao de Impostos que suportados no arquivo
+										Nil				,;		// 07-Tipo de complemento
+										Nil				,;		// 08-Permite Incluir Impostos no Rodape .T./.F.
+										"SB1"			,;		// 09-Alias do Cadastro de Produtos - ("SBI" P/ Front Loja)
+										"MATA410"		,;		// 10-Nome da rotina que esta utilizando a funcao
+										Nil				,;		// 11-Tipo de documento
+										Nil				,;		// 12-Especie do documento
+										Nil				,;		// 13-Codigo e Loja do Prospect
+										SA1->A1_GRPTRIB,;		// 14-Grupo Cliente
+										Nil				,;		// 15-Recolhe ISS
+										Nil				,;		// 16-Codigo do cliente de entrega na nota fiscal de saida
+										Nil				,;		// 17-Loja do cliente de entrega na nota fiscal de saida
+										Nil				)		// 18-Informacoes do transportador [01]-UF,[02]-TPTRANS
+										
+							nPrcVen	:= aItens[_n][nPosQtdVen][2] * aItens[_n][nPosPrcVen][2]
+							
+							//Adiciona o Produto para Calculo dos Impostos
+							nItem := 	MaFisAdd(	aItens[_n][nPosProd][2]	,;   	// 1-Codigo do Produto ( Obrigatorio )
+													aTesSaida[_n]			,;	   	// 2-Codigo do TES ( Opcional )
+													1						,;	   	// 3-Quantidade ( Obrigatorio )
+													aItens[_n][nPosPrcVen][2],;   	// 4-Preco Unitario ( Obrigatorio )
+													0						,;  	// 5-Valor do Desconto ( Opcional )
+													""						,;	   	// 6-Numero da NF Original ( Devolucao/Benef )
+													""						,;		// 7-Serie da NF Original ( Devolucao/Benef )
+													0						,;		// 8-RecNo da NF Original no arq SD1/SD2
+													0						,;		// 9-Valor do Frete do Item ( Opcional )
+													0						,;		// 10-Valor da Despesa do item ( Opcional )
+													0						,;		// 11-Valor do Seguro do item ( Opcional )
+													0						,;		// 12-Valor do Frete Autonomo ( Opcional )
+													nPrcVen					,; 		// 13-Valor da Mercadoria ( Obrigatorio )
+													0						,;		// 14-Valor da Embalagem ( Opiconal )
+													NIL						,;		// 15-RecNo do SB1
+													NIL						,;		// 16-RecNo do SF4
+													NIL						)
+							
+							aImpostos	:= MafisRet(NIL, "NF_IMPOSTOS")
+							If Len(aImpostos) > 0
+								nPosRet		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "ICR"})
+								nPosIPI		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "IPI"})
+								
+								If nPosRet > 0
+									nPrcVen	:= nPrcVen + aImpostos[nPosRet][05]
+								EndIf
+								
+								If nPosIPI > 0
+									nPrcVen	:= nPrcVen + aImpostos[nPosIPI][05]
+								EndIf
+								
+								If SA1->A1_CALCSUF = 'S'
+									nDescSuf := MafisRet(,"IT_DESCZF")
+									nPrcVen  := nPrcVen - nDescSuf
+								Endif
+								
+							EndIf
+							
+							MaFisEnd()
+							
+							nTotBonif += nPrcVen
+						Next _n
+					Endif
+					
 					If !Empty(aTesInt)
 						cDocumen	:= "Caro Representante. Seu Pedido tem produto faltando regra fiscal! Favor entrar em contato com o Depto Fiscal da Avant."
 						U_DispTesInt(aTesInt,cPedWeb)
+					Endif
+					
+					// Chamado 002553 - Fernando Nogueira 
+					If nTotBonif > Posicione("SA3",1,xFilial("SA3")+SZ3->Z3_VEND,"A3_ACMMKT")
+						cDocumen	:= "Caro Representante. O Valor do seu Pedido de Bonificacao com Impostos ("+AllTrim(Transform(nTotBonif, _cSA3Cred))+") ultrapassou o seu Saldo de Credito de Marketing ("+AllTrim(Transform(SA3->A3_ACMMKT, _cSA3Cred))+")."
 					Endif
 					
 					MsExecAuto({|a, b, c| MATA410(a, b, c)}, aCabec, aItens, 3)
