@@ -80,7 +80,7 @@ Static Function ValidNF(cNota)
 		VtAlert("NF " + cNota + "Não Encontrada","Aviso",.T.,4000,3)
 		lRetorno := .F.
 	Else
-		If !Empty(SF2->F2_CHVNFE)
+		If !Empty(SF2->F2_FIMP)
 			VtAlert("NF " + cNota + " ja foi transmitida","Aviso",.T.,4000,3)
 			lRetorno := .F.
 		Else
