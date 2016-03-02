@@ -5,29 +5,26 @@
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ ALTVOLPEDº Autor ³ Fernando Nogueira  º Data ³ 01/03/2016  º±±
+±±ºPrograma  ³ ACDVOLNF º Autor ³ Fernando Nogueira  º Data ³ 02/03/2016  º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Alteracao de Volume do Pedido Via Coletor.                 º±±
-±±º          ³                                                            º±±
+±±ºDesc.     ³ Alteracao de Volume da Nota Fiscal Via Coletor.            º±±
+±±º          ³ Chamado 002640                                             º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
 ±±ºUso       ³ AVANT                                                      º±±
 ±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
-User Function ALTVOLPED()
-
-	Local   aAreaSC9 := SC9->(GetArea())
-	Local   aAreaSDB := SDB->(GetArea())
+User Function ACDVOLNF()
 
 	Private nVolumes := 0
 	Private nVolAtu	  := 0
-	Private cPedido  := Space(06)
+	Private cNota  := Space(09)
 	
 	VtClear()
 	
-	@ 01,00 VTSay "Numero do Pedido"
-	@ 02,00 VTGet cPedido Valid(Validped(cPedido))
+	@ 01,00 VTSay "Numero da NF"
+	@ 02,00 VTGet cNota Valid(ValidNF(cNota))
 	
 	VTRead
 	
@@ -37,7 +34,7 @@ User Function ALTVOLPED()
 	
 	VtClear()
 	
-	@ 01,00 VTSay "Pedido :" + SC5->C5_NUM		
+	@ 01,00 VTSay "NF:" + SF2->F2_DOC		
 	@ 02,00 VTSay "Qtd Volumes Atual"
 	@ 03,00 VTGet nVolAtu When .F.
 	@ 04,00 VTSay "Qtd Volumes Novo"
@@ -49,44 +46,46 @@ User Function ALTVOLPED()
 		Return Nil
 	EndIf
 	
-	If SC5->(RecLock("SC5",.F.))
-		If SC5->C5_VOLUME1 == nVolumes
+	If SF2->(RecLock("SF2",.F.))
+		If SF2->F2_VOLUME1 == nVolumes
 			VtAlert("A quantidade de volumes eh igual, nao foi preciso alterar","Aviso",.T.,4000,3)
 		Else
-			SC5->C5_VOLUME1	:= nVolumes
-			VtAlert("Qtd de Volumes do Pedido "+SC5->C5_NUM+" Alterada","Aviso",.T.,4000,3)
+			SF2->F2_VOLUME1	:= nVolumes
+			VtAlert("Qtd de Volumes da NF "+SF2->F2_DOC+" Alterada","Aviso",.T.,4000,3)
 		Endif
-		SC5->(MsUnlock())
+		SF2->(MsUnlock())
 	Else
 		VtAlert("Registro Bloqueado","Aviso",.T.,4000,3)
 	Endif
 	
-	SC9->(RestArea(aAreaSC9))
-	SDB->(RestArea(aAreaSDB))
-
 Return Nil
 
 /*/
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄ¿±±
-±±³Programa  ³ ValidPed  ³ Autor ³ Fernando Nogueira  ³ Data  ³ 03/06/2014 ³±±
+±±³Programa  ³ ValidNF   ³ Autor ³ Fernando Nogueira  ³ Data  ³ 02/03/2016 ³±±
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Descricao ³ Valida Pedido de Vendas                                     ³±±
+±±³Descricao ³ Valida Nota Fiscal                                          ³±±
 ±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
-Static Function Validped(cPedido)
+Static Function ValidNF(cNota)
 	Local lRetorno := .T.
 
-	DbSelectarea("SC5")
-	SC5->(DbSetorder(1))
-	If !SC5->(DbSeek(xFilial("SC5") + cPedido))
-		VtAlert("Pedido: " + cPedido + "Nao Encontrado","Aviso",.T.,4000,3)
+	DbSelectarea("SF2")
+	SF2->(DbSetorder(01))
+	If !SF2->(DbSeek(xFilial("SF2") + cNota))
+		VtAlert("NF " + cNota + "Não Encontrada","Aviso",.T.,4000,3)
 		lRetorno := .F.
 	Else
-		nVolAtu := SC5->C5_VOLUME1
+		If !Empty(SF2->F2_CHVNFE)
+			VtAlert("NF " + cNota + " ja foi transmitida","Aviso",.T.,4000,3)
+			lRetorno := .F.
+		Else
+			nVolAtu := SF2->F2_VOLUME1
+		Endif
 	EndIf
 	
 Return lRetorno
