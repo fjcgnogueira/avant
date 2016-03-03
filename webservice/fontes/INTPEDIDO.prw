@@ -34,6 +34,7 @@ Local aLinha 		:= {}
 Local lLibera   	:= .T.
 Local aTesInt   	:= {}
 Local cGrpCli   	:= CriaVar("FM_GRTRIB")
+Local cGrpPrd   	:= CriaVar("FM_GRPROD")
 Local cCodCli   	:= CriaVar("FM_CLIENTE")
 Local cLojaCli  	:= CriaVar("FM_LOJACLI")
 Local cCodFor		:= CriaVar("FM_FORNECE")
@@ -191,19 +192,17 @@ If lRetorno
 						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+cGrpCli+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
 						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
 						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEst));
-						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEstBranc))
+						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEstBranc));
+						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+cGrpPrd+SA1->A1_EST))
 							aadd(aTesInt,{SB1->B1_COD,SB1->B1_DESC,SB1->B1_GRTRIB,SB1->B1_IPI,SB1->B1_POSIPI})
 						EndIf
 						
-						If SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST))
-							aAdd(aTesSaida,AllTrim(SFM->FM_TS))
-						ElseIf SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+cGrpCli+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST))
-							aAdd(aTesSaida,AllTrim(SFM->FM_TS))
-						ElseIf SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST))
-							aAdd(aTesSaida,AllTrim(SFM->FM_TS))
-						ElseIf SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEst))
-							aAdd(aTesSaida,AllTrim(SFM->FM_TS))
-						ElseIf SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEstBranc))
+						If SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
+							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+cGrpCli+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
+							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
+							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEst));
+							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEstBranc));
+							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+cGrpPrd+SA1->A1_EST))
 							aAdd(aTesSaida,AllTrim(SFM->FM_TS))
 						Endif 
 						
