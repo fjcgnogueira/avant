@@ -295,13 +295,8 @@ oHtml:ValByName("cArqRem"  , cArqRem)
 oProcess:cSubject := "[Financeiro Avant - "+DtoC(Date())+"] "+"XMLs CNAB - Arq. " + cArqRem + " - Bord. " +  cBordero
 oProcess:USerSiga := "000000"
 oProcess:cTo  := cPara
-<<<<<<< .mine
 oProcess:cCC  := "financeiro@avantlux.com.br"
 oProcess:cBCC := "fernando.nogueira@avantlux.com.br"
-=======
-oProcess:cCC  := "financeiro@avantlux.com.br"
-oProcess:cBCC := "fernando.nogueira@avantlux.com.br"
->>>>>>> .r281
 If File(cCompact)
 	oProcess:AttachFile(cCompact)
 	oProcess:Start()
