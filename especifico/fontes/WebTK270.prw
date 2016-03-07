@@ -1336,6 +1336,7 @@ User Function OpenProc(cChamado,cOp,nAcao,cArqTrb)
 	Local aGrupo      := {}
 	Local cMailList   := ''
 	Local cDescriAtual:= ''
+	Local cTecTemp    := cTecnico
 
 	DbSelectArea('SZU')
 	DbSetOrder(1)
@@ -1512,6 +1513,8 @@ User Function OpenProc(cChamado,cOp,nAcao,cArqTrb)
 		WinExec( cExec )
 
 	Endif
+
+	cTecnico := cTecTemp
 
 Return()
 /*
