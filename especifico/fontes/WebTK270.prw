@@ -1317,7 +1317,7 @@ Return
 ฑฑฬออออออออออุอออออออออออออสอออออออฯออออออออออออออออออออสออออออฯออออออออออนฑฑ
 ฑฑบDescrio ณ Valida usuario e senha de acordo com arquivo sigapss.spf	  บฑฑ
 ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ Especifico AVANT.                   	                    บฑฑ
+ฑฑบUso       ณ Especifico AVANT.                                          บฑฑ
 ฑฑฬออออออออออฯอออัออออออออัอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
 ฑฑบAnalista Resp.ณ  Data  ณ Manutencao Efetuada                           บฑฑ
 ฑฑฬออออออออออออออุออออออออุอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
@@ -1336,7 +1336,7 @@ User Function OpenProc(cChamado,cOp,nAcao,cArqTrb)
 	Local aGrupo      := {}
 	Local cMailList   := ''
 	Local cDescriAtual:= ''
-	Local cTecTemp    := cTecnico
+	Local cTecTemp    := If(IsMemVar("cTecnico"),cTecnico,Space(06))
 
 	DbSelectArea('SZU')
 	DbSetOrder(1)
