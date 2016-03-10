@@ -23,7 +23,7 @@ Local cAlias2SDB := GetNextAlias()
 Local cAlias3SDB := GetNextAlias()
 Local cAliasDCF  := GetNextAlias()
 Local cLocal     := SDB->DB_LOCAL
-Local cItem      := SDB->DB_SERIE 
+Local cItem      := SDB->DB_SERIE
 Local cRecHum    := ParamIXB[1]
 Local cTarefa    := ParamIXB[4]
 Local cPedido    := ParamIXB[7]
@@ -48,86 +48,86 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 		WHERE SDB.%notDel%
 			AND DB_FILIAL    = %Exp:xFilial("SDB")%
 			AND DB_DOC       = %Exp:cPedido%
-			AND DB_TAREFA    = '002' 
+			AND DB_TAREFA    = '002'
 			AND DB_LOCAL     = %Exp:cLocal%
-			AND DB_TIPO      = 'E' 
+			AND DB_TIPO      = 'E'
 			AND DB_ESTORNO   = ' '
-			AND DB_STATUS    = '1' 
+			AND DB_STATUS    = '1'
 	EndSQL
 
 	(cAlias1SDB)->(dbGoTop())
 
 	// Se a chamada for de apanhe
 	If cFuncao == 'DLAPANHE()'
-	
+
 		// Verifica se tem alguma separacao com outro recurso humano
 		BeginSQL Alias cAlias3SDB
 			SELECT * FROM SDB010 SDB
 			WHERE SDB.%notDel%
 				AND DB_FILIAL    = %Exp:xFilial("SDB")%
 				AND DB_DOC       = %Exp:cPedido%
-				AND DB_TAREFA    = '002' 
+				AND DB_TAREFA    = '002'
 				AND DB_LOCAL     = %Exp:cLocal%
-				AND DB_TIPO      = 'E' 
+				AND DB_TIPO      = 'E'
 				AND DB_ESTORNO   = ' '
 				AND DB_STATUS    <> '1'
 				AND DB_RECHUM    <> ' '
 				AND DB_RECHUM    <> %Exp:cRecHum%
 		EndSQL
-	
+
 		(cAlias3SDB)->(dbGoTop())
-		
+
 		If (cAlias3SDB)->(!Eof())
 			(cAlias3SDB)->(dbCloseArea())
 			aReturn  := {.F.}
-			Return aReturn	
+			Return aReturn
 		Endif
 		(cAlias3SDB)->(dbCloseArea())
-	
+
 		If (cAlias1SDB)->(Eof()) .And. DLVTAviso("Apanhe","Pedido "+cPedido+CHR(13)+CHR(10)+"Item: "+cItem+CHR(13)+CHR(10)+"Continua Nesse?",{"Sim","Nao"}) <> 1
 			aReturn  := {.F.}
 			Return aReturn
 		ElseIf !(cAlias1SDB)->(Eof())
-		
+
 			If DLVTAviso("Apanhe","Pedido "+cPedido+" Separado Parcial"+CHR(13)+CHR(10)+"Item: "+cItem+CHR(13)+CHR(10)+"Continua Nesse?",{"Sim","Nao"}) <> 1
 				aReturn := {.F.}
 			Else
 				VtClear()
-				
+
 					@ 01,00 VTSay PadR("Depois de Separar", VTMaxCol())
-					@ 02,00 VTSay PadR("Favor Agrupar na", VTMaxCol())	
+					@ 02,00 VTSay PadR("Favor Agrupar na", VTMaxCol())
 					@ 03,00 VTSay PadR("Doca de Saida"   , VTMaxCol())
-				
+
 				VTPause()
 				VTRead
 			Endif
 		Endif
-				
+
 		U_DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt)
-	
+
 	// Se a chamada for de conferencia
 	ElseIf cFuncao == 'DLCONFEREN()' .And. !(cAlias1SDB)->(Eof())
-	
+
 		// Verifica se tem alguma conferencia com outro recurso humano
 		BeginSQL Alias cAlias3SDB
 			SELECT * FROM SDB010 SDB
 			WHERE SDB.%notDel%
 				AND DB_FILIAL    = %Exp:xFilial("SDB")%
 				AND DB_DOC       = %Exp:cPedido%
-				AND DB_TAREFA    = '003' 
+				AND DB_TAREFA    = '003'
 				AND DB_LOCAL     = %Exp:cLocal%
-				AND DB_TIPO      = 'E' 
+				AND DB_TIPO      = 'E'
 				AND DB_ESTORNO   = ' '
 				AND DB_RECHUM    <> ' '
 				AND DB_RECHUM    <> %Exp:cRecHum%
 		EndSQL
-	
+
 		(cAlias3SDB)->(dbGoTop())
-		
+
 		If (cAlias3SDB)->(!Eof())
 			(cAlias3SDB)->(dbCloseArea())
 			aReturn  := {.F.}
-			Return aReturn	
+			Return aReturn
 		Endif
 		(cAlias3SDB)->(dbCloseArea())
 
@@ -141,50 +141,50 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 				AND DCF_LOCAL    = %Exp:cLocal%
 				AND DCF_STSERV  <= '2'
 		EndSQL
-		
+
 		(cAliasDCF)->(dbGoTop())
-		
+
 		If !(cAliasDCF)->(Eof())
-		
+
 			vtAlert("Pedido: "+AllTrim(cPedido)+" Incompleto na Execucao!","AVISO",.T.,4000)
-			
+
 			aReturn := {.F.}
-		
-		Else	
+
+		Else
 			// Verifica se tem alguma separacao pendente
 			BeginSQL Alias cAlias2SDB
 				SELECT * FROM SDB010 SDB
 				WHERE SDB.%notDel%
 					AND DB_FILIAL    = %Exp:xFilial("SDB")%
 					AND DB_DOC       = %Exp:cPedido%
-					AND DB_TAREFA    = '002' 
+					AND DB_TAREFA    = '002'
 					AND DB_LOCAL     = %Exp:cLocal%
-					AND DB_TIPO      = 'E' 
+					AND DB_TIPO      = 'E'
 					AND DB_ESTORNO   = ' '
-					AND DB_STATUS    <> '1' 
+					AND DB_STATUS    <> '1'
 			EndSQL
-	
+
 			(cAlias2SDB)->(dbGoTop())
-			
+
 			If !(cAlias2SDB)->(Eof())
-	
+
 				vtAlert("Pedido: "+AllTrim(cPedido)+" Incompleto na Separacao!","AVISO",.T.,4000)
-				
+
 				aReturn := {.F.}
 			Endif
-						
+
 			(cAlias2SDB)->(dbCloseArea())
-			
+
 			If aReturn[1]
 				U_DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt)
 			Endif
-			
+
 		Endif
-		
+
 		(cAliasDCF)->(dbCloseArea())
 	Endif
-	
-	(cAlias1SDB)->(dbCloseArea())	
+
+	(cAlias1SDB)->(dbCloseArea())
 Endif
 
 SDB->(RestArea(aAreaSDB))
@@ -227,10 +227,11 @@ While (cAlias4SDB)->(!Eof())
 		While SDB->(DB_FILIAL+DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM) == xFilial("SDB")+(cAlias4SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)
 			If Empty(SDB->DB_ESTORNO) .And. SDB->DB_STATUS $ ('2.'+cStAnt)
 				If SDB->(RecLock("SDB",.F.))
-					If SDB->DB_RECHUM <> cRecHum
+					// Fernando Nogueira - Ajuste Chamado 002453
+					If Empty(SDB->DB_RECHUM)
 						SDB->DB_RECHUM := cRecHum
 					Endif
-					If !(SDB->DB_STATUS == "2" .And. cStatus == "3")
+					If AllTrim(SDB->DB_RECHUM) == AllTrim(cRecHum) .And. !(SDB->DB_STATUS == "2" .And. cStatus == "3")
 						SDB->DB_STATUS := cStatus
 					Endif
 					SDB->(MsUnlock())
