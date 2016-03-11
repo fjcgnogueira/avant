@@ -230,6 +230,8 @@ While (cAlias4SDB)->(!Eof())
 					// Fernando Nogueira - Ajuste Chamado 002453
 					If Empty(SDB->DB_RECHUM)
 						SDB->DB_RECHUM := cRecHum
+					ElseIf SDB->DB_RECHUM <> cRecHum
+						Exit
 					Endif
 					If AllTrim(SDB->DB_RECHUM) == AllTrim(cRecHum) .And. !(SDB->DB_STATUS == "2" .And. cStatus == "3")
 						SDB->DB_STATUS := cStatus
