@@ -253,7 +253,8 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 					{"A1_SATIV4"	,SZ5->Z5_X_PERFI       , Nil},;		
 					{"A1_XREGESP"	,SZ5->Z5_XREGESP       , Nil},;
 					{"A1_TIPO"	    ,_cTipo                , Nil},;
-					{"A1_GRPTRIB"	,_cGRPTRIB             , Nil}}					
+					{"A1_REGIAO"    ,SZ5->Z5_REGIAO        , Nil},;
+					{"A1_GRPTRIB"	,_cGRPTRIB             , Nil}}
 
 	MSExecAuto({|x,y| MATA030(x,y)}, aValues, nOpc)			
 
