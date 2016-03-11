@@ -51,6 +51,7 @@ Local aImpostos		:= {}
 Local nDescSuf   	:= 0
 Local nTotBonif    	:= 0
 Local _cSA3Cred 	:= PesqPict("SC6","C6_VALOR")
+Local cEnter		    := '<br />'
 
 Private cTpOper		:= ""
 Private lMsErroAuto	:= .F.
@@ -60,6 +61,7 @@ Private cLocal    	:= "01"
 Private nQuant    	:= 0
 
 Default lAutomatic	:= .F.
+Default cMensagem  := ""
 
 If lAutomatic
 	RpcClearEnv()
@@ -288,20 +290,22 @@ If lRetorno
 					Endif
 					
 					If !Empty(aTesInt)
-						cDocumen	:= "Caro Representante. Seu Pedido tem produto faltando regra fiscal! Favor entrar em contato com o Depto Fiscal da Avant."
+						cMensagem	+= "<b> Caro Representante. Seu Pedido tem produto faltando regra fiscal! Favor entrar em contato com o Depto Fiscal da Avant. </b>" + cEnter + cEnter
 						U_DispTesInt(aTesInt,cPedWeb)
 					Endif
 					
 					// Chamado 002553 - Fernando Nogueira 
 					If nTotBonif > Posicione("SA3",1,xFilial("SA3")+SZ3->Z3_VEND,"A3_ACMMKT")
-						cDocumen	:= "Caro Representante. O Valor do seu Pedido de Bonificacao com Impostos ("+AllTrim(Transform(nTotBonif, _cSA3Cred))+") ultrapassou o seu Saldo de Credito de Marketing ("+AllTrim(Transform(SA3->A3_ACMMKT, _cSA3Cred))+")."
+						cMensagem	+= "<b> Caro Representante. O Valor do seu Pedido de Bonificacao com Impostos ("+AllTrim(Transform(nTotBonif, _cSA3Cred))+") ultrapassou o seu Saldo de Credito de Marketing ("+AllTrim(Transform(SA3->A3_ACMMKT, _cSA3Cred))+"). </b>" + cEnter + cEnter
 					Endif
 					
 					MsExecAuto({|a, b, c| MATA410(a, b, c)}, aCabec, aItens, 3)
 					
 					If lMsErroAuto
 						lRetorno	:= .F.
-						cMensagem 	:= MostraErro(cPathLog, cFileLog)
+						If Empty(cMensagem)
+							cMensagem 	+= MostraErro(cPathLog, cFileLog)
+						Endif
 						RollBackSx8()
 					Else
 						cDocumen	:= "Pedido Nro.: " + SC5->C5_NUM + " Caro Representante. Seu pedido foi incluído com sucesso!"
