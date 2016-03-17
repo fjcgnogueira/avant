@@ -30,7 +30,7 @@ Local cPedido	:= ""
 
 SF2->(dbSetOrder(01))
 
-If cTipoMov == 'S' .And. SF2->(dbSeek(xFilial("SF2")+cNota+cSerie+cCliente+cLoja)) .And. SF2->F2_TIPO == 'N' .And. SF2->F2_VOLUME1 == 0
+If cTipoMov == 'S' .And. SF2->(dbSeek(xFilial("SF2")+cNota+cSerie+cCliente+cLoja)) .And. SF2->F2_TIPO == 'N' .And. SF2->F2_VOLUME1 == 0 .And. SF2->F2_FILIAL = '010104'
 	ConOut("Nota "+SF2->F2_DOC+", falta definir o volume.")
 	SF2->(RestArea(aAreaSF2))
 	Return .F.
