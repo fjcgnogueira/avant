@@ -206,6 +206,8 @@ Return aReturn
 User Function DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt)
 
 Local cAlias4SDB := GetNextAlias()
+Local _cRecHum   := ""
+Local _lExit     := .F.
 
 // Lista os servicos a serem alterados
 BeginSQL Alias cAlias4SDB
@@ -226,14 +228,64 @@ While (cAlias4SDB)->(!Eof())
 	If SDB->(dbSeek(xFilial("SDB")+(cAlias4SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)))
 		While SDB->(DB_FILIAL+DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM) == xFilial("SDB")+(cAlias4SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)
 			If Empty(SDB->DB_ESTORNO) .And. SDB->DB_STATUS $ ('2.'+cStAnt)
-				If SDB->(RecLock("SDB",.F.))
-					// Fernando Nogueira - Ajuste Chamado 002453
-					If Empty(SDB->DB_RECHUM)
+				If Empty(SDB->DB_RECHUM)
+					If SDB->(RecLock("SDB",.F.))
 						SDB->DB_RECHUM := cRecHum
-					ElseIf SDB->DB_RECHUM <> cRecHum
-						Exit
+						If !(SDB->DB_STATUS == "2" .And. cStatus == "3")
+							SDB->DB_STATUS := cStatus
+						Endif
+						SDB->(MsUnlock())
+					Else
+						VtClear()
+						@ 01,00 VTSay PadR("Registro bloqueado")
+						VTPause()
+						VTRead
+						Final()
 					Endif
-					If AllTrim(SDB->DB_RECHUM) == AllTrim(cRecHum) .And. !(SDB->DB_STATUS == "2" .And. cStatus == "3")
+				ElseIf SDB->DB_RECHUM <> cRecHum
+					_lExit := .T.
+					Exit
+				Endif
+			Endif
+			SDB->(dbSkip())
+		End
+	Endif
+	If _lExit
+		Exit
+	Endif
+	(cAlias4SDB)->(dbSkip())
+End
+
+// Fernando Nogueira - Ajuste Chamado 002453
+(cAlias4SDB)->(dbGoTop())
+While (cAlias4SDB)->(!Eof())
+	SDB->(dbGoTop())
+	SDB->(dbSetOrder(8))
+	If SDB->(dbSeek(xFilial("SDB")+(cAlias4SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)))
+		While SDB->(DB_FILIAL+DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM) == xFilial("SDB")+(cAlias4SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)
+			If Empty(SDB->DB_ESTORNO) .And. !Empty(SDB->DB_RECHUM) .And. Empty(_cRecHum)
+				_cRecHum := SDB->DB_RECHUM
+				Exit
+			Endif
+			SDB->(dbSkip())
+		End
+	Endif
+	If !Empty(_cRecHum)
+		Exit
+	Endif
+	(cAlias4SDB)->(dbSkip())
+End
+
+(cAlias4SDB)->(dbGoTop())
+While (cAlias4SDB)->(!Eof())
+	SDB->(dbGoTop())
+	SDB->(dbSetOrder(8))
+	If SDB->(dbSeek(xFilial("SDB")+(cAlias4SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)))
+		While SDB->(DB_FILIAL+DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM) == xFilial("SDB")+(cAlias4SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)
+			If Empty(SDB->DB_ESTORNO) .And. !Empty(_cRecHum) .And. SDB->DB_RECHUM <> _cRecHum .And. cRecHum == _cRecHum
+				If SDB->(RecLock("SDB",.F.))
+					SDB->DB_RECHUM := _cRecHum
+					If !(SDB->DB_STATUS == "2" .And. cStatus == "3")
 						SDB->DB_STATUS := cStatus
 					Endif
 					SDB->(MsUnlock())
