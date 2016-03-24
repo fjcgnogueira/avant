@@ -15,14 +15,8 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
-		<buildCommand>
-			<name>TOTVS.builder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>com.totvs.tds.sdk.advpl.totvsnature</nature>
 		<nature>br.com.totvs.tds.TotvsNature</nature>
 	</natures>
 </projectDescription>
