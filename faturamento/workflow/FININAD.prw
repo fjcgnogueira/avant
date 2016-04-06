@@ -34,15 +34,14 @@ Prepare Environment EMPRESA '01' FILIAL '010104'
 
 cDtcorte := Dtoc(date()-3)
 
-//Domingo
-If Dow(CtoD(cDtcorte)) = 1
-	cDtcorte := Dtos(date()-5)
-EndIf
 
-//Sabado
-If Dow(CtoD(cDtcorte)) = 7
+If Dow(CtoD(cDtcorte)) = 1 //Domingo
+	cDtcorte := Dtos(date()-5)
+ElseIf Dow(CtoD(cDtcorte)) = 7 //Sabado
 	cDtcorte := Dtos(date()-4)
 EndIf
+
+ConOut("Data de corte: " +cDtcorte)
 
 
 BeginSql alias 'TRC'
@@ -62,8 +61,7 @@ BeginSql alias 'TRC'
 	AND E1_SALDO > 0
 	AND E1_TIPO IN ('NF')
 	AND A3_MSBLQL = '2'
-	//AND A1_VEND IN ('000859')
-		AND E1_VENCREA <= %exp:cDtcorte%
+	AND E1_VENCREA <= %exp:cDtcorte%
 	ORDER BY A3_COD, A3_NOME, A1_NOME, E1_FILIAL, E1_NUM, E1_PARCELA
 
 EndSql
@@ -71,6 +69,14 @@ EndSql
 conout("Iniciando INADREP()")
 
 TRC->(DbGoTop())
+
+/*
+While TRC->(!Eof())
+	ConOut(TRC->Representante +" - "+ cValToChar(TRC->Titulo) +" - "+ cValToChar(TRC->Parcela) +" - "+ cValToChar(TRC->Saldo))
+	DbSkip()
+End
+*/
+
 
 While TRC->(!Eof())
 	cVend     := TRC->VEND
@@ -133,6 +139,7 @@ While TRC->(!Eof())
 			cLog += "<td>" + CValToChar(TRC->CNPJ)    + "</td>"
 			cLog += "</tr>"
 			_cPara := TRC->Email
+			//_cPara := " "
 			_cCcopia := "rogerio.machado@avantlux.com.br"
 			DbSkip()
 	End
@@ -142,7 +149,6 @@ While TRC->(!Eof())
 	cLog += "<br>"
 	cLog += cFim
 	cAssunto := "TÍTULOS EM ABERTO - " + cRepres
-	//_cPara := "rogerio.machado@avantlux.com.br"
 	U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
 	conout("Enviado para: "+ _cPara +"; "+ _cCcopia)
 End
@@ -182,13 +188,9 @@ User Function INADNAC()
 
 	cDtcorte := Dtoc(date()-3)
 
-	//Domingo
-	If Dow(CtoD(cDtcorte)) = 1
+	If Dow(CtoD(cDtcorte)) = 1 //Domingo
 		cDtcorte := Dtos(date()-5)
-	EndIf
-	
-	//Sabado
-	If Dow(CtoD(cDtcorte)) = 7
+	ElseIf Dow(CtoD(cDtcorte)) = 7 //Sabado
 		cDtcorte := Dtos(date()-4)
 	EndIf
 	
@@ -288,17 +290,13 @@ User Function INADGER()
 
 	cDtcorte := Dtoc(date()-3)
 
-	//Domingo
-	If Dow(CtoD(cDtcorte)) = 1
+	If Dow(CtoD(cDtcorte)) = 1 //Domingo
 		cDtcorte := Dtos(date()-5)
-	EndIf
-	
-	//Sabado
-	If Dow(CtoD(cDtcorte)) = 7
+	ElseIf Dow(CtoD(cDtcorte)) = 7 //Sabado
 		cDtcorte := Dtos(date()-4)
 	EndIf
 	
-conout("Iniciado INADGER()")
+	conout("Iniciado INADGER()")
 	
 	BeginSql alias 'TRD'
 		SELECT A1_REGIAO AS Regional, A3_NOME AS Representante, SUM(E1_SALDO) AS Saldo FROM %table:SE1% SE1
