@@ -300,8 +300,8 @@ User Function INADGER()
 	
 	BeginSql alias 'TRD'
 		SELECT A1_REGIAO AS Regional, A3_NOME AS Representante, SUM(E1_SALDO) AS Saldo FROM %table:SE1% SE1
-		INNER JOIN SA1010 AS SA1 ON E1_CLIENTE+E1_LOJA = A1_COD+A1_LOJA AND SA1.%notDel%
-		INNER JOIN SA3010 AS SA3 ON A1_VEND = A3_COD AND SA3.%notDel%
+		INNER JOIN %table:SA1% AS SA1 ON E1_CLIENTE+E1_LOJA = A1_COD+A1_LOJA AND SA1.%notDel%
+		INNER JOIN %table:SA3% AS SA3 ON A1_VEND = A3_COD AND SA3.%notDel%
 		WHERE SE1.%notDel%
 		AND E1_SALDO > 0
 		AND E1_TIPO IN ('NF')
@@ -353,9 +353,7 @@ User Function INADGER()
 		_cPara := U_SepEmail(_cString,AllTrim(_cRegiao))
 		cAssunto := "INADIMPLÊNCIA REGIONAL - " + _cRegiao //+ " - " + AllTrim(_cMailTo)
 		
-		//_cPara   := _cMailTo
 		_cCcopia   := "rogerio.machado@avantlux.com.br"
-		//_cMailTo := "rogerio.machado@avantled.com.br"
 		
 		U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
 		conout("Enviado para: "+ _cPara +"; "+ _cCcopia)
