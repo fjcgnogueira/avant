@@ -28,16 +28,16 @@ Local cVend		 := ""
 Local cRepres    := ""
 Local cTotSaldo  := 0
 Local _cMascara  := "@E 999,999,999.99"
+Local nTeste := ""
 
 
 Prepare Environment EMPRESA '01' FILIAL '010104'
 
-cDtcorte := Dtoc(date()-3)
+cDtcorte := Dtos(date()-3)
 
-
-If Dow(CtoD(cDtcorte)) = 1 //Domingo
+If Dow(stoD(cDtcorte)) = 1 //Domingo
 	cDtcorte := Dtos(date()-5)
-ElseIf Dow(CtoD(cDtcorte)) = 7 //Sabado
+ElseIf Dow(stoD(cDtcorte)) = 7 //Sabado
 	cDtcorte := Dtos(date()-4)
 EndIf
 
@@ -66,17 +66,9 @@ BeginSql alias 'TRC'
 
 EndSql
 
-conout("Iniciando INADREP()")
+ConOut("Iniciado INADREP()")
 
 TRC->(DbGoTop())
-
-/*
-While TRC->(!Eof())
-	ConOut(TRC->Representante +" - "+ cValToChar(TRC->Titulo) +" - "+ cValToChar(TRC->Parcela) +" - "+ cValToChar(TRC->Saldo))
-	DbSkip()
-End
-*/
-
 
 While TRC->(!Eof())
 	cVend     := TRC->VEND
@@ -150,9 +142,10 @@ While TRC->(!Eof())
 	cLog += cFim
 	cAssunto := "TÍTULOS EM ABERTO - " + cRepres
 	U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
-	conout("Enviado para: "+ _cPara +"; "+ _cCcopia)
+	ConOut("Enviado para: "+ _cPara +"; "+ _cCcopia)
 End
 
+ConOut("Finalizado INADREP()")
 
 Return
 
@@ -186,14 +179,15 @@ User Function INADNAC()
 	
 	Prepare Environment EMPRESA '01' FILIAL '010104'
 
-	cDtcorte := Dtoc(date()-3)
-
-	If Dow(CtoD(cDtcorte)) = 1 //Domingo
+	cDtcorte := Dtos(date()-3)
+	
+	If Dow(stoD(cDtcorte)) = 1 //Domingo
 		cDtcorte := Dtos(date()-5)
-	ElseIf Dow(CtoD(cDtcorte)) = 7 //Sabado
+	ElseIf Dow(stoD(cDtcorte)) = 7 //Sabado
 		cDtcorte := Dtos(date()-4)
 	EndIf
 	
+	ConOut("Data de corte: " +cDtcorte)
 	
 	BeginSql alias 'TRB'
 		SELECT A1_REGIAO AS Regional, SUM(E1_SALDO) AS Saldo FROM %table:SE1% SE1
@@ -210,7 +204,7 @@ User Function INADNAC()
 
 	TRB->(DbGoTop())
 
-conout("Iniciado INADNAC()")
+ConOut("Iniciado INADNAC()")
 
 	cLog += "<html><body>"
 	cLog += "<span style='color: rgb(1, 0, 0);'></span>"
@@ -226,7 +220,7 @@ conout("Iniciado INADNAC()")
 	cLog += "<td><p align='center' class='style1'><strong>Regional</strong></p></td>"
 	cLog += "<td><p align='center' class='style1'><strong>Saldo</strong></p></td>"
 	cLog += "<tr>"
-
+	
 	While TRB->(!Eof())
 		cLog += "<td>" + CValToChar(TRB->Regional) + "</td>"	
 		cLog += "<td>" + Transform(TRB->Saldo, _cMascara)  + "</td>"
@@ -247,14 +241,11 @@ conout("Iniciado INADNAC()")
 
 	
 	U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
-	conout("Enviado para: "+ _cPara +"; "+ _cCcopia)
+	ConOut("Enviado para: "+ _cPara +"; "+ _cCcopia)
+	ConOut("Finalizado INADNAC()")
 	
 
 Return
-
-
-
-
 
 
 
@@ -288,30 +279,33 @@ User Function INADGER()
 	
 	Prepare Environment EMPRESA '01' FILIAL '010104'
 
-	cDtcorte := Dtoc(date()-3)
-
-	If Dow(CtoD(cDtcorte)) = 1 //Domingo
+	cDtcorte := Dtos(date()-3)
+	
+	If Dow(stoD(cDtcorte)) = 1 //Domingo
 		cDtcorte := Dtos(date()-5)
-	ElseIf Dow(CtoD(cDtcorte)) = 7 //Sabado
+	ElseIf Dow(stoD(cDtcorte)) = 7 //Sabado
 		cDtcorte := Dtos(date()-4)
 	EndIf
 	
-	conout("Iniciado INADGER()")
+	ConOut("Data de corte: " +cDtcorte)
+	
+	ConOut("Iniciado INADGER()")
 	
 	BeginSql alias 'TRD'
-		SELECT A1_REGIAO AS Regional, A3_NOME AS Representante, SUM(E1_SALDO) AS Saldo FROM %table:SE1% SE1
+		SELECT A1_REGIAO AS Regional, A3_NOME AS Representante, A1_NOME AS Cliente, SUM(E1_SALDO) AS Saldo FROM %table:SE1% SE1
 		INNER JOIN %table:SA1% AS SA1 ON E1_CLIENTE+E1_LOJA = A1_COD+A1_LOJA AND SA1.%notDel%
 		INNER JOIN %table:SA3% AS SA3 ON A1_VEND = A3_COD AND SA3.%notDel%
 		WHERE SE1.%notDel%
 		AND E1_SALDO > 0
 		AND E1_TIPO IN ('NF')
 		AND E1_VENCREA <= %exp:cDtcorte%
-		GROUP BY A1_REGIAO, A3_NOME
-		ORDER BY Regional, Saldo DESC
+		GROUP BY A1_REGIAO, A3_NOME, A1_NOME
+		ORDER BY Regional, Representante, Cliente, Saldo DESC
 	EndSql
+	
+	ConOut(GetLastQuery()[2])
 
 	TRD->(DbGoTop())
-
 
 	_cRegiao := TRD->Regional
 
@@ -328,37 +322,42 @@ User Function INADGER()
 		cLog += "<tbody>"
 	   	cLog += "<tr align='center'>"
 		cLog += "<td style='background-color: rgb(191, 225, 214);'"
-		cLog += "colspan='3' rowspan='1'><span"
+		cLog += "colspan='4' rowspan='1'><span"
 		cLog += "style='font-weight: bold;'><strong>Inadimplência Regional - " + _cRegiao + "</strong></span></td>"
 		cLog += "</tr>"
 		cLog += "<tr>"
 		cLog += "<td><p align='center' class='style1'><strong>Regional</strong></p></td>"
 		cLog += "<td><p align='center' class='style1'><strong>Representante</strong></p></td>"
+		cLog += "<td><p align='center' class='style1'><strong>Cliente</strong></p></td>"
 		cLog += "<td><p align='center' class='style1'><strong>Saldo</strong></p></td>"
 		cLog += "<tr>"
 	
 		While(!Eof('TRD')) .AND. _cRegiao = TRD->Regional
 			cLog += "<td>" + CValToChar(TRD->Regional) + "</td>"
-			cLog += "<td>" + CValToChar(TRD->Representante) + "</td>"	
+			cLog += "<td>" + CValToChar(TRD->Representante) + "</td>"
+			cLog += "<td>" + CValToChar(TRD->Cliente) + "</td>"	
 			cLog += "<td>" + Transform(TRD->Saldo, _cMascara)  + "</td>"
 			cTotSaldo += TRD->Saldo
 			cLog += "</tr>"		
 			DbSkip()
 		End
 
-		cLog += "<td  align='center' style='background-color: rgb(191, 225, 214);' colspan='3' rowspan='1'><strong>Total: " + Transform(cTotSaldo, _cMascara) + "</strong></td>"	
+		cLog += "<td  align='center' style='background-color: rgb(191, 225, 214);' colspan='4' rowspan='1'><strong>Total: " + Transform(cTotSaldo, _cMascara) + "</strong></td>"	
 		cLog += "</tbody>
 		cLog += "</table>"
 		cLog += cFim
 		_cPara := U_SepEmail(_cString,AllTrim(_cRegiao))
+		//_cPara   := "rogerio.machado@avantlux.com.br"
 		cAssunto := "INADIMPLÊNCIA REGIONAL - " + _cRegiao //+ " - " + AllTrim(_cMailTo)
 		
 		_cCcopia   := "rogerio.machado@avantlux.com.br"
 		
 		U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
-		conout("Enviado para: "+ _cPara +"; "+ _cCcopia)
+		ConOut("Enviado para: "+ _cPara +"; "+ _cCcopia)
 	End
-	
+
+	ConOut("Enviado para: "+ _cPara +"; "+ _cCcopia)
+	ConOut("Finalizado INADGER()")	
 
 Return
 
