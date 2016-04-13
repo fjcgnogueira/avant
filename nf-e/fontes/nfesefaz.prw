@@ -315,6 +315,11 @@ Local lNfCupNFCE	:= .F.
 Local lNfCupSAT	:= .F.
 Local nSD1Pos   := 0
 
+// Variaveis Locais Avant
+Local _aCubagem 	:= {}
+Local cAvSubtrib	:= ""
+Local cAvInscSubs	:= ""
+
 Private aUF     	:= {}
 Private aCSTIPI 	:= {}
 Private lAnfavea	:= If(AliasIndic("CDR") .And. AliasIndic("CDS"),.T.,.F.) 
@@ -876,7 +881,7 @@ If cTipo == "1"
 					EndIf
 				EndIf
 				If cMVNFEMSA1=="C" .And. !Empty(SA1->A1_MENSAGE)
-					cMensCli	:=	SA1->(Formula(A1_MENSAGE))
+					cMensCli	+=	SA1->(Formula(A1_MENSAGE))
 				ElseIf cMVNFEMSA1=="F" .And. !Empty(SA1->A1_MENSAGE)
 					cMensFis	:=	SA1->(Formula(A1_MENSAGE))
 				EndIf
@@ -1748,6 +1753,19 @@ If cTipo == "1"
 						EndIf
 						cMensFis += AllTrim(FORMULA(SC5->C5_MENPAD))
 					EndIf
+					
+					//================================================================================================
+					//Amedeo (Mensagem do Pedido de Venda na DANFE)
+	                If !"Nro. Pedido AVANT: " + SC5->C5_NUM $ cMensCli
+						If Len(cMensCli) > 0 .And. SubStr(cMensCli, Len(cMensCli), 1) <> " "
+							cMensCli += " "
+						EndIf
+						cMensCli += "Nro. Pedido AVANT: " + SC5->C5_NUM
+					EndIf
+					//================================================================================================
+					
+					Aadd(_aCubagem,{(cAliasSD2)->D2_COD,(cAliasSD2)->D2_QUANT}) // Fernando Nogueira						
+					
 					If !Empty( cNumNfCup )
 						//Tratamento para nota sobre Cupom 
 						aAreaSF2  	:= SF2->(GetArea())
@@ -1796,12 +1814,12 @@ If cTipo == "1"
 					//Tratamento para o campo F4_FORMULA,onde atraves do parametro MV_NFEMSF4 se determina se o conteudo da formula devera compor a mensagem do cliente(="C") ou do fisco(="F").
 					If !Empty(SF4->F4_FORMULA) .And. Formula(SF4->F4_FORMULA) <> NIL .And. ( ( cMVNFEMSF4=="C" .And. !AllTrim(Formula(SF4->F4_FORMULA)) $ cMensCli ) .Or. (cMVNFEMSF4=="F" .And. !AllTrim(Formula(SF4->F4_FORMULA))$cMensFis) )
 
-						If cMVNFEMSF4=="C"
+						If cMVNFEMSF4=="C" .And. SF4->F4_CODIGO <> '372' // Fernando Nogueira - TES de Estorno - Chamado 001559
 							If Len(cMensCli) > 0 .And. SubStr(cMensCli, Len(cMensCli), 1) <> " "
 								cMensCli += " "
 							EndIf
 							cMensCli	+=	SF4->(Formula(F4_FORMULA))
-						ElseIf cMVNFEMSF4=="F"
+						ElseIf cMVNFEMSF4=="F" .Or. SF4->F4_CODIGO == '372'
 							If Len(cMensFis) > 0 .And. SubStr(cMensFis, Len(cMensFis), 1) <> " "
 								cMensFis += " "
 							EndIf
@@ -2612,6 +2630,20 @@ If cTipo == "1"
 	              EndIf	
 	              //Tratamento para que o valor de PIS ST,COFINS ST venha a compor o valor total da nota.
 					aTotal[03]+= (cAliasSD2)->D2_VALPS3 + (cAliasSD2)->D2_VALCF3
+					
+					// Fernando Nogueira - Chamado 002583
+					cAvSubtrib := cMVSUBTRIB
+					dbSelectArea("SF3")
+					dbSetOrder(4)
+					If MsSeek(xFilial("SF3")+SF2->F2_CLIENTE+SF2->F2_LOJA+SF2->F2_DOC+SF2->F2_SERIE)
+						If At (SF3->F3_ESTADO, cAvSubtrib)>0
+							nPosI	:=	At (SF3->F3_ESTADO, cAvSubtrib)+2
+							nPosF	:=	At ("/", SubStr (cAvSubtrib, nPosI))-1
+							nPosF	:=	IIf(nPosF<=0,len(cAvSubtrib),nPosF)
+							cAvInscSubs := SubStr(cAvSubtrib, nPosI, nPosF) //01 - IE_ST
+						EndIf
+					EndIf					
+					
 					iF !Empty(SF4->F4_DIFAL)
 						lDifal= .T.
 					EndIF
@@ -2690,6 +2722,21 @@ If cTipo == "1"
 				dbSelectArea(cAliasSD2)
 				dbSkip()
 		    EndDo 
+
+		    // Inscricao no Suframa - Fernando Nogueira
+		 	If !Empty(SA1->A1_SUFRAMA)
+		    	cMensCli += " - Insc. no Suframa: " + AllTrim(SA1->A1_SUFRAMA)
+		    Endif
+
+		    // Inscricao do Substituto - Fernando Nogueira - Chamado 002583
+		 	If !Empty(cAvInscSubs)
+		    	cMensCli += " - Insc.Estadual do Subst.Trib.: " + AllTrim(cAvInscSubs)
+		    Endif		
+		    
+		    //Faz o Calculo de Cubagem - Fernando Nogueira
+		    If Len(_aCubagem) > 0
+		    	cMensCli += U_Cubagem(_aCubagem)
+		    Endif 
 
 			//Tratamento para incluir a mensagem em informacoes adicionais do Suframa
 			If !Empty(aDest[15])
@@ -2874,7 +2921,7 @@ Else
 				MsSeek(xFilial("SA1")+cClieFor+cLoja)
 
 				If cMVNFEMSA1=="C" .And. !Empty(SA1->A1_MENSAGE)
-					cMensCli	:=	SA1->(Formula(A1_MENSAGE))
+					cMensCli	+=	SA1->(Formula(A1_MENSAGE))
 				ElseIf cMVNFEMSA1=="F" .And. !Empty(SA1->A1_MENSAGE)
 					cMensFis	:=	SA1->(Formula(A1_MENSAGE))
 				EndIf				
@@ -3334,12 +3381,12 @@ Else
 				If (cAliasSD1)->D1_FORMUL=="S"
 					If !Empty(SF4->F4_FORMULA) .And. Formula(SF4->F4_FORMULA) <> NIL .And. ( ( cMVNFEMSF4=="C" .And. !AllTrim(Formula(SF4->F4_FORMULA)) $ cMensCli ) .Or. (cMVNFEMSF4=="F" .And. !AllTrim(Formula(SF4->F4_FORMULA))$cMensFis) )
 	
-						If cMVNFEMSF4=="C"
+						If cMVNFEMSF4=="C" .And. SF4->F4_CODIGO <> '372' // Fernando Nogueira - TES de Estorno - Chamado 001559
 							If Len(cMensCli) > 0 .And. SubStr(cMensCli, Len(cMensCli), 1) <> " "
 								cMensCli += " "
 							EndIf
 							cMensCli	+=	SF4->(Formula(F4_FORMULA))
-						ElseIf cMVNFEMSF4=="F"
+						ElseIf cMVNFEMSF4=="F" .Or. SF4->F4_CODIGO == '372'
 							If Len(cMensFis) > 0 .And. SubStr(cMensFis, Len(cMensFis), 1) <> " "
 								cMensFis += " "
 							EndIf
@@ -5162,7 +5209,7 @@ cString += NfeTag('<vSeg>'  ,ConvType(aProd[14],15,2))
 //Quando eh Zona Franca de Manaus
 If cVerAmb >= "3.10" .and. Len(aICMSZFM) > 0 .And. Len(aCST) > 0 .And. !Empty(aICMSZFM[1]) .And. (aCST[1] $ '30,40,41,50,00,10')   
 	If !(lMvNFLeiZF)	
-		cString += NfeTag('<vDesc>' ,ConvType((aProd[31]+aProd[32])+aProd[15],15,2))	
+		cString += NfeTag('<vDesc>' ,ConvType((aProd[31]+aProd[32])+aProd[15]/*+aProd[26]*/,15,2))	
 	Else	
 		cString += NfeTag('<vDesc>' ,ConvType(aProd[15],15,2))
 	Endif
