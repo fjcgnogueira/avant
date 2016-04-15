@@ -167,12 +167,18 @@ If lRetorno
 				SZH->(RecLock("SZH", .F.))
 				SZH->ZH_STATUS := IIF(lRetorno, "2", "3")
 				// Status
-				// 1 = Devolucao entra na Web (Nao enviado)
+				// 1 = Devolucao entra na Web (Nao enviado) / amarelo preparando para entrar no protheus
 				// 2 = Integrado com Sucesso
 				// 3 = Erro na Integracao
 				// 4 = Sota transmitiu o layout
 				// 5 = Gerado Pedido de Trocas
-				// 6 = Gerado reembolso ao cliente no Financeiro
+				// 6 = Vermelho pedido rejeitado pela logistica
+				// 7 = Cinza nao coletado
+				// 8 = Azul solicitado coleta
+				// 9 = Verde integrado no protheus
+				// A = Sem TES pedido sem TES cadastrada
+				// B = Pedido de Trocas Parado para liberacao fiscal
+				// C = Gerado reembolso ao cliente no Financeiro
 				
 				SZH->(MsUnlock())
 			Else
