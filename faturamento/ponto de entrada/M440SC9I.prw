@@ -15,12 +15,12 @@
 /*/
 User Function M440SC9I()
 
-If IsBlind() .Or. AllTrim(FunName()) == 'MATA410'
+If IsBlind() .Or. AllTrim(FunName()) $ ('MATA410.MATA440')
 
 	If AllTrim(SC5->C5_X_BLQ) == 'C'
 		SC5->C5_X_BLQ := 'S'
 	Endif
-	
+
 	// Chamado 001777 - Fernando Nogueira
 	If AllTrim(SC5->C5_X_BLQ) == 'S'
 		SC9->C9_BLOQUEI := '01'
