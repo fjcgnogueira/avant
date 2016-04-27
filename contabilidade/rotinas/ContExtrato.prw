@@ -44,6 +44,10 @@ User Function CONTEXTRATO()
 	ElseIf _cBanco = "422" //SAFRA
 		_cAgencia := "018  "
 		_cConta   := "026656"
+		
+	ElseIf _cBanco = "707" //DAYCOVAL
+		_cAgencia := "00019"
+		_cConta   := "7131900"
 	EndIf
 	
 	If _cBanco   = "BANCO INDUSTRIAL CC"
@@ -61,17 +65,37 @@ User Function CONTEXTRATO()
 //========================================= DAYCOVAL =========================================		
 			If _cBanco = "707"
 				Conout("=== DAYCOVAL ===")
-				If !(LerStr(169,004) $ ('C202.D120.C209.D117')) //NAO CONTABILIZAR
-					If LerStr(009,005) >= '00001' .And. LerStr(014,001) = 'E' //A PARTIR DE 1 LINHA DE REGISTROS
-						If LerStr(169,001) = "C" //Tipo "C" no extrato
-							If PARAMIXB == "D" //CONTA DEBITO
+				If (LerStr(169,004) $ ('D102.D104.D105.D107.D110.C207.C213')) //CONTABILIZAR
+					If LerStr(169,004) = "C207" 
+						If PARAMIXB == "D" //CONTA DEBITO
 								_cReturn := SA6->A6_CONTA
-							ElseIf PARAMIXB == "C" //CONTA CREDITO
-								If LerStr(169,004) $('C207') //LIB CONTRATO
-									_cReturn := "220405010"
-								Else
-									_cReturn := "110107022"
-								EndIf
+						ElseIf PARAMIXB == "C" //CONTA CREDITO
+							_cReturn := "220405010"
+						ElseIf PARAMIXB == "V" //VALOR
+							Conout("Valor: "+ cValToChar(LerVal(153,016)))
+							_cReturn := LerVal(153,016)
+						ElseIf PARAMIXB == "H" //HISTORICO
+							Conout("Historico: "+ LerStr(177,025))
+							_cReturn := LerStr(177,025)
+						EndIf
+					ElseIf LerStr(169,004) = "C213" 
+						If PARAMIXB == "D" //CONTA DEBITO
+								_cReturn := SA6->A6_CONTA
+						ElseIf PARAMIXB == "C" //CONTA CREDITO
+							_cReturn := "110107022"
+						ElseIf PARAMIXB == "V" //VALOR
+							Conout("Valor: "+ cValToChar(LerVal(153,016)))
+							_cReturn := LerVal(153,016)
+						ElseIf PARAMIXB == "H" //HISTORICO
+							Conout("Historico: "+ LerStr(177,025))
+							_cReturn := LerStr(177,025)
+						EndIf
+					ElseIf LerStr(169,001) = "D" //Tipo "D" no extrato
+						If PARAMIXB == "C" //CONTA CREDITO
+							_cReturn := SA6->A6_CONTA
+						ElseIf LerStr(169,004) = 'D102'
+							If PARAMIXB == "D" //CONTA DEBITO
+								_cReturn := '420511306'
 							ElseIf PARAMIXB == "V" //VALOR
 								Conout("Valor: "+ cValToChar(LerVal(153,016)))
 								_cReturn := LerVal(153,016)
@@ -79,40 +103,72 @@ User Function CONTEXTRATO()
 								Conout("Historico: "+ LerStr(177,025))
 								_cReturn := LerStr(177,025)
 							EndIf
-						ElseIf LerStr(169,001) = "D" //Tipo "D" no extrato
-							If PARAMIXB == "D"
-								If LerStr(173,004) $('0127.0330') .AND. LerStr(169,001) = "D" //LIQ. DE TITULOS - ABATIMENTO
-									 _cReturn := "220405010"
-								ElseIf LerStr(173,004) $('0027.0284') .AND. LerStr(169,001) = "D" //IOF
-									_cReturn := "420511309"
-								ElseIf LerStr(169,004) $('D102') //JUROS
-									_cReturn := "420511306"
-								ElseIf LerStr(173,004) $('0103') .AND. LerStr(169,001) = "D" //AMORT. DE CONTRATO
-									_cReturn := "220402004"								
-								Else
-									_cReturn := "420511312"
+						ElseIf LerStr(169,004) = 'D104'
+							If PARAMIXB == "D" //CONTA DEBITO
+								_cReturn := '220405010'
+							ElseIf PARAMIXB == "V" //VALOR
+								Conout("Valor: "+ cValToChar(LerVal(153,016)))
+								_cReturn := LerVal(153,016)
+							ElseIf PARAMIXB == "H" //HISTORICO
+								Conout("Historico: "+ LerStr(177,025))
+								_cReturn := LerStr(177,025)
+							EndIf
+						ElseIf LerStr(169,004) = 'D105'
+							If LerStr(173,004) = '0181'
+								If PARAMIXB == "D" //CONTA DEBITO
+									_cReturn := '420511306'
+								ElseIf PARAMIXB == "V" //VALOR
+									Conout("Valor: "+ cValToChar(LerVal(153,016)))
+									_cReturn := LerVal(153,016)
+								ElseIf PARAMIXB == "H" //HISTORICO
+									Conout("Historico: "+ LerStr(177,025))
+									_cReturn := LerStr(177,025)
 								EndIf
-							ElseIf PARAMIXB == "C"
-								If LerStr(173,004) $('0127.0330') .AND. LerStr(169,001) = "D" //LIQ. DE TITULOS - ABATIMENTO
-									 _cReturn := SA6->A6_CONTA
-								ElseIf LerStr(173,004) $('0027.0284') .AND. LerStr(169,001) = "D" //IOF
-									_cReturn := SA6->A6_CONTA
-								ElseIf LerStr(169,004) $('D102') //JUROS
-									_cReturn := SA6->A6_CONTA
-								ElseIf LerStr(173,004) $('0103') .AND. LerStr(169,001) = "D" //AMORT. DE CONTRATO
-									_cReturn := SA6->A6_CONTA							
-								Else
-									_cReturn := SA6->A6_CONTA
-								EndIf		
-							ElseIf PARAMIXB == "V"
-								 Conout("Valor: "+ cValToChar(LerVal(153,016)))
-								 _cReturn := LerVal(153,016)
-							ElseIf PARAMIXB == "H"
+							Else
+								If PARAMIXB == "D" //CONTA DEBITO
+									_cReturn := '420511312'
+								ElseIf PARAMIXB == "V" //VALOR
+									Conout("Valor: "+ cValToChar(LerVal(153,016)))
+									_cReturn := LerVal(153,016)
+								ElseIf PARAMIXB == "H" //HISTORICO
+									Conout("Historico: "+ LerStr(177,025))
+									_cReturn := LerStr(177,025)
+								EndIf
+							EndIf		
+						ElseIf LerStr(169,004) = "D107"
+							If LerStr(173,004) = "0103"
+								If PARAMIXB == "D" //CONTA DEBITO
+									_cReturn := '220402004'
+								ElseIf PARAMIXB == "V" //VALOR
+									Conout("Valor: "+ cValToChar(LerVal(153,016)))
+									_cReturn := LerVal(153,016)
+								ElseIf PARAMIXB == "H" //HISTORICO
+									Conout("Historico: "+ LerStr(177,025))
+									_cReturn := LerStr(177,025)
+								EndIf
+							Else
+								If PARAMIXB == "D" //CONTA DEBITO
+									_cReturn := '220405010'
+								ElseIf PARAMIXB == "V" //VALOR
+									Conout("Valor: "+ cValToChar(LerVal(153,016)))
+									_cReturn := LerVal(153,016)
+								ElseIf PARAMIXB == "H" //HISTORICO
+									Conout("Historico: "+ LerStr(177,025))
+									_cReturn := LerStr(177,025)
+								EndIf
+							EndIf		
+						ElseIf LerStr(169,004) = 'D110'
+							If PARAMIXB == "D" //CONTA DEBITO
+								_cReturn := '420511309'
+							ElseIf PARAMIXB == "V" //VALOR
+								Conout("Valor: "+ cValToChar(LerVal(153,016)))
+								_cReturn := LerVal(153,016)
+							ElseIf PARAMIXB == "H" //HISTORICO
 								Conout("Historico: "+ LerStr(177,025))
 								_cReturn := LerStr(177,025)
 							EndIf
 						EndIf
-					EndIf
+					EndIf	
 				Else
 					Conout("Nada para contabilizar")
 				EndIf
@@ -136,7 +192,7 @@ User Function CONTEXTRATO()
 						ElseIf LerStr(169,001) = "D" //Tipo "D" no extrato
 							If PARAMIXB == "D"
 								If  LerStr(169,004) $('D107') //EMPRESTIMOS
-									 _cReturn := "220902039"
+									 _cReturn := "220402004"
 								ElseIf LerStr(169,004) $('D110') //IOF
 									_cReturn := "420511309"
 								ElseIf LerStr(169,004) $('D102') //JUROS
