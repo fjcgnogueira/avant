@@ -75,6 +75,7 @@ User Function NotFisAv()
 Private aTransp    := {}
 Private cSequence  := "00"	// diferencial para não duplicar o nome do arquivo. Cristiam Rossi em 03/01/2012
 
+
 	SA1->(dbSetOrder(1))
 	SA4->(dbSetOrder(1))
 	SD2->(dbSetOrder(3))
