@@ -201,7 +201,7 @@ Endif
 //Endif
 
 // Verifica se a quantidade liberada eh maior que o saldo disponivel em estoque na inclusao do Pedido de Vendas
-If !(SF4->F4_ESTOQUE) = 'S' //Chamado 002624
+If (SF4->F4_ESTOQUE) = 'S' //Chamado 002624
 	If lReturn .And. Inclui .And. lEstoque .And. aCols[n][nPosQtdLib] > U_SaldoProd(aCols[n][nPosProd])
 		MsgInfo('Quantidade liberada do produto '+AllTrim(aCols[n][nPosProd])+' maior que o saldo disponível em estoque!', 'Atenção')
 		lReturn := .F.
