@@ -4,18 +4,22 @@
 User Function IMPAVANT()
 Return Nil
 /*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษอออออออออออออัออออออออออหอออออออัออออออออออออออออออหออออออัออออออออออออปฑฑ
-ฑฑบ Web Service ณ IMPAVANT บAutor  ณ Amedeo D.P.Filho บ Data ณ  18/04/12  บฑฑ
-ฑฑฬอออออออออออออุออออออออออสอออออออฯออออออออออออออออออสออออออฯออออออออออออนฑฑ
-ฑฑบDescricao    ณ Analise de Resultados e Calculo de Impostos.            บฑฑ
-ฑฑบ             ณ                                                         บฑฑ
-ฑฑฬอออออออออออออุอออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso          ณ Especifico AVANT                                        บฑฑ
-ฑฑศอออออออออออออฯอออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+ฑฑษออออออออออออัอออออออออออออออหอออออออัออออออออออออออออออออออหออออออัออออออออออปฑฑ
+ฑฑบWeb Service ณ IMPAVANT      บ Autor ณ Amedeo D. P. Filho   บ Data ณ18/04/2012บฑฑ
+ฑฑฬออออออออออออุอออออออออออออออสอออออออฯออออออออออออออออออออออสออออออฯออออออออออนฑฑ
+ฑฑบDescricao   ณ Analise de Resultados e Calculo de Impostos.                   บฑฑ
+ฑฑฬออออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
+ฑฑบUso         ณ Especifico AVANT.                                              บฑฑ
+ฑฑฬออออออออออออฯอออออัออออออออออัอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
+ฑฑบAnalista Resp.    ณ   Data   ณ Manutencao Efetuada                           บฑฑ
+ฑฑฬออออออออออออออออออุออออออออออุอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
+ฑฑบFernando Nogueira ณ16/05/2016ณ Implementacao dos Impostos IPI, ICC e DIF; e  บฑฑ
+ฑฑบ                  ณ          ณ do Desconto Suframa                           บฑฑ
+ฑฑศออออออออออออออออออฯออออออออออฯอออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
 */
 WSSERVICE IMPAVANT DESCRIPTION "Anแlise de Resultados e Cแlculo de Impostos (Especifico AVANT)"
 	WSDATA EmpCons		As String
@@ -63,9 +67,13 @@ WSMETHOD Consulta WSRECEIVE EmpCons, FilCons, Cliente, Loja, Operacao, Produto, 
 	Local nItem		:= 0
 	Local aImpostos	:= {}
 	Local nVlrIcm	:= 0
+	Local nVlrIpi	:= 0
+	Local nVlrIcc	:= 0
+	Local nVlrDif	:= 0
 	Local nVlrPis	:= 0
 	Local nVlrCof	:= 0
 	Local nVlrRet	:= 0
+	Local nDescSuf	:= 0
 	
 	RpcClearEnv()
 	RPCSetType(3)
@@ -85,7 +93,7 @@ WSMETHOD Consulta WSRECEIVE EmpCons, FilCons, Cliente, Loja, Operacao, Produto, 
 					Nil				,;		// 07-Tipo de complemento
 					Nil				,;		// 08-Permite Incluir Impostos no Rodape .T./.F.
 					"SB1"			,;		// 09-Alias do Cadastro de Produtos - ("SBI" P/ Front Loja)
-					"MATA410"		,;		// 10-Nome da rotina que esta utilizando a funcao
+					"MATA461"		,;		// 10-Nome da rotina que esta utilizando a funcao
 					Nil				,;		// 11-Tipo de documento
 					Nil				,;		// 12-Especie do documento 
 					Nil				,;		// 13-Codigo e Loja do Prospect 
@@ -119,6 +127,9 @@ WSMETHOD Consulta WSRECEIVE EmpCons, FilCons, Cliente, Loja, Operacao, Produto, 
 
 		aImpostos	:= MafisRet(NIL, "NF_IMPOSTOS")
 		nPosIcm		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "ICM"})
+		nPosIpi		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "IPI"})
+		nPosIcc		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "ICC"})
+		nPosDif		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "DIF"})
 		nPosPis		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "PS2"})
 		nPosCof		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "CF2"})
 		nPosRet		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "ICR"})
@@ -126,7 +137,19 @@ WSMETHOD Consulta WSRECEIVE EmpCons, FilCons, Cliente, Loja, Operacao, Produto, 
 		If nPosIcm > 0
 			nVlrIcm := aImpostos[nPosIcm][05]
 		EndIf
+
+		If nPosIpi > 0
+			nVlrIpi := aImpostos[nPosIpi][05]
+		EndIf
 		
+		If nPosIcc > 0
+			nVlrIcc := aImpostos[nPosIcc][05]
+		EndIf
+
+		If nPosDif > 0
+			nVlrDif := aImpostos[nPosDif][05]
+		EndIf
+
 		If nPosPis > 0
 			nVlrPis := aImpostos[nPosPis][05]
 		EndIf
@@ -138,11 +161,19 @@ WSMETHOD Consulta WSRECEIVE EmpCons, FilCons, Cliente, Loja, Operacao, Produto, 
 		If nPosRet > 0
 			nVlrRet := aImpostos[nPosRet][05]
 		EndIf
+		
+		If SA1->A1_CALCSUF = 'S'
+			nDescSuf := MafisRet(,"IT_DESCZF")
+		Endif
 
 		::aRetorno:ICMS		:= nVlrIcm
+		::aRetorno:IPI		:= nVlrIpi
+		::aRetorno:ICC		:= nVlrIcc
+		::aRetorno:DIF		:= nVlrDif
 		::aRetorno:PIS		:= nVlrPis
 		::aRetorno:COFINS	:= nVlrCof
 		::aRetorno:ICMSRET	:= nVlrRet
+		::aRetorno:DESCSUF	:= nDescSuf
 
 		MaFisEnd()
 	EndIf
@@ -154,7 +185,11 @@ Return lRetorno
 //ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
 WSSTRUCT AVANIMPRET
 	WSDATA ICMS			As Float
+	WSDATA IPI			As Float
+	WSDATA ICC			As Float
+	WSDATA DIF			As Float
 	WSDATA PIS			As Float
 	WSDATA COFINS		As Float
 	WSDATA ICMSRET		As Float
+	WSDATA DESCSUF		As Float
 ENDWSSTRUCT
