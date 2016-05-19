@@ -28,7 +28,6 @@ User Function F440ABAS()
 */
 
 Local aAreaSF2  := SF2->(GetArea())
-Local aAreaSA6  := SA6->(GetArea())
 Local cAliasSE1 := GetNextAlias()
 Local aBases    := ParamIXB
 Local cNota     := SE1->E1_NUM
@@ -42,17 +41,8 @@ Local _dEmisNF  := SF2->F2_EMISSAO
 Local nQtdParc  := 0
 Local nVlrParc  := 0
 Local nVlrTit   := 0
-Local lComiss   := Posicione("SA6",1,xFilial("SA6")+SE5->E5_BANCO+SE5->E5_AGENCIA+SE5->E5_CONTA,"A6_COMISS") == "S"
 
-// Se a Conta Bancaria nao gerar comissao zera os valores de comissao
-// Fernando Nogueira - Chamado 002505
-If !lComiss
-
-	aBases[1][2] := 0
-	aBases[1][4] := 0
-	aBases[1][6] := 0
-
-ElseIf !Empty(cParcela) .And. nFrete > 0 .And. _dEmisNF >= CTOD("16/10/2014")   // Data que comecou a separar o frete na primeira parcela
+If !Empty(cParcela) .And. nFrete > 0 .And. _dEmisNF >= CTOD("16/10/2014")   // Data que comecou a separar o frete na primeira parcela
 
 	// Numero de Parcelas
 	BeginSQL Alias cAliasSE1
@@ -84,6 +74,5 @@ ElseIf !Empty(cParcela) .And. nFrete > 0 .And. _dEmisNF >= CTOD("16/10/2014")   
 Endif
 	
 SF2->(RestArea(aAreaSF2))
-SA6->(RestArea(aAreaSA6))
 
 Return aBases
