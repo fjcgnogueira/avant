@@ -52,7 +52,7 @@ User Function MT410TOK()
 				_nItens++
 			Endif
 		Next _nX
-		
+
 		// Fernando Nogueira - Chamado 002751
 		If nSomaTot > 0 .And. nSomaTot < 1500 .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F" .And. nFrete == 0 .And. cHabFrete == "S"
 			nFrete := Val(Substr(cEstFrete,At(cEstado,cEstFrete)+2,6))/100
@@ -74,7 +74,7 @@ User Function MT410TOK()
 								Nil				,;		// 07-Tipo de complemento
 								Nil				,;		// 08-Permite Incluir Impostos no Rodape .T./.F.
 								"SB1"			,;		// 09-Alias do Cadastro de Produtos - ("SBI" P/ Front Loja)
-								"MATA410"		,;		// 10-Nome da rotina que esta utilizando a funcao
+								"MATA461"		,;		// 10-Nome da rotina que esta utilizando a funcao
 								Nil				,;		// 11-Tipo de documento
 								Nil				,;		// 12-Especie do documento
 								Nil				,;		// 13-Codigo e Loja do Prospect
@@ -121,7 +121,7 @@ User Function MT410TOK()
 
 						If SA1->A1_CALCSUF = 'S'
 							nDescSuf := MafisRet(,"IT_DESCZF")
-							//nPrcVen  := nPrcVen - nDescSuf
+							nPrcVen  := nPrcVen - nDescSuf
 						Endif
 
 					EndIf
@@ -142,10 +142,6 @@ User Function MT410TOK()
 			EndIf
 
 		Next nX
-
-		If nDescSuf > 0
-			nTotPed := 0
-		Endif
 
 		//Coloca o preco pra ser gravado
 		If nTotPed > 0

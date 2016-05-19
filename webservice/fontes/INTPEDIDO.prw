@@ -81,7 +81,7 @@ EndSQL
 If !(cAliasC5)->(Eof())
 	lRetorno 	:= .F.
 	cMensagem	:= "Atenção: Erro ao processar seu pedido; Informe T.I codigo:01-Pedido WEB já cadastrado no Protheus Nro(s)"
-	
+
 	While !(cAliasC5)->(Eof())
 		DbSelectarea("SC5")
 		SC5->(DbGoto( (cAliasC5)->RECC5 ))
@@ -129,25 +129,25 @@ If lRetorno
 				aAdd(aCabec,{"C5_PEDWEB" ,Val(cPedidoW)  ,NIL})
 				aAdd(aCabec,{"C5_INTEGRA",SZ3->Z3_INTEGRA,NIL})
 				aAdd(aCabec,{"C5_PEDCLI" ,SZ3->Z3_NPEDCLI,NIL})
-				
+
 				// Chamado 001777 - Bloqueio Avant - Fernando Nogueira
 				If SZ3->Z3_PRODMKT <> 'N'
 					aAdd(aCabec,{"C5_X_BLQ" ,"S",NIL})
 				Endif
-				
+
 				//-- Gustavo Viana -- Restricoes a liberacao automatica -- 18/02/2013
 				//-- Se tiver condicao de pagamento no parametro P.V. deverah ser analisado, ou seja, P.V. sem liberacao automatica
 				//If AllTrim(SZ3->Z3_CODPGTO) $ cCodPag
 				//	lLiberAut := .F.
 				//EndIf
-				
+
 				DbSelectarea("SZ4")
 				SZ4->(DbSetorder(1))
-				
+
 				If SZ4->(DbSeek(xFilial("SZ4") + cPedidoW))
 					While SZ4->(!Eof()) .And. 	SZ4->Z4_FILIAL == xFilial("SZ4") .And.;
-						   Padl(Alltrim(Str(SZ4->Z4_NUMPEDW)),TamSx3("Z4_NUMPEDW")[01]) == cPedidoW						 
-						
+						   Padl(Alltrim(Str(SZ4->Z4_NUMPEDW)),TamSx3("Z4_NUMPEDW")[01]) == cPedidoW
+
 						aLinha := {}
 						aAdd(aLinha,{"C6_FILIAL" ,SZ4->Z4_FILIAL ,NIL})
 						aAdd(aLinha,{"C6_ITEM"   ,SZ4->Z4_ITEMPED,NIL})
@@ -162,15 +162,15 @@ If lRetorno
 						//Else
 							//aAdd(aLinha,{"C6_QTDLIB",0           ,NIL})
 						//EndIf
-						
+
 						SB1->(dbSeek(xFilial("SB1")+SZ4->Z4_CODPROD))
-												
+
 						nPrcOri := SB1->B1_PRV1
-						
+
 						If SZ4->Z4_DESCRA > 0
 							nPrcOri := nPrcOri * (1 - SZ4->Z4_DESCRA/100)
 						Endif
-						
+
 						aAdd(aLinha,{"C6_PRCVEN" ,SZ4->Z4_PRLIQ  ,NIL})
 						aAdd(aLinha,{"C6_X_VLORI",nPrcOri        ,NIL})
 						aAdd(aLinha,{"C6_X_PLIST",SB1->B1_PRV1   ,NIL})
@@ -182,13 +182,13 @@ If lRetorno
 						aAdd(aLinha,{"C6_DESCPRO",SZ4->Z4_PRODESC,NIL})
 						aAdd(aLinha,{"C6_LOCAL"	 ,cArmazem       ,NIL})
 						aAdd(aItens,aLinha)
-						
+
 						lTesInt := .F.
-						
+
 						SB1->(dbSeek(xFilial("SB1")+SZ4->Z4_CODPROD))
 						_aAreaSFM 	:= getArea("SFM")
 						SFM->(dbSetOrder(2))
-						
+
 						// Verifica se nao tem amarracao de Tes Inteligente
 						If !SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
 						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+cGrpCli+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
@@ -198,7 +198,7 @@ If lRetorno
 						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+cGrpPrd+SA1->A1_EST))
 							aadd(aTesInt,{SB1->B1_COD,SB1->B1_DESC,SB1->B1_GRTRIB,SB1->B1_IPI,SB1->B1_POSIPI})
 						EndIf
-						
+
 						If SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
 							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+cGrpCli+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
 							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
@@ -206,17 +206,17 @@ If lRetorno
 							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEstBranc));
 							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+cGrpPrd+SA1->A1_EST))
 							aAdd(aTesSaida,AllTrim(SFM->FM_TS))
-						Endif 
-						
+						Endif
+
 						SFM->(RestArea(_aAreaSFM))
-					
+
 						SZ4->(DbSkip())
 					Enddo
-					
+
 					nPosQtdVen := aScan(aLinha,{|x|Trim(x[1])=="C6_QTDVEN"})
 					nPosPrcVen := aScan(aLinha,{|x|Trim(x[1])=="C6_PRCVEN"})
 					nPosProd   := aScan(aLinha,{|x|Trim(x[1])=="C6_PRODUTO"})
-					
+
 					// Verifica se o Pedido eh de Bonificacao - Chamado 002553 - Fernando Nogueira
 					If cTpOper == '54'
 						// Faz uma varredura no aItens
@@ -232,7 +232,7 @@ If lRetorno
 										Nil				,;		// 07-Tipo de complemento
 										Nil				,;		// 08-Permite Incluir Impostos no Rodape .T./.F.
 										"SB1"			,;		// 09-Alias do Cadastro de Produtos - ("SBI" P/ Front Loja)
-										"MATA410"		,;		// 10-Nome da rotina que esta utilizando a funcao
+										"MATA461"		,;		// 10-Nome da rotina que esta utilizando a funcao
 										Nil				,;		// 11-Tipo de documento
 										Nil				,;		// 12-Especie do documento
 										Nil				,;		// 13-Codigo e Loja do Prospect
@@ -241,9 +241,9 @@ If lRetorno
 										Nil				,;		// 16-Codigo do cliente de entrega na nota fiscal de saida
 										Nil				,;		// 17-Loja do cliente de entrega na nota fiscal de saida
 										Nil				)		// 18-Informacoes do transportador [01]-UF,[02]-TPTRANS
-										
+
 							nPrcVen	:= aItens[_n][nPosQtdVen][2] * aItens[_n][nPosPrcVen][2]
-							
+
 							//Adiciona o Produto para Calculo dos Impostos
 							nItem := 	MaFisAdd(	aItens[_n][nPosProd][2]	,;   	// 1-Codigo do Produto ( Obrigatorio )
 													aTesSaida[_n]			,;	   	// 2-Codigo do TES ( Opcional )
@@ -262,45 +262,45 @@ If lRetorno
 													NIL						,;		// 15-RecNo do SB1
 													NIL						,;		// 16-RecNo do SF4
 													NIL						)
-							
+
 							aImpostos	:= MafisRet(NIL, "NF_IMPOSTOS")
 							If Len(aImpostos) > 0
 								nPosRet		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "ICR"})
 								nPosIPI		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "IPI"})
-								
+
 								If nPosRet > 0
 									nPrcVen	:= nPrcVen + aImpostos[nPosRet][05]
 								EndIf
-								
+
 								If nPosIPI > 0
 									nPrcVen	:= nPrcVen + aImpostos[nPosIPI][05]
 								EndIf
-								
+
 								If SA1->A1_CALCSUF = 'S'
 									nDescSuf := MafisRet(,"IT_DESCZF")
 									nPrcVen  := nPrcVen - nDescSuf
 								Endif
-								
+
 							EndIf
-							
+
 							MaFisEnd()
-							
+
 							nTotBonif += nPrcVen
 						Next _n
 					Endif
-					
+
 					If !Empty(aTesInt)
 						cMensagem	+= "<b> Caro Representante. Seu Pedido tem produto faltando regra fiscal! Favor entrar em contato com o Depto Fiscal da Avant. </b>" + cEnter + cEnter
 						U_DispTesInt(aTesInt,cPedWeb)
 					Endif
-					
-					// Chamado 002553 - Fernando Nogueira 
+
+					// Chamado 002553 - Fernando Nogueira
 					If nTotBonif > Posicione("SA3",1,xFilial("SA3")+SZ3->Z3_VEND,"A3_ACMMKT")
 						cMensagem	+= "<b> Caro Representante. O Valor do seu Pedido de Bonificacao com Impostos ("+AllTrim(Transform(nTotBonif, _cSA3Cred))+") ultrapassou o seu Saldo de Credito de Marketing ("+AllTrim(Transform(SA3->A3_ACMMKT, _cSA3Cred))+"). </b>" + cEnter + cEnter
 					Endif
-					
+
 					MsExecAuto({|a, b, c| MATA410(a, b, c)}, aCabec, aItens, 3)
-					
+
 					If lMsErroAuto
 						lRetorno	:= .F.
 						If Empty(cMensagem)
@@ -310,7 +310,7 @@ If lRetorno
 					Else
 						cDocumen	:= "Pedido Nro.: " + SC5->C5_NUM + " Caro Representante. Seu pedido foi incluído com sucesso!"
 					EndIf
-					
+
 					//Atualiza Status da SZ3
 					RecLock("SZ3", .F.)
 					SZ3->Z3_STATUS	:= IIF(lRetorno,"3","4")
@@ -330,13 +330,13 @@ If lRetorno
 					// D = Pedido de Venda sem Desconto Especial Parado na Tela do Gerente Nacional
 					// E = Solicitacao de Bonificacao Parado na Tela do Gerente Regional
 					// F = Solicitacao de Bonificacao Aprovada na Tela do Gerente Regional
-					
+
 					MsUnlock()
-					
+
 					If !lRetorno
 						U_DispPedErr(cMensagem,cPedWeb)
 					EndIf
-					
+
 				Else
 
 					lRetorno 	:= .F.
@@ -375,7 +375,7 @@ User Function DispPedErr(cMensagem,cPedWeb)
 
 Local _cMailTo   := GetMv("ES_EMAILPW")
 Local _cMailVend := ""
-Local _cCorpoM   := "" 
+Local _cCorpoM   := ""
 Local _cZ4Quant  := PesqPict("SZ4","Z4_QTDE")
 Local _cZ4VPrVen := PesqPict("SZ4","Z4_PRVEN")
 Local _cZ4VPrLiq := PesqPict("SZ4","Z4_PRLIQ")
@@ -395,20 +395,20 @@ Endif
 SZ4->(DbSetOrder(1))
 
 If SZ4->(dbSeek(SZ3->Z3_FILIAL+cPedWeb))
-	_cCorpoM += '<html>' 
+	_cCorpoM += '<html>'
 	_cCorpoM += '<head>'
 	_cCorpoM += '<title>Erro de Integração Pedido Web</title>'
-	_cCorpoM += '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' 
+	_cCorpoM += '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">'
 	_cCorpoM += '<style type="text/css">'
 	_cCorpoM += '<!--'
 	_cCorpoM += '.style1 {font-family: Arial, Helvetica, sans-serif}'
 	_cCorpoM += '.style3 {font-family: Arial, Helvetica, sans-serif; font-weight: bold; }'
 	_cCorpoM += '.style4 {color: #FF0000}'
 	_cCorpoM += '-->'
-	_cCorpoM += '</style>' 
-	_cCorpoM += '</head>' 
+	_cCorpoM += '</style>'
+	_cCorpoM += '</head>'
 	_cCorpoM += '<body>'
-	_cCorpoM += '  <p align="center" class="style1"><strong>AVISO DE ERRO DE INTEGRAÇÃO PEDIDO WEB</strong></p>' 
+	_cCorpoM += '  <p align="center" class="style1"><strong>AVISO DE ERRO DE INTEGRAÇÃO PEDIDO WEB</strong></p>'
 	_cCorpoM += '  <p class="style1"><strong>Data: </strong>'+DtoC(Date())+'</p>'
 	_cCorpoM += '  <p class="style1"><strong>Hora: </strong>'+Substr(Time(),1,5)+'</p>'
 	_cCorpoM += '  <p class="style1"><strong>Filial : </strong>'+SM0->M0_FILIAL+'</p>'
@@ -419,25 +419,25 @@ If SZ4->(dbSeek(SZ3->Z3_FILIAL+cPedWeb))
 	_cCorpoM += '    <tr>
 	_cCorpoM += '      <td align="center" width="35"><span class="style3">Item</span></td>'
 	_cCorpoM += '      <td align="center" width="80"><span class="style3">Produto</span></td>'
-	_cCorpoM += '      <td align="center" width="250"><span class="style3">Descricao</span></td>'	
+	_cCorpoM += '      <td align="center" width="250"><span class="style3">Descricao</span></td>'
 	_cCorpoM += '      <td align="center" width="70"><span class="style3">Quantidade</span></td>'
 	_cCorpoM += '      <td align="center" width="70"><span class="style3">Prc Venda</span></td>'
 	_cCorpoM += '      <td align="center" width="70"><span class="style3">Prc Unit.</span></td>'
 	_cCorpoM += '    </tr>'
 	While SZ4->(!Eof()) .And. SZ4->Z4_NUMPEDW == SZ3->Z3_NPEDWEB
-	
+
 		_cCorpoM += '    <tr>'
-		_cCorpoM += '     <td align="center"><span>'+SZ4->Z4_ITEMPED+'</span></td>' 
-		_cCorpoM += '	   <td align="center"><span>'+SZ4->Z4_CODPROD+'</span></td>' 		
+		_cCorpoM += '     <td align="center"><span>'+SZ4->Z4_ITEMPED+'</span></td>'
+		_cCorpoM += '	   <td align="center"><span>'+SZ4->Z4_CODPROD+'</span></td>'
 		_cCorpoM += '	   <td><span>'+SZ4->Z4_DESCPRO+'</span></td>'
 		_cCorpoM += '	   <td align="right"><span>'+Transform(SZ4->Z4_QTDE , _cZ4Quant)+'</span></td>'
-		_cCorpoM += '	   <td align="right"><span>'+Transform(SZ4->Z4_PRVEN, _cZ4VPrVen)+'</span></td>'								
+		_cCorpoM += '	   <td align="right"><span>'+Transform(SZ4->Z4_PRVEN, _cZ4VPrVen)+'</span></td>'
 		_cCorpoM += '	   <td align="right"><span>'+Transform(SZ4->Z4_PRLIQ, _cZ4VPrLiq)+'</span></td>'
 		_cCorpoM += '    </tr>'
-		SZ4->(dbSkip()) 
-	EndDo 	
-	_cCorpoM += '  </table>' 
-	_cCorpoM += '</body>' 
+		SZ4->(dbSkip())
+	EndDo
+	_cCorpoM += '  </table>'
+	_cCorpoM += '</body>'
 	_cCorpoM += '</html>'
 	U_MHDEnvMail(_cMailTo, "", "", "Pedido Web "+cPedWeb+" Não Integrado ["+AllTrim(SM0->M0_CODFIL)+" / "+AllTrim(SM0->M0_FILIAL)+"]", _cCorpoM, "")
 EndIf
@@ -446,8 +446,8 @@ Restarea(_aAreaSA1)
 Restarea(_aAreaSZ3)
 Restarea(_aAreaSZ4)
 Restarea(_aAreaSA3)
-RestArea(aArea) 
-        
+RestArea(aArea)
+
 Return
 
 /*/
@@ -468,7 +468,7 @@ User Function DispTesInt(aTesInt,cPedWeb)
 Local _cMailTo  := GetMv("ES_MAILFIS")
 Local _cMailCC  := GetMv("ES_EMAILTI")
 Local _cCorpoM  := ""
-Local _cTipo	  := SA1->A1_TIPO 
+Local _cTipo	  := SA1->A1_TIPO
 Local _cB1IPI   := PesqPict("SB1","B1_IPI")
 Local _cB1POIPI := PesqPict("SB1","B1_POSIPI")
 
@@ -487,7 +487,7 @@ If _cTipo == 'S'
 ElseIf _cTipo == 'F'
 	_cTipo := 'CONS. FINAL'
 ElseIf _cTipo == 'L'
-	_cTipo := 'PRODUTOR RURAL'	
+	_cTipo := 'PRODUTOR RURAL'
 ElseIf _cTipo == 'R'
 	_cTipo := 'REVENDEDOR'
 ElseIf _cTipo == 'X'
@@ -497,26 +497,26 @@ EndIf
 SZ4->(DbSetOrder(1))
 
 If SZ4->(dbSeek(SZ3->Z3_FILIAL+cPedWeb))
-	_cCorpoM += '<html>' 
+	_cCorpoM += '<html>'
 	_cCorpoM += '<head>'
 	_cCorpoM += '<title>Sem Amarração de Tes Inteligente</title>'
-	_cCorpoM += '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' 
+	_cCorpoM += '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">'
 	_cCorpoM += '<style type="text/css">'
 	_cCorpoM += '<!--'
 	_cCorpoM += '.style1 {font-family: Arial, Helvetica, sans-serif}'
 	_cCorpoM += '.style3 {font-family: Arial, Helvetica, sans-serif; font-weight: bold; }'
 	_cCorpoM += '.style4 {color: #FF0000}'
 	_cCorpoM += '-->'
-	_cCorpoM += '</style>' 
-	_cCorpoM += '</head>' 
+	_cCorpoM += '</style>'
+	_cCorpoM += '</head>'
 	_cCorpoM += '<body>'
-	_cCorpoM += '  <p align="center" class="style1"><strong>AVISO DE FALTA DE AMARRAÇÃO DE TES INTELIGENTE</strong></p>' 
+	_cCorpoM += '  <p align="center" class="style1"><strong>AVISO DE FALTA DE AMARRAÇÃO DE TES INTELIGENTE</strong></p>'
 	_cCorpoM += '  <p class="style1"><strong>Data: </strong>'+DtoC(Date())+'</p>'
 	_cCorpoM += '  <p class="style1"><strong>Hora: </strong>'+Substr(Time(),1,5)+'</p>'
 	_cCorpoM += '  <p class="style1"><strong>Filial : </strong>'+SM0->M0_FILIAL+'</p>'
 	_cCorpoM += '  <p class="style1"><strong>Pedido Web: </strong>'+cPedWeb+'</p>'
 	_cCorpoM += '  <p class="style1"><strong>Cliente/Loja: </strong>'+Posicione("SA1",3,xFilial("SA1")+SZ3->Z3_CNPJ,"A1_COD")+"/"+SA1->A1_LOJA+'</p>'
-	_cCorpoM += '  <p class="style1"><strong>Tipo do Cliente: </strong>'+_cTipo+'</p>'	
+	_cCorpoM += '  <p class="style1"><strong>Tipo do Cliente: </strong>'+_cTipo+'</p>'
 	_cCorpoM += '  <p class="style1"><strong>Estado do Cliente: </strong>'+SA1->A1_EST+'</p>'
 	_cCorpoM += '  <p class="style1"><strong>Grupo de Tributação do Cliente: </strong>'+SA1->A1_GRPTRIB+'</p>'
 	_cCorpoM += '  <p class="style1"><strong>Tipo de Operação: </strong>'+cTpOper+'</p>'
@@ -524,29 +524,29 @@ If SZ4->(dbSeek(SZ3->Z3_FILIAL+cPedWeb))
 	_cCorpoM += '  <table width="960" border="1" align="left"> '
 	_cCorpoM += '    <tr>
 	_cCorpoM += '      <td align="center" width="80"><span class="style3">Produto</span></td>'
-	_cCorpoM += '      <td align="center" width="200"><span class="style3">Descricao</span></td>'	
+	_cCorpoM += '      <td align="center" width="200"><span class="style3">Descricao</span></td>'
 	_cCorpoM += '      <td align="center" width="160"><span class="style3">Grp Trib</span></td>'
-	_cCorpoM += '      <td align="center" width="160"><span class="style3">Aliq. IPI</span></td>'		
-	_cCorpoM += '      <td align="center" width="160"><span class="style3">POS IPI</span></td>'	
+	_cCorpoM += '      <td align="center" width="160"><span class="style3">Aliq. IPI</span></td>'
+	_cCorpoM += '      <td align="center" width="160"><span class="style3">POS IPI</span></td>'
 	_cCorpoM += '    </tr>'
 	For _nI := 1 To Len(aTesInt)
 		_cCorpoM += '    <tr>'
-		_cCorpoM += '	   <td align="center"><span>'+aTesInt[_nI,1]+'</span></td>' 		
+		_cCorpoM += '	   <td align="center"><span>'+aTesInt[_nI,1]+'</span></td>'
 		_cCorpoM += '	   <td><span>'+aTesInt[_nI,2]+'</span></td>'
 		_cCorpoM += '	   <td align="center"><span>'+aTesInt[_nI,3]+'</span></td>'
 		_cCorpoM += '	   <td align="center"><span>'+Transform(aTesInt[_nI,4], _cB1IPI)+'</span></td>'
-		_cCorpoM += '	   <td align="center"><span>'+Transform(aTesInt[_nI,5], _cB1POIPI)+'</span></td>'													
+		_cCorpoM += '	   <td align="center"><span>'+Transform(aTesInt[_nI,5], _cB1POIPI)+'</span></td>'
 		_cCorpoM += '    </tr>'
-		SZ4->(dbSkip()) 
-	Next _nI 	
-	_cCorpoM += '  </table>' 
-	_cCorpoM += '</body>' 
+		SZ4->(dbSkip())
+	Next _nI
+	_cCorpoM += '  </table>'
+	_cCorpoM += '</body>'
 	_cCorpoM += '</html>'
 	U_MHDEnvMail(_cMailTo, _cMailCC, "", "Pedido Web "+cPedWeb+" com Produto(s) sem Amarracao de Tes Inteligente ["+AllTrim(SM0->M0_CODFIL)+" / "+AllTrim(SM0->M0_FILIAL)+"]", _cCorpoM, "")
 EndIf
 
 Restarea(_aAreaSA3)
 Restarea(_aAreaSA1)
-RestArea(aArea)  
-        
+RestArea(aArea)
+
 Return
