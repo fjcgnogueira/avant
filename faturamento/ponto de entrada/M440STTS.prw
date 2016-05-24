@@ -108,10 +108,171 @@ Else
 	EndIf
 EndIf
 
+// Grava o Total com Impostos no Pedido na Rotina de Liberacao
+If AllTrim(FUNNAME()) == 'MATA440'
+	XTOTPED()
+Endif
+
 SE4->( RestArea(aAreaSE4) )
 SA1->( RestArea(aAreaSA1) )
 SA1->( RestArea(aAreaSC6) )
 SA1->( RestArea(aAreaSC5) )
 SA1->( RestArea(aAreaSC9) )
+
+Return
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Programa  ³ XTOTPED  ³ Autor ³ Fernando Nogueira     ³ Data ³23/05/2016³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡ao ³ Atualiza valor total do Pedido com Impostos (C5_XTOTPED)   ³±±
+±±³          ³ Chamado 003021                                             ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Utilizacao³ AVANT                                                      ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/
+Static Function XTOTPED()
+
+Local nPosProd 	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_PRODUTO"})
+Local nPosTes	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_TES"})
+Local nPosPrc	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_PRCVEN"})
+Local nPosTot	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_VALOR"})
+Local cCliente	:= M->C5_CLIENTE
+Local cLojaCli	:= M->C5_LOJACLI
+Local nFrete	:= M->C5_FRETE
+Local cEstFrete	:= Posicione("SX5",1,xFilial("SX5")+"ZA"+"0002","X5_DESCRI")
+Local cEstado 	:= Posicione("SA1",1,xFilial("SA1")+M->C5_CLIENTE+M->C5_LOJACLI,"A1_EST")
+Local cHabFrete	:= SA1->A1_X_HBFRT
+Local cPessoa	:= SA1->A1_PESSOA
+Local nSomaTot	:= 0
+Local aImpostos	:= {}
+Local nPrcVen	:= 0
+Local nTotPed	:= 0
+Local nX		:= 0
+Local nDescSuf 	:= 0
+Local _nItens 	:= 0
+
+Local aArea		:= GetArea()
+Local aAreaSC5	:= SC5->(GetArea())
+Local aAreaSA1	:= SA1->(GetArea())
+
+Local lFim := .T.
+Local oDlg      := Nil
+Local cTeste := Space(60)
+
+// Quantidade de itens do Pedido
+For _nX := 1 To Len(aCols)
+	If !aCols[_nX][Len(aHeader)+1]
+		nSomaTot += aCols[_nX,nPosTot]
+		_nItens++
+	Endif
+Next _nX
+
+If nSomaTot > 0 .And. nSomaTot < 1500 .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F" .And. nFrete == 0 .And. cHabFrete == "S"
+	nFrete := Val(Substr(cEstFrete,At(cEstado,cEstFrete)+2,6))/100
+Endif
+
+For nX := 1 To Len(aCols)
+	If !aCols[nX][Len(aHeader)+1]
+
+		DbSelectarea("SA1")
+		SA1->(DbSetorder(1))
+		If SA1->(DbSeek(xFilial("SA1") + cCliente + cLojaCli))
+
+			MaFisIni(	SA1->A1_COD		,;		// 01-Codigo Cliente
+						SA1->A1_LOJA	,;		// 02-Loja do Cliente
+						"C"				,;		// 03-C:Cliente , F:Fornecedor
+						"N"				,;		// 04-Tipo da NF
+						SA1->A1_TIPO	,;		// 05-Tipo do Cliente
+						Nil				,;		// 06-Relacao de Impostos que suportados no arquivo
+						Nil				,;		// 07-Tipo de complemento
+						Nil				,;		// 08-Permite Incluir Impostos no Rodape .T./.F.
+						"SB1"			,;		// 09-Alias do Cadastro de Produtos - ("SBI" P/ Front Loja)
+						"MATA461"		,;		// 10-Nome da rotina que esta utilizando a funcao
+						Nil				,;		// 11-Tipo de documento
+						Nil				,;		// 12-Especie do documento
+						Nil				,;		// 13-Codigo e Loja do Prospect
+						SA1->A1_GRPTRIB,;		// 14-Grupo Cliente
+						Nil				,;		// 15-Recolhe ISS
+						Nil				,;		// 16-Codigo do cliente de entrega na nota fiscal de saida
+						Nil				,;		// 17-Loja do cliente de entrega na nota fiscal de saida
+						Nil				)		// 18-Informacoes do transportador [01]-UF,[02]-TPTRANS
+
+
+			nPrcVen	:= aCols[nX][nPosTot]
+
+			//Adiciona o Produto para Calculo dos Impostos
+			nItem := 	MaFisAdd(	aCols[nX][nPosProd]		,;   	// 1-Codigo do Produto ( Obrigatorio )
+									aCols[nX][nPosTes]		,;	   	// 2-Codigo do TES ( Opcional )
+									1						,;	   	// 3-Quantidade ( Obrigatorio )
+									aCols[nX][nPosPrc]		,;   	// 4-Preco Unitario ( Obrigatorio )
+									0						,;  	// 5-Valor do Desconto ( Opcional )
+									""						,;	   	// 6-Numero da NF Original ( Devolucao/Benef )
+									""						,;		// 7-Serie da NF Original ( Devolucao/Benef )
+									0						,;		// 8-RecNo da NF Original no arq SD1/SD2
+									nFrete*(aCols[nX][nPosTot]/nSomaTot),;	// 9-Valor do Frete do Item ( Opcional )
+									0						,;		// 10-Valor da Despesa do item ( Opcional )
+									0						,;		// 11-Valor do Seguro do item ( Opcional )
+									0						,;		// 12-Valor do Frete Autonomo ( Opcional )
+									aCols[nX][nPosTot]		,;		// 13-Valor da Mercadoria ( Obrigatorio )
+									0						,;		// 14-Valor da Embalagem ( Opiconal )
+									NIL						,;		// 15-RecNo do SB1
+									NIL						,;		// 16-RecNo do SF4
+									NIL						)
+
+			aImpostos	:= MafisRet(NIL, "NF_IMPOSTOS")
+			If Len(aImpostos) > 0
+				nPosRet		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "ICR"})
+				nPosIPI		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "IPI"})
+
+				If nPosRet > 0
+					nPrcVen	:= nPrcVen + aImpostos[nPosRet][05]
+				EndIf
+
+				If nPosIPI > 0
+					nPrcVen	:= nPrcVen + aImpostos[nPosIPI][05]
+				EndIf
+
+				If SA1->A1_CALCSUF = 'S'
+					nDescSuf := MafisRet(,"IT_DESCZF")
+					nPrcVen  := nPrcVen - nDescSuf
+				Endif
+
+			EndIf
+
+			nTotFrete   := MaFisRet(NIL, "NF_FRETE")
+			If nTotFrete > 0
+				nPrcVen += nTotFrete
+			Endif
+
+			//Finaliza Funcao Fiscal
+			MaFisEnd()
+
+			nTotPed += nPrcVen
+
+		EndIf
+
+	EndIf
+
+Next nX
+
+// Grava o Valor Total
+If nTotPed > 0
+	If SC5->(Reclock("SCR",.F.))
+		SC5->C5_XTOTPED := nTotPed
+	Endif
+	// Atualiza Total com impostos no cadastro de clientes
+	SA1->(RecLock("SA1",.F.))
+		SA1->A1_X_VLRTO := U_TotPedCred(cCliente,cLojaCli)
+	SA1->(MsUnlock())
+EndIf
+
+RestArea(aArea)
+SA1->(RestArea(aAreaSA1))
+SC5->(RestArea(aAreaSC5))
 
 Return
