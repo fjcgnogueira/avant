@@ -1029,6 +1029,9 @@ User Function LJReabre()
 	IF SZU->ZU_STATUS $ "A/E"
 		MsgInfo("Este chamado ainda não foi encerrado para ser reaberto.",,"INFO")
 		Return
+	ElseIF Date() > (SZU->ZU_DATAOK + 7)
+		MsgInfo("Este chamado foi encerrado a mais de 7 dias."+Chr(13)+Chr(10)+"Favor abrir outro chamado.",,"INFO")
+		Return
 	Endif
 
 	PswOrder(1)
