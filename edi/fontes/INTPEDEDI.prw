@@ -14,35 +14,40 @@
 /*/
 User Function IntPedEdi(cPedEdi)
 
-Local cPathLog	 := "\LOGS\"
-Local cFileLog	 := "MATAEDI410.LOG"
-Local cAliasSC5  := GetNextAlias()
-Local lRetorno	 := .T.
-Local cPedNew	 := ""
-Local cPedCli    := ""
-Local cTransp    := ""
-Local cMensagem	 := ""
-Local cBOL       := "'<p>'+DtoC(Date())+Space(01)+Time()+Space(01)"
-Local cEOL       := "</p>"+CHR(13)+CHR(10)
-Local cTpNota    := "N"
-Local cTpOper    := "51"
-Local cTpFrete   := "C"
-Local cCodProd   := ""
-Local cQtdLib    := 0
-Local cArmazem	 := "01"
-Local dDtEmiss	 := CtoD("")
-Local aCabec 	 := {}
-Local aItens 	 := {}
-Local aLinha 	 := {}
-Local aTesInt    := {}
-Local cFMGrpCli  := CriaVar("FM_GRTRIB")
-Local cFMCodCli  := CriaVar("FM_CLIENTE")
-Local cFMLojaCli := CriaVar("FM_LOJACLI")
-Local cFMCodFor	 := CriaVar("FM_FORNECE")
-Local cFMLojaFor := CriaVar("FM_LOJAFOR")
-Local cFMCodProd := CriaVar("FM_PRODUTO")
-Local cFMEst  	 := CriaVar("FM_EST")
-Local _cQtdMult := 0
+Local cPathLog	:= "\LOGS\"
+Local cFileLog	:= "MATAEDI410.LOG"
+Local cAliasSC5	:= GetNextAlias()
+Local lRetorno	:= .T.
+Local cPedNew	:= ""
+Local cPedCli	:= ""
+Local cTransp	:= ""
+Local cMensagem	:= ""
+Local cBOL		:= "'<p>'+DtoC(Date())+Space(01)+Time()+Space(01)"
+Local cEOL		:= "</p>"+CHR(13)+CHR(10)
+Local cTpNota	:= "N"
+Local cTpOper	:= "51"
+Local cTpFrete	:= "C"
+Local cCodProd	:= ""
+Local nQtdLib	:= 0
+Local cArmazem	:= "01"
+Local dDtEmiss	:= CtoD("")
+Local aCabec	:= {}
+Local aItens	:= {}
+Local aLinha	:= {}
+Local aTesInt	:= {}
+Local aPrdCli	:= {}
+Local aProduto	:= {}
+Local cFMGrpCli	:= CriaVar("FM_GRTRIB")
+Local cFMCodCli	:= CriaVar("FM_CLIENTE")
+Local cFMLjCli	:= CriaVar("FM_LOJACLI")
+Local cFMCodFor	:= CriaVar("FM_FORNECE")
+Local cFMLjFor	:= CriaVar("FM_LOJAFOR")
+Local cFMCodPrd	:= CriaVar("FM_PRODUTO")
+Local cFMEst	:= CriaVar("FM_EST")
+Local _nQtdMult	:= 0
+Local _nPrcVen	:= 0
+Local nPosPrd	:= 0
+Local lSaldo	:= .T.
 
 Private lMsErroAuto	:= .F.
 
@@ -111,78 +116,79 @@ If lRetorno
 				aAdd(aCabec, {"C5_MENNOTA", SZJ->ZJ_OBSERV , NIL} )
 				aAdd(aCabec, {"C5_PEDEDI" , cPedEdi        , NIL} )
 				aAdd(aCabec, {"C5_PEDCLI" , cPedCli        , NIL} )
+				aAdd(aCabec, {"C5_X_BLQ"  ,"S"             , NIL} )		// Fernando Nogueira - Chamado 002243
 				
 				DbSelectarea("SZK")
 				SZK->(dbSetorder(1))
 				SZK->(dbGoTop())
 				If SZK->(DbSeek(xFilial("SZK") + cPedEdi))
-					While SZK->(!Eof()) .And. SZK->ZK_FILIAL+SZK->ZK_PEDEDI == xFilial("SZK")+cPedEdi
 					
-						SA7->(DbSelectarea("SA7"))
-						SA7->(dbSetorder(3))
-						SA7->(dbGoTop())
-						If SA7->(DbSeek(xFilial("SA7")+SA1->A1_COD+SA1->A1_LOJA+SZK->ZK_PRODCLI))
+					// Fernando Nogueira - Chamado 002243 - Verifica se tem saldo disponivel
+					While SZK->(!Eof()) .And. SZK->ZK_FILIAL+SZK->ZK_PEDEDI == xFilial("SZK")+cPedEdi .And. lRetorno
+					
+						aPrdCli   := _fPrdCli(SZK->ZK_PRODCLI,SA1->A1_COD,SA1->A1_LOJA,SZK->ZK_QUANT)
 						
-						SB1->(DBSetOrder(1))
-					    SB1->(DbGoTop())
-						SB1->(DBSeek(xFilial("SB1")+SA7->A7_PRODUTO))
-							
-							cCodProd := ALLTRIM(SA7->A7_PRODUTO)
-							
-							aLinha := {}
-							aAdd(aLinha, {"C6_FILIAL" , SZK->ZK_FILIAL, NIL} )
-							aAdd(aLinha, {"C6_ITEM"   , SZK->ZK_ITEM  , NIL} )
-							aAdd(aLinha, {"C6_PRODUTO", cCodProd      , NIL} )
-							
-							If SA7->A7_SERVTIM = "MAKRO"
-								If cCodProd$(GetMv("ES_PRDM20"))
-									_cQtdMult := SZK->ZK_QUANT*SB1->B1_X_QTDI2
-								Else
-									_cQtdMult := SZK->ZK_QUANT*SB1->B1_X_QTDE2
-								EndIf
-							Else
-								If SA7->A7_SERVTIM = "ASSAI"
-									If cCodProd$(GetMv("ES_PRDM202"))
-										_cQtdMult := SZK->ZK_QUANT*SB1->B1_X_QTDI2
-									Else
-										_cQtdMult := SZK->ZK_QUANT*SB1->B1_X_QTDE2
-									EndIf
-								EndIf
-								If SA7->A7_SERVTIM = "HOME"
-									_cQtdMult := SZK->ZK_QUANT
-								EndIf
-							EndIf
-							
-							aAdd(aLinha, {"C6_QTDVEN" , _cQtdMult , NIL} )
-							aAdd(aLinha, {"C6_QTDLIB" , cQtdLib       , NIL} )
-							aAdd(aLinha, {"C6_OPER"   , cTpOper		  , NIL} )
-							aAdd(aLinha, {"C6_PEDCLI" , cPedCli       , NIL} )
-							aAdd(aLinha, {"C6_LOCAL"  , cArmazem      , NIL} )
-							aAdd(aLinha, {"C6_PRCVEN"  ,SA7->A7_PRECO01, NIL} )							
-							
-							
-							aAdd(aItens,aLinha)
-							
-							SB1->(dbSeek(xFilial("SB1")+cCodProd))
-							_aAreaSFM := SFM->(GetArea())
-							SFM->(dbSetOrder(2))
-							
-							// Verifica se nao tem amarracao de Tes Inteligente
-							If !SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cFMCodFor+cFMLojaFor+SA1->A1_GRPTRIB+cFMCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
-							   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cFMCodFor+cFMLojaFor+cFMGrpCli+cFMCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
-							   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cFMCodCli+cFMLojaCli+cFMCodFor+cFMLojaFor+SA1->A1_GRPTRIB+cFMCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
-							   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cFMCodCli+cFMLojaCli+cFMCodFor+cFMLojaFor+SA1->A1_GRPTRIB+cFMCodProd+SB1->B1_GRTRIB+cFMEst))
-								aadd(aTesInt,{SB1->B1_COD,SB1->B1_DESC,SB1->B1_GRTRIB,SB1->B1_IPI,SB1->B1_POSIPI})
-							EndIf
-							
-							SFM->(RestArea(_aAreaSFM))
-							
-						Else
+						//⁄ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒø
+						//≥aPrdCli |       [01]       |         [02]       |       [03]       |  [04]  |    [05]    |
+						//≥        | Existe Amarracao | Cod. Prod. Cliente | Cod. Prod. Avant | Quant. | Prc. Venda |
+						//¿ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒŸ
+						
+						aAdd(aProduto,aPrdCli)
+						
+						If !aPrdCli[01]
 							lRetorno := .F.
-							cMensagem += &cBOL+"N„o tem amarraÁ„o para o Produto "+AllTrim(ZK_PRODCLI)+cEOL
+							cMensagem += &cBOL+"N„o tem amarraÁ„o para o Produto "+ALLTRIM(SZK->ZK_PRODCLI)+" do cliente "+SA1->A1_COD+"/"+SA1->A1_LOJA+cEOL
 							Exit
 						Endif
 						
+						lSaldo := IIF(lSaldo,(aPrdCli[04] <= U_SaldoProd(aPrdCli[03])),lSaldo)
+						
+						SZK->(DbSkip())
+					Enddo
+					
+					If lRetorno .And. !lSaldo
+						cMensagem += &cBOL+"Pedido "+cPedNew+" gerando em aberto."+cEOL
+					Endif
+					
+					SZK->(dbGoTop())
+					SZK->(DbSeek(xFilial("SZK") + cPedEdi))
+					While lRetorno .And. SZK->(!Eof()) .And. SZK->ZK_FILIAL+SZK->ZK_PEDEDI == xFilial("SZK")+cPedEdi
+					
+						nPosPrd  := aScan(aProduto,{|x| x[02] == SZK->ZK_PRODCLI})
+						
+						cCodProd  := AllTrim(aProduto[nPosPrd,03])											
+						_nQtdMult := aProduto[nPosPrd,04]
+						_nPrcVen  := aProduto[nPosPrd,05]
+						nQtdLib   := IIF(lSaldo,_nQtdMult,0)
+						
+						aLinha := {}
+						aAdd(aLinha, {"C6_FILIAL" , SZK->ZK_FILIAL	, NIL} )
+						aAdd(aLinha, {"C6_ITEM"   , SZK->ZK_ITEM	, NIL} )
+						aAdd(aLinha, {"C6_PRODUTO", cCodProd		, NIL} )
+						aAdd(aLinha, {"C6_QTDVEN" , _nQtdMult		, NIL} )
+						aAdd(aLinha, {"C6_QTDLIB" , nQtdLib			, NIL} )
+						aAdd(aLinha, {"C6_OPER"   , cTpOper			, NIL} )
+						aAdd(aLinha, {"C6_PEDCLI" , cPedCli			, NIL} )
+						aAdd(aLinha, {"C6_LOCAL"  , cArmazem		, NIL} )
+						aAdd(aLinha, {"C6_PRCVEN" , _nPrcVen		, NIL} )							
+						
+						
+						aAdd(aItens,aLinha)
+						
+						SB1->(dbSeek(xFilial("SB1")+cCodProd))
+						_aAreaSFM := SFM->(GetArea())
+						SFM->(dbSetOrder(2))
+						
+						// Verifica se nao tem amarracao de Tes Inteligente
+						If !SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cFMCodFor+cFMLjFor+SA1->A1_GRPTRIB+cFMCodPrd+SB1->B1_GRTRIB+SA1->A1_EST));
+						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cFMCodFor+cFMLjFor+cFMGrpCli+cFMCodPrd+SB1->B1_GRTRIB+SA1->A1_EST));
+						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cFMCodCli+cFMLjCli+cFMCodFor+cFMLjFor+SA1->A1_GRPTRIB+cFMCodPrd+SB1->B1_GRTRIB+SA1->A1_EST));
+						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cFMCodCli+cFMLjCli+cFMCodFor+cFMLjFor+SA1->A1_GRPTRIB+cFMCodPrd+SB1->B1_GRTRIB+cFMEst))
+							aadd(aTesInt,{SB1->B1_COD,SB1->B1_DESC,SB1->B1_GRTRIB,SB1->B1_IPI,SB1->B1_POSIPI})
+						EndIf
+						
+						SFM->(RestArea(_aAreaSFM))
+							
 						SZK->(DbSkip())
 					Enddo
 					
@@ -235,6 +241,63 @@ If lRetorno
 EndIf
 
 Return cMensagem
+
+/*/
+‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±⁄ƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒø±±
+±±≥Programa  ≥ _fPrdCli  ≥ Autor ≥ Fernando Nogueira  ≥ Data  ≥30/05/2016≥±±
+±±√ƒƒƒƒƒƒƒƒƒƒ≈ƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒ¥±±
+±±≥Descricao ≥ Valida amarracao de Produto vs Cliente                    ≥±±
+±±≥          ≥ Retorna array com a validacao, cod. produto do cliente,   ≥±±
+±±≥          ≥ cod. produto avant, quant. da amarracao, preco de venda   ≥±±
+±±¿ƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒŸ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂ
+/*/
+Static Function _fPrdCli(cPrdCli,cCliente,cLoja,nQtdPrd)
+
+Local _nQtdMult	:= 0
+Local _nPrcVen 	:= 0
+Local cCodProd	:= ""
+
+SA7->(DbSelectarea("SA7"))
+SA7->(dbSetorder(3))
+SA7->(dbGoTop())
+If SA7->(DbSeek(xFilial("SA7")+cCliente+cLoja+cPrdCli))
+
+	cCodProd := SA7->A7_PRODUTO
+
+	SB1->(DBSetOrder(1))
+	SB1->(DbGoTop())
+	SB1->(DBSeek(xFilial("SB1")+cCodProd))
+	
+	If SA7->A7_SERVTIM = "MAKRO"
+		If cCodProd$(GetMv("ES_PRDM20"))
+			_nQtdMult := nQtdPrd*SB1->B1_X_QTDI2
+		Else
+			_nQtdMult := nQtdPrd*SB1->B1_X_QTDE2
+		EndIf
+	Else
+		If SA7->A7_SERVTIM = "ASSAI"
+			If cCodProd$(GetMv("ES_PRDM202"))
+				_nQtdMult := nQtdPrd*SB1->B1_X_QTDI2
+			Else
+				_nQtdMult := nQtdPrd*SB1->B1_X_QTDE2
+			EndIf
+		EndIf
+		If SA7->A7_SERVTIM = "HOME"
+			_nQtdMult := nQtdPrd
+		EndIf
+	EndIf
+	
+	_nPrcVen := SA7->A7_PRECO01
+
+Else
+	Return {.F.,cPrdCli,cCodProd,_nQtdMult,_nPrcVen}
+Endif
+
+Return {.T.,cPrdCli,cCodProd,_nQtdMult,_nPrcVen}
 
 /*/
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
