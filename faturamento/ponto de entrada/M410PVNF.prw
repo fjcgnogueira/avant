@@ -16,9 +16,12 @@
 /*/
 User Function M410PVNF()
 
-If aScan(PswRet(1)[1][10],'000040') == 0 .Or. SC5->C5_FILIAL <> '010101'
-	ApMsgInfo('Somente usuários do Depto Fiscal na Filial de Guarulhos.')
-	Return .F.
+If aScan(PswRet(1)[1][10],'000000') <> 0 ;											// Acesso Administradores
+	.Or. (aScan(PswRet(1)[1][10],'000040') <> 0 .And. SC5->C5_FILIAL == '010101') ;	// Acesso Fiscal
+    .Or. (aScan(PswRet(1)[1][10],'000053') <> 0 .And. SC5->C5_FILIAL == '040401')  	// Acesso Faturamento
+	Return .T.
 Endif
 
-Return .T.
+ApMsgInfo('Somente usuários autorizados.')
+
+Return .F.
