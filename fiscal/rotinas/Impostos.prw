@@ -86,6 +86,14 @@ While ZZI->(!Eof())
 			If SA1->(dbSeek(xFilial("SA1") + ZZI->ZZI_CLIENT + ZZI->ZZI_LOJA))
 			
 				aImpostos := {}
+				nVlrIcm	  := 0
+				nVlrIpi	  := 0
+				nVlrIcc	  := 0
+				nVlrDif	  := 0
+				nVlrPis	  := 0
+				nVlrCof	  := 0
+				nVlrRet	  := 0
+				nDescSuf  := 0
 			
 				//Inicializa a Funcao Fiscal
 				MaFisIni(	SA1->A1_COD		,;		// 01-Codigo Cliente
