@@ -33,15 +33,7 @@ Local aItens 		:= {}
 Local aLinha 		:= {}
 Local lLibera   	:= .T.
 Local aTesInt   	:= {}
-Local cGrpCli   	:= CriaVar("FM_GRTRIB")
-Local cGrpPrd   	:= CriaVar("FM_GRPROD")
-Local cCodCli   	:= CriaVar("FM_CLIENTE")
-Local cLojaCli  	:= CriaVar("FM_LOJACLI")
-Local cCodFor		:= CriaVar("FM_FORNECE")
-Local cLojaFor		:= CriaVar("FM_LOJAFOR")
-Local cCodProd		:= CriaVar("FM_PRODUTO")
-Local cEst  		:= CriaVar("FM_EST")
-Local cEstBranc		:= CriaVar("FM_EST")
+Local cTesOper 		:= ""
 Local nPrcOri		:= 0
 Local nPosProd		:= 0
 Local nPosQtdVen	:= 0
@@ -189,24 +181,14 @@ If lRetorno
 						_aAreaSFM 	:= getArea("SFM")
 						SFM->(dbSetOrder(2))
 
+						cTesOper := MaTesInt(02, cTpOper, SA1->A1_COD, SA1->A1_LOJA, "C", SB1->B1_COD, NIL)
+						
 						// Verifica se nao tem amarracao de Tes Inteligente
-						If !SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
-						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+cGrpCli+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
-						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
-						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEst));
-						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEstBranc));
-						   .And. !SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+cGrpPrd+SA1->A1_EST))
+						If Empty(cTesOper)
 							aadd(aTesInt,{SB1->B1_COD,SB1->B1_DESC,SB1->B1_GRTRIB,SB1->B1_IPI,SB1->B1_POSIPI})
-						EndIf
-
-						If SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
-							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+SA1->A1_COD+SA1->A1_LOJA+cCodFor+cLojaFor+cGrpCli+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
-							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+SA1->A1_EST));
-							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEst));
-							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+SB1->B1_GRTRIB+cEstBranc));
-							.Or. SFM->(dbSeek(xFilial("SFM")+cTpOper+cCodCli+cLojaCli+cCodFor+cLojaFor+SA1->A1_GRPTRIB+cCodProd+cGrpPrd+SA1->A1_EST))
-							aAdd(aTesSaida,AllTrim(SFM->FM_TS))
 						Endif
+						
+						aAdd(aTesSaida,cTesOper)
 
 						SFM->(RestArea(_aAreaSFM))
 
