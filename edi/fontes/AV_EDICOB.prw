@@ -205,7 +205,7 @@ If _nOpc <> 0 .And. __nValue <> 0 .And. ApMsgYesNo('Confirma geração dos titulos
 				aAdd( aCabec, { "" 				, 2					} )	// 07 - Aglutina Produtos :
 				aAdd( aCabec, { "F1_EST"		, ""				} )	// 08 - Estado de Origem do Frete
 				aAdd( aCabec, { "" 				, ZZ5->ZZ5_VLRFRE	} )	// 09 - Valor total do Frete sem Impostos
-				aAdd( aCabec, { "F1_FORMUL" 	, 2					} )	// 10 - Utiliza Formulario proprio ? 1-Sim,2-Nao
+				aAdd( aCabec, { "F1_FORMUL" 	, "N"				} )	// 10 - Utiliza Formulario proprio ? S-Sim,N-Nao
 				aAdd( aCabec, { "F1_DOC" 		, PadR(ZZ5->ZZ5_NUMCON,Tamsx3("F1_DOC")[1])	} )	// 11 - Num. da NF de Conhecimento de Frete
 				aAdd( aCabec, { "F1_SERIE" 		, PadR(ZZ5->ZZ5_SERCON,Tamsx3("F1_SERIE")[1])	} )	// 12 - Serie da NF de COnhecimento de Frete
 				aAdd( aCabec, { "F1_FORNECE" 	, ZZ5->ZZ5_CODFOR	} )	// 13 - Codigo do Fornecedor da NF de FRETE
