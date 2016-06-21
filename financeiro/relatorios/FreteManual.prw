@@ -96,8 +96,9 @@ Static Function GeraArqTRG()
 		INNER JOIN %table:SD1% AS SD1 ON F8_FILIAL = SD1.D1_FILIAL AND F8_NFORIG = D1_DOC AND F8_SERORIG = D1_SERIE AND F8_FORNECE = D1_FORNECE AND SD1.%notDel%
 		INNER JOIN %table:SA2% AS SA2 ON F8_FORNECE = A2_COD AND F8_LOJA = A2_LOJA AND SA2.%notDel%
 		WHERE SF8.%notDel%
-		AND F8_NFORIG = '000000246' 
-		AND A2_COD = '002223'
+		AND F8_FILIAL = %exp:mv_par01%
+		AND F8_NFORIG = %exp:mv_par02%
+		AND A2_COD = %exp:mv_par03%
 		GROUP BY F8_FILIAL, F8_NFORIG, F8_SERORIG, D1_BASEICM, D1_ICMSCOM, D1_VALICM, D1_EMISSAO
 	
 	EndSql
@@ -109,6 +110,19 @@ Return()
 Static Function AjustaSX1(cPerg)
 
 	Local aAreaAnt := GetArea()
+	
+	
+	Local aAreaAnt := GetArea()
+	Local aHelpPor := {}
+	Local aHelpEng := {}
+	Local aHelpSpa := {}
+
+	aHelpPor := {"Filial:"}
+	PutSx1(cPerg,'01','Filial:','Filial:','Filial:','mv_ch1','C',06,0,0,'G',''        ,'XM0','','','mv_par01','','','','','','','','','','','','','','','','',aHelpPor,aHelpEng,aHelpSpa)
+	aHelpPor := {"Título:"}
+	PutSx1(cPerg,'02','Título:','Título:','Título:','mv_ch2','C',09,0,0,'G',''        ,'','','','mv_par02','','','','','','','','','','','','','','','','',aHelpPor,aHelpEng,aHelpSpa)
+	aHelpPor := {"Transportadora:"}
+	PutSx1(cPerg,'03','Transportadora:','Transportadora:','Transportadora:','mv_ch3','C',06,0,0,'G',''        ,'SA2','','','mv_par03','','','','','','','','','','','','','','','','',aHelpPor,aHelpEng,aHelpSpa)
 	
 	RestArea(aAreaAnt)      
 
