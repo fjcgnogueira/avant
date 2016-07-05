@@ -127,6 +127,11 @@ If lRetorno
 					aAdd(aCabec,{"C5_X_BLQ" ,"S",NIL})
 				Endif
 
+				// Chamado 003522 - Bloqueio Fiscal - Fernando Nogueira
+				If SA1->A1_TIPO == 'F'
+					aAdd(aCabec,{"C5_X_BLQFI" ,"S",NIL})
+				Endif
+
 				//-- Gustavo Viana -- Restricoes a liberacao automatica -- 18/02/2013
 				//-- Se tiver condicao de pagamento no parametro P.V. deverah ser analisado, ou seja, P.V. sem liberacao automatica
 				//If AllTrim(SZ3->Z3_CODPGTO) $ cCodPag
@@ -182,12 +187,12 @@ If lRetorno
 						SFM->(dbSetOrder(2))
 
 						cTesOper := MaTesInt(02, cTpOper, SA1->A1_COD, SA1->A1_LOJA, "C", SB1->B1_COD, NIL)
-						
+
 						// Verifica se nao tem amarracao de Tes Inteligente
 						If Empty(cTesOper)
 							aadd(aTesInt,{SB1->B1_COD,SB1->B1_DESC,SB1->B1_GRTRIB,SB1->B1_IPI,SB1->B1_POSIPI})
 						Endif
-						
+
 						aAdd(aTesSaida,cTesOper)
 
 						SFM->(RestArea(_aAreaSFM))

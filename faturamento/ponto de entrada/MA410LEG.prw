@@ -18,7 +18,8 @@ User Function MA410LEG()
 
 Local aCores := ParamIXB
 
-Aadd(aCores,{"BR_PRETO","Pedido de Vendas com Bloqueio Avant"})
-Aadd(aCores,{"BR_BRANCO","Pedido de Vendas com Bloqueio Avant Cliente"})
+Aadd(aCores,{"BR_PRETO","Pedido de Venda com Bloqueio Avant"})
+Aadd(aCores,{"BR_BRANCO","Pedido de Venda com Bloqueio Avant Cliente"})
+Aadd(aCores,{"BR_PINK","Pedido de Venda com Bloqueio Fiscal"})
 
 Return aCores

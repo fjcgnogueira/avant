@@ -18,7 +18,7 @@ User Function M450ABRW()
 
 Local cQuery := ParamIXB[1]
 
-cQuery += " AND SC9.C9_BLOQUEI = ' ' AND SC5.C5_X_BLQ NOT IN ('S','C') "
+cQuery += " AND SC9.C9_BLOQUEI = ' ' AND SC5.C5_X_BLQ NOT IN ('S','C') AND SC5.C5_X_BLQFI NOT IN ('S') "
 
 ConOut(cQuery)
 
