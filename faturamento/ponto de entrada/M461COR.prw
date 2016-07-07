@@ -16,18 +16,19 @@ User Function M461COR
 	Local aPadrao	:= PARAMIXB
 	Local aLegNew	:= {}
 	Local nX		:= 0
-	
+
 	//dbSelectArea("SDB")
-    
+
 	//LjMsgRun("Atualizando Legenda","Por Favor Aguarde...", { || U_ATUAC9COR() })
-	
-	Aadd(aLegNew, { '!Empty(SC9->C9_BLOQUEI)', "BR_PRETO" })
+
+	Aadd(aLegNew, { 'SC9->C9_BLOQUEI=="02"', "BR_PINK" })
+	Aadd(aLegNew, { 'SC9->C9_BLOQUEI=="01"', "BR_PRETO" })
 	Aadd(aLegNew, { 'Empty(SC9->C9_BLEST)   .And. Empty(SC9->C9_BLCRED) .And. SC9->C9_BLWMS$"05,06,07,  " .And. SC9->C9_XCONF <> "S"' , "BR_LARANJA" })
 	Aadd(aLegNew, { '(Empty(SC9->C9_BLEST)  .And. Empty(SC9->C9_BLCRED) .And. (SC9->C9_BLWMS$"01,02,03" .Or. (SC9->C9_BLWMS$"05,06,07" .And. SC9->C9_XCONF <> "S")))', "BR_LARANJA" })
 	Aadd(aLegNew, { '(Empty(SC9->C9_BLEST)  .And. Empty(SC9->C9_BLCRED) .And. SC9->C9_BLWMS$"05,06,07,  ")', "ENABLE" })
 	Aadd(aLegNew, { 'SC9->C9_BLEST=="10"    .And. SC9->C9_BLCRED=="10"  .And. SC9->C9_BLWMS$"05,06,07,  "'           , "DISABLE" })
 	Aadd(aLegNew, { '!(Empty(SC9->C9_BLEST) .And. Empty(SC9->C9_BLCRED) .And. SC9->C9_BLWMS$"01,02,03,05,06,07,  ")' , "BR_AZUL" })
-	
+
 	//For nX := 1 To Len(aPadrao)
 		//Aadd(aLegNew, { aPadrao[nX][01],aPadrao[nX][02] })
 	//Next nX
@@ -51,7 +52,7 @@ Return aLegNew
 	Local lFirst	:= .T.
 	Local lExist	:= .F.
 	Local nOpcao	:= 0
-	
+
 	Local oGetFilt
 	Local oDlg
 
@@ -79,13 +80,13 @@ Return aLegNew
 		DEFINE SBUTTON FROM 040, 060 TYPE 2 ENABLE OF oDlg Action( nOpcao := 2, oDlg:End() )
 
 	ACTIVATE MSDIALOG oDlg CENTERED
-	
+
 	If nOpcao == 1
-	
+
 		//Salva Filtro Atual
 		__cFltSC9X	:= SC9->(MsDbFilter())
 		cFiltSel	:= __cFltSC9X
-		
+
 		If !Empty(cGetFilt)
 
 			If Left(cFiltro,1) == "1"
@@ -108,21 +109,21 @@ Return aLegNew
 							EndIf
 						EndIf
 					EndIf
-				
+
 					SC9->(DbSkip())
 				End
-				
+
 				If lExist
 					cFiltSel += "' "
-				
+
 					//Executa Filtro no TRB
 					SC9->(DbSetFilter({|| &cFiltSel}, cFiltSel))
                     SC9->(DbGotop())
-                    
+
 				Else
 					MsgInfo("Nenhum registro localizado no filtro selecionado, filtro não será executado","Verifique")
 				EndIf
-				
+
 			EndIf
 
 		EndIf
@@ -130,7 +131,7 @@ Return aLegNew
 
 	RestArea(aAreaC9)
 	RestArea(aAreaA1)
-	
+
 Return Nil*/
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
@@ -139,7 +140,7 @@ Return Nil*/
 /*User Function ATUAC9COR()
 	Local aAreaC9	:= SC9->(GetArea())
 	Local cChave	:= ""
-	
+
 	DbSelectArea("SC9")
 	SC9->(DbGotop())
 	While !SC9->(Eof())
@@ -148,20 +149,20 @@ Return Nil*/
 			SC9->(DbSkip())
 			Loop
 		EndIf
-		
+
 		cChave := PadR(SC9->C9_PEDIDO, TamSx3("DB_DOC")[1]) + PadR(SC9->C9_ITEM, TamSx3("DB_SERIE")[1]) + SC9->C9_CLIENTE + SC9->C9_LOJA + "001" + "003"
-	
+
 		DbSelectarea("SDB")
 		SDB->(DbSetorder(6)) //DB_FILIAL+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_SERIVC+DB_TAREFA
 		If SDB->(DbSeek(xFilial("SDB") + cChave))
 			While !SDB->(Eof()) .And. 	SDB->DB_FILIAL == xFilial("SDB") .And.;
 										SDB->DB_DOC + SDB->DB_SERIE + SDB->DB_CLIFOR + SDB->DB_LOJA + SDB->DB_SERVIC + SDB->DB_TAREFA == cChave
-				
+
 				If SDB->DB_ESTORNO == "S"
 					SDB->(DbSkip())
 					Loop
 				EndIf
-				
+
 				If SDB->DB_STATUS <> "1"
 					RecLock("SC9",.F.)
 						SC9->C9_XCONF	:= "N"
@@ -171,16 +172,16 @@ Return Nil*/
 						SC9->C9_XCONF	:= "S"
 					MsUnlock()
 				EndIf
-				
+
 				SDB->(DbSkip())
 			End
 		EndIf
-		
+
 		SC9->(DbSkip())
 
 	EndDo
-	
+
 
 	RestArea(aAreaC9)
-	
+
 Return Nil*/

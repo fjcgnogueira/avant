@@ -14,8 +14,9 @@
 /*/
 User Function M461LEG
 	Local aRetorno	:= PARAMIXB
-	
+
     Aadd(aRetorno, {"BR_LARANJA", "Pedido Não Conferido (WMS)"})
     Aadd(aRetorno, {"BR_PRETO"  , "Pedido com Bloqueio Avant"})
-    
+    Aadd(aRetorno, {"BR_PINK"   , "Pedido com Bloqueio Fiscal"})
+
 Return aRetorno

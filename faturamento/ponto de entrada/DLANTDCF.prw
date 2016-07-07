@@ -15,8 +15,8 @@
 User Function DLANTDCF()
 
 // Fernando Nogueira - Chamado 002824
-If AllTrim(FunName()) $ ('MATA440')	
-	Return SC9->C9_BLOQUEI <> '01'
+If AllTrim(FunName()) $ ('MATA440')
+	Return Empty(SC9->C9_BLOQUEI)
 Endif
 
 Return .T.
