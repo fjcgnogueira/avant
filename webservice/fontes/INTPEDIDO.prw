@@ -128,7 +128,8 @@ If lRetorno
 				Endif
 
 				// Chamado 003522 - Bloqueio Fiscal - Fernando Nogueira
-				If SA1->A1_TIPO == 'F'
+				// Chamado 003575
+				If SA1->A1_TIPO $ 'FR'
 					aAdd(aCabec,{"C5_X_BLQFI" ,"S",NIL})
 				Endif
 
