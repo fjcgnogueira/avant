@@ -106,7 +106,7 @@ If dbSeek(xFilial("SA1")+AllTrim(GetMv("ES_CLI50")))
 		cMensagem += cEOL + "Caso queira continuar o processo, serão colocados" + cEOL
 		cMensagem += "os Pedidos sem esses produtos."
 		
-		DEFINE MSDIALOG oDlg TITLE "Produtos Faltantes" From 3,0 to 340,417 PIXEL
+		DEFINE MSDIALOG oDlg TITLE "Produtos com Restrição" From 3,0 to 340,417 PIXEL
 		@ 5,5 GET oMemo VAR cMensagem MEMO SIZE 200,145 OF oDlg PIXEL READONLY
 		oMemo:bRClicked := {||AllwaysTrue()}
 		oMemo:oFont:=oFont
