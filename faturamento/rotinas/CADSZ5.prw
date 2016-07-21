@@ -19,22 +19,35 @@ User Function CADSZ5()
 	Local aFiltro		:= {"1-Processados","2-Nใo Processados","3-Todas"}
 	Local aIndArqu  	:= {}
 	Local aPerg    		:= {}
+	Local aArea := GetArea()		// Salva a area
+	Local aAreaSZ5  := SZ5->(GetArea())
+	Local aAreaSA1  := SA1->(GetArea())
+	Local aAreaSA2  := SA2->(GetArea())
+	Local aAreaSA3  := SA3->(GetArea())
 	Private cCadastro 	:= "Cadastro de Pr้-Cliente (AVANT)"
 	Private aRotina		:= {}
 	Private aCores		:= {}
-
 	Private cCondicao 	:= ""
 	Private bFiltraBrow
-	
-	Private aRotina	:=	{ 	{"Pesquisar","AxPesqui"		,0	,1} ,;
-								{"Visualizar"	,"AxVisual"		,0	,2} ,;
-								{"Alterar"		,"AxAltera"		,0 ,4} ,;
-								{"Excluir"		,"AxDeleta"		,0 ,5} ,;
-			             	{"Importa Cad.","U_CADSZ5IMP"	,0	,3} ,;
-			             	{"Legenda"		,"U_CADSZ5LEG"	,0	,5} }
+	Private aRotina	:=	{ 	{"Pesquisar","AxPesqui"	,0	,1} ,;
+							{"Visualizar"			,"AxVisual"		,0,2} ,;
+							{"Alterar"				,"AxAltera"		,0,4} ,;
+							{"Excluir"				,"AxDeleta"		,0,5} ,;
+		             		{"Exportar_Cliente"		,"U_CADSZ5IMP"	,0,3} ,;
+		             		{"Exportar_Fornec."		,"U_CADSA2"		,0,6} ,;
+		             		{"Exportar_Vendedor"	,"U_CADSA3"		,0,6} ,;
+		             		{"Filtro"				,"U_FILTROSZ5"	,0,6} ,;
+		             		{"Legenda"				,"U_CADSZ5LEG"	,0,5} }
 
-	aCores := {	{"Z5_STATUS == 'S'"	,'ENABLE'      },;	//Verde Importado
-				{"Z5_STATUS == 'N'"	,'DISABLE'     }}	//Vermelho Pendente para Importacao
+	aCores := {}
+	
+		aAdd( aCores, { "Z5_STATUS == 'S'" 						  						 , "BR_VERDE"  })
+		aAdd( aCores, { "Z5_PRCFOR == 'S' .AND. Z5_PRCVEND <> 'S'"						 , "BR_LARANJA"   })
+		aAdd( aCores, { "Z5_PRCFOR <> 'S' .AND. Z5_PRCVEND == 'S'"						 , "BR_AMARELO"})
+		aAdd( aCores, { "Z5_PRCFOR == 'S' .AND. Z5_PRCVEND == 'S'"						 , "BR_PINK"  })
+		aAdd( aCores, { "Z5_STATUS == 'N' .AND. Z5_PRCFOR == 'N' .AND. Z5_PRCVEND == 'N'", "BR_VERMELHO"})
+		
+
 
 	//ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
 	//ณDefine as Perguntas na Abertura do Browse ณ
@@ -65,7 +78,11 @@ User Function CADSZ5()
 		aEval(aIndArqu,{|x| Ferase(x[1]+OrdBagExt())})			
     
     EndIF
-    
+RestArea(aArea)
+SZ5->(RestArea(aAreaSZ5))
+SA1->(RestArea(aAreaSA1))
+SA2->(RestArea(aAreaSA2))
+SA3->(RestArea(aAreaSA3))    
 Return .T.
 
 /*
@@ -85,8 +102,11 @@ Return .T.
 
 User Function CADSZ5LEG()
 
-	BrwLegenda(cCadastro,"Legenda",{	{"ENABLE"	,"Cadastro Importado"},; 	
-	                                    {'DISABLE' 	,"Cadastro Pendente para Importa็ใo" }})
+	BrwLegenda(cCadastro,"Legenda",{	{"BR_VERMELHO","Cadastro Nใo Importado"          },;	
+										{"BR_VERDE"	  ,"Cadastro Importado P/ Clientes"  },; 	
+	                                    {"BR_LARANJA" ,"Cadastro Importado P/ Fornecedor"},;
+	                                    {"BR_AMARELO" ,"Cadastro Importado P/ Vendedor"  },;
+	                                    {"BR_PINK"    ,"Cadastro Importado P/ Fornec./Vendedor"}})
 
 Return Nil
 
@@ -113,16 +133,22 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
     Local cCgcCad		:= ""
     Local cCodCli		:= ""
     Local cLojaCli		:= ""
+    Local cCodFor		:= ""
+    Local cLojaFor		:= ""
     Local cEndCli		:= ""
     Local cEndCob		:= ""
     Local cEndEnt		:= ""
     Local cCodPa		:= ""
 	Local lAchou		:= .F.
 	Local nOpc			:= 3
-	
 	Local _cTipo	    := ""
 	Local _cGRPTRIB	    := ""
-	    
+	Local cMsgErro      := ""
+	Local aArea := GetArea()		// Salva a area
+	Local aAreaSZ5  := SZ5->(GetArea())
+	Local aAreaSA1  := SA1->(GetArea())
+	Local aAreaSA2  := SA2->(GetArea())
+	Local aAreaSA3  := SA3->(GetArea())
 	Private aRotAuto 	:= Nil
 	Private lMsErroAuto := .F.
 
@@ -130,7 +156,7 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 	SZ5->(DbGoto(nRecno))
 	If SZ5->Z5_STATUS <> "N"
 		Aviso("Aviso","Esse cadastro nใo estแ com Status para ser Importado",{"Abandona"},1,"Verifique")
-		Return Nil
+		Return
 	EndIf
 	
 	//ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
@@ -139,10 +165,10 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 	DbSelectarea("SA1")
 	SA1->(DbSetorder(3))
 	If SA1->(DbSeek(xFilial("SA1") + SZ5->Z5_CGC))
-		Aviso("Aviso",	"Cliente do CNPJ/CPF: " + SZ5->Z5_CGC + CRLF +;
-						"Jแ encontrado no cadastro de Clientes, C๓digo / Loja: " + SA1->A1_COD + " / " + SA1->A1_LOJA + CRLF +;
-						"Nใo poderแ ser importado", {"Abandona"},3)
-		Return Nil
+		Aviso("Aviso",	"Cliente " + ALLTRIM(SZ5->Z5_RAZASOC) + " CNPJ/CPF: " + SZ5->Z5_CGC + CRLF +;
+						"Jแ estแ cadastrado como cliente! "  + CRLF +;
+						"C๓digo / Loja: " + SA1->A1_COD + " / " + SA1->A1_LOJA + CRLF, {"Abandona"},3)
+		Return
 	EndIf
 	
 	//ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
@@ -185,8 +211,14 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 		cLojaCli := StrZero(1,TamSx3("A1_LOJA")[1])
 	EndIf
 	
-	If Aviso("Aviso","Confirma Importa็ใo do Cliente para o cadastro de Clientes?",{"Sim","Nใo"}) == 2
-		Return Nil
+	If SZ5->Z5_XREGESP = ' ' .OR. SZ5->Z5_GRPTRIB = ' ' .OR. SZ5->Z5_X_CANAL = ' ' .OR. SZ5->Z5_X_SEGME = ' ' .OR. SZ5->Z5_X_PERFI = ' '
+		Aviso("Verificar","Um ou mais campos obrigat๓rios nใo foram preenchidos!",{"OK"},2)
+		Return
+	EndIf
+	
+	If Aviso("Aviso","Confirma Importa็ใo do Cliente para o cadastro de Clientes?" + CRLF + CRLF +;
+					 "Favor verificar os campos que devem ser preenchidos ap๓s a importa็ใo.",{"Sim","Nใo"}) == 2
+		Return
 	EndIf
 	
 	cEndCli	:= Alltrim(SZ5->Z5_ENDEREC) + " ," + IIF(!Empty(SZ5->Z5_ENDERNR), SZ5->Z5_ENDERNR, "SN")
@@ -220,7 +252,7 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 					{"A1_CEP"		,SZ5->Z5_CEP		   , Nil},;
 					{"A1_DDD"		,SZ5->Z5_TELEFDD	   , Nil},;
 					{"A1_TEL"		,SZ5->Z5_TELEFON	   , Nil},;
-					{"A1_VEND"		,SZ5->Z5_CODVEND	   , Nil},;
+					{"A1_VEND"		,ALLTRIM(SZ5->Z5_CODVEND), Nil},;
 					{"A1_BAIRRO"	,UPPER(SZ5->Z5_BAIRRO) , Nil},;
 					{"A1_CEL"		,SZ5->Z5_CELULAR	   , Nil},;
 					{"A1_FAX"		,SZ5->Z5_FAX		   , Nil},;
@@ -272,5 +304,283 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 			AxAltera("SA1", SA1->(Recno()) ,3,/*aAcho*/,/*aCpos*/,/*nColMens*/,/*cMensagem*/,	IIF(!lAcativo, "MA030TudOk()", "MA030TudOk() .And. AC700ALTALU()"),/*cTransact*/,/*cFunc*/,aButtons,/*aParam*/,aRotAuto,/*lVirtual*/)
 		EndIf
 	EndIf
+RestArea(aArea)	
+SZ5->(RestArea(aAreaSZ5))
+SA1->(RestArea(aAreaSA1))
+SA2->(RestArea(aAreaSA2))
+SA3->(RestArea(aAreaSA3))
+Return
+
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
+ฑฑบPrograma  ณ CADSA2   บ Autor ณ Rogerio Machado    บ Data ณ  19/07/16   บฑฑ
+ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
+ฑฑบDesc.     ณ Cadastro de Pre-Clientes (AVANT)                           บฑฑ
+ฑฑบ          ณ                                                            บฑฑ
+ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
+ฑฑบUso       ณ Avant                                                      บฑฑ
+ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+*/
+
+User Function CADSA2()
+
+	Local aButtons  	:= {}
+	Local aValues		:= {}
+    Local cTipoFor		:= "F"
+    Local cCgcCad		:= ""
+    Local cCodFor		:= ""
+    Local cLojaFor		:= ""
+    Local cCodPa		:= ""
+	Local lAchou		:= .F.
+	Local nOpc			:= 3
+	Local _cTipo	    := ""
+	Local _cGRPTRIB	    := ""
+	Local cEndFor       := ""
+	Local aArea := GetArea()		// Salva a area
+	Local aAreaSZ5  := SZ5->(GetArea())
+	Local aAreaSA1  := SA1->(GetArea())
+	Local aAreaSA2  := SA2->(GetArea())
+	Local aAreaSA3  := SA3->(GetArea())
+	Private aRotAuto 	:= Nil
+	Private lMsErroAuto := .F.
+
+	//ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
+	//ณ Verifica se ja Existe no Cadastro de Fornecedores	ณ
+	//ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+	DbSelectarea("SA2")
+	SA2->(DbSetorder(3))
 	
-Return Nil
+	If SA2->(DbSeek(xFilial("SA2") + SZ5->Z5_CGC))
+		Aviso("Aviso",	"Fornecedor " + ALLTRIM(SZ5->Z5_RAZASOC) + " CNPJ/CPF: " + SZ5->Z5_CGC + CRLF +;
+						"Jแ estแ cadastrado como fornecedor!" + CRLF +;
+						"C๓digo / Loja: " + SA2->A2_COD + " / " + SA2->A2_LOJA + CRLF, {"Abandona"},3)
+		Return
+	Else
+		cCodFor	 := GetSx8Num("SA2","A2_COD")
+		cLojaFor := StrZero(1,TamSx3("A2_LOJA")[1])
+	EndIf
+	
+	If Len(Alltrim(SZ5->Z5_CGC)) == 14
+		cTipoFor := "J"
+	EndIf
+	
+	cEndFor := ALLTRIM(UPPER(SZ5->Z5_ENDEREC)) +", "+ UPPER(SZ5->Z5_ENDERNR) +" - "+ UPPER(SZ5->Z5_ENDCOMP)
+
+	aValues	:= {	{"A2_LOJA"		,cLojaFor			   , Nil},;
+		{"A2_COD"		,cCodFor			   , Nil},;
+		{"A2_NOME"		,UPPER(SZ5->Z5_RAZASOC), Nil},;
+		{"A2_NREDUZ"	,UPPER(SZ5->Z5_NOMEABR), Nil},;
+		{"A2_TIPO"  	,cTipoFor			   , Nil},;
+		{"A2_CGC"		,SZ5->Z5_CGC		   , Nil},;
+		{"A2_END"   	,cEndFor               , Nil},;
+		{"A2_EST"   	,UPPER(SZ5->Z5_UF)     , Nil},;
+		{"A2_COD_MUN"	,SZ5->Z5_CDMUNIC	   , Nil},;
+		{"A2_MUN"   	,UPPER(SZ5->Z5_CIDADE) , Nil},;
+		{"A2_INSCR"		,SZ5->Z5_INSCEST	   , Nil},;
+		{"A2_CEP"		,SZ5->Z5_CEP		   , Nil},;
+		{"A2_DDD"		,SZ5->Z5_TELEFDD	   , Nil},;
+		{"A2_TEL"		,SZ5->Z5_TELEFON	   , Nil},;
+		{"A2_BAIRRO"	,UPPER(SZ5->Z5_BAIRRO) , Nil},;
+		{"A2_CEL"		,SZ5->Z5_CELULAR	   , Nil},;
+		{"A2_FAX"		,SZ5->Z5_FAX		   , Nil},;
+		{"A2_CONTATO"	,UPPER(SZ5->Z5_CONTATO), Nil},;
+		{"A2_COMPLEM"	,UPPER(SZ5->Z5_ENDCOMP), Nil},;
+		{"A2_ENDC"		,UPPER(SZ5->Z5_ENDPAG) , Nil},;
+		{"A2_BAIRROC"	,UPPER(SZ5->Z5_BAIRROP), Nil},;
+		{"A2_CEPC"		,SZ5->Z5_CEPPG		   , Nil},;
+		{"A2_MUNC"		,UPPER(SZ5->Z5_CIDADEP), Nil},;
+		{"A2_ESTC"		,UPPER(SZ5->Z5_UFPG)   , Nil},;
+		{"A2_EMAIL"		,SZ5->Z5_EMAIL		   , Nil},;
+		{"A2_TIPORUR"	,"J" 				   , Nil},;
+		{"A2_TPESSOA"	,"OS"				   , Nil},;
+		{"A2_PAIS"		,ALLTRIM("105")		   , Nil}}
+
+	If Aviso("Aviso","Confirma Importa็ใo do Cliente para o cadastro de Fornecedores?" + CRLF + CRLF +;
+					 "Favor verificar os campos que devem ser preenchidos ap๓s a importa็ใo.",{"Sim","Nใo"}) == 2
+		Return
+	EndIf
+
+	MSExecAuto({|x,y| MATA020(x,y)}, aValues, 3)
+	If lMsErroAuto
+		RollBackSX8()
+		MostraErro()
+	Else
+		ConfirmSX8()
+		If MsgYesNo("Deseja abrir tela de Cadastro?")
+			AxAltera("SA2", SA2->(Recno()) ,3,/*aAcho*/,/*aCpos*/,/*nColMens*/,/*cMensagem*/,	/*IIF(!lAcativo, "MA030TudOk()", "MA030TudOk() .And. AC700ALTALU()")*/,/*cTransact*/,/*cFunc*/,aButtons,/*aParam*/,aRotAuto,/*lVirtual*/)
+		EndIf
+		MsgInfo("Fornecedor " +cCodFor+ " loja " +cLojaFor+ " cadastrado com sucesso!","TOTVS")
+		RecLock("SZ5",.F.)
+			SZ5->Z5_PRCFOR	:= "S"
+		MsUnlock()
+	EndIf
+RestArea(aArea)
+SZ5->(RestArea(aAreaSZ5))
+SA1->(RestArea(aAreaSA1))
+SA2->(RestArea(aAreaSA2))
+SA3->(RestArea(aAreaSA3))
+Return
+
+
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
+ฑฑบPrograma  ณ CADSA3   บ Autor ณ Rogerio Machado    บ Data ณ  19/07/16   บฑฑ
+ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
+ฑฑบDesc.     ณ Cadastro de Pre-Clientes (AVANT)                           บฑฑ
+ฑฑบ          ณ                                                            บฑฑ
+ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
+ฑฑบUso       ณ Avant                                                      บฑฑ
+ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+*/
+
+User Function CADSA3()
+	Local aButtons  	:= {}
+	Local aValues		:= {}
+    Local cTipoVend		:= "E"
+    Local cCgcCad		:= ""
+    Local cCodVend		:= ""
+    Local cLojaVend		:= ""
+    Local cCodPa		:= ""
+	Local lAchou		:= .F.
+	Local nOpc			:= 3
+	Local _cTipo	    := ""
+	Local _cGRPTRIB	    := ""
+	Local cEndVend      := ""
+	Local aArea := GetArea()		// Salva a area
+	Local aAreaSZ5  := SZ5->(GetArea())
+	Local aAreaSA1  := SA1->(GetArea())
+	Local aAreaSA2  := SA2->(GetArea())
+	Local aAreaSA3  := SA3->(GetArea())
+	Private aRotAuto 	:= Nil
+	Private lMsErroAuto := .F.
+
+
+
+	//ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
+	//ณ Verifica se ja Existe no Cadastro de Vendedores     ณ
+	//ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+	DbSelectarea("SA3")
+	SA3->(DbSetorder(3))
+	If SA3->(DbSeek(xFilial("SA3") + SZ5->Z5_CGC))
+		Aviso("Aviso",	"Vendedor " + ALLTRIM(SZ5->Z5_RAZASOC) + " CNPJ/CPF: " + SZ5->Z5_CGC + CRLF +;
+						"Jแ estแ cadastrado como vendedor!" + CRLF +;
+						"C๓digo / Loja: " + SA3->A3_COD + " / " + SA3->A3_LOJA + CRLF, {"Abandona"},3)
+		Return
+	Else
+		cCodVend	 := GetSx8Num("SA3","A3_COD")
+		cLojaVend := StrZero(1,TamSx3("A3_LOJA")[1])
+	EndIf
+	
+	cEndVend := ALLTRIM(UPPER(SZ5->Z5_ENDEREC)) +", "+ UPPER(SZ5->Z5_ENDERNR) +" - "+ UPPER(SZ5->Z5_ENDCOMP)
+
+	aValues	:= {	{"A3_COD"		,cCodVend  , Nil},;
+		{"A3_NOME"		,UPPER(SZ5->Z5_RAZASOC), Nil},;
+		{"A3_NREDUZ"	,UPPER(SZ5->Z5_NOMEABR), Nil},;
+		{"A3_TIPO"  	,cTipoVend			   , Nil},;
+		{"A3_CGC"		,SZ5->Z5_CGC		   , Nil},;
+		{"A3_END"   	,cEndVend              , Nil},;
+		{"A3_EST"   	,UPPER(SZ5->Z5_UF)     , Nil},;
+		{"A3_MUN"   	,UPPER(SZ5->Z5_CIDADE) , Nil},;
+		{"A3_INSCR"		,SZ5->Z5_INSCEST	   , Nil},;
+		{"A3_CEP"		,SZ5->Z5_CEP		   , Nil},;
+		{"A3_DDDTEL"	,SZ5->Z5_TELEFDD	   , Nil},;
+		{"A3_TEL"		,SZ5->Z5_TELEFON	   , Nil},;
+		{"A3_BAIRRO"	,UPPER(SZ5->Z5_BAIRRO) , Nil},;
+		{"A3_FAX"		,SZ5->Z5_FAX		   , Nil},;
+		{"A3_X_END"		,UPPER(SZ5->Z5_ENDPAG) , Nil},;
+		{"A3_X_BAIRR"	,UPPER(SZ5->Z5_BAIRROP), Nil},;
+		{"A3_X_CEP"		,SZ5->Z5_CEPPG		   , Nil},;
+		{"A3_X_MUN"		,UPPER(SZ5->Z5_CIDADEP), Nil},;
+		{"A3_X_EST"		,UPPER(SZ5->Z5_UFPG)   , Nil},;
+		{"A3_EMAIL"		,SZ5->Z5_EMAIL		   , Nil},;
+		{"A3_GERASE2"	,"S"                   , Nil},;
+		{"A3_DDD"		,"F"                   , Nil},;
+		{"A3_DIA"		,10                    , Nil},;
+		{"A3_REGIAO"	,UPPER(SZ5->Z5_REGIAO) , Nil}}
+
+	If Aviso("Aviso","Confirma Importa็ใo do Cliente para o cadastro de Vendedores?" + CRLF + CRLF +;
+					 "Favor verificar os campos que devem ser preenchidos ap๓s a importa็ใo.",{"Sim","Nใo"}) == 2
+		Return
+	EndIf
+
+	MSExecAuto({|x,y| MATA040(x,y)}, aValues, 3)
+	If lMsErroAuto
+		RollBackSX8()
+		MostraErro()
+	Else
+		ConfirmSX8()
+		If MsgYesNo("Deseja abrir tela de Cadastro?")
+			AxAltera("SA3", SA3->(Recno()) ,3,/*aAcho*/,/*aCpos*/,/*nColMens*/,/*cMensagem*/,	/*IIF(!lAcativo, "MA030TudOk()", "MA030TudOk() .And. AC700ALTALU()")*/,/*cTransact*/,/*cFunc*/,aButtons,/*aParam*/,aRotAuto,/*lVirtual*/)
+		EndIf
+		MsgInfo("Vendedor " +cCodVend+ " loja " +cLojaVend+ " cadastrado com sucesso!","TOTVS")
+		RecLock("SZ5",.F.)
+			SZ5->Z5_PRCVEND	:= "S"
+		MsUnlock()
+	EndIf
+RestArea(aArea)
+SZ5->(RestArea(aAreaSZ5))
+SA1->(RestArea(aAreaSA1))
+SA2->(RestArea(aAreaSA2))
+SA3->(RestArea(aAreaSA3))
+Return
+
+
+
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+ฑฑษออออออออออัอออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
+ฑฑบPrograma  ณ FILTROSZ5 บ Autor ณ Rogerio Machado    บ Data ณ  19/07/16   บฑฑ
+ฑฑฬออออออออออุอออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
+ฑฑบDesc.     ณ Cadastro de Pre-Clientes (AVANT)                            บฑฑ
+ฑฑบ          ณ                                                             บฑฑ
+ฑฑฬออออออออออุอออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
+ฑฑบUso       ณ Avant                                                       บฑฑ
+ฑฑศออออออออออฯอออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+*/
+
+User Function FILTROSZ5()
+	Local aPerg    		:= {}
+	Local aIndArqu  	:= {}
+	Local aFiltro		:= {"1-Processados","2-Nใo Processados","3-Todas"}
+	Private cCondicao 	:= ""
+	Private bFiltraBrow
+	
+	//ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
+	//ณDefine as Perguntas na Abertura do Browse ณ
+	//ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+	Aadd(aPerg,{2,"Filtro"		,"",aFiltro	,120,".T.",.T.,".T."})
+
+	//ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
+	//ณChama tela de Parametros                  ณ
+	//ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+	If ParamBox(aPerg,"",,,,,,,,"CADSZ5",.T.,.T.)
+
+		cCondicao += " Z5_FILIAL == '"+xFilial("SZ5")+"' "
+
+		If SubStr(MV_PAR01,1,1) == "1"
+			cCondicao += " .AND. Alltrim(Z5_STATUS) == 'S' "
+		ElseIf SubStr(MV_PAR01,1,1) == "2"
+			cCondicao += " .AND. Alltrim(Z5_STATUS) == 'N' "
+		EndIf
+
+		bFiltraBrow := {|| FilBrowse("SZ5",@aIndArqu,@cCondicao) }
+		Eval(bFiltraBrow)				
+
+		MBrowse( 6, 1,22,75,"SZ5",,,,,,aCores) 
+   EndIF
+
+Return
