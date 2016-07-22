@@ -16,8 +16,8 @@ User Function MA030ROT()
 
 	Local aRotina := {}
 		
-	aAdd(aRotina,{"Exportar_Fornec.",  "U_EXPFOR()" , 0, 3, 0, NIL})
-	aAdd(aRotina,{"Exportar_Vendedor", "U_EXPVEND()", 0, 3, 0, NIL})
+	aAdd(aRotina,{"Exportar_Fornec.",  "U_EXPFOR()" , 0, 4, 0, NIL})
+	aAdd(aRotina,{"Exportar_Vendedor", "U_EXPVEND()", 0, 4, 0, NIL})
 	
 Return(aRotina)
 
@@ -40,7 +40,6 @@ User Function EXPFOR()
 	Local aAreaSA1  := SA1->(GetArea())
 	Local aAreaSA2  := SA2->(GetArea())
 	Local aAreaSA3  := SA3->(GetArea())
-	Local aButtons  	:= {}
 	Local aValues		:= {}
     Local cCgcCad		:= ""
     Local cCodFor		:= ""
@@ -51,8 +50,11 @@ User Function EXPFOR()
 	Local _cTipo	    := ""
 	Local _cGRPTRIB	    := ""
 	Local cEndFor       := ""
+	LOCAL aCpos  := {"A2_NOME","A2_NREDUZ"}
 	Private aRotAuto 	:= Nil
 	Private lMsErroAuto := .F.
+	Private A1_CODMARC
+	Private A1_OBS
 	
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	//³ Verifica se ja Existe no Cadastro de Fornecedores	³
@@ -63,7 +65,7 @@ User Function EXPFOR()
 	If SA2->(DbSeek(xFilial("SA2") + SA1->A1_CGC))
 		Aviso("Aviso",	"Fornecedor " + ALLTRIM(SA1->A1_NOME) + " CNPJ/CPF: " + SA1->A1_CGC + CRLF +;
 						"Já está cadastrado como fornecedor!" + CRLF +;
-						"Código / Loja: " + SA2->A2_COD + " / " + SA2->A2_LOJA + CRLF, {"Abandona"},3)
+						"Código / Loja: " + SA2->A2_COD + " / " + SA2->A2_LOJA + CRLF, {"OK"},3)
 		Return
 	Else
 		cCodFor	 := GetSx8Num("SA2","A2_COD")
@@ -109,7 +111,7 @@ User Function EXPFOR()
 	Else
 		ConfirmSX8()
 		If MsgYesNo("Deseja abrir tela de Cadastro?")
-			AxAltera("SA2", SA2->(Recno()) ,3,/*aAcho*/,/*aCpos*/,/*nColMens*/,/*cMensagem*/,	/*IIF(!lAcativo, "MA030TudOk()", "MA030TudOk() .And. AC700ALTALU()")*/,/*cTransact*/,/*cFunc*/,aButtons,/*aParam*/,aRotAuto,/*lVirtual*/)
+			AxAltera("SA2", SA2->(Recno()) ,3)
 		EndIf
 		MsgInfo("Fornecedor " +cCodFor+ " loja " +cLojaFor+ " importado com sucesso!","TOTVS")
 		RecLock("SA1",.F.)
@@ -142,7 +144,6 @@ User Function EXPVEND()
 	Local aAreaSA1  := SA1->(GetArea())
 	Local aAreaSA2  := SA2->(GetArea())
 	Local aAreaSA3  := SA3->(GetArea())
-	Local aButtons  	:= {}
 	Local aValues		:= {}
     Local cTipoVend		:= "E"
     Local cCgcCad		:= ""
@@ -154,12 +155,13 @@ User Function EXPVEND()
 	Local _cTipo	    := ""
 	Local _cGRPTRIB	    := ""
 	Local aArea := GetArea()		// Salva a area
-	Local aAreaSZ5  := SZ5->(GetArea())
 	Local aAreaSA1  := SA1->(GetArea())
 	Local aAreaSA2  := SA2->(GetArea())
 	Local aAreaSA3  := SA3->(GetArea())
 	Private aRotAuto 	:= Nil
 	Private lMsErroAuto := .F.
+	Private A1_CODMARC
+	Private A1_OBS
 
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	//³ Verifica se ja Existe no Cadastro de Vendedores     ³
@@ -169,7 +171,7 @@ User Function EXPVEND()
 	If SA3->(DbSeek(xFilial("SA3") + SA1->A1_CGC))
 		Aviso("Aviso",	"Vendedor " + ALLTRIM(SA1->A1_NOME) + " CNPJ/CPF: " + SA1->A1_CGC + CRLF +;
 						"Já está cadastrado como vendedor!" + CRLF +;
-						"Código / Loja: " + SA3->A3_COD + " / " + SA3->A3_LOJA + CRLF, {"Abandona"},3)
+						"Código / Loja: " + SA3->A3_COD + " / " + SA3->A3_LOJA + CRLF, {"OK"},3)
 		Return
 	Else
 		cCodVend	 := GetSx8Num("SA3","A3_COD")
@@ -212,10 +214,10 @@ User Function EXPVEND()
 	Else
 		ConfirmSX8()
 		If MsgYesNo("Deseja abrir tela de Cadastro?")
-			AxAltera("SA3", SA3->(Recno()) ,3,/*aAcho*/,/*aCpos*/,/*nColMens*/,/*cMensagem*/,	/*IIF(!lAcativo, "MA030TudOk()", "MA030TudOk() .And. AC700ALTALU()")*/,/*cTransact*/,/*cFunc*/,aButtons,/*aParam*/,aRotAuto,/*lVirtual*/)
+			AxAltera("SA3", SA3->(Recno()) ,3)
 		EndIf
 		MsgInfo("Vendedor " +cCodVend+ " loja " +cLojaVend+ " importado com sucesso!","TOTVS")
-		RecLock("SZ5",.F.)
+		RecLock("SA1",.F.)
 			SA1->A1_XIMPVEN	:= "S"
 		MsUnlock()
 	EndIf
