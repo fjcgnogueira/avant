@@ -292,15 +292,15 @@ User Function INADGER()
 	ConOut("Iniciado INADGER()")
 	
 	BeginSql alias 'TRD'
-		SELECT A1_REGIAO AS Regional, A3_NOME AS Representante, A1_NOME AS Cliente, SUM(E1_SALDO) AS Saldo FROM %table:SE1% SE1
+		SELECT A1_REGIAO AS Regional, A3_NOME AS Representante, A1_NOME AS Cliente, LTRIM(RTRIM(E1_NUM)) AS Titulo, LTRIM(RTRIM(E1_PARCELA)) AS Parcela, SUM(E1_SALDO) AS Saldo FROM %table:SE1% SE1
 		INNER JOIN %table:SA1% AS SA1 ON E1_CLIENTE+E1_LOJA = A1_COD+A1_LOJA AND SA1.%notDel%
 		INNER JOIN %table:SA3% AS SA3 ON A1_VEND = A3_COD AND SA3.%notDel%
 		WHERE SE1.%notDel%
 		AND E1_SALDO > 0
 		AND E1_TIPO IN ('NF')
 		AND E1_VENCREA <= %exp:cDtcorte%
-		GROUP BY A1_REGIAO, A3_NOME, A1_NOME
-		ORDER BY Regional, Representante, Cliente, Saldo DESC
+		GROUP BY A1_REGIAO, A3_NOME, A1_NOME, E1_NUM, E1_PARCELA
+		ORDER BY Regional, Representante, Cliente, Titulo, Parcela, Saldo DESC
 	EndSql
 	
 	ConOut(GetLastQuery()[2])
@@ -322,27 +322,33 @@ User Function INADGER()
 		cLog += "<tbody>"
 	   	cLog += "<tr align='center'>"
 		cLog += "<td style='background-color: rgb(191, 225, 214);'"
-		cLog += "colspan='4' rowspan='1'><span"
+		cLog += "colspan='5' rowspan='1'><span"
 		cLog += "style='font-weight: bold;'><strong>Inadimplência Regional - " + _cRegiao + "</strong></span></td>"
 		cLog += "</tr>"
 		cLog += "<tr>"
 		cLog += "<td><p align='center' class='style1'><strong>Regional</strong></p></td>"
 		cLog += "<td><p align='center' class='style1'><strong>Representante</strong></p></td>"
 		cLog += "<td><p align='center' class='style1'><strong>Cliente</strong></p></td>"
+		cLog += "<td><p align='center' class='style1'><strong>Titulo/Parcela</strong></p></td>"
 		cLog += "<td><p align='center' class='style1'><strong>Saldo</strong></p></td>"
 		cLog += "<tr>"
 	
 		While(!Eof('TRD')) .AND. _cRegiao = TRD->Regional
 			cLog += "<td>" + CValToChar(TRD->Regional) + "</td>"
 			cLog += "<td>" + CValToChar(TRD->Representante) + "</td>"
-			cLog += "<td>" + CValToChar(TRD->Cliente) + "</td>"	
+			cLog += "<td>" + CValToChar(TRD->Cliente) + "</td>"
+			If TRD->Parcela <> ' '
+				cLog += "<td>" + CValToChar(TRD->Titulo) +" - "+ CValToChar(TRD->Parcela)  + "</td>"
+			Else
+				cLog += "<td>" + CValToChar(TRD->Titulo) + "</td>"
+			EndIf
 			cLog += "<td>" + Transform(TRD->Saldo, _cMascara)  + "</td>"
 			cTotSaldo += TRD->Saldo
 			cLog += "</tr>"		
 			DbSkip()
 		End
 
-		cLog += "<td  align='center' style='background-color: rgb(191, 225, 214);' colspan='4' rowspan='1'><strong>Total: " + Transform(cTotSaldo, _cMascara) + "</strong></td>"	
+		cLog += "<td  align='center' style='background-color: rgb(191, 225, 214);' colspan='5' rowspan='1'><strong>Total: " + Transform(cTotSaldo, _cMascara) + "</strong></td>"	
 		cLog += "</tbody>
 		cLog += "</table>"
 		cLog += cFim
