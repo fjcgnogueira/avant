@@ -1,16 +1,15 @@
 #Include "rwmake.ch"
 #Include "Protheus.Ch"
 /*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ MT120TEL()  º Autor ³ Rogerio Machado    º Data ³28/07/2016º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescri‡„o ³ Ponto de Entrada localizado na rotina MATA103-Documento de º±±
-±±º          ³ Entrada													  º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ MT120TEL()  º Autor ³ Rogerio Machado    º Data ³02/08/2016 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDescri‡„o ³ Ponto de Entrada Disnibiliza o Objeto da Dialog e cordenadasº±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 User Function MT120TEL()
 
@@ -25,9 +24,10 @@ Local oDlg
 Local l120Visual := .F.
 Local lMt120Ped  := .F.
 Local l120Inclui := .F.
-Local cStatusLi  := If(l120Inclui.And. !lCopia,CriaVar("C7_XSTALI") ,SC7->C7_XSTALI)
-Local cShipment  := If(l120Inclui.And. !lCopia,CriaVar("C7_XSHIPME"),SC7->C7_XSHIPME)
-Local cImport    := If(l120Inclui.And. !lCopia,CriaVar("C7_XIMPSTA"),SC7->C7_XIMPSTA)
+
+Public __av_cStsLi := If(l120Inclui.And. !lCopia,CriaVar("C7_XSTALI") ,SC7->C7_XSTALI)
+Public __av_cShip  := If(l120Inclui.And. !lCopia,CriaVar("C7_XSHIPME"),SC7->C7_XSHIPME)
+Public __av_cImpo  := If(l120Inclui.And. !lCopia,CriaVar("C7_XIMPSTA"),SC7->C7_XIMPSTA)
 
 	AAdd( aObjects, { 0,    65, .T., .F. } )				
 	AAdd( aObjects, { 100, 100, .T., .T. } )
@@ -50,20 +50,21 @@ Local cImport    := If(l120Inclui.And. !lCopia,CriaVar("C7_XIMPSTA"),SC7->C7_XIM
 
 
 	@ aPosObj[1][1]+29,aPosGet[1,1]+395 SAY   "LI Status" OF oDlg PIXEL SIZE 023,006  //Status Li
-	@ aPosObj[1][1]+29,aposget[1,1]+454 MSGET cStatusLi OF oDlg ;
+	@ aPosObj[1][1]+29,aposget[1,1]+454 MSGET __av_cStsLi OF oDlg ;
 	PICTURE PesqPict("SC7","C7_XSTALI",30) F3 CpoRetF3('C7_XSTALI');
 	WHEN    !l120Visual .And. VisualSX3('C7_XSTALI') .And. !lMt120Ped PIXEL SIZE 080,006 HASBUTTON
 	
 	@ aPosObj[1][1]+41,aPosGet[1,1] SAY   "Shipment Status" OF oDlg PIXEL SIZE 023,006  //Shipment Status
-	@ aPosObj[1][1]+41,aposget[1,1]+064 MSGET cShipment OF oDlg ;
+	@ aPosObj[1][1]+41,aposget[1,1]+064 MSGET __av_cShip OF oDlg ;
 	PICTURE PesqPict("SC7","C7_XSHIPME",3) F3 CpoRetF3('C7_XSHIPME');
 	WHEN    !l120Visual .And. VisualSX3('C7_XSHIPME') .And. !lMt120Ped PIXEL SIZE 080,006 HASBUTTON
 	
 	@ aPosObj[1][1]+41,aPosGet[1,1]+203 SAY   "Import License" OF oDlg PIXEL SIZE 023,006  //Import License
-	@ aPosObj[1][1]+41,aposget[1,1]+278 MSGET cImport OF oDlg ;
+	@ aPosObj[1][1]+41,aposget[1,1]+278 MSGET __av_cImpo OF oDlg ;
 	PICTURE PesqPict("SC7","C7_XIMPSTA",3) F3 CpoRetF3('C7_XIMPSTA');
 	WHEN    !l120Visual .And. VisualSX3('C7_XIMPSTA') .And. !lMt120Ped PIXEL SIZE 080,006 HASBUTTON 
 
+		
 
 Return
 
