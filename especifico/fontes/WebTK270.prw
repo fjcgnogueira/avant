@@ -1557,9 +1557,9 @@ User Function VldMail()
 		If At('@',&(READVAR()))==0 .or. At('.',&(READVAR()))==0 .or. At('"',&(READVAR()))<>0 .or. At('!',&(READVAR()))<>0 .or. At('#',&(READVAR()))<>0 .or. At('$',&(READVAR()))<>0 .or. At('%',&(READVAR()))<>0 .or. At('&',&(READVAR()))<>0 .or. At('(',&(READVAR()))<>0 .or. At(')',&(READVAR()))<>0 .or. At('/',&(READVAR()))<>0 .or. At('*',&(READVAR()))<>0 .or. At('+',&(READVAR()))<>0 .or. At('|',&(READVAR()))<>0 .or. At('<',&(READVAR()))<>0 .or. At('>',&(READVAR()))<>0 .or. At(':',&(READVAR()))<>0 .or. At('?',&(READVAR()))<>0 .or. At(',',&(READVAR()))<>0 .or. At('}',&(READVAR()))<>0 .or. At(']',&(READVAR()))<>0 .or. At('{',&(READVAR()))<>0 .or. At('[',&(READVAR()))<>0 .or. At('~',&(READVAR()))<>0 .or. At('^',&(READVAR()))<>0 .or. At('´',&(READVAR()))<>0 .or. At('`',&(READVAR()))<>0
 			_lVai := .F.
 		    Msginfo("Este endereço de e-mail não é válido!")
-		Elseif At('@AVANTLED.COM.BR',Upper(&(READVAR())))==0
+		Elseif At('@AVANTLUX.COM.BR',Upper(&(READVAR())))==0
 			_lVai := .F.
-			Msginfo("Aceito somente e-mails terminado em '@AVANTLED.COM.BR'")
+			Msginfo("Aceito somente e-mails terminado em '@AVANTLUX.COM.BR'")
 		EndIf
 	EndIf
 
