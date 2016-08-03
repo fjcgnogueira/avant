@@ -180,6 +180,7 @@ While ZZI->(!Eof())
 					nDescSuf := MafisRet(,"IT_DESCZF")
 				Endif
 				
+				// Chamado 003707 - Fernando Nogueira
 				If ValType(MafisRet(,"IT_EXCECAO")) == 'A' .And. Len(MafisRet(,"IT_EXCECAO")) >= 3
 					nMargem	:= MafisRet(,"IT_EXCECAO")[3]
 				Endif
