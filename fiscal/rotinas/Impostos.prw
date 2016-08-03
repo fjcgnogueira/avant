@@ -180,7 +180,9 @@ While ZZI->(!Eof())
 					nDescSuf := MafisRet(,"IT_DESCZF")
 				Endif
 				
-				nMargem	:= MafisRet(,"IT_EXCECAO")[3]
+				If ValType(MafisRet(,"IT_EXCECAO")) == 'A' .And. Len(MafisRet(,"IT_EXCECAO")) >= 3
+					nMargem	:= MafisRet(,"IT_EXCECAO")[3]
+				Endif
 				
 				//Finaliza Funcao Fiscal
 				MaFisEnd()
