@@ -41,6 +41,7 @@ Local nVlrPis	:= 0
 Local nVlrCof	:= 0
 Local nVlrRet	:= 0
 Local nDescSuf	:= 0
+Local nMargem	:= 0                                                                                                                      
 
 RpcClearEnv()
 RPCSetType(3)
@@ -94,6 +95,7 @@ While ZZI->(!Eof())
 				nVlrCof	  := 0
 				nVlrRet	  := 0
 				nDescSuf  := 0
+				nMargem	  := 0
 			
 				//Inicializa a Funcao Fiscal
 				MaFisIni(	SA1->A1_COD		,;		// 01-Codigo Cliente
@@ -178,6 +180,8 @@ While ZZI->(!Eof())
 					nDescSuf := MafisRet(,"IT_DESCZF")
 				Endif
 				
+				nMargem	:= MafisRet(,"IT_EXCECAO")[3]
+				
 				//Finaliza Funcao Fiscal
 				MaFisEnd()
 				
@@ -195,6 +199,7 @@ While ZZI->(!Eof())
 				ZIA->ZIA_VALPIS := nVlrPis
 				ZIA->ZIA_VALCOF	:= nVlrCof
 				ZIA->ZIA_DESCZF	:= nDescSuf
+				ZIA->ZIA_MARGEM	:= nMargem
 				MsUnlock()
 							
 			Endif
@@ -213,5 +218,7 @@ cLog += Replicate( "-", 128 ) + CRLF
 cLog += Replicate( " ", 128 ) + CRLF
 
 MemoWrite(cPathLog+cFileLog, cLog)
+
+RpcClearEnv()
 
 Return
