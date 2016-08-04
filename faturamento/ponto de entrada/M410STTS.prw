@@ -22,27 +22,32 @@ Local _xRecno
 Local cCliente := M->C5_CLIENTE
 Local cLojaCli := M->C5_LOJACLI
 
-SC9->(DbSetOrder(1))
+// Pedido Diferente de Dev.Compras e Beneficiamento
+If !(M->C5_TIPO $ 'BD')
 
-If SC9->(dbSeek(SC5->C5_FILIAL+SC5->C5_NUM))
-	While SC9->(!Eof()) .And. SC9->C9_FILIAL+SC9->C9_PEDIDO == SC5->C5_FILIAL+SC5->C5_NUM
-		_xRecno := SC9->(Recno())
-		SC9->(RecLock("SC9",.F.))
-		SC9->C9_SEQLIB := StrZero(_xRecno,8)
-		SC9->(MsUnLock())	
-		SC9->(dbSkip())
-	End
-EndIf
-
-// Atualiza Total com impostos no cadastro de clientes
-SA1->(RecLock("SA1",.F.))
-	SA1->A1_X_VLRTO := U_TotPedCred(cCliente,cLojaCli)
-SA1->(MsUnlock())
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³  Retorna a situacao inicial       ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-SC9->(RestArea(aAreaSC9))
-RestArea(aArea)
+	SC9->(DbSetOrder(1))
+	
+	If SC9->(dbSeek(SC5->C5_FILIAL+SC5->C5_NUM))
+		While SC9->(!Eof()) .And. SC9->C9_FILIAL+SC9->C9_PEDIDO == SC5->C5_FILIAL+SC5->C5_NUM
+			_xRecno := SC9->(Recno())
+			SC9->(RecLock("SC9",.F.))
+			SC9->C9_SEQLIB := StrZero(_xRecno,8)
+			SC9->(MsUnLock())	
+			SC9->(dbSkip())
+		End
+	EndIf
+	
+	// Atualiza Total com impostos no cadastro de clientes
+	SA1->(RecLock("SA1",.F.))
+		SA1->A1_X_VLRTO := U_TotPedCred(cCliente,cLojaCli)
+	SA1->(MsUnlock())
+	
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³  Retorna a situacao inicial       ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	SC9->(RestArea(aAreaSC9))
+	RestArea(aArea)
+	
+Endif
 
 Return
