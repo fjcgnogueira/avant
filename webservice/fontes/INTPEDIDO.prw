@@ -180,9 +180,9 @@ If lRetorno
 						aAdd(aLinha,{"C6_DESCPRO",SZ4->Z4_PRODESC,NIL})
 						aAdd(aLinha,{"C6_LOCAL"  ,cArmazem       ,NIL})
 						// Fernando Nogueira - Verifica se vem comissao da web
-						If SZ4->Z4_PCCOMIS > 0
-							aAdd(aLinha,{"C6_COMIS1" ,SZ4->Z4_PCCOMIS,NIL})
-						Endif
+						//If SZ4->Z4_PCCOMIS > 0
+						//	aAdd(aLinha,{"C6_COMIS1" ,SZ4->Z4_PCCOMIS,NIL})
+						//Endif
 						aAdd(aItens,aLinha)
 
 						lTesInt := .F.
