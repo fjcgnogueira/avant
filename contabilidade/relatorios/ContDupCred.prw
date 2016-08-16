@@ -24,16 +24,16 @@ Local oReport
 Private cPerg    := PadR("CONTDPCRD",Len(SX1->X1_GRUPO))
 
 AjustaSX1(cPerg)
-Pergunte(cPerg,.T.)
-
-If mv_par03 == 1
-	oReport := RepDef1()
-	oReport:PrintDialog()
-ElseIf mv_par03 == 2
-	oReport := RepDef2()
-	oReport:PrintDialog()
-Else
-	ApMsgInfo("Em desenvolvimento")
+If Pergunte(cPerg,.T.)
+	If mv_par03 == 1
+		oReport := RepDef1()
+		oReport:PrintDialog()
+	ElseIf mv_par03 == 2
+		oReport := RepDef2()
+		oReport:PrintDialog()
+	Else
+		ApMsgInfo("Escolha um relatório")
+	Endif
 Endif
 
 Return
@@ -324,8 +324,8 @@ Static Function AjustaSX1(cPerg)
 	PutSX1(cPerg,"01","Data de ?" ,"","","mv_ch1","D",8,0,0,"G","NaoVazio","","","","mv_par01","","","","DTOS(dDataBase)","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 	aHelpPor := {"Data Final"}
 	PutSX1(cPerg,"02","Data Ate ?","","","mv_ch2","D",8,0,0,"G","NaoVazio","","","","mv_par02","","","","DTOS(dDataBase)","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
-	aHelpPor := {"Relatório:","- Crédito a Mais","- Crédito Duplicado","- Em Desenvolvimento","- Em Desenvolvimento"}
-	PutSX1(cPerg,"03","Relatório ?"    ,"","","mv_ch3","N",1,0,1,"C","NaoVazio","","","","mv_par03","Cred A Mais","Cred A Mais","Cred A Mais","","Cred Duplicado","Cred Duplicado","Cred Duplicado","Desenvolvimento","Desenvolvimento","Desenvolvimento","Desenvolvimento","Desenvolvimento","Desenvolvimento","","","",aHelpPor,aHelpEng,aHelpSpa)
+	aHelpPor := {"Relatório:","- Crédito a Mais","- Crédito Duplicado"}
+	PutSX1(cPerg,"03","Relatório ?"    ,"","","mv_ch3","N",1,0,1,"C","NaoVazio","","","","mv_par03","Cred A Mais","Cred A Mais","Cred A Mais","","Cred Duplicado","Cred Duplicado","Cred Duplicado","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 
 		
 	RestArea(aAreaAnt)
