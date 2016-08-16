@@ -178,7 +178,11 @@ If lRetorno
 						aAdd(aLinha,{"C6_X_GERE" ,SZ4->Z4_DESCGE ,NIL})
 						aAdd(aLinha,{"C6_X_ESPEC",SZ4->Z4_DESCESP,NIL})
 						aAdd(aLinha,{"C6_DESCPRO",SZ4->Z4_PRODESC,NIL})
-						aAdd(aLinha,{"C6_LOCAL"	 ,cArmazem       ,NIL})
+						aAdd(aLinha,{"C6_LOCAL"  ,cArmazem       ,NIL})
+						// Fernando Nogueira - Verifica se vem comissao da web
+						If SZ4->Z4_PCCOMIS > 0
+							aAdd(aLinha,{"C6_COMIS1" ,SZ4->Z4_PCCOMIS,NIL})
+						Endif
 						aAdd(aItens,aLinha)
 
 						lTesInt := .F.
@@ -471,13 +475,13 @@ If !Empty(_cMailVend)
 Endif
 
 If _cTipo == 'S'
-	_cTipo := 'SOLIDARIO'
+	_cTipo := 'REVENDEDOR'
 ElseIf _cTipo == 'F'
 	_cTipo := 'CONS. FINAL'
 ElseIf _cTipo == 'L'
 	_cTipo := 'PRODUTOR RURAL'
 ElseIf _cTipo == 'R'
-	_cTipo := 'REVENDEDOR'
+	_cTipo := 'IND/OBRA'
 ElseIf _cTipo == 'X'
 	_cTipo := 'EXPORTAÇÃO'
 EndIf
