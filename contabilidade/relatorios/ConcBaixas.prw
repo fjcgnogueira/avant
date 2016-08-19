@@ -57,13 +57,20 @@ Local oReport
 Local oSection1
 Local oBreak
 Local _cTitulo := ""
+Local _cTipo   := ""
 
 Private aCtbDup   := {}
 
+If mv_par04 == 1
+	_cTipo = 'NF'
+Else
+	_cTipo = 'Cheque'
+Endif
+
 If mv_par03 == 1
-	_cTitulo := "Baixa NF Não Contabilizada"
+	_cTitulo := "Baixa "+_cTipo+" Não Contabilizada"
 ElseIf mv_par03 == 3
-	_cTitulo := "Baixa Desconto NF Não Contabilizada"
+	_cTitulo := "Baixa Desconto "+_cTipo+" Não Contabilizada"
 Endif
 
 oReport := TReport():New("CONCBAIXA",_cTitulo,"CONCBAIXA",{|oReport| PrintReport(oReport)},_cTitulo)
@@ -118,13 +125,20 @@ Local oReport
 Local oSection1
 Local oBreak
 Local _cTitulo := ""
+Local _cTipo   := ""
 
 Private aCtbDup   := {}
 
+If mv_par04 == 1
+	_cTipo = 'NF'
+Else
+	_cTipo = 'Cheque'
+Endif
+
 If mv_par03 == 2
-	_cTitulo := "Valor da Baixa NF Divergente do Contabil"
+	_cTitulo := "Valor da Baixa "+_cTipo+" Divergente do Contabil"
 ElseIf mv_par03 == 4
-	_cTitulo := "Valor da Baixa do Desconto NF Divergente do Contabil"
+	_cTitulo := "Valor da Baixa do Desconto "+_cTipo+" Divergente do Contabil"
 Endif
 
 oReport := TReport():New("CONCBAIXA",_cTitulo,"CONCBAIXA",{|oReport| PrintReport(oReport)},_cTitulo)
@@ -231,6 +245,12 @@ Static Function GerArqTRB1()
 Local _cInner := '%%'
 Local _cWhere := '%%'
 
+If mv_par04 == 1
+	_cTipo = "%'NF'%"
+Else
+	_cTipo = "%'CH'%"
+Endif
+
 If mv_par03 == 1
 	_cInner := "%CV3_HIST NOT LIKE '%MULTA/JUROS%' AND CV3_HIST NOT LIKE '%MUL/JUR%' AND CV3_HIST NOT LIKE '%BAIXA JUROR%' AND CV3_HIST NOT LIKE '%BAIXA JUROS%' AND CV3_HIST NOT LIKE '%BX JUROS%' AND CV3_HIST NOT LIKE '%DESCONT %'%"
 	_cWhere := '%AND E5_VALOR > 0%'
@@ -250,7 +270,7 @@ BeginSql alias 'TRB'
 		AND E5_RECPAG = 'R' 
 		AND E5_TIPODOC NOT IN ('TR','DC','D2','JR','J2','MT','M2','DB','ES','CP') // Transf para Descontado/Desc/Juros/Multa/Desp Banc/Estorno Contas a Pagar/Compensacoes
 		AND E5_SITUACA <> 'C' // Baixa nao cancelada
-		AND E5_TIPO = 'NF'
+		AND E5_TIPO = %Exp:_cTipo%
 		AND CT2.R_E_C_N_O_ IS NULL
 		%Exp:_cWhere%
 	ORDER BY SE5.R_E_C_N_O_
@@ -275,6 +295,12 @@ Static Function GerArqTRB2()
 Local _cInner := '%%'
 Local _cWhere := '%%'
 
+If mv_par04 == 1
+	_cTipo = "%'NF'%"
+Else
+	_cTipo = "%'CH'%"
+Endif
+
 If mv_par03 == 2
 	_cInner := "%CV3_HIST NOT LIKE '%MULTA/JUROS%' AND CV3_HIST NOT LIKE '%MUL/JUR%' AND CV3_HIST NOT LIKE '%BAIXA JUROR%' AND CV3_HIST NOT LIKE '%BAIXA JUROS%' AND CV3_HIST NOT LIKE '%BX JUROS%' AND CV3_HIST NOT LIKE '%DESCONT %'%"
 	_cWhere := '%AND E5_VALOR > 0'
@@ -295,8 +321,8 @@ BeginSql alias 'TRB'
 		AND E5_DTDISPO BETWEEN %Exp:DtoS(mv_par01)% AND %Exp:DtoS(mv_par02)%
 		AND E5_RECPAG = 'R' 
 		AND E5_TIPODOC NOT IN ('TR','DC','D2','JR','J2','MT','M2','DB','ES','CP') // Transf para Descontado/Desc/Juros/Multa/Desp Banc/Estorno Contas a Pagar/Compensacoes
+		AND E5_TIPO = %Exp:_cTipo%
 		AND E5_SITUACA <> 'C' // Baixa nao cancelada
-		AND E5_TIPO = 'NF'
 		%Exp:_cWhere%
 	ORDER BY SE5.R_E_C_N_O_
 
@@ -329,7 +355,8 @@ Static Function AjustaSX1(cPerg)
 	PutSX1(cPerg,"02","Data Ate ?","","","mv_ch2","D",8,0,0,"G","NaoVazio","","","","mv_par02","","","","DTOS(dDataBase)","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 	aHelpPor := {"Relatório:","- Nao Contabilizou","- Valor Divergente","- Nao Contabilizou Desconto","- Valor Divergente Desconto"}
 	PutSX1(cPerg,"03","Relatório ?"    ,"","","mv_ch3","N",1,0,1,"C","NaoVazio","","","","mv_par03","Sem Contabil","Sem Contabil","Sem Contabil","","Vlr Divergente","Vlr Divergente","Vlr Divergente","Desc.Sem Cont.","Desc.Sem Cont.","Desc.Sem Cont.","Vlr Div Desc","Vlr Div Desc","Vlr Div Desc","","","",aHelpPor,aHelpEng,aHelpSpa)
-
+	aHelpPor := {"Tipo de Titulo:","- NF","- Cheque"}
+	PutSX1(cPerg,"04","Tipo ?"    ,"","","mv_ch4","N",1,0,1,"C","NaoVazio","","","","mv_par04","NF","NF","NF","","Cheque","Cheque","Cheque","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 		
 	RestArea(aAreaAnt)
 
