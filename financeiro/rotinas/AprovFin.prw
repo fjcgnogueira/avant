@@ -1,0 +1,233 @@
+#include "totvs.ch"
+#include "fwmvcdef.ch"
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ AprovFin()  º Autor ³ Fernando Nogueira  º Data ³31/05/2016º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDescricao ³ Aprovacao de alteracoes nos Titulos a Receber              º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ Especifico AVANT.                   	                      º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍÏÍÍÍÑÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºAnalista Resp.³  Data  ³ Manutencao Efetuada                           º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±º              ³  /  /  ³                                               º±±
+±±º              ³  /  /  ³                                               º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+User Function AprovFin()
+
+Local bKeyF5  := SetKey(VK_F5)
+Local bKeyF12 := SetKey(VK_F12)
+
+Private oBrowse
+Private lEnd  := .T.
+Private cPerg := "SE1AV"
+
+AjustaSX1(cPerg)
+Pergunte(cPerg,.F.)
+
+oBrowse:= FWMarkBrowse():New()
+oBrowse:SetDescription('Aprovacao Tit. a Receber')
+oBrowse:SetMenuDef("AprovFin")
+oBrowse:SetAlias("SE1")
+oBrowse:SetFieldMark("E1_X_OK")
+oBrowse:SetAllMark({||AllMark()})
+oBrowse:SetFilterDefault("@"+AprFinQry())
+oBrowse:SetWalkThru(.F.)
+oBrowse:SetAmbiente(.F.)
+oBrowse:SetTimer({|| oBrowse:Refresh(.T.)}, 600000) // 10 min
+oBrowse:SetIniWindow({||oBrowse:oBrowse:oTimer:lActive := .T.})
+
+SetKey (VK_F5  , {|| Processa({|lEnd|oBrowse:Refresh(.T.)},'Aprovacao Tit. a Receber','Selecionando Titulos...',.T.)})
+SetKey (VK_F12 , {|| Processa({|lEnd|Pergunte(cPerg,.T.),oBrowse:Refresh(.T.)},'Aprovacao Tit. a Receber','Selecionando Titulos...',.T.)})
+
+oBrowse:Activate()
+
+SetKey (VK_F5  , bKeyF5)
+SetKey (VK_F12 , bKeyF12)
+
+Return
+
+/*
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Funcao    ³ MenuDef  ³ Autor ³ Fernando Nogueira       ³Data³14/06/2016³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡„o ³ Definicoes de Menu                                         ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³                                                            ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±*/
+Static Function MenuDef()
+
+	Local aRotina := {} 
+        
+    //Adicionando opcoes
+    ADD OPTION aRotina Title 'Pesquisar'  ACTION 'PesqBrw'          			OPERATION 1 ACCESS 0
+	ADD OPTION aRotina TITLE "Visualizar" ACTION 'VIEWDEF.AprovFin' 			OPERATION 2 ACCESS 0 
+	ADD OPTION aRotina TITLE "Aprovar"    ACTION 'StaticCall(AprovFin,ConfApr)'	OPERATION 4 ACCESS 0 
+ 
+Return aRotina
+
+/*
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Funcao    ³ ModelDef ³ Autor ³ Fernando Nogueira       ³Data³14/06/2016³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡„o ³ Cricao do Modelo                                           ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³                                                            ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±*/
+Static Function ModelDef()
+
+Local oModel     := Nil
+Local oStructSE1 := FWFormStruct(1, "SE1")
+ 
+//Instanciando o modelo, nao deve ser o mesmo nome da funcao
+oModel := MPFormModel():New("AprFin",/*bPre*/, /*bPos*/,/*bCommit*/,/*bCancel*/) 
+ 
+//Atribuindo formularios para o modelo
+oModel:AddFields("FORMSE1",/*cOwner*/,oStructSE1)
+ 
+//Setando a chave primaria da rotina
+oModel:SetPrimaryKey({'E1_FILIAL','E1_PREFIXO','E1_NUM','E1_PARCELA','E1_TIPO'})
+ 
+//Adicionando descricao ao modelo
+oModel:SetDescription('Modelo Aprovacao Tit. a Receber')
+ 
+//Setando a descricao do formulário
+oModel:GetModel("FORMSE1"):SetDescription("Formulario Aprovacao Tit. a Receber")
+Return oModel
+
+/*
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Funcao    ³ ViewDef  ³ Autor ³ Fernando Nogueira       ³Data³14/06/2016³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡„o ³ Cricao da Visao                                            ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³                                                            ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±*/
+Static Function ViewDef()
+//Criação do objeto do modelo de dados da Interface do Cadastro de Autor/Interprete
+Local oModel := FWLoadModel("AprovFin")
+ 
+//Criação da estrutura de dados utilizada na interface do cadastro de Autor
+Local oStructSE1 := FWFormStruct(2,"SE1")  //pode se usar um terceiro parametro para filtrar os campos exibidos { |cCampo| cCampo $ 'SBM_NOME|SBM_DTAFAL|'}
+ 
+//Criando oView como nulo
+Local oView := Nil
+ 
+//Criando a view que será o retorno da função e setando o modelo da rotina
+oView := FWFormView():New()
+oView:SetModel(oModel)
+ 
+//Atribuindo formularios para interface
+oView:AddField("VIEW_SE1", oStructSE1, "FORMSE1")
+ 
+//Criando um container com nome tela com 100%
+oView:CreateHorizontalBox("TELA",100)
+ 
+//Colocando titulo do formulario
+oView:EnableTitleView('VIEW_SE1', 'Titulos a Receber' )  
+ 
+//Forca o fechamento da janela na confirmacao
+oView:SetCloseOnOk({||.T.})
+ 
+//O formulario da interface sera colocado dentro do container
+oView:SetOwnerView("VIEW_SE1","TELA")
+Return oView
+
+/*
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡„o    ³AprFinQry ³ Autor ³ Fernando Nogueira       ³Data³14/06/2016³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡„o ³ Retorna expressao do filtro                                ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³                                                            ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±*/
+Static Function AprFinQry()
+Local cQuery := ''
+
+cQuery  := "E1_FILIAL = '"+xFilial('SE1')+"' AND "
+cQuery  += "E1_VENCAPR <> E1_VENCTO AND "
+If MV_PAR01 == 1
+	cQuery  += "E1_APRVENC <> 'S' AND "
+ElseIF MV_PAR01 == 2
+	cQuery  += "E1_APRVENC = 'S' AND "
+Endif
+cQuery  += "E1_VENCAPR <> ' '"
+
+Return(cQuery)
+
+/*
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Funcao    ³ ConfApr  ³ Autor ³ Fernando Nogueira       ³Data³20/06/2016³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡„o ³ Confirma Aprovacao da Data                                 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³                                                            ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±*/
+Static Function ConfApr()
+
+Local cAliasSE1	:= GetNextAlias()
+Local cMarca   	:= oBrowse:cMark
+LOCAL aArray 	:= {}
+
+BeginSql Alias cAliasSE1
+	SELECT R_E_C_N_O_, E1_VENCAPR FROM %table:SE1% SE1
+	WHERE E1_FILIAL = %xFilial:SE1%
+		AND E1_X_OK = %exp:cMarca%
+		AND SE1.%NotDel%
+EndSql
+
+dbSelectArea("SE1")
+dbSetOrder(01)
+
+dbSelectArea(cAliasSE1)
+(cAliasSE1)->(DbGoTop())
+
+While !(cAliasSE1)->(Eof())
+	aArray := {}
+	SE1->(dbGoTo((cAliasSE1)->R_E_C_N_O_))
+	aArray := { { "E1_VENCTO", (cAliasSE1)->E1_VENCAPR	, NIL } }
+End
+
+Return
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³AjustaSX1 ºAutor  ³ Fernando Nogueira  º Data ³ 04/07/2016  º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³Cria as perguntas do programa no dicionario de perguntas    º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+Static Function AjustaSX1(cPerg)
+
+	Local aAreaAnt := GetArea()
+	Local aRegs    := {}
+	Local aHelpPor := {}
+	Local aHelpEng := {}
+	Local aHelpSpa := {}
+	
+	aHelpPor := {"Data Inicial"}
+	aHelpPor := {"Status","- Nao Aprovados","- Aprovados","- Ambos"}
+	PutSX1(cPerg,"01","Status ?","","","mv_ch1","N",1,0,1,"C","NaoVazio","","","","mv_par01","Nao Aprov.","Nao Aprov.","Nao Aprov.","","Aprovados","Aprovados","Aprovados","Ambos","Ambos","Ambos","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
+	RestArea(aAreaAnt)
+
+Return Nil
