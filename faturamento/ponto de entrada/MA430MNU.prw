@@ -52,7 +52,7 @@ User Function AVResid(cAlias,nReg,nOpcx)
 Local aArea := GetArea()
 Local cNum  := SC0->C0_NUM
 
-If AllTrim(SC0->C0_SOLICIT) <> AllTrim(cUserName)
+If !Empty(SC0->C0_SOLICIT) .And. AllTrim(SC0->C0_SOLICIT) <> AllTrim(cUserName)
 	ApMsgInfo("Eliminar Resíduos liberado somente para o mesmo usuário que fez a reserva: "+AllTrim(SC0->C0_SOLICIT))
 	Return 
 ElseIf a430Visual(cAlias,nReg,nOpcx)==1

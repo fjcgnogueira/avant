@@ -14,7 +14,7 @@
 /*/
 User Function M430TOK()
 
-If Altera .And. AllTrim(SC0->C0_SOLICIT) <> AllTrim(cUserName)
+If Altera .And. !Empty(SC0->C0_SOLICIT) .And. AllTrim(SC0->C0_SOLICIT) <> AllTrim(cUserName)
 	ApMsgInfo("Alteração liberada somente para o mesmo usuário que fez a reserva: "+AllTrim(SC0->C0_SOLICIT))
 	Return .F.
 Endif
