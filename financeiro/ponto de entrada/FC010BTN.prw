@@ -60,12 +60,11 @@ aPosObj	:= MsObjSize(aInfo,aObjects)
 // Abertura da tabela
 //-------------------------------------------------------------------
 Connect(,.T.,"01","01",,.T.)
-cQuery := "SELECT * FROM SE1010 "
+cQuery := "SELECT * FROM "+RetSqlName("SE1")+" "
 cQuery += "WHERE D_E_L_E_T_ = '*' "
 cQuery += "AND E1_CLIENTE+E1_LOJA = '"+SA1->A1_COD+SA1->A1_LOJA+"'"
 cQuery += "AND E1_EMISSAO BETWEEN '"+DTOS(MV_PAR01)+"' AND '"+DTOS(MV_PAR02)+"' "
 cQuery += "AND E1_VENCREA BETWEEN '"+DTOS(MV_PAR03)+"' AND '"+DTOS(MV_PAR04)+"' "
-
 
 //-------------------------------------------------------------------
 // Indica os índices da tabela temporária
