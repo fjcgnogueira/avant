@@ -51,8 +51,12 @@ While (cNextAlias)->(!EoF())
 
 	U_INTPEDIDO(aParam[1], aParam[2], AllTrim(cValToChar((cNextAlias)->Z3_NPEDWEB)), @cMensagem, @cDocumen, .F.)
 	
-	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] "+cMensagem)
-	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] "+cDocumen)
+	If !Empty(cMensagem)
+		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] "+cMensagem)
+	Endif
+	If !Empty(cDocumen)
+		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] "+cDocumen)
+	Endif
 	
 	Sleep(20000)
 	
@@ -61,7 +65,7 @@ End
 
 (cNextAlias)->(DbCloseArea())
 
-If Empty(cDocumen)
+If Empty(cDocumen) .And. Empty(cMensagem)
 	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Nenhum pedido a integrar")
 Endif
 
