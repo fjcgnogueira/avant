@@ -41,7 +41,7 @@ BeginSql alias cNextAlias
 
 EndSql
 
-// Gera as Notas Fiscais referentes aos Pedidos Liberados
+// Faz a Integracao dos Pedidos de Vendas
 While (cNextAlias)->(!EoF())
 
 	cMensagem := ""
