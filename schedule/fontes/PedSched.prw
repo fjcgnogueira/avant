@@ -110,7 +110,7 @@ Local cMsgInt   := "Seu Pedido Web Nº "+cValtoChar(SC5->C5_PEDWEB)+" foi integra
 
 If lMailCad
 	cMsgInt   += "<br /> "
-	cMsgInt   += "Setor de Cadastro de Clientes:<br /> "
+	cMsgInt   += "Setor de Cadastro de Clientes e Representantes:<br /> "
 	cMsgInt   += "O representante "+SA3->A3_COD+" não recebeu esse e-mail.<br /> "
 	cMsgInt   += "Acertar o cadastro do representante e repassar o e-mail para ele.<br /> "	
 Endif
@@ -226,7 +226,7 @@ lMailCad  := Empty(cPara)
 
 If lMailCad
 	cMsgInt   += "<br /> "
-	cMsgInt   += "Setor de Cadastro de Clientes:<br /> "
+	cMsgInt   += "Setor de Cadastro de Clientes e Representantes:<br /> "
 	cMsgInt   += "O representante "+(cPedTRB)->Z3_VEND+" não recebeu esse e-mail.<br /> "
 	cMsgInt   += "Acertar o cadastro do representante e repassar o e-mail para ele.<br /> "	
 Endif
