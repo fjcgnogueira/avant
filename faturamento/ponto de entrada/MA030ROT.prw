@@ -50,7 +50,9 @@ User Function EXPFOR()
 	Local _cTipo	    := ""
 	Local _cGRPTRIB	    := ""
 	Local cEndFor       := ""
-	LOCAL aCpos  := {"A2_NOME","A2_NREDUZ"}
+	Local aCpos  := {"A2_NOME","A2_NREDUZ"}
+	Local _cTpessoa := ""
+	
 	Private aRotAuto 	:= Nil
 	Private lMsErroAuto := .F.
 	Private A1_CODMARC
@@ -71,6 +73,13 @@ User Function EXPFOR()
 		cCodFor	 := GetSx8Num("SA2","A2_COD")
 		cLojaFor := StrZero(1,TamSx3("A2_LOJA")[1])
 	EndIf
+
+If SA1->A1_TPESSOA = "EP"
+	_cTpessoa := "OS"
+Else
+	_cTpessoa := SA1->A1_TPESSOA
+EndIf
+
 
 	aValues	:= {	{"A2_LOJA"		,cLojaFor  , Nil},;
 		{"A2_COD"		,cCodFor			   , Nil},;
@@ -96,7 +105,7 @@ User Function EXPFOR()
 		{"A2_ESTC"		,UPPER(SA1->A1_ESTC)   , Nil},;
 		{"A2_EMAIL"		,SA1->A1_EMAIL		   , Nil},;
 		{"A2_TIPORUR"	,SA1->A1_PESSOA		   , Nil},;
-		{"A2_TPESSOA"	,"OS"           	   , Nil},;
+		{"A2_TPESSOA"	,_cTpessoa         	   , Nil},;
 		{"A2_PAIS"		,ALLTRIM("105")		   , Nil}}
 
 	If Aviso("Aviso","Confirma Importação do Cliente para o cadastro de Fornecedores?" + CRLF + CRLF +;
