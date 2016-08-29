@@ -106,13 +106,13 @@ Local cTotal    := 0
 Local lWFTI     := &(Posicione("SX5",1,xFilial("SX5")+"ZA0004","X5_DESCRI"))
 Local cPara     := AllTrim(Posicione("SA3",1,xFilial("SA3")+SC5->C5_VEND1,"A3_EMAIL"))
 Local lMailCad  := Empty(cPara)
-Local cMsgInt   := "Seu Pedido Web Nº "+cValtoChar(SC5->C5_PEDWEB)+" foi integrado com sucesso.<br /> "
+Local cMsgInt   := "Seu Pedido Web Nº "+cValtoChar(SC5->C5_PEDWEB)+" foi integrado com sucesso. "
 
 If lMailCad
 	cMsgInt   += "<br /> "
 	cMsgInt   += "Setor de Cadastro de Clientes e Representantes:<br /> "
 	cMsgInt   += "O representante "+SA3->A3_COD+" não recebeu esse e-mail.<br /> "
-	cMsgInt   += "Acertar o cadastro do representante e repassar o e-mail para ele.<br /> "	
+	cMsgInt   += "Acertar o cadastro do representante e repassar o e-mail para ele. "	
 Endif
 
 If Time() > "18:00:00"
@@ -127,17 +127,19 @@ oProcess := TWFProcess():New("PEDINT","PEDIDO INTEGRADO")
 oProcess:NewTask("Enviando Pedido",cArquivo)
 oHTML := oProcess:oHTML
 
+SC6->(dbSetOrder(01))
+SC6->(dbSeek(xFilial("SC6")+SC5->C5_NUM))
+
 oHtml:ValByName("cSaudacao", cSaudacao)
 oHtml:ValByName("cMsgInt"  , cMsgInt)
 oHtml:ValByName("cPedido"  , cValtoChar(SC5->C5_NUM))
 oHtml:ValByName("cEmissao" , DtoC(SC5->C5_EMISSAO))
-oHtml:ValByName("cCondPag" , SC5->C5_XDESCP)
-oHtml:ValByName("cRegiao"  , SC5->C5_REGIAO)
-oHtml:ValByName("cDescCli" , SC5->C5_DESCCLI)
-oHtml:ValByName("cNomTran" , SC5->C5_NOMTRAN)
-
-SC6->(dbSetOrder(01))
-SC6->(dbSeek(xFilial("SC6")+SC5->C5_NUM))
+oHtml:ValByName("cTpOper"  , AllTrim(SC6->C6_TPOPERW))
+oHtml:ValByName("cCondPag" , AllTrim(SC5->C5_XDESCP))
+oHtml:ValByName("cRegiao"  , AllTrim(SC5->C5_REGIAO))
+oHtml:ValByName("cDescCli" , AllTrim(SC5->C5_DESCCLI))
+oHtml:ValByName("cNomTran" , AllTrim(SC5->C5_NOMTRAN))
+oHtml:ValByName("cObs"     , AllTrim(SC5->C5_MENNOTA))
 
 While SC6->(!EoF()) .And. SC6->C6_NUM == SC5->C5_NUM
 
@@ -200,7 +202,7 @@ Local cPedTRB   := GetNextAlias()
 Local lWFTI     := &(Posicione("SX5",1,xFilial("SX5")+"ZA0004","X5_DESCRI"))
 Local cPara     := ""
 Local lMailCad  := ""
-Local cMsgInt   := "Seu Pedido Web Nº "+cPedWeb+" não foi integrado.<br /> "
+Local cMsgInt   := "Seu Pedido Web Nº "+cPedWeb+" não foi integrado. "
 
 If Time() > "18:00:00"
 	cSaudacao := "Boa Noite"
@@ -212,7 +214,7 @@ Endif
 
 BeginSql alias cPedTRB
 
-	SELECT Z3_NPEDWEB,Z3_EMISSAO,Z3_DSCPGTO,Z3_REGIAO,Z3_RAZASOC,Z3_VEND,Z4_ITEMPED,Z4_CODPROD,Z4_DESCPRO,Z4_QTDE,Z4_PRLIQ,Z4_VLRTTIT FROM %table:SZ3% SZ3
+	SELECT Z3_NPEDWEB,Z3_DSCTSAC,Z3_EMISSAO,Z3_DSCPGTO,Z3_REGIAO,Z3_RAZASOC,Z3_VEND,Z3_OBS,Z4_ITEMPED,Z4_CODPROD,Z4_DESCPRO,Z4_QTDE,Z4_PRLIQ,Z4_VLRTTIT FROM %table:SZ3% SZ3
 	INNER JOIN %table:SZ4% SZ4 ON Z3_FILIAL = Z4_FILIAL AND Z3_NPEDWEB = Z4_NUMPEDW AND SZ4.%notDel%
 	WHERE SZ3.%notDel% AND Z3_FILIAL = %xfilial:SZ3% AND Z3_NPEDWEB = %Exp:nPedWeb%
 	ORDER BY Z3_FILIAL,Z3_NPEDWEB,Z4_ITEMPED
@@ -228,7 +230,7 @@ If lMailCad
 	cMsgInt   += "<br /> "
 	cMsgInt   += "Setor de Cadastro de Clientes e Representantes:<br /> "
 	cMsgInt   += "O representante "+(cPedTRB)->Z3_VEND+" não recebeu esse e-mail.<br /> "
-	cMsgInt   += "Acertar o cadastro do representante e repassar o e-mail para ele.<br /> "	
+	cMsgInt   += "Acertar o cadastro do representante e repassar o e-mail para ele. "	
 Endif
 
 oProcess := TWFProcess():New("PEDNAOINT","PEDIDO NAO INTEGRADO")
@@ -238,9 +240,11 @@ oHTML := oProcess:oHTML
 oHtml:ValByName("cSaudacao", cSaudacao)
 oHtml:ValByName("cMsgInt"  , cMsgInt)
 oHtml:ValByName("cEmissao" , DtoC(StoD((cPedTRB)->Z3_EMISSAO)))
-oHtml:ValByName("cCondPag" , (cPedTRB)->Z3_DSCPGTO)
-oHtml:ValByName("cRegiao"  , (cPedTRB)->Z3_REGIAO)
-oHtml:ValByName("cDescCli" , (cPedTRB)->Z3_RAZASOC)
+oHtml:ValByName("cTpOper"  , AllTrim((cPedTRB)->Z3_DSCTSAC))
+oHtml:ValByName("cCondPag" , AllTrim((cPedTRB)->Z3_DSCPGTO))
+oHtml:ValByName("cRegiao"  , AllTrim((cPedTRB)->Z3_REGIAO))
+oHtml:ValByName("cDescCli" , AllTrim((cPedTRB)->Z3_RAZASOC))
+oHtml:ValByName("cObs"     , AllTrim((cPedTRB)->Z3_OBS))
 
 While (cPedTRB)->(!EoF())
 
