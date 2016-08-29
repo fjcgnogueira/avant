@@ -110,6 +110,7 @@ If lRetorno
 				aAdd(aCabec,{"C5_FILIAL" ,SZ3->Z3_FILIAL ,NIL})
 				aAdd(aCabec,{"C5_NUM"    ,cPedNew        ,NIL})
 				aAdd(aCabec,{"C5_EMISSAO",dDtEmiss       ,NIL})
+				aAdd(aCabec,{"C5_X_DTINT",dDataBase      ,NIL})  // Fernando Nogueira - Chamado 003950
 				aAdd(aCabec,{"C5_TIPO"   ,"N"            ,NIL})
 				aAdd(aCabec,{"C5_SEED"   ,SZ3->Z3_SEED   ,NIL})
 				aAdd(aCabec,{"C5_CLIENTE",SA1->A1_COD    ,NIL})
