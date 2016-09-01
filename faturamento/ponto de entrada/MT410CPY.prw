@@ -29,5 +29,6 @@ For J := 1 To Len(aCols)
 Next J
 
 M->C5_VOLUME1 := 0
+M->C5_PEDWEB  := 0
 
 Return
