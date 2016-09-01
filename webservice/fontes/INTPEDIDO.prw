@@ -288,7 +288,7 @@ If lRetorno
 					Endif
 
 					// Chamado 002553 - Fernando Nogueira
-					If nTotBonif > Posicione("SA3",1,xFilial("SA3")+SZ3->Z3_VEND,"A3_ACMMKT")
+					If nTotBonif > 0 .And. nTotBonif > Posicione("SA3",1,xFilial("SA3")+SZ3->Z3_VEND,"A3_ACMMKT")
 						cMensagem	+= "<b> Caro Representante. O Valor do seu Pedido de Bonificacao com Impostos ("+AllTrim(Transform(nTotBonif, _cSA3Cred))+") ultrapassou o seu Saldo de Credito de Marketing ("+AllTrim(Transform(SA3->A3_ACMMKT, _cSA3Cred))+"). </b>" + cEnter + cEnter
 					Endif
 
