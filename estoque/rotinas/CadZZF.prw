@@ -18,7 +18,7 @@ User Function CadZZF()
 Private oBrowse := FwMBrowse():New() 
 
 oBrowse:SetAlias('ZZF')
-oBrowse:SetDescripton("Cadastro de Familia de Produtos") 
+oBrowse:SetDescription("Cadastro de Familia de Produtos") 
 oBrowse:Activate()
 
 Return
@@ -72,8 +72,8 @@ oStruZZF:SetProperty('ZZF_CODIGO',MODEL_FIELD_INIT,{||GETSXENUM("ZZF","ZZF_CODIG
 oModel := MpFormModel():New('MdCadZZF',/*Pre-Validacao*/,/*Pos-Validacao*/,/*Commit*/,/*Cancel*/)
 oModel:AddFields('ID_FLD_CadZZF', /*cOwner*/, oStruZZF, /*bPreValidacao*/, /*bPosValidacao*/, /*bCarga*/ )
 oModel:SetPrimaryKey({"ZZF_FILIAL", "ZZF_CODIGO"})
-oModel:SetDescription('Modelo de Dados do Cadastro de Familia de Produtos')     
-oModel:GetModel('ID_FLD_CadZZF'):SetDescription('Formulario de  Cadastro dos Dados de Familia de Produtos')
+oModel:SetDescription('Cadastro de Familia de Produtos')     
+oModel:GetModel('ID_FLD_CadZZF'):SetDescription('Formulario de Cadastro dos Dados de Familia de Produtos')
 
 Return(oModel)
 
