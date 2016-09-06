@@ -63,8 +63,10 @@ Private aCtbDup   := {}
 
 If mv_par04 == 1
 	_cTipo = 'NF'
-Else
+ElseIf mv_par04 == 2
 	_cTipo = 'Cheque'
+Else
+	_cTipo = 'NCC'
 Endif
 
 If mv_par03 == 1
@@ -131,8 +133,10 @@ Private aCtbDup   := {}
 
 If mv_par04 == 1
 	_cTipo = 'NF'
-Else
+ElseIf mv_par04 == 2
 	_cTipo = 'Cheque'
+Else
+	_cTipo = 'NCC'
 Endif
 
 If mv_par03 == 2
@@ -247,8 +251,10 @@ Local _cWhere := '%%'
 
 If mv_par04 == 1
 	_cTipo = "%'NF'%"
-Else
+ElseIf mv_par04 == 2
 	_cTipo = "%'CH'%"
+Else
+	_cTipo = "%'NCC'%"
 Endif
 
 If mv_par03 == 1
@@ -297,8 +303,10 @@ Local _cWhere := '%%'
 
 If mv_par04 == 1
 	_cTipo = "%'NF'%"
-Else
+ElseIf mv_par04 == 2
 	_cTipo = "%'CH'%"
+Else
+	_cTipo = "%'NCC'%"
 Endif
 
 If mv_par03 == 2
@@ -355,8 +363,8 @@ Static Function AjustaSX1(cPerg)
 	PutSX1(cPerg,"02","Data Ate ?","","","mv_ch2","D",8,0,0,"G","NaoVazio","","","","mv_par02","","","","DTOS(dDataBase)","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 	aHelpPor := {"Relatório:","- Nao Contabilizou","- Valor Divergente","- Nao Contabilizou Desconto","- Valor Divergente Desconto"}
 	PutSX1(cPerg,"03","Relatório ?"    ,"","","mv_ch3","N",1,0,1,"C","NaoVazio","","","","mv_par03","Sem Contabil","Sem Contabil","Sem Contabil","","Vlr Divergente","Vlr Divergente","Vlr Divergente","Desc.Sem Cont.","Desc.Sem Cont.","Desc.Sem Cont.","Vlr Div Desc","Vlr Div Desc","Vlr Div Desc","","","",aHelpPor,aHelpEng,aHelpSpa)
-	aHelpPor := {"Tipo de Titulo:","- NF","- Cheque"}
-	PutSX1(cPerg,"04","Tipo ?"    ,"","","mv_ch4","N",1,0,1,"C","NaoVazio","","","","mv_par04","NF","NF","NF","","Cheque","Cheque","Cheque","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
+	aHelpPor := {"Tipo de Titulo:","- NF","- Cheque","- NCC"}
+	PutSX1(cPerg,"04","Tipo ?"    ,"","","mv_ch4","N",1,0,1,"C","NaoVazio","","","","mv_par04","NF","NF","NF","","Cheque","Cheque","Cheque","NCC","NCC","NCC","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 		
 	RestArea(aAreaAnt)
 
