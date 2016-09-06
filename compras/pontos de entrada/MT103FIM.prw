@@ -50,13 +50,14 @@ User Function MT103FIM()
 
 			SD2->(dbSeek(xFilial("SD2")+SD1->D1_NFORI+SD1->D1_SERIORI+SD1->D1_FORNECE+SD1->D1_LOJA+SD1->D1_COD+SD1->D1_ITEMORI))
 
+			SD1->D1_X_VEND  := SD2->D2_X_VEND
+
 			If AllTrim(SD2->D2_X_TPOPE) == 'VENDAS' .And. SD2->D2_X_CRVEN > 0
 				nDebito := (SD1->D1_QUANT * SD2->D2_X_CRVEN) / SD2->D2_QUANT
 
 				SD1->(RecLock("SD1",.F.))
 					SD1->D1_X_DBVEN := nDebito
 					SD1->D1_X_TPOPE := 'DVVENDAS'
-					SD1->D1_X_VEND  := SD2->D2_X_VEND
 				SD1->(MsUnlock())
 
 				SA3->(dbSeek(xFilial("SA3")+SD2->D2_X_VEND))
@@ -69,7 +70,6 @@ User Function MT103FIM()
 				SD1->(RecLock("SD1",.F.))
 					SD1->D1_X_DBVEN := nCredito
 					SD1->D1_X_TPOPE := 'DVBONIFICACAO'
-					SD1->D1_X_VEND  := SD2->D2_X_VEND
 				SD1->(MsUnlock())
 
 				SA3->(dbSeek(xFilial("SA3")+SD2->D2_X_VEND))
