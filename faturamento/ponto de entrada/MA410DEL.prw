@@ -36,7 +36,7 @@ Local cMsgInt   := "Seu Pedido Web Nº "+cPedWeb+" voltou para a tela de não envi
 Local cUpdSZ3   := ""
 Local _nResult  := 0
 
-If nPedWeb > 0
+If nPedWeb > 0 .And. MsgYesNo("Deseja que esse Pedido volte para a Web?")
 
 	cUpdSZ3 := "UPDATE "+RetSqlName("SZ3")+" SET Z3_STATUS = '1' FROM "+RetSqlName("SZ3")+" SZ3"
 	cUpdSZ3 += " INNER JOIN "+RetSqlName("SZ4")+" SZ4 ON Z3_FILIAL = Z4_FILIAL AND Z3_NPEDWEB = Z4_NUMPEDW AND SZ4.D_E_L_E_T_ = ' '"
@@ -66,7 +66,7 @@ If nPedWeb > 0
 		
 		(cPedTRB)->(dbGoTop())
 		
-		cPara     := AllTrim(Posicione("SA3",1,xFilial("SA3")+(cPedTRB)->Z3_VEND,"A3_EMAIL"))
+		cPara := AllTrim(Posicione("SA3",1,xFilial("SA3")+(cPedTRB)->Z3_VEND,"A3_EMAIL"))
 		
 		If Empty(cPara)
 			cPara := cMailCad
