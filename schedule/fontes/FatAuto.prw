@@ -15,11 +15,14 @@
 */
 User Function FatAuto(aParam)
 
-Local cTes     := ""
-Local cCondPag := ""
-Local cNota    := Space(09)
-Local cSerie   := "1  "
-Local lFatAut  := .T.
+Local cTes      := ""
+Local cCondPag  := ""
+Local cNota     := Space(09)
+Local cSerie    := "1  "
+Local lFatAut   := .T.
+Local lTempExec := .T.
+Local nMarcaAnt := 0
+Local nMarcaAtu := 0
 
 Private aPVlNFs  := {}
 
@@ -30,9 +33,19 @@ Private aPVlNFs  := {}
 	
 PREPARE ENVIRONMENT EMPRESA aParam[1] FILIAL aParam[2]
 
-lFatAut := &(Posicione("SX5",1,xFilial("SX5")+"ZA0005","X5_DESCRI"))
+lFatAut   := &(Posicione("SX5",1,xFilial("SX5")+"ZA0005","X5_DESCRI"))
+
+nMarcaAnt := Val(Posicione("SX5",1,xFilial("SX5")+"ZA0006","X5_DESCRI"))
+nMarcaAtu := Val(DtoS(dDataBase) + StrZero(Seconds()*1000,08))
+
+If !lFatAut
+	ConOut("["+DtoC(Date())+" "+Time()+"] [FatAuto] Faturamento automático desabilitado")
 	
-If lFatAut
+// Fernando Nogueira - Chamado 004061	
+Elseif nMarcaAtu <= (nMarcaAnt + 240000)
+	ConOut("["+DtoC(Date())+" "+Time()+"] [FatAuto] Tempo entre a execução atual e a anterior é inferior a 4 minutos")
+	
+Else
 	
 	// Tabelas utilizadas
 	dbSelectArea("SC5")
@@ -132,8 +145,13 @@ If lFatAut
 		ConOut("["+DtoC(Date())+" "+Time()+"] [FatAuto] Nenhuma nota a gerar")
 	Endif
 	
-Else
-	ConOut("["+DtoC(Date())+" "+Time()+"] [FatAuto] Faturamento automático desabilitado")
+Endif
+
+SX5->(DbSetOrder(01))
+If SX5->(dbSeek(xFilial("SX5")+"ZA0006"))
+	SX5->(RecLock("SX5",.F.))
+		SX5->X5_DESCRI := DtoS(dDataBase) + StrZero(Seconds()*1000,08)
+	SX5->(MsUnlock())
 Endif
 
 RESET ENVIRONMENT
