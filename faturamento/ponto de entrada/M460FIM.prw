@@ -100,9 +100,8 @@ While SD2->(!Eof()) .And. 	SD2->D2_FILIAL == xFilial("SD2") .And. SD2->D2_DOC ==
 	nCredito := 0
 	nDebito  := 0
 
-	SD2->D2_X_VEND  := SC5->C5_VEND1
-
 	SD2->(RecLock("SD2",.F.))
+		SD2->D2_X_VEND := SC5->C5_VEND1
 		SD2->D2_REGIAO := Posicione("SA1",1,xfilial("SA1")+SD2->D2_CLIENTE+SD2->D2_LOJA,"A1_REGIAO")
 	SD2->(MsUnlock())
 
