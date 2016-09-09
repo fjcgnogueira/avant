@@ -35,6 +35,8 @@ Local nVlrB     := 0
 Local nSoma     := 0
 Local lRecente  := .F.
 Local nQtdEst   := 0
+Local dDataAte
+Local dDataDe
 
 Private _lSchedule  := aParam[1]
 
@@ -43,39 +45,52 @@ If _lSchedule
 	PREPARE ENVIRONMENT EMPRESA aParam[2] FILIAL aParam[3]
 Endif
 
+SET CENTURY ON
+
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] Inicio")
+
+dDataAte  := FirstDay(dDataBase)-1
+dDataDe   := dDataDe := FirstDay(LastDay(dDataBase)-Val(Posicione("SX5",1,xFilial("SX5")+"ZA"+"0003","X5_DESCRI")))
+
 dbSelectArea('SB1')
 dbGoTop()
 
-// Total do Faturamento dos Ultimos 6 Meses
+// Total do Faturamento dos Ultimos Meses Estabelecidos
 BeginSql alias cAliasTOT
-	
+
 	SELECT SUM(D2_QUANT) QUANT, SUM(D2_TOTAL) VALOR FROM %table:SF2% SF2
 	INNER JOIN %table:SD2% SD2 ON F2_FILIAL = D2_FILIAL AND F2_DOC = D2_DOC AND F2_SERIE = D2_SERIE AND F2_CLIENTE = D2_CLIENTE AND F2_LOJA = D2_LOJA AND SD2.%notDel%
 	INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND F4_ESTOQUE = 'S' AND F4_DUPLIC = 'S' AND SF4.%notDel%
-	WHERE SF2.%notDel% AND F2_FILIAL = %xfilial:SF2% AND F2_EMISSAO BETWEEN %exp:DTOS(Date()-180)% AND %exp:DTOS(Date())%
+	WHERE SF2.%notDel% AND F2_FILIAL = %xfilial:SF2% AND F2_EMISSAO BETWEEN %exp:DTOS(dDataDe)% AND %exp:DTOS(dDataAte)%
 
 EndSql
+
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] Query Total Faturamento de "+DTOC(dDataDe)+" até "+DTOC(dDataAte))
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] " + GetLastQuery()[2])
 
 nQtdTotal := (cAliasTOT)->QUANT
 nVlrTotal := (cAliasTOT)->VALOR
 nVlrA     := nVlrTotal * 0.7
 nVlrB     := nVlrTotal * 0.2
 
-// Total do Faturamento dos Ultimos 6 Meses por Produto
+// Total do Faturamento por Produto dos Ultimos Meses Estabelecidos
 BeginSql alias cAliasPRD
 
 	SELECT D2_COD PRODUTO, SUM(D2_QUANT) QUANT, SUM(D2_TOTAL) VALOR FROM %table:SF2% SF2
 	INNER JOIN %table:SD2% SD2 ON F2_FILIAL = D2_FILIAL AND F2_DOC = D2_DOC AND F2_SERIE = D2_SERIE AND F2_CLIENTE = D2_CLIENTE AND D2_LOJA = F2_LOJA AND SD2.%notDel%
 	INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND F4_ESTOQUE = 'S' AND F4_DUPLIC = 'S' AND SF4.%notDel%
-	WHERE SF2.%notDel% AND F2_FILIAL = %xfilial:SF2% AND F2_EMISSAO BETWEEN %exp:DTOS(Date()-180)% AND %exp:DTOS(Date())%
+	WHERE SF2.%notDel% AND F2_FILIAL = %xfilial:SF2% AND F2_EMISSAO BETWEEN %exp:DTOS(dDataDe)% AND %exp:DTOS(dDataAte)%
 	GROUP BY D2_COD
 	ORDER BY VALOR DESC
 
 EndSql
 
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] Query Total Faturamento por Produto de "+DTOC(dDataDe)+" até "+DTOC(dDataAte))
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] " + GetLastQuery()[2])
+
 (cAliasPRD)->(dbGoTop())
 
-// Produtos no Estoque que nao tiveram movimentacao nos ultimos 6 meses
+// Produtos no Estoque que nao tiveram movimentacao nos Ultimos Meses Estabelecidos
 BeginSql alias cAliasSEM
 
 	SELECT B1_COD PRODUTO FROM %table:SB2%  SB2
@@ -85,25 +100,31 @@ BeginSql alias cAliasSEM
 	(SELECT D2_COD PRODUTO FROM %table:SF2% SF2
 	INNER JOIN %table:SD2% SD2 ON F2_FILIAL = D2_FILIAL AND F2_DOC = D2_DOC AND F2_SERIE = D2_SERIE AND F2_CLIENTE = D2_CLIENTE AND D2_LOJA = F2_LOJA AND SD2.%notDel%
 	INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND F4_ESTOQUE = 'S' AND F4_DUPLIC = 'S' AND SF4.%notDel%
-	WHERE SF2.%notDel% AND F2_FILIAL = %xfilial:SF2% AND F2_EMISSAO BETWEEN %exp:DTOS(Date()-180)% AND %exp:DTOS(Date())%
+	WHERE SF2.%notDel% AND F2_FILIAL = %xfilial:SF2% AND F2_EMISSAO BETWEEN %exp:DTOS(dDataDe)% AND %exp:DTOS(dDataAte)%
 	GROUP BY D2_COD)
 	ORDER BY PRODUTO
 
 EndSql
 
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] Query Produtos que não tiveram movimentação de "+DTOC(dDataDe)+" até "+DTOC(dDataAte))
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] " + GetLastQuery()[2])
+
 (cAliasSEM)->(dbGoTop())
 
-// Importacoes nos ultimos 6 meses
+// Importacoes por produto nos Ultimos Meses Estabelecidos
 BeginSql alias cAliasENT
 
 	SELECT D1_COD PRODUTO, SUM(D1_QUANT) QUANT FROM %table:SF1% SF1
 	INNER JOIN %table:SD1% SD1 ON F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERIE AND F1_FORNECE = D1_FORNECE AND F1_LOJA = D1_LOJA AND SD1.%notDel%
 	INNER JOIN %table:SF4% SF4 ON D1_FILIAL = F4_FILIAL AND D1_TES = F4_CODIGO AND F4_ESTOQUE = 'S' AND SF4.%notDel%
-	WHERE SF1.%notDel% AND F1_FILIAL = %xfilial:SF1% AND F1_FORMUL = 'S' AND F1_EST = 'EX' AND F1_DTDIGIT BETWEEN %exp:DTOS(Date()-180)% AND %exp:DTOS(Date())%
+	WHERE SF1.%notDel% AND F1_FILIAL = %xfilial:SF1% AND F1_FORMUL = 'S' AND F1_EST = 'EX' AND F1_DTDIGIT BETWEEN %exp:DTOS(dDataDe)% AND %exp:DTOS(dDataAte)%
 	GROUP BY D1_COD
 	ORDER BY PRODUTO
 
 EndSql
+
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] Query Importações por produto de "+DTOC(dDataDe)+" até "+DTOC(dDataAte))
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] " + GetLastQuery()[2])
 
 (cAliasENT)->(dbGoTop())
 
@@ -118,12 +139,15 @@ BeginSql alias cAliasZER
 	GROUP BY B1_COD) TODOS_ARM
 	WHERE QATU = 0
 	ORDER BY PRODUTO
-	
+
 EndSql
+
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] Query Produtos S zerados ")
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] " + GetLastQuery()[2])
 
 (cAliasZER)->(dbGoTop())
 
-// Produtos ABC que nao estao nos ultimos 6 meses
+// Produtos ABC que nao estao nos Ultimos Meses Estabelecidos
 BeginSql alias cAliasABC
 
 	SELECT B1_COD PRODUTO FROM %table:SB1% SB1
@@ -131,13 +155,54 @@ BeginSql alias cAliasABC
 	(SELECT D2_COD PRODUTO FROM %table:SF2% SF2
 	INNER JOIN %table:SD2% SD2 ON F2_FILIAL = D2_FILIAL AND F2_DOC = D2_DOC AND F2_SERIE = D2_SERIE AND F2_CLIENTE = D2_CLIENTE AND D2_LOJA = F2_LOJA AND SD2.%notDel%
 	INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND F4_ESTOQUE = 'S' AND F4_DUPLIC = 'S' AND SF4.%notDel%
-	WHERE SF2.%notDel% AND F2_FILIAL = %xfilial:SF2% AND F2_EMISSAO BETWEEN %exp:DTOS(Date()-180)% AND %exp:DTOS(Date())%
+	WHERE SF2.%notDel% AND F2_FILIAL = %xfilial:SF2% AND F2_EMISSAO BETWEEN %exp:DTOS(dDataDe)% AND %exp:DTOS(dDataAte)%
 	GROUP BY D2_COD)
 	ORDER BY PRODUTO
-	
+
 EndSql
 
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] Query Produtos ABC que nao estao dentro de "+DTOC(dDataDe)+" até "+DTOC(dDataAte))
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] " + GetLastQuery()[2])
+
 (cAliasABC)->(dbGoTop())
+
+// Definicao dos Produtos Sem Movimentacao
+While !(cAliasSEM)->(Eof())
+
+	lRecente  := .F.
+
+	SB1->(dbSeek(xFilial('SB1')+(cAliasSEM)->PRODUTO))
+
+	(cAliasENT)->(dbGoTop())
+
+	// Verifica se teve entrada do produto nos Ultimos Meses Estabelecidos
+	While !(cAliasENT)->(Eof())
+		If (cAliasENT)->PRODUTO == (cAliasSEM)->PRODUTO
+			lRecente  := .T.
+			Exit
+		Endif
+		(cAliasENT)->(dbSkip())
+	End
+
+	SB1->(RecLock('SB1',.F.))
+		If lRecente
+			If SB1->B1_X_CURVA <> 'R'
+				SB1->B1_X_CURVA := 'R'
+				SB1->B1_X_QTD   := 0
+				SB1->B1_X_VLR   := 0
+			Endif
+		ElseIf SB1->B1_X_CURVA <> 'S'
+			SB1->B1_X_CURVA := 'S'
+			SB1->B1_X_QTD   := 0
+			SB1->B1_X_VLR   := 0
+		Endif
+		If SB1->B1_X_DTULT <> UltDtEnt((cAliasSEM)->PRODUTO)
+			SB1->B1_X_DTULT := UltDtEnt((cAliasSEM)->PRODUTO)
+		Endif
+	SB1->(MsUnlock())
+
+	(cAliasSEM)->(dbSkip())
+End
 
 // Definicao da Curva, Quantidade e Valor nos Produtos
 While !(cAliasPRD)->(Eof())
@@ -145,9 +210,9 @@ While !(cAliasPRD)->(Eof())
 	nSoma += (cAliasPRD)->VALOR
 
 	SB1->(dbSeek(xFilial('SB1')+(cAliasPRD)->PRODUTO))
-	
+
 	SB1->(RecLock('SB1',.F.))
-	
+
 		If nSoma <= nVlrA
 			If SB1->B1_X_CURVA <> 'A'
 				SB1->B1_X_CURVA := 'A'
@@ -161,67 +226,29 @@ While !(cAliasPRD)->(Eof())
 				SB1->B1_X_CURVA := 'C'
 			Endif
 		Endif
-		
+
 		If SB1->B1_X_QTD <> (cAliasPRD)->QUANT
 			SB1->B1_X_QTD := (cAliasPRD)->QUANT
 		Endif
-		
+
 		If SB1->B1_X_VLR <> (cAliasPRD)->VALOR
 			SB1->B1_X_VLR := (cAliasPRD)->VALOR
 		Endif
 
 		If SB1->B1_X_DTULT <> UltDtEnt((cAliasPRD)->PRODUTO)
 			SB1->B1_X_DTULT := UltDtEnt((cAliasPRD)->PRODUTO)
-		Endif		
-	
-	SB1->(MsUnlock())
-	
-	(cAliasPRD)->(dbSkip())
-End
-
-// Definicao dos Produtos Sem Movimentacao
-While !(cAliasSEM)->(Eof())
-
-	lRecente  := .F.
-
-	SB1->(dbSeek(xFilial('SB1')+(cAliasSEM)->PRODUTO))
-	
-	(cAliasENT)->(dbGoTop())
-	
-	// Verifica se teve entrada do produto nos ultimos 6 meses
-	While !(cAliasENT)->(Eof())	
-		If (cAliasENT)->PRODUTO == (cAliasSEM)->PRODUTO		
-			lRecente  := .T.		
-			Exit
-		Endif	
-		(cAliasENT)->(dbSkip())	
-	End
-	
-	SB1->(RecLock('SB1',.F.))
-		If lRecente 
-			If SB1->B1_X_CURVA <> 'R'
-				SB1->B1_X_CURVA := 'R'
-				SB1->B1_X_QTD   := 0
-				SB1->B1_X_VLR   := 0
-			Endif
-		ElseIf SB1->B1_X_CURVA <> 'S'
-			SB1->B1_X_CURVA := 'S'
-			SB1->B1_X_QTD   := 0
-			SB1->B1_X_VLR   := 0
 		Endif
-		If SB1->B1_X_DTULT <> UltDtEnt((cAliasSEM)->PRODUTO)
-			SB1->B1_X_DTULT := UltDtEnt((cAliasSEM)->PRODUTO)
-		Endif		
+
 	SB1->(MsUnlock())
 
-	(cAliasSEM)->(dbSkip())
+	(cAliasPRD)->(dbSkip())
 End
 
 // Limpando a curva dos produtos S sem saldo
 While !(cAliasZER)->(Eof())
 
 	SB1->(dbSeek(xFilial('SB1')+(cAliasZER)->PRODUTO))
-	
+
 	SB1->(RecLock('SB1',.F.))
 		SB1->B1_X_CURVA := ' '
 	SB1->(MsUnlock())
@@ -229,11 +256,11 @@ While !(cAliasZER)->(Eof())
 	(cAliasZER)->(dbSkip())
 End
 
-// Limpando a curva dos produtos ABC que naum estao no faturamento dos ultimos 6 meses
+// Limpando a curva dos produtos ABC que naum estao no faturamento dos Ultimos Meses Estabelecidos
 While !(cAliasABC)->(Eof())
 
 	SB1->(dbSeek(xFilial('SB1')+(cAliasABC)->PRODUTO))
-	
+
 	SB1->(RecLock('SB1',.F.))
 		SB1->B1_X_CURVA := ' '
 	SB1->(MsUnlock())
@@ -247,6 +274,8 @@ End
 (cAliasENT)->(dbCloseArea())
 (cAliasZER)->(dbCloseArea())
 (cAliasABC)->(dbCloseArea())
+
+ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] Fim")
 
 // Caso seja disparado via workflow
 If _lSchedule
@@ -279,7 +308,7 @@ BeginSql alias cAliasULT
 	INNER JOIN %table:SD1% SD1 ON F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERIE AND F1_FORNECE = D1_FORNECE AND F1_LOJA = D1_LOJA AND SD1.%notDel%
 	INNER JOIN %table:SF4% SF4 ON D1_FILIAL = F4_FILIAL AND D1_TES = F4_CODIGO AND F4_ESTOQUE = 'S' AND SF4.%notDel%
 	WHERE SF1.%notDel% AND F1_FILIAL = %xfilial:SF1% AND F1_FORMUL = 'S' AND F1_EST = 'EX'
-		AND D1_COD = %exp:cProduto% 
+		AND D1_COD = %exp:cProduto%
 	ORDER BY D1_DTDIGIT DESC
 
 EndSql
