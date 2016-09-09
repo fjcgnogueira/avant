@@ -166,44 +166,6 @@ ConOut("["+DtoC(Date())+" "+Time()+"] [CurvaABCS] " + GetLastQuery()[2])
 
 (cAliasABC)->(dbGoTop())
 
-// Definicao dos Produtos Sem Movimentacao
-While !(cAliasSEM)->(Eof())
-
-	lRecente  := .F.
-
-	SB1->(dbSeek(xFilial('SB1')+(cAliasSEM)->PRODUTO))
-
-	(cAliasENT)->(dbGoTop())
-
-	// Verifica se teve entrada do produto nos Ultimos Meses Estabelecidos
-	While !(cAliasENT)->(Eof())
-		If (cAliasENT)->PRODUTO == (cAliasSEM)->PRODUTO
-			lRecente  := .T.
-			Exit
-		Endif
-		(cAliasENT)->(dbSkip())
-	End
-
-	SB1->(RecLock('SB1',.F.))
-		If lRecente
-			If SB1->B1_X_CURVA <> 'R'
-				SB1->B1_X_CURVA := 'R'
-				SB1->B1_X_QTD   := 0
-				SB1->B1_X_VLR   := 0
-			Endif
-		ElseIf SB1->B1_X_CURVA <> 'S'
-			SB1->B1_X_CURVA := 'S'
-			SB1->B1_X_QTD   := 0
-			SB1->B1_X_VLR   := 0
-		Endif
-		If SB1->B1_X_DTULT <> UltDtEnt((cAliasSEM)->PRODUTO)
-			SB1->B1_X_DTULT := UltDtEnt((cAliasSEM)->PRODUTO)
-		Endif
-	SB1->(MsUnlock())
-
-	(cAliasSEM)->(dbSkip())
-End
-
 // Definicao da Curva, Quantidade e Valor nos Produtos
 While !(cAliasPRD)->(Eof())
 
@@ -242,6 +204,44 @@ While !(cAliasPRD)->(Eof())
 	SB1->(MsUnlock())
 
 	(cAliasPRD)->(dbSkip())
+End
+
+// Definicao dos Produtos Sem Movimentacao
+While !(cAliasSEM)->(Eof())
+
+	lRecente  := .F.
+
+	SB1->(dbSeek(xFilial('SB1')+(cAliasSEM)->PRODUTO))
+
+	(cAliasENT)->(dbGoTop())
+
+	// Verifica se teve entrada do produto nos Ultimos Meses Estabelecidos
+	While !(cAliasENT)->(Eof())
+		If (cAliasENT)->PRODUTO == (cAliasSEM)->PRODUTO
+			lRecente  := .T.
+			Exit
+		Endif
+		(cAliasENT)->(dbSkip())
+	End
+
+	SB1->(RecLock('SB1',.F.))
+		If lRecente
+			If SB1->B1_X_CURVA <> 'R'
+				SB1->B1_X_CURVA := 'R'
+				SB1->B1_X_QTD   := 0
+				SB1->B1_X_VLR   := 0
+			Endif
+		ElseIf SB1->B1_X_CURVA <> 'S'
+			SB1->B1_X_CURVA := 'S'
+			SB1->B1_X_QTD   := 0
+			SB1->B1_X_VLR   := 0
+		Endif
+		If SB1->B1_X_DTULT <> UltDtEnt((cAliasSEM)->PRODUTO)
+			SB1->B1_X_DTULT := UltDtEnt((cAliasSEM)->PRODUTO)
+		Endif
+	SB1->(MsUnlock())
+
+	(cAliasSEM)->(dbSkip())
 End
 
 // Limpando a curva dos produtos S sem saldo

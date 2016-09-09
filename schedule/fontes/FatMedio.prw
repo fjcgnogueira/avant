@@ -45,7 +45,7 @@ While SB1->(!Eof())
 	Else
 		nFatMedio := MedProd(SB1->B1_COD,SB1->B1_X_DTULT)
 	Endif
-	
+
 	If SB1->B1_X_FTMED <> nFatMedio
 		SB1->(RecLock('SB1',.F.))
 			SB1->B1_X_FTMED := nFatMedio
@@ -79,23 +79,24 @@ Static Function MedProd(cProd,dDataRef)
 
 Local cFatProd  := GetNextAlias()
 Local dDataAte  := FirstDay(dDataBase)-1
-Local dDataDe   := FirstDay(LastDay(dDataBase)-Val(Posicione("SX5",1,xFilial("SX5")+"ZA"+"0003","X5_DESCRI"))) 
+Local dDataDe   := FirstDay(LastDay(dDataBase)-Val(Posicione("SX5",1,xFilial("SX5")+"ZA"+"0003","X5_DESCRI")))
 Local nFatMed   := 0
-Local nDivisor  := 6
+Local nDivisor  := 0
 
 If !Empty(dDataRef)
 	If dDataRef > dDataDe
 		dDataDe := dDataRef
-		nDivisor := Round((dDataAte-dDataDe)/30,0)
-		If Round((dDataAte-dDataDe)/30,0) < 1
-			nDivisor := 1
-		Endif
 	Endif
+Endif
+
+nDivisor := Round((dDataAte-dDataDe)/30,0)
+If Round((dDataAte-dDataDe)/30,0) < 1
+	nDivisor := 1
 Endif
 
 // Total do Faturamento por Produto
 BeginSql alias cFatProd
-	
+
 	SELECT ROUND(SUM(D2_QUANT)/%exp:nDivisor%,1) FAT_MEDIO FROM %table:SF2% SF2
 	INNER JOIN %table:SD2% SD2 ON F2_FILIAL = D2_FILIAL AND F2_DOC = D2_DOC AND F2_SERIE = D2_SERIE AND F2_CLIENTE = D2_CLIENTE AND F2_LOJA = D2_LOJA AND SD2.%notDel%
 	INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND F4_ESTOQUE = 'S' AND F4_DUPLIC = 'S' AND SF4.%notDel%
@@ -126,13 +127,13 @@ Return nFatMed
 Static Function FatAnt(cProd,dDataRef)
 
 Local cFatAnt  := GetNextAlias()
-Local dDataDe  := FirstDay(LastDay(dDataBase)-185)
+Local dDataDe  := FirstDay(LastDay(dDataBase)-Val(Posicione("SX5",1,xFilial("SX5")+"ZA"+"0003","X5_DESCRI")))
 Local dDataAte := dDataRef-1
 
 
 // Total do Faturamento por Produto
 BeginSql alias cFatAnt
-	
+
 	SELECT D2_COD PRODUTO FROM %table:SF2% SF2
 	INNER JOIN %table:SD2% SD2 ON F2_FILIAL = D2_FILIAL AND F2_DOC = D2_DOC AND F2_SERIE = D2_SERIE AND F2_CLIENTE = D2_CLIENTE AND F2_LOJA = D2_LOJA AND SD2.%notDel%
 	INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND F4_ESTOQUE = 'S' AND F4_DUPLIC = 'S' AND SF4.%notDel%
@@ -145,7 +146,7 @@ EndSql
 
 If (cFatAnt)->(!Eof())
 	(cFatAnt)->(dbCloseArea())
-	Return .T.	
+	Return .T.
 Endif
 (cFatAnt)->(dbCloseArea())
 
