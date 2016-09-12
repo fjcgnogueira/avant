@@ -23,6 +23,7 @@ Local lFatAut   := .T.
 Local lTempExec := .T.
 Local nMarcaAnt := 0
 Local nMarcaAtu := 0
+Local aAreaSX5  := ""
 
 Private aPVlNFs  := {}
 
@@ -138,6 +139,17 @@ Else
 		
 		ConOut("["+DtoC(Date())+" "+Time()+"] [FatAuto] Gerada a Nota: "+cNota)
 		
+		aAreaSX5  := SX5->(GetArea())
+		
+		SX5->(DbSetOrder(01))
+		If SX5->(dbSeek(xFilial("SX5")+"ZA0006"))
+			SX5->(RecLock("SX5",.F.))
+				SX5->X5_DESCRI := DtoS(dDataBase) + StrZero(Seconds()*1000,08)
+			SX5->(MsUnlock())
+		Endif
+		
+		SX5->(RestArea(aAreaSX5))
+		
 		TRB->(dbSkip())
 	End
 	
@@ -145,13 +157,6 @@ Else
 		ConOut("["+DtoC(Date())+" "+Time()+"] [FatAuto] Nenhuma nota a gerar")
 	Endif
 	
-Endif
-
-SX5->(DbSetOrder(01))
-If SX5->(dbSeek(xFilial("SX5")+"ZA0006"))
-	SX5->(RecLock("SX5",.F.))
-		SX5->X5_DESCRI := DtoS(dDataBase) + StrZero(Seconds()*1000,08)
-	SX5->(MsUnlock())
 Endif
 
 RESET ENVIRONMENT
