@@ -23,6 +23,7 @@ Local lFatAut   := .T.
 Local lTempExec := .T.
 Local nMarcaAnt := 0
 Local nMarcaAtu := 0
+Local nMarcaApo := 0
 Local aAreaSX5  := ""
 
 Private aPVlNFs  := {}
@@ -39,11 +40,22 @@ lFatAut   := &(Posicione("SX5",1,xFilial("SX5")+"ZA0005","X5_DESCRI"))
 nMarcaAnt := Val(Posicione("SX5",1,xFilial("SX5")+"ZA0006","X5_DESCRI"))
 nMarcaAtu := Val(DtoS(dDataBase) + StrZero(Seconds()*1000,08))
 
+SX5->(DbSetOrder(01))
+If SX5->(dbSeek(xFilial("SX5")+"ZA0006"))
+	SX5->(RecLock("SX5",.F.))
+		SX5->X5_DESCRI := cValToChar(nMarcaAtu)
+	SX5->(MsUnlock())
+Endif
+
+Sleep(2000)
+
+nMarcaApo := Val(Posicione("SX5",1,xFilial("SX5")+"ZA0006","X5_DESCRI"))
+
 If !lFatAut
 	ConOut("["+DtoC(Date())+" "+Time()+"] [FatAuto] Faturamento automático desabilitado")
 	
 // Fernando Nogueira - Chamado 004061	
-Elseif nMarcaAtu <= (nMarcaAnt + 240000)
+Elseif nMarcaAtu <= (nMarcaAnt + 240000) .And. nMarcaAtu <> nMarcaApo
 	ConOut("["+DtoC(Date())+" "+Time()+"] [FatAuto] Tempo entre a execução atual e a anterior é inferior a 4 minutos")
 	
 Else
