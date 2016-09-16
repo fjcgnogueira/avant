@@ -21,8 +21,14 @@ Local cPedido  := SC5->C5_NUM
 Local cCliente := SC5->C5_CLIENTE
 Local cLoja    := SC5->C5_LOJACLI
 
-If SC5->(AllTrim(C5_X_BLQFI)) == 'S'
-	ApMsgInfo("Pedido "+SC5->C5_NUM+" Está com Bloqueio Fiscal!")
+If SC5->(AllTrim(C5_X_BLQFI)+AllTrim(C5_LIBEROK)) == 'SS'
+	// Fernando Nogueira - Chamado 004116
+	If MsgYesNo("Pedido "+SC5->C5_NUM+" Está com Bloqueio Fiscal!"+Chr(13)+Chr(10)+"Liberar do Bloqueio Avant assim mesmo?")
+		SC5->(RecLock("SC5",.F.))
+			SC5->C5_X_BLQ := 'N'
+		SC5->(MsUnlock())
+		ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
+	Endif
 ElseIf SC5->(AllTrim(C5_X_BLQ)+AllTrim(C5_LIBEROK)) $ ('CS.SS')
 
 	If PedBloq(cCliente,cLoja,cPedido) .AND. AllTrim(SC5->C5_X_BLQ) == 'S'
