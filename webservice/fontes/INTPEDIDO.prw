@@ -104,7 +104,7 @@ If lRetorno
 
 				lLiberAut := .T. //-- Gustavo Viana -- Restricoes a liberacao automatica -- 18/02/2013
 				cTpOper	 := Left(SZ3->Z3_CODTSAC,2)
-				dDtEmiss := StoD(SZ3->Z3_EMISSAO)
+				dDtEmiss := SZ3->Z3_EMISSAO
 				cPedNew  := U_NUMPED()
 
 				aAdd(aCabec,{"C5_FILIAL" ,SZ3->Z3_FILIAL ,NIL})
