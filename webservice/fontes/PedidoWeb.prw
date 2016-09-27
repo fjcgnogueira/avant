@@ -141,6 +141,7 @@ oView:SetModel(oModel)
 
 //Retira um campo da Estrutura da View
 oStruSZ4:RemoveField('Z4_NUMPEDW')
+oStruSZ4:RemoveField('Z4_VALEPRE')
 
 //Vincula o Objeto visual de Cadastro com o modelo 
 oView:AddField('ID_VIEW_FLD_PedidoWeb', oStruSZ3, 'ID_MODEL_FLD_PedidoWeb')
@@ -237,7 +238,7 @@ If SX5->(dbSeek(xFilial("SX5")+"ZA0008"))
 	SX5->(MsUnlock())
 Endif	
 
-If nNumProx > nNumProx3
+If nNumProx > nNumProx3 .And. !SZ3->(dbSeek(xFilial("SZ3")+PadL(Alltrim(cValToChar(nNumProx3)),TamSx3("Z3_NPEDWEB")[01]))) // Verificar
 	nNumProx := nNumProx3
 Else
 	If SX5->(dbSeek(xFilial("SX5")+"ZA0007"))
@@ -266,10 +267,14 @@ Return nNumProx
 */
 Static Function VoltaNum(_nNum)
 
+Local _nNumAnt
+
 If SX5->(dbSeek(xFilial("SX5")+"ZA0008"))
-	SX5->(RecLock("SX5",.F.))
-		SX5->X5_DESCRI := STRZERO(_nNum,10)
-	SX5->(MsUnlock())
+	If Val(SX5->X5_DESCRI) > _nNum
+		SX5->(RecLock("SX5",.F.))
+			SX5->X5_DESCRI := STRZERO(_nNum,10)
+		SX5->(MsUnlock())
+	Endif
 Endif
 
 Return
