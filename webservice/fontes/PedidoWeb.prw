@@ -238,7 +238,7 @@ If SX5->(dbSeek(xFilial("SX5")+"ZA0008"))
 	SX5->(MsUnlock())
 Endif	
 
-If nNumProx > nNumProx3 .And. !SZ3->(dbSeek(xFilial("SZ3")+PadL(Alltrim(cValToChar(nNumProx3)),TamSx3("Z3_NPEDWEB")[01]))) // Verificar
+If nNumProx > nNumProx3 .And. !SZ3->(dbSeek(xFilial("SZ3")+PadL(Alltrim(cValToChar(nNumProx3)),TamSx3("Z3_NPEDWEB")[01])))
 	nNumProx := nNumProx3
 Else
 	If SX5->(dbSeek(xFilial("SX5")+"ZA0007"))
@@ -267,7 +267,6 @@ Return nNumProx
 */
 Static Function VoltaNum(_nNum)
 
-Local _nNumAnt
 
 If SX5->(dbSeek(xFilial("SX5")+"ZA0008"))
 	If Val(SX5->X5_DESCRI) > _nNum
