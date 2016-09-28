@@ -1502,7 +1502,7 @@ User Function OpenProc(cChamado,cOp,nAcao,cArqTrb)
 			u_OpenProc(SZU->ZU_CHAMADO,"W",2)
 		Endif
 	Else
-		aBrowse	:= { "c:\Program Files\Internet Explorer\IEXPLORE.EXE " , "C:\Arquivos de programas\Internet Explorer\iexplore.exe " }
+		aBrowse	:= { "C:\Program Files\Google\Chrome\Application\chrome.exe ","C:\Program Files (x86)\Google\Chrome\Application\chrome.exe ","C:\Arquivos de programas\Google\Chrome\Application\chrome.exe ", "C:\Program Files\Internet Explorer\IEXPLORE.EXE " , "C:\Arquivos de programas\Internet Explorer\iexplore.exe " }
 		For p := 1 To Len(aBrowse)
 			If File( RTrim(aBrowse[p]) )
 				cFileBrowse := aBrowse[p]
@@ -1510,6 +1510,7 @@ User Function OpenProc(cChamado,cOp,nAcao,cArqTrb)
 			Endif
 		Next
 		cServidor := GetNewPar("ES_MP8SRV","E:\Protheus_data")
+		MontaDir(cServidor+"\spool\")
 		cArqTrb   := cServidor + "\spool\" + ALLTRIM(CriaTrab(Nil,.F.)) + ".htm"
 		oHTML:SaveFile( cArqTrb )
 		cExec	:= cFileBrowse + cArqTrb
