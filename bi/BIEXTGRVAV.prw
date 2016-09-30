@@ -31,7 +31,7 @@ Local nPLivre8 := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_LIVRE8"})
 Local nPLivre9 := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_LIVRE9"})
 Local nPCliente := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_CODIGO"})
 Local nPLojaCli := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_LOJA"})
-Local nPProduto := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_PRODUTO"})
+Local nProduto := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_PRODUTO"})
 
 If cAlias == 'HJ7'
 	DbSelectArea("SA1")
@@ -62,7 +62,7 @@ EndIf
 If cAlias == 'HJ8'
 		DbSelectArea("SB1")
 		DbSetOrder(1)
-		If DbSeek(xFilial('SB1')+AllTrim(aRet[nPProduto][2])) 
+		If DbSeek(xFilial('SB1')+AllTrim(aRet[nProduto][2])) 
 			If SB1->(FieldPos('B1_FAMAVAN'))> 0
 				aRet[nPlivre0][2] := SB1->B1_FAMAVAN
 			EndIf
