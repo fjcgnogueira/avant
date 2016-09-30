@@ -29,9 +29,9 @@ Local nPLivre6 := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_LIVRE6"})
 Local nPLivre7 := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_LIVRE7"})
 Local nPLivre8 := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_LIVRE8"})
 Local nPLivre9 := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_LIVRE9"})
-
 Local nPCliente := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_CODIGO"})
 Local nPLojaCli := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_LOJA"})
+Local nPProduto := aScan(aRet, {|x| AllTrim(x[1]) == cAlias + "_PRODUTO"})
 
 If cAlias == 'HJ7'
 	DbSelectArea("SA1")
@@ -42,22 +42,28 @@ If cAlias == 'HJ7'
 		EndIf
 	EndIf
 		
-If SA1->(FieldPos('A1_BAIRRO'))> 0
-			aRet[nPlivre1][2] := SA1->A1_BAIRRO
+	If SA1->(FieldPos('A1_BAIRRO'))> 0
+				aRet[nPlivre1][2] := SA1->A1_BAIRRO
+			EndIf
+		 
+	 If SA1->(FieldPos('A1_CONTATO'))> 0
+				aRet[nPlivre2][2] := SA1->A1_CONTATO
 		EndIf
-	 
- If SA1->(FieldPos('A1_CONTATO'))> 0
-			aRet[nPlivre2][2] := SA1->A1_CONTATO
-	EndIf
-
- If SA1->(FieldPos('A1_EMAIL'))> 0
-			aRet[nPlivre3][2] := SA1->A1_EMAIL
-	EndIf
 	
- If SA1->(FieldPos('A1_TEL'))> 0
-			aRet[nPlivre4][2] := SA1->A1_TEL
-	EndIf	
-
-EndIf
-	
+	 If SA1->(FieldPos('A1_EMAIL'))> 0
+				aRet[nPlivre3][2] := SA1->A1_EMAIL
+		EndIf
+		
+	 If SA1->(FieldPos('A1_TEL'))> 0
+				aRet[nPlivre4][2] := SA1->A1_TEL
+		EndIf	
+ElseIf cAlias == 'HJ8'
+		DbSelectArea("SB1")
+		DbSetOrder(1)
+		If DbSeek(xFilial('SB1')+AllTrim(aRet[nPProduto][2])) 
+			If SB1->(FieldPos('B1_FAMAVAN'))> 0
+				aRet[nPlivre0][2] := SB1->B1_FAMAVAN
+			EndIf
+		EndIf
+EndIf	
 Return aRet
