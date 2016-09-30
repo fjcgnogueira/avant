@@ -57,8 +57,9 @@ If cAlias == 'HJ7'
 	 If SA1->(FieldPos('A1_TEL'))> 0
 				aRet[nPlivre4][2] := SA1->A1_TEL
 		EndIf	
+EndIf
 
-ElseIf cAlias == 'HJ8'
+If cAlias == 'HJ8'
 		DbSelectArea("SB1")
 		DbSetOrder(1)
 		If DbSeek(xFilial('SB1')+AllTrim(aRet[nPProduto][2])) 
