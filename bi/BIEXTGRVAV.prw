@@ -59,6 +59,7 @@ If cAlias == 'HJ7'
 		EndIf	
 EndIf
 
+/*
 If cAlias == 'HJ8'
 		DbSelectArea("SB1")
 		DbSetOrder(1)
@@ -68,4 +69,6 @@ If cAlias == 'HJ8'
 			EndIf
 		EndIf
 EndIf	
+*/
+
 Return aRet
