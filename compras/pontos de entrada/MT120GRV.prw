@@ -15,7 +15,7 @@
 User Function MT120GRV()
 
 
-	SC7->C7_XSTALI := SX5->X5_DESCRI
+	//SC7->C7_XSTALI := SX5->X5_DESCRI
 
 //MsgInfo(SC7->C7_NUM)
 
