@@ -9,7 +9,22 @@ Description
 @since 22-12-2011
 /*/
 //--------------------------------------------------------------
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ AV_EDICOB º Autor ³ Cristian Werneck   º Data ³ 24/12/2011 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³ Funcao para trazer um MarkBrowse                           º±±
+±±º          ³                                                            º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ Especifico Avant                                           º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
 User Function AV_EDICOB()
+
 Local aButtons := {}
 Local oFont1 := TFont():New("MS Serif",,016,,.F.,,,,,.F.,.F.)
 Local oFont2 := TFont():New("MS Sans Serif",,022,,.F.,,,,,.F.,.F.)
@@ -20,7 +35,7 @@ Local cTitul := ''
 // variaveis para a geração das notas fiscais de entrada
 Local aCabec:= {} // Array que conterá os dados para o cabeçalho do documento de entrada
 Local aItens:= {} // Array que conterá os itens da nota fiscal de entrada
-Local cCodFis  := "" //CÓDIGO FISCAL DA NATUREZA DE OPERAÇÃO
+Local cCodFis  := "" //CODIGO FISCAL DA NATUREZA DE OPERACAO
 Local lFalha   := .f.
 Local aAreaSF1 := SF1->(GetArea())
 Local aAreaSD1 := SD1->(GetArea())
@@ -49,16 +64,14 @@ Private lMsHelpAuto := .T.
 SF1->(dbSetOrder(1)) // filila + DOC + SERIE + FORNECEDOR + LOJA + TIPO
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Definição dos parametros inicias - utilizados no msexecauto(mata103)            ³
+//³ Definicao dos parametros inicias - utilizados no msexecauto(mata103)            ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-//cCondPag := GETNEWPAR("AV_CONDPAG", '1') // definição da condicao de pagamento
-cCondPag := GETNEWPAR("AV_CONDPAG", '001') // definição da condicao de pagamento
-//cCodNatu := Padr( GETNEWPAR("AV_CODNATU", '50100'), TamSx3("E2_NATUREZ")[1] ) // definição do codigo da natureza. Será utilizado no campo F1_NATUREZ
-cCodNatu := Padr( GETNEWPAR("AV_CODNATU", '101'), TamSx3("E2_NATUREZ")[1] ) // definição do codigo da natureza. Será utilizado no campo F1_NATUREZ
-cCodTES  := GETNEWPAR("AV_CODTES" , '040') // definição da TES - Tipo de Entrada e Saída. Será utilizado no campo D1_TES
-cTESCtr  := GETNEWPAR("AV_CTESCTR", '042') // definição da TES - utilizado para gerar o conhecimento de transporte -  MATA116
-cTESCtrIC:= GETNEWPAR("AV_CTESCTI", '042') // definição da TES - utilizado para gerar o conhecimento de transporte -  MATA116 que tenha crédido de ICMS
-cCodPrd  := Padr( GETNEWPAR("AV_CODPROD", '000001'), TamSx3("B1_COD")[1] ) // definição do codigo do produto. Será utilizado no campo D1_COD
+cCondPag  := GETNEWPAR("AV_CONDPAG", '001') // definicao da condicao de pagamento
+cCodNatu  := Padr( GETNEWPAR("AV_CODNATU", '101'), TamSx3("E2_NATUREZ")[1] ) // definicao do codigo da natureza. Será utilizado no campo F1_NATUREZ
+cCodTES   := GETNEWPAR("AV_CODTES" , '040') // definicao da TES - Tipo de Entrada e Saida. Serah utilizado no campo D1_TES
+cTESCtr   := GETNEWPAR("AV_CTESCTR", '042') // definicao da TES - utilizado para gerar o conhecimento de transporte -  MATA116
+cTESCtrIC := GETNEWPAR("AV_CTESCTI", '042') // definicao da TES - utilizado para gerar o conhecimento de transporte -  MATA116 que tenha credito de ICMS
+cCodPrd   := Padr( GETNEWPAR("AV_CODPROD", '000001'), TamSx3("B1_COD")[1] ) // definicao do codigo do produto. Será utilizado no campo D1_COD
 
 DEFINE MSDIALOG oDlgEDI TITLE "EDI TRANSPORTE" FROM 000, 000  TO 570, 1100 COLORS 0, 16777215 PIXEL
 
@@ -68,11 +81,16 @@ If ZZ4->ZZ4_STATUS <> "G"
 Else
 	EnchoiceBar(oDlgEDI,  {||ApMsgInfo('Cobrança já gerada anteriormente.'), oDlgEDI:End()}, {||oDlgEDI:End()},,aButtons)
 EndIf
+
 @ 019, 003 GROUP oGroup1 TO 110, 545 PROMPT "U N B - CABEÇALHO DE INTERCÂMBIO" OF oDlgEDI COLOR 0, 16777215 PIXEL
+
 nRegZZ4 := ZZ4->(Recno())
 RegToMemory("ZZ4", .F., .F.)
+
 fEnchoic1()
+
 @ 114, 003 FOLDER oFolder1 SIZE 542, 156 OF oDlgEDI ITEMS "D C O - Documento de Cobrança" COLORS 0, 16777215 MESSAGE "D C O - Documento de Cobrança" PIXEL
+
 fMSNewMark()
 
 @ 030, 460 SAY oSay1 PROMPT "Qtde marcado" SIZE 065, 016 OF oDlgEDI FONT oFont2 COLORS 8388608, 16777215 PIXEL
@@ -85,10 +103,10 @@ ACTIVATE MSDIALOG oDlgEDI CENTERED
 If _nOpc <> 0 .And. __nValue <> 0 .And. ApMsgYesNo('Confirma geração dos titulos a pagar no valor total de R$ :'+Transform(__nValue,"@e 999,999,999.99" ))
 	
 	// guardar o nr do conhecimento na tabela ZZ5
-	cSerCon := PadR(M->ZZ4_SERDOC,Tamsx3("E2_TIPO")[1]) //SÉRIE DO CONHECIMENTO
-	cDocCon := PadR(M->ZZ4_NUMDOC,TamSx3("F1_DOC")[1] ) //NÚMERO DO CONHECIMENTO
+	cSerCon := PadR(M->ZZ4_SERDOC,Tamsx3("E2_TIPO")[1]) //SERIE DO CONHECIMENTO
+	cDocCon := PadR(M->ZZ4_NUMDOC,TamSx3("F1_DOC")[1] ) //NUMERO DO CONHECIMENTO
 	
-	// Realizar as devidas verificações se os parametros informados acima existem antes de continuar a importação dos dados
+	// Realizar as devidas verificacoes se os parametros informados acima existem antes de continuar a importacao dos dados
 	//AV_CONDPAG
 	cMsg := ''
 	aAreaSE4 := SE4->(GetArea())
@@ -120,13 +138,12 @@ If _nOpc <> 0 .And. __nValue <> 0 .And. ApMsgYesNo('Confirma geração dos titulos
 		cMsg += 'Produto   = ' + cCodPrd + '  não encontrada. ' + Chr(13)
 	EndIf
 	
-	If lFalha // algum dos parametros informados falhou, portanto abortar a importação
+	If lFalha // algum dos parametros informados falhou, portanto abortar a importacao
 		ApMsgStop(cMsg, 'EDI TRANSPORTE')
 		Return(nil)
 	EndIf
 	
 	// Gerando a nota fiscal de entrada para a nota fiscal do FRETE para gerar a cobrança da transportadora
-	
 	If !SF1->(ZZ4->(dbSeek(ZZ4_FILIAL + cSerCon + cDocCon + M->ZZ4_CODFOR + M->ZZ4_LOJFOR + 'N' ))) //!NANFIsExist(aConhecim[nX,5],@nTotal)
 		aCab := { 	{"F1_DOC"    , cDocCon			, Nil} ,; // Nota Fiscal
 		{"F1_SERIE"  , cSerCon			, Nil} ,; // Serie
@@ -159,7 +176,6 @@ If _nOpc <> 0 .And. __nValue <> 0 .And. ApMsgYesNo('Confirma geração dos titulos
 		aAdd(aLinha,{"D1_QUANT"   , 1													, Nil}) // Quantidade
 		aAdd(aLinha,{"D1_VUNIT"   , __nValue	, Nil}) // Valor Unitario
 		aAdd(aLinha,{"D1_TOTAL"   , __nValue	, Nil}) // Total
-		//		aAdd(aLinha,{"D1_CC"	  , _cCC												, Nil}) // Centro de Custo
 		//					aAdd(aLinha,{"D1_NFORI"	  , Padr(aNotas[nY,2],Tamsx3("F2_DOC")[1])				, Nil}) // Nota Fiscal Origem
 		//					aAdd(aLinha,{"D1_SERIORI" , Padr(aNotas[nY,1],Tamsx3("F2_SERIE")[1])			, Nil}) // Serie Origem
 		
@@ -179,17 +195,22 @@ If _nOpc <> 0 .And. __nValue <> 0 .And. ApMsgYesNo('Confirma geração dos titulos
 		
 	EndIf
 	
-	If !lMsErroAuto // não deu erro na criação do MATA103 entao vamos gerar o mata116
+	// Nao deu erro na criacao do MATA103 entao vamos gerar o mata116
+	If !lMsErroAuto
+
 		nRecSF1 := SF1->(Recno())
 		(cAliasZZ5)->(dbGoTop())
+
 		While (cAliasZZ5)->(!Eof())
+
 			ZZ5->(dbGoTo((cAliasZZ5)->RECZZ5))
+
 			If (cAliasZZ5)->ZZ5_OK == cMarca
-				//			RecLock('ZZ5', .f.)
+				// RecLock('ZZ5', .F.)
 				// criar um campo de flag para marcar os registros processados
-				//				ZZ5->ZZ5_NUMDOC := cDocCon
-				//				ZZ5->ZZ5_SERDOC := cSerCon
-				//				ZZ5->(MsUnlock())
+				// ZZ5->ZZ5_NUMDOC := cDocCon
+				// ZZ5->ZZ5_SERDOC := cSerCon
+				// ZZ5->(MsUnlock())
 				
 				SF1->(dbGoTo(nRecSF1))
 				
@@ -205,18 +226,19 @@ If _nOpc <> 0 .And. __nValue <> 0 .And. ApMsgYesNo('Confirma geração dos titulos
 				aAdd( aCabec, { "" 				, 2					} )	// 07 - Aglutina Produtos :
 				aAdd( aCabec, { "F1_EST"		, ""				} )	// 08 - Estado de Origem do Frete
 				aAdd( aCabec, { "" 				, ZZ5->ZZ5_VLRFRE	} )	// 09 - Valor total do Frete sem Impostos
-				aAdd( aCabec, { "F1_FORMUL" 	, "N"				} )	// 10 - Utiliza Formulario proprio ? S-Sim,N-Nao
+				aAdd( aCabec, { "F1_FORMUL" 	, 1				    } )	// 10 - Utiliza Formulario proprio ? 2-Sim,1-Nao // Fernando Nogueira - Chamado 004199
 				aAdd( aCabec, { "F1_DOC" 		, PadR(ZZ5->ZZ5_NUMCON,Tamsx3("F1_DOC")[1])	} )	// 11 - Num. da NF de Conhecimento de Frete
 				aAdd( aCabec, { "F1_SERIE" 		, PadR(ZZ5->ZZ5_SERCON,Tamsx3("F1_SERIE")[1])	} )	// 12 - Serie da NF de COnhecimento de Frete
 				aAdd( aCabec, { "F1_FORNECE" 	, ZZ5->ZZ5_CODFOR	} )	// 13 - Codigo do Fornecedor da NF de FRETE
 				aAdd( aCabec, { "F1_LOJA" 		, ZZ5->ZZ5_LOJFOR	} )	// 14 - Loja do Fornecedor da NF de Frete
+
 				If ZZ5->ZZ5_ICMS == 0
 					aAdd( aCabec, { "" 				, cTESCtr			} )	// 15 - Tes utilizada na Classificacao da NF
 					aAdd( aCabec, { "NF_BASEICM" 	, 0					} )	// 16 - Base do Icms Retido
 					aAdd( aCabec, { "NF_VALICM" 	, 0					} )	// 17 - Valor do Icms Retido
 				Else
 					aAdd( aCabec, { "" 				, cTESCtrIC			} )	// 15 - Tes utilizada na Classificacao da NF
-					//				    aAdd( aCabec, { "IT_ALIQICM" 	, ZZ5->ZZ5_ICMS		} )	// 17 - Valor do Icms Retido
+					// aAdd( aCabec, { "IT_ALIQICM" 	, ZZ5->ZZ5_ICMS		} )	// 17 - Valor do Icms Retido
 					aAdd( aCabec, { "NF_BASEICM" 	, ZZ5->ZZ5_BASICM	} )	// 16 - Base do Icms Retido
 					aAdd( aCabec, { "NF_VALICM" 	, ZZ5->ZZ5_VALICM	} )	// 17 - Valor do Icms Retido
 				EndIf
@@ -300,21 +322,18 @@ If _nOpc <> 0 .And. __nValue <> 0 .And. ApMsgYesNo('Confirma geração dos titulos
 				cUpd += " AND D_E_L_E_T_ <> '*'"
 				_nResult := TcSqlExec(cUpd)
 				
-				
-				
-				
 			Else
 				//			RecLock('ZZ5', .f.)
 				//				ZZ5->ZZ5_NUMDOC := ""
 				//				ZZ5->ZZ5_SERDOC := ""
 				//				ZZ5->(MsUnlock())
-				
 			EndIf
 			
 			(cAliasZZ5)->(dbSkip())
 		EndDo
 		
 		ZZ4->(dbGoTo(nRegZZ4))
+
 		If ZZ4->ZZ4_STATUS <> "G"
 			RecLock("ZZ4", .F.)
 			ZZ4->ZZ4_STATUS := 'G'
@@ -323,13 +342,26 @@ If _nOpc <> 0 .And. __nValue <> 0 .And. ApMsgYesNo('Confirma geração dos titulos
 		
 	EndIf
 	
-endIf
+EndIf
 
 Return
 
-//------------------------------------------------
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ fEnchoic1 º Autor ³ Microsiga          º Data ³ 25/12/2011 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³                                                            º±±
+±±º          ³                                                            º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ Especifico Avant                                           º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
 Static Function fEnchoic1()
-//------------------------------------------------
+
 Local aFields := {}
 Local aAlterFields := {}
 Static oEnchoic1
@@ -341,13 +373,13 @@ Return
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³AV_EDICOB ºAutor  ³Cristian Werneck    º Data ³  12-24-11   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³Funcao para trazer um MarkBrowse                            º±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ fMSNewMarkº Autor ³ Microsiga          º Data ³ 25/12/2011 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³                                                            º±±
 ±±º          ³                                                            º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ AP                                                        º±±
+±±ºUso       ³ Especifico Avant                                           º±±
 ±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
@@ -473,13 +505,13 @@ Return
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³AV_EDICOB ºAutor  ³Microsiga           º Data ³  12-25-11   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ FaEDIExibeº Autor ³ Microsiga          º Data ³ 25/12/2011 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
 ±±ºDesc.     ³                                                            º±±
 ±±º          ³                                                            º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ AP                                                        º±±
+±±ºUso       ³ Especifico Avant                                           º±±
 ±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
@@ -502,22 +534,22 @@ oQtdTit:Refresh()
 
 Return()
 
-
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³AV_EDICOB ºAutor  ³Microsiga           º Data ³  12-25-11   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ FaEDIMkAllº Autor ³ Microsiga          º Data ³ 25/12/2011 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
 ±±ºDesc.     ³                                                            º±±
 ±±º          ³                                                            º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ AP                                                        º±±
+±±ºUso       ³ Especifico Avant                                           º±±
 ±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 STATIC Function FaEDIMkAll(cAlias, cMarca, lInverte, oValor, oQtdTit, lTodos)
+
 LOCAL lSavTTS
 LOCAL nRec
 LOCAL cAliasAnt := Alias()
@@ -561,6 +593,7 @@ While (cAlias)->(!Eof())
 	Endif
 	(cAlias)->(dbSkip())
 EndDo
+
 dbGoto(nRec)
 
 oValor:Refresh()
@@ -568,5 +601,5 @@ oQtdTit:Refresh()
 
 __TTSInUse := lSavTTS
 dbSelectArea(cAliasAnt)
-Return
 
+Return
