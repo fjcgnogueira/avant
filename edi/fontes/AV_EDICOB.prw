@@ -144,7 +144,7 @@ If _nOpc <> 0 .And. __nValue <> 0 .And. ApMsgYesNo('Confirma geraГЦo dos titulos
 	EndIf
 	
 	// Gerando a nota fiscal de entrada para a nota fiscal do FRETE para gerar a cobranГa da transportadora
-	If !SF1->(ZZ4->(dbSeek(ZZ4_FILIAL + cSerCon + cDocCon + M->ZZ4_CODFOR + M->ZZ4_LOJFOR + 'N' ))) //!NANFIsExist(aConhecim[nX,5],@nTotal)
+	If !SF1->(dbSeek(ZZ4_FILIAL +cDocCon + cSerCon + M->ZZ4_CODFOR + M->ZZ4_LOJFOR + 'N')) //!NANFIsExist(aConhecim[nX,5],@nTotal)
 		aCab := { 	{"F1_DOC"    , cDocCon			, Nil} ,; // Nota Fiscal
 		{"F1_SERIE"  , cSerCon			, Nil} ,; // Serie
 		{"F1_FORNECE", M->ZZ4_CODFOR	, Nil} ,; // Fornecedor
@@ -192,7 +192,9 @@ If _nOpc <> 0 .And. __nValue <> 0 .And. ApMsgYesNo('Confirma geraГЦo dos titulos
 			MostraErro()
 			lFalha   := .T.
 		EndIf
-		
+	Else
+		// Fernando Nogueira - Chamado 004215 - Para Integrar CTRs faltantes em caso de cair a conexao
+		lMsErroAuto := !MsgNoYes("Nota "+cDocCon+"/"+cSerCon+" jА existe, continua assim mesmo?")		
 	EndIf
 	
 	// Nao deu erro na criacao do MATA103 entao vamos gerar o mata116
@@ -399,13 +401,17 @@ PRIVATE lInverte := .F.
 //Ё Gravar a marca para jА vir marcado no MarkBrowse             Ё
 //Ё                               								 Ё
 //юдддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддды
+// Chamado 004215 - Ajuste do Update para marcar somente o que nao gerou CTR
 cUpd := "UPDATE "+RetSqlName("ZZ5")
 cUpd += " SET ZZ5_OK = '" + cMarca + "'"
+cUpd += " FROM "+RetSqlName("ZZ5")+" ZZ5"
+cUpd += " LEFT JOIN "+RetSqlName("SF1")+" SF1 ON ZZ5_FILIAL = F1_FILIAL AND ZZ5_NUMCON = F1_DOC AND ZZ5_SERCON = F1_SERIE AND ZZ5_CODFOR = F1_FORNECE AND ZZ5_LOJFOR = F1_LOJA AND SF1.D_E_L_E_T_ = ' '"
 cUpd += " WHERE "
 cUpd += " ZZ5_FILIAL='"	+ M->ZZ4_FILIAL + "'"
 cUpd += " AND ZZ5_SERDOC = '" + LEFT(M->ZZ4_SERDOC,TamSx3("F1_SERIE")[1] )+ "'"
 cUpd += " AND ZZ5_NUMDOC = '" + LEFT(M->ZZ4_NUMDOC,TamSx3("F1_DOC")[1] ) + "'"
-cUpd += " AND D_E_L_E_T_ <> '*'"
+cUpd += " AND ZZ5.D_E_L_E_T_ <> '*'"
+cUpd += " AND SF1.R_E_C_N_O_ IS NULL"
 _nResult := TcSqlExec(cUpd)
 
 //здддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддд©
