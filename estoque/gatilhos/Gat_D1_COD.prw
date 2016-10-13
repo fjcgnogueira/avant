@@ -43,7 +43,7 @@ If AllTrim(FUNNAME()) <> 'MATA140'
 	_cTesEst  := SF4->F4_ESTOQUE
 Endif
 
-// Tipo da Nota de Devolucao e Produta controla lote
+// Tipo da Nota de Devolucao e Produto controla lote
 If cTipo = "D" .And. _cCtrLote = "L" .And. Empty(_cLote) .And. !Empty(_cTes)
    
 	// Tes de Entrada que controla estoque
@@ -65,21 +65,25 @@ Endif
 If AllTrim (_cCampo) == "D1_LOTECTL"
 	_cReturn := _cLote
 ElseIf AllTrim (_cCampo) == "D1_TES"
-	// Alimenta o campo com a Tes
-	aCols[n][_nPosTes] := _cTes
 	
-	// Dispara gatilhos
-	RunTrigger(2,n,nil,,'D1_TES')
+	If !IsBlind()
+		// Alimenta o campo com a Tes
+		aCols[n][_nPosTes] := _cTes
+		
+		// Dispara gatilhos
+		RunTrigger(2,n,nil,,'D1_TES')
+		
+		// Refaz o calculo dos impostos
+		If MaFisFound("IT",n)
+			If !Empty(aCols[n][_nPosTes])
+				MaFisAlt("IT_TES",aCols[n][_nPosTes],n)
+			EndIf
+			If aCOLS[n][_nPosTotal]<>0
+				MaFisToCols(aHeader,aCols,N,"MT100")
+			EndIf
+		EndIf
+	Endif
 	
-	// Refaz o calculo dos impostos
-	If MaFisFound("IT",n)
-		If !Empty(aCols[n][_nPosTes])
-			MaFisAlt("IT_TES",aCols[n][_nPosTes],n)
-		EndIf
-		If aCOLS[n][_nPosTotal]<>0
-			MaFisToCols(aHeader,aCols,N,"MT100")
-		EndIf
-	EndIf
 	_cReturn := _cTes
 Endif
 
