@@ -1622,6 +1622,13 @@ If cTipo == "1"
 					dbSetOrder(1)
 					MsSeek(xFilial("SB1")+(cAliasSD2)->D2_COD)
 					
+					//旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커
+					//쿚btem os dados do grupo - Fernando                                      �
+					//읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸			
+					dbSelectArea("SBM")
+					dbSetOrder(1)
+					MsSeek(xFilial("SBM")+SB1->B1_GRUPO)
+
 	   				dbSelectArea("SB5")
 					dbSetOrder(1)
 					If MsSeek(xFilial("SB5")+(cAliasSD2)->D2_COD)
@@ -1764,7 +1771,18 @@ If cTipo == "1"
 					EndIf
 					//================================================================================================
 
-					Aadd(_aCubagem,{(cAliasSD2)->D2_COD,(cAliasSD2)->D2_QUANT}) // Fernando Nogueira
+					// Fernando Nogueira - Alimenta Matriz para calculo da Cubagem
+					Aadd(_aCubagem,{(cAliasSD2)->D2_COD,(cAliasSD2)->D2_QUANT})
+					
+					// Chamado 004242 - Fernando Nogueira - Mensagem do Grupo do Produto na Danfe
+					If SBM->(MsSeek(xFilial("SBM")+SB1->B1_GRUPO)) .And. !Empty(SBM->BM_MENSAGE)
+						If !(Formula(SBM->BM_MENSAGE) $ cMensCli)
+							If Len(cMensCli) > 0 .And. SubStr(cMensCli, Len(cMensCli), 1) <> " " .And. SubStr(cMensCli, Len(cMensCli)-2, 3) <> " - "
+								cMensCli += " - "
+								cMensCli += Formula(SBM->BM_MENSAGE)
+							EndIf
+						Endif
+					Endif 
 
 					If !Empty( cNumNfCup )
 						//Tratamento para nota sobre Cupom 
