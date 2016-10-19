@@ -1779,8 +1779,8 @@ If cTipo == "1"
 						If !(Formula(SBM->BM_MENSAGE) $ cMensCli)
 							If Len(cMensCli) > 0 .And. SubStr(cMensCli, Len(cMensCli), 1) <> " " .And. SubStr(cMensCli, Len(cMensCli)-2, 3) <> " - "
 								cMensCli += " - "
-								cMensCli += Formula(SBM->BM_MENSAGE)
 							EndIf
+							cMensCli += Formula(SBM->BM_MENSAGE)
 						Endif
 					Endif 
 
