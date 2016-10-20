@@ -1775,7 +1775,7 @@ If cTipo == "1"
 					Aadd(_aCubagem,{(cAliasSD2)->D2_COD,(cAliasSD2)->D2_QUANT})
 					
 					// Chamado 004242 - Fernando Nogueira - Mensagem do Grupo do Produto na Danfe
-					If SBM->(MsSeek(xFilial("SBM")+SB1->B1_GRUPO)) .And. !Empty(SBM->BM_MENSAGE)
+					If SBM->(MsSeek(xFilial("SBM")+SB1->B1_GRUPO)) .And. SBM->(FieldPos("BM_MENSAGE")) > 0 .And. !Empty(SBM->BM_MENSAGE)
 						If !(Formula(SBM->BM_MENSAGE) $ cMensCli)
 							If Len(cMensCli) > 0 .And. SubStr(cMensCli, Len(cMensCli), 1) <> " " .And. SubStr(cMensCli, Len(cMensCli)-2, 3) <> " - "
 								cMensCli += " - "
