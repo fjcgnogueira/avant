@@ -306,6 +306,15 @@ If lRetorno
 						RollBackSx8()
 					Else
 						cDocumen	:= "Pedido Nro.: " + SC5->C5_NUM + " Caro Representante. Seu pedido foi incluído com sucesso!"
+						SZ4->(dbGoTop())
+						If SZ4->(DbSeek(xFilial("SZ4") + cPedidoW))
+							While SZ4->(!Eof()) .And. 	SZ4->Z4_FILIAL == xFilial("SZ4") .And. Padl(Alltrim(Str(SZ4->Z4_NUMPEDW)),TamSx3("Z4_NUMPEDW")[01]) == cPedidoW
+								SZ4->(Reclock("SCR",.F.))
+									SZ4->Z4_RESERVA := " " // Tira reserva web
+								SZ4->(MsUnlock())
+								SZ4->(DbSkip())
+							End
+						Endif
 					EndIf
 
 					//Atualiza Status da SZ3
