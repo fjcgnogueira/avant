@@ -95,6 +95,9 @@ oModel := MpFormModel():New('MDPerm',/*Pre-Validacao*/,/*Pos-Validacao*/,/*Commi
 //Adiciona um modelo de Formulario de Cadastro Similar ao Enchoice ou Msmget
 oModel:AddFields('ID_FLD_Perm', /*cOwner*/, oStruct, /*bPreValidacao*/, /*bPosValidacao*/, /*bCarga*/ )
 
+// Caso a opcao seja Inclusao/Copia, inicia o campo ZZL_ACESSO em branco
+oModel:SetActivate({|oModel| If(oModel:GetOperation()==3,oModel:SetValue("ID_FLD_Perm","ZZL_ACESSO",Space(TamSx3("ZZL_ACESSO")[1])),)})
+
 //Definicao da Chave Primaria
 oModel:SetPrimaryKey({"ZZL_FILIAL", "ZZL_AREA"})
 
@@ -131,6 +134,9 @@ oView:SetModel(oModel)
 
 //Vincula o Objeto visual de Cadastro com o modelo 
 oView:AddField( 'ID_VIEW_Perm', oStruct, 'ID_FLD_Perm')
+
+//Forca o fechamento da janela na confirmacao
+oView:SetCloseOnOk({||.T.})
 
 Return(oView)  
 
