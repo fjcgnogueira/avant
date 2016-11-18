@@ -139,6 +139,7 @@ Local cTesOper	:= ""
 Local nItem		:= 0
 Local aImpostos	:= {}
 Local nVlrIcm	:= 0
+Local nAlqIcdst	:= 0
 Local nVlrIpi	:= 0
 Local nVlrIcc	:= 0
 Local nVlrDif	:= 0
@@ -224,7 +225,8 @@ If nPosCof > 0
 EndIf
 
 If nPosRet > 0
-	nVlrRet := aImpostos[nPosRet][05]
+	nAlqIcdst := aImpostos[nPosRet][04]
+	nVlrRet   := aImpostos[nPosRet][05]
 EndIf
 
 If SA1->A1_CALCSUF = 'S'
@@ -255,6 +257,7 @@ ZIA->ZIA_VALPIS := nVlrPis
 ZIA->ZIA_VALCOF	:= nVlrCof
 ZIA->ZIA_DESCZF	:= nDescSuf
 ZIA->ZIA_MARGEM	:= nMargem
+ZIA->ZIA_ICMDST := nAlqIcdst
 MsUnlock()
 
 Return
