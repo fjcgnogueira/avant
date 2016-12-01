@@ -34,6 +34,7 @@ Return TitCancel()
 ±±ºDescri‡„o ³ Titulos Cancelados                                         º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
 ±±ºUso       ³ Especifico AVANT.                   	                      º±±
+±±º          ³ Chamado 003863                   	                      º±±
 ±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
@@ -87,7 +88,7 @@ DEFINE MSDIALOG oDlg TITLE "Títulos Excluídos - Cliente " + SA1->A1_NOME FROM 0,
 		//-------------------------------------------------------------------
 		// Adiciona as colunas do Browse
 		//-------------------------------------------------------------------
-		
+
 		ADD COLUMN oColumn DATA {|| E1_FILIAL       } TITLE AllTrim(AvSx3("E1_FILIAL",5))  SIZE TamSX3("E1_FILIAL")[1]  OF oBrowse
 		ADD COLUMN oColumn DATA {|| E1_PREFIXO      } TITLE AllTrim(AvSx3("E1_PREFIXO",5)) SIZE TamSX3("E1_PREFIXO")[1] OF oBrowse
 		ADD COLUMN oColumn DATA {|| E1_NUM          } TITLE AllTrim(AvSx3("E1_NUM",5))     SIZE TamSX3("E1_NUM")[1]     OF oBrowse
@@ -101,7 +102,7 @@ DEFINE MSDIALOG oDlg TITLE "Títulos Excluídos - Cliente " + SA1->A1_NOME FROM 0,
 	// Ativação do Browse
 	//-------------------------------------------------------------------
 	ACTIVATE FWBROWSE oBrowse
-	
+
 	@ 01,aPosObj[1][4]-320 BUTTON "&Sair" SIZE 34,11 ACTION ( nOpca := 1, oDlg:End() ) OF oDlg PIXEL
 //-------------------------------------------------------------------
 // Ativação do janela
