@@ -155,7 +155,6 @@ User Function SENDMAEDI(cAnexo, cAssunto)
 	Local cCorpo	:= ""
 	Local cSubject	:= cAssunto
 	Local cTo		:= SuperGetMV("AV_MAILEDI", Nil, "it2@avantsp.com.br;helpdesk@avantsp.com.br")
-//	Local cTo		:= SuperGetMV("AV_MAILEDI", Nil, "cristian.verneque@mpsiga.com.br")
 	Local cPassword	:= Trim(GetMV("MV_RELPSW"))
 	Local cServer	:= Trim(GetMV("MV_RELSERV"))
 	Local cAccount	:= Trim(GetMV("MV_RELACNT"))
