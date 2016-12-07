@@ -35,7 +35,11 @@ Description : rotina para importar o EDI
 */
 
 //Chamava via Schedule
-User Function AV_EDIJ01()
+User Function AV_EDIJ01(aParam)
+	//旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴커
+	//쿪Param     |  [01]   |  [02]  |
+	//�           | Empresa | Filial |
+	//읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸
 	U_AV_EDIJA(.T.)
 Return Nil
 
@@ -70,7 +74,7 @@ ConOut( "Arquivo de LOG..." + cArqTxt )
 	
 If lSchedule
 	ConOut(" === Rotina sendo Executada Via Schedule ===")
-	PREPARE ENVIRONMENT EMPRESA ( "01" ) FILIAL ( "010101" ) MODULO "COM"
+	PREPARE ENVIRONMENT EMPRESA ( aParam[01] ) FILIAL ( aParam[02] ) MODULO "COM"
 	ConOut("Aberto Empresa...: " + SM0->M0_NOME)
 	ConOut("Aberto Filial....: " + SM0->M0_FILIAL)
 Else
