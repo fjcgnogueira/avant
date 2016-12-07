@@ -84,9 +84,9 @@ oProcess:NewTask("Enviando Titulo com Parcela(s) a Vencer",cArquivo)
 oHTML := oProcess:oHTML
 
 If Empty(cParc)
-	cMensTit := "de sua NF nº "+cTitulo
+	cMensTit := "de sua NF No "+cTitulo
 Else
-	cMensTit := "de sua NF nº "+cTitulo+" parcela "+AllTrim(cParc)
+	cMensTit := "de sua NF No "+cTitulo+" parcela "+AllTrim(cParc)
 Endif
 
 oHtml:ValByName("cMensTit", cMensTit)
@@ -109,7 +109,7 @@ If SE1->(dbSeek(xFilial("SE1")+cPrefixo+cTitulo))
 	End
 Endif
 
-oProcess:cSubject := "[Titulo Avant Nº "+cTitulo+" com parcela(s) a vencer - "+DtoC(Date())+"] "
+oProcess:cSubject := "[Titulo Avant No "+cTitulo+" com parcela(s) a vencer - "+DtoC(Date())+"] "
 oProcess:USerSiga := "000000"
 oProcess:cTo      := cPara
 oProcess:cBCC     := cMailBCC
