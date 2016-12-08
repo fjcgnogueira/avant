@@ -45,16 +45,22 @@ If Pergunte(cPerg,.T.)
 	// Abertura da tabela
 	//-------------------------------------------------------------------
 	Connect(,.T.,"01","01",,.T.)
-	cQuery := "SELECT SF2.F2_DOC VENDA,F2_EMISSAO EMISSAO,A1_NOME NOME,A1_CGC CNPJ,A1_END ENDERECO,A1_MUN CIDADE,A1_EST UF,A1_CEP CEP,VDO.D2_DOC REMESSA FROM "+RetSqlName('SF2')+" SF2 "
+	cQuery := "SELECT SF2.F2_DOC VENDA,CASE WHEN ISNULL(DOCSERIE,'NAO') = 'NAO' THEN 'NAO' ELSE 'OK' END VENDAORDEM,F2_EMISSAO EMISSAO,A1_NOME NOME,A1_CGC CNPJ,A1_END ENDERECO,A1_MUN CIDADE,A1_EST UF,A1_CEP CEP,VDO.D2_DOC REMESSA FROM "+RetSqlName('SF2')+" SF2 "
 	cQuery += "INNER JOIN "
 	cQuery += "(SELECT DISTINCT D2_DOC,C5_MENNOTA FROM "+RetSqlName('SD2')+" SD2 "
 	cQuery += "INNER JOIN "+RetSqlName('SC5')+" SC5 ON D2_FILIAL = C5_FILIAL AND D2_PEDIDO = C5_NUM AND SC5.D_E_L_E_T_ = ' ' "
 	cQuery += "WHERE SD2.D_E_L_E_T_ = ' ' AND D2_FILIAL = '"+xFilial('SD2')+"' AND D2_EMISSAO BETWEEN '"+DTOS(MV_PAR01)+"' AND '"+DTOS(MV_PAR02)+"' AND D2_TES = '529') VDO ON "
 	cQuery += "CHARINDEX(RIGHT(SF2.F2_DOC,06),VDO.C5_MENNOTA) > 0 "
 	cQuery += "INNER JOIN "+RetSqlName('SA1')+" SA1 ON F2_CLIENTE+F2_LOJA = A1_COD+A1_LOJA AND SA1.D_E_L_E_T_ = ' ' "
+	cQuery += "LEFT JOIN "
+	cQuery += "(SELECT D2_DOC+D2_SERIE DOCSERIE FROM "+RetSqlName('SD2')+" SD2 "
+	cQuery += "INNER JOIN "+RetSqlName('SF4')+" SF4 ON F4_FILIAL = D2_FILIAL AND D2_TES = F4_CODIGO AND F4_TEXTO LIKE '%ORD%' AND F4_TEXTO LIKE '%VEND%' AND SF4.D_E_L_E_T_ = ' ' "
+	cQuery += "WHERE SD2.D_E_L_E_T_ = ' ' AND D2_FILIAL = '"+xFilial('SD2')+"' AND D2_EMISSAO BETWEEN '"+DTOS(MV_PAR01)+"' AND '"+DTOS(MV_PAR02)+"' "
+	cQuery += "GROUP BY D2_DOC+D2_SERIE) TD2 ON F2_DOC+F2_SERIE = DOCSERIE "
 	cQuery += "WHERE SF2.D_E_L_E_T_ = ' ' AND SF2.F2_FILIAL = '"+xFilial('SF2')+"' AND SF2.F2_EMISSAO BETWEEN '"+DTOS(MV_PAR01)+"' AND '"+DTOS(MV_PAR02)+"' "
+	cQuery += "AND SUBSTRING(C5_MENNOTA,CHARINDEX(RIGHT(SF2.F2_DOC,06),VDO.C5_MENNOTA)+6,01) NOT IN ('0','1','2','3','4','5','6','7','8','9') "
 	cQuery += "ORDER BY VENDA "
-	
+
 	//-------------------------------------------------------------------
 	// Indica os índices da tabela temporária
 	//-------------------------------------------------------------------
@@ -78,6 +84,7 @@ If Pergunte(cPerg,.T.)
 			//-------------------------------------------------------------------
 	
 			ADD COLUMN oColumn DATA {|| VENDA         } TITLE "Nf Venda"                     SIZE TamSX3("F2_DOC")[1]                                      OF oBrowse
+			ADD COLUMN oColumn DATA {|| VENDAORDEM    } TITLE "Vnd.Ord"                      SIZE 03                                                       OF oBrowse
 			ADD COLUMN oColumn DATA {|| StoD(EMISSAO) } TITLE AllTrim(AvSx3("F2_EMISSAO",5)) SIZE TamSX3("F2_EMISSAO")[1]                                  OF oBrowse
 			ADD COLUMN oColumn DATA {|| NOME          } TITLE AllTrim(AvSx3("A1_NOME",5))    SIZE TamSX3("A1_NOME")[1]                                     OF oBrowse
 			ADD COLUMN oColumn DATA {|| CNPJ          } TITLE AllTrim(AvSx3("A1_CGC",5))     SIZE TamSX3("A1_CGC")[1]     PICTURE PesqPict("SA1","A1_CGC") OF oBrowse
@@ -143,7 +150,7 @@ Return Nil
 Static Function NotaVis(oDlgQry,oBrowse,cTrab)
 
 Local bAction1 := {||SF2->(dbSeek(xFilial("SF2")+(cTrab)->(FieldGet(01)))),MC090Visual(),oDlg:End()} 
-Local bAction2 := {||SF2->(dbSeek(xFilial("SF2")+(cTrab)->(FieldGet(09)))),MC090Visual(),oDlg:End()}
+Local bAction2 := {||SF2->(dbSeek(xFilial("SF2")+(cTrab)->(FieldGet(10)))),MC090Visual(),oDlg:End()}
 Local bAction3 := {||oDlg:End()}
                                       
 Static oDlg
