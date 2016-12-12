@@ -8,7 +8,7 @@
 ฑฑบDescrio ณ Ponto de Entrada na Confirmacao da Nota de Entrada         บฑฑ
 ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
 ฑฑบUso       ณ Especifico Avant                                           บฑฑ
-ฑฑบObs       ณ Nao Compilado                                              บฑฑ
+ฑฑบ          ณ Chamado 004483                                             บฑฑ
 ฑฑฬออออออออออฯอออัออออออออัอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
 ฑฑบAnalista Resp.ณ  Data  ณ Manutencao Efetuada                           บฑฑ
 ฑฑฬออออออออออออออุออออออออุอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
@@ -20,7 +20,7 @@
 User Function MT103DNF()
 
 Local lReturn   := .T.
-/*Local cNFe      := Paramixb[1][13]
+Local cNFe      := Paramixb[1][13]
 Local cTabEst   := "AC12AL27AM13AP16BA29CE23DF53ES32GO52MA21MG31MS50MT51PA15PB25PE26PI22PR41RJ33RN24RO11RR14RS43SC42SE28SP35TO17"  // Tabela de Estados
 Local cCNPJ     := ""
 Local aAreaSA1  := SA1->(GetArea())
@@ -79,6 +79,6 @@ Endif
 
 SA1->(RestArea(aAreaSA1))
 SA2->(RestArea(aAreaSA2))
-SF1->(RestArea(aAreaSF1))*/
+SF1->(RestArea(aAreaSF1))
 
 Return lReturn
