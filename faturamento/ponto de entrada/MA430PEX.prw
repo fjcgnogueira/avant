@@ -14,7 +14,7 @@
 /*/
 User Function MA430PEX()
 
-If !Empty(SC0->C0_SOLICIT).And. AllTrim(SC0->C0_SOLICIT) <> AllTrim(cUserName)
+If !Empty(SC0->C0_SOLICIT).And. AllTrim(SC0->C0_SOLICIT) <> AllTrim(cUserName) .And. aScan(PswRet(1)[1][10],'000000') == 0
 	ApMsgInfo("Exclusão liberada somente para o mesmo usuário que fez a reserva: "+AllTrim(SC0->C0_SOLICIT))
 	Return .F.
 Endif

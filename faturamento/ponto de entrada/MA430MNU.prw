@@ -52,9 +52,9 @@ User Function AVResid(cAlias,nReg,nOpcx)
 Local aArea := GetArea()
 Local cNum  := SC0->C0_NUM
 
-If !Empty(SC0->C0_SOLICIT) .And. AllTrim(SC0->C0_SOLICIT) <> AllTrim(cUserName)
+If !Empty(SC0->C0_SOLICIT) .And. AllTrim(SC0->C0_SOLICIT) <> AllTrim(cUserName) .And. aScan(PswRet(1)[1][10],'000000') == 0
 	ApMsgInfo("Eliminar Resíduos liberado somente para o mesmo usuário que fez a reserva: "+AllTrim(SC0->C0_SOLICIT))
-	Return 
+	Return
 ElseIf a430Visual(cAlias,nReg,nOpcx)==1
 	dbSelectArea("SC0")
 	dbSetOrder(1)
@@ -77,7 +77,7 @@ ElseIf a430Visual(cAlias,nReg,nOpcx)==1
 			If ExistBlock("MT430ELIM")
 				ExecBlock("MT430ELIM",.F.,.F.,{SC0->C0_NUM})
 			EndIf
-			
+
 		dbSelectArea("SC0")
 		dbSkip()
 	EndDo
