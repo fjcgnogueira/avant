@@ -89,7 +89,7 @@ If lRetorno
 	DbSelectarea("SZ3")
 	SZ3->(DbSetorder(1))
 	If SZ3->(DbSeek(xFilial("SZ3") + cPedidoW))
-		If SZ3->Z3_STATUS <> "2"
+		If SZ3->Z3_STATUS <> "P"
 			lRetorno 	:= .F.
 			cMensagem	:= "Pedido: " + cPedidoW + " Está com Status " + SZ3->Z3_STATUS + " Na tabela de Integração"
 		Else
