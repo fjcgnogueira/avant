@@ -84,7 +84,7 @@ While ZZI->(!Eof())
 	If ZZI->ZZI_GERA == "1"
 		
 		While SB1->(!Eof())
-			If SB1->B1_MSBLQL <> '1' .And. SB1->B1_TIPO $ ('PA.PR') .And. SB1->B1_X_BLWEB <> 'S'
+			If SB1->B1_MSBLQL <> '1' .And. SB1->B1_TIPO $ ('PA.PR')
 				If SA1->(dbSeek(xFilial("SA1") + ZZI->ZZI_CLIENT + ZZI->ZZI_LOJA))
 					GeraZIA()
 				Endif
@@ -98,7 +98,7 @@ While ZZI->(!Eof())
 
 	Else
 		While SB1->(!Eof())
-			If SB1->B1_MSBLQL <> '1' .And. SB1->B1_TIPO $ ('PA.PR') .And. SB1->B1_X_BLWEB <> 'S' .And. !ZIA->(dbSeek(xFilial("ZIA")+SB1->B1_COD+ZZI->(ZZI_UF+ZZI_TIPO)))
+			If SB1->B1_MSBLQL <> '1' .And. SB1->B1_TIPO $ ('PA.PR') .And. !ZIA->(dbSeek(xFilial("ZIA")+SB1->B1_COD+ZZI->(ZZI_UF+ZZI_TIPO)))
 				If SA1->(dbSeek(xFilial("SA1") + ZZI->ZZI_CLIENT + ZZI->ZZI_LOJA))
 					GeraZIA()
 				Endif
