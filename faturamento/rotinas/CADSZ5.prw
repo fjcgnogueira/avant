@@ -269,6 +269,7 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 					{"A1_CEPE"		,SZ5->Z5_CEPEN		   , Nil},;
 					{"A1_EMAIL"		,SZ5->Z5_EMAIL		   , Nil},;
 					{"A1_X_MAIL2"	,SZ5->Z5_EMAIL1		   , Nil},;
+					{"A1_X_MALT"	,SZ5->Z5_X_MALT		   , Nil},;
 					{"A1_PRF_OBS"	,SZ5->Z5_OBSERV		   , Nil},;
 					{"A1_SUFRAMA"	,SZ5->Z5_SUFRAMA	   , Nil},;
 					{"A1_NMGER"		,UPPER(SZ5->Z5_NMGEREN), Nil},;
