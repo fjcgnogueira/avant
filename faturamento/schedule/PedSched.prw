@@ -47,7 +47,7 @@ EndSql
 // Fernando Nogueira - Chamado 004628
 While (cNextAlias)->(!EoF())
 
-	aAdd(aPedWeb, (cNextAlias)->Z3_NPEDWEB)
+	aAdd(aPedWeb, {(cNextAlias)->Z3_NPEDWEB,(cNextAlias)->SZ3RECNO})
 
 	SZ3->(dbGoTo((cNextAlias)->SZ3RECNO))
 	
@@ -59,14 +59,14 @@ While (cNextAlias)->(!EoF())
 End
 
 // Faz a Integracao dos Pedidos de Vendas
-For nI := 1 to Len(aPedWeb)
+For _nI := 1 to Len(aPedWeb)
 
 	cMensagem := ""
 	cDocumen  := ""
 	
-	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Processando Pedido Web: "+AllTrim(cValToChar(aPedWeb[nI])))
+	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Processando Pedido Web: "+AllTrim(cValToChar(aPedWeb[_nI][01])))
 
-	U_INTPEDIDO(aParam[1], aParam[2], AllTrim(cValToChar(aPedWeb[nI])), @cMensagem, @cDocumen, .F.)
+	U_INTPEDIDO(aParam[1], aParam[2], AllTrim(cValToChar(aPedWeb[_nI][01])), @cMensagem, @cDocumen, .F.)
 	
 	If !Empty(cMensagem)
 		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] "+cMensagem)
@@ -75,12 +75,12 @@ For nI := 1 to Len(aPedWeb)
 		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] "+cDocumen)
 	Endif
 	
-	SZ3->(dbGoTo((cNextAlias)->SZ3RECNO))
+	SZ3->(dbGoTo(aPedWeb[_nI][02]))
 	
 	If SZ3->Z3_STATUS = '3'
 		EnvInteg()
 	Else
-		EnvNaoInt(aPedWeb[nI],cMensagem)
+		EnvNaoInt(aPedWeb[_nI][01],cMensagem)
 	Endif
 	
 	Sleep(15000)
