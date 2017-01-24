@@ -20,6 +20,7 @@ Local aTabelas   := {"SA1", "SC5", "SC6", "SC9", "SD2", "SF2", "SF4", "SF5", "SF
 Local cMensagem  := ""
 Local cDocumen   := ""
 Local cNextAlias := GetNextAlias()
+Local aPedWeb    := {}
 
 Private aPVlNFs  := {}
 
@@ -42,15 +43,30 @@ BeginSql alias cNextAlias
 
 EndSql
 
-// Faz a Integracao dos Pedidos de Vendas
+// Define o Status P - Em processo de Integracao
+// Fernando Nogueira - Chamado 004628
 While (cNextAlias)->(!EoF())
+
+	aAdd(aPedWeb, (cNextAlias)->Z3_NPEDWEB)
+
+	SZ3->(dbGoTo((cNextAlias)->SZ3RECNO))
+	
+	SZ3->(RecLock("SZ3",.F.))
+		SZ3->Z3_STATUS := 'P'
+	SZ3->(MsUnlock())
+	
+	(cNextAlias)->(dbSkip())
+End
+
+// Faz a Integracao dos Pedidos de Vendas
+For nI := 1 to Len(aPedWeb)
 
 	cMensagem := ""
 	cDocumen  := ""
 	
-	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Processando Pedido Web: "+AllTrim(cValToChar((cNextAlias)->Z3_NPEDWEB)))
+	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Processando Pedido Web: "+AllTrim(cValToChar(aPedWeb[nI])))
 
-	U_INTPEDIDO(aParam[1], aParam[2], AllTrim(cValToChar((cNextAlias)->Z3_NPEDWEB)), @cMensagem, @cDocumen, .F.)
+	U_INTPEDIDO(aParam[1], aParam[2], AllTrim(cValToChar(aPedWeb[nI])), @cMensagem, @cDocumen, .F.)
 	
 	If !Empty(cMensagem)
 		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] "+cMensagem)
@@ -64,13 +80,12 @@ While (cNextAlias)->(!EoF())
 	If SZ3->Z3_STATUS = '3'
 		EnvInteg()
 	Else
-		EnvNaoInt((cNextAlias)->Z3_NPEDWEB,cMensagem)
+		EnvNaoInt(aPedWeb[nI],cMensagem)
 	Endif
 	
-	Sleep(20000)
+	Sleep(15000)
 	
-	(cNextAlias)->(dbSkip())
-End
+Next
 
 (cNextAlias)->(DbCloseArea())
 
