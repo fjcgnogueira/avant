@@ -21,6 +21,7 @@ Local cMensagem  := ""
 Local cDocumen   := ""
 Local cNextAlias := GetNextAlias()
 Local aPedWeb    := {}
+Local _nXI       := 0
 
 Private aPVlNFs  := {}
 
@@ -59,14 +60,14 @@ While (cNextAlias)->(!EoF())
 End
 
 // Faz a Integracao dos Pedidos de Vendas
-For _nI := 1 to Len(aPedWeb)
+For _nXI := 1 to Len(aPedWeb)
 
 	cMensagem := ""
 	cDocumen  := ""
 	
-	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Processando Pedido Web: "+AllTrim(cValToChar(aPedWeb[_nI][01])))
+	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Processando Pedido Web: "+AllTrim(cValToChar(aPedWeb[_nXI][01])))
 
-	U_INTPEDIDO(aParam[1], aParam[2], AllTrim(cValToChar(aPedWeb[_nI][01])), @cMensagem, @cDocumen, .F.)
+	U_INTPEDIDO(aParam[1], aParam[2], AllTrim(cValToChar(aPedWeb[_nXI][01])), @cMensagem, @cDocumen, .F.)
 	
 	If !Empty(cMensagem)
 		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] "+cMensagem)
@@ -75,15 +76,28 @@ For _nI := 1 to Len(aPedWeb)
 		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] "+cDocumen)
 	Endif
 	
-	SZ3->(dbGoTo(aPedWeb[_nI][02]))
+	SZ3->(dbGoTo(aPedWeb[_nXI][02]))
 	
 	If SZ3->Z3_STATUS = '3'
 		EnvInteg()
 	Else
-		EnvNaoInt(aPedWeb[_nI][01],cMensagem)
+		EnvNaoInt(aPedWeb[_nXI][01],cMensagem)
 	Endif
 	
 	Sleep(15000)
+	
+Next
+
+// Caso tenha pulado algum Pedido com Status P, volta para o Status 2, que entra na proxima execucao
+For _nXI := 1 to Len(aPedWeb)
+
+	SZ3->(dbGoTo(aPedWeb[_nXI][02]))
+	
+	If SZ3->Z3_STATUS = 'P'
+		SZ3->(RecLock("SZ3",.F.))
+			SZ3->Z3_STATUS := '2'
+		SZ3->(MsUnlock())
+	Endif
 	
 Next
 
