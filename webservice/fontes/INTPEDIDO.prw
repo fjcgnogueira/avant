@@ -43,7 +43,9 @@ Local aImpostos		:= {}
 Local nDescSuf   	:= 0
 Local nTotBonif    	:= 0
 Local _cSA3Cred 	:= PesqPict("SC6","C6_VALOR")
-Local cEnter		    := '<br />'
+Local cEnter	    := '<br />'
+Local lBlqNCM		:= .F.
+Local lBlqIcmRet	:= .F.
 
 Private cTpOper		:= ""
 Private lMsErroAuto	:= .F.
@@ -128,12 +130,6 @@ If lRetorno
 					aAdd(aCabec,{"C5_X_BLQ" ,"S",NIL})
 				Endif
 
-				// Chamado 003522 - Bloqueio Fiscal - Fernando Nogueira
-				// Chamado 003575
-				If SA1->A1_TIPO $ 'FR'
-					aAdd(aCabec,{"C5_X_BLQFI" ,"S",NIL})
-				Endif
-
 				//-- Gustavo Viana -- Restricoes a liberacao automatica -- 18/02/2013
 				//-- Se tiver condicao de pagamento no parametro P.V. deverah ser analisado, ou seja, P.V. sem liberacao automatica
 				//If AllTrim(SZ3->Z3_CODPGTO) $ cCodPag
@@ -193,6 +189,11 @@ If lRetorno
 						lTesInt := .F.
 
 						SB1->(dbSeek(xFilial("SB1")+SZ4->Z4_CODPROD))
+						
+						If AllTrim(SB1->B1_POSIPI) = '85395000'
+							lBlqNCM := .T.
+						Endif
+						
 						_aAreaSFM 	:= getArea("SFM")
 						SFM->(dbSetOrder(2))
 
@@ -215,7 +216,7 @@ If lRetorno
 					nPosProd   := aScan(aLinha,{|x|Trim(x[1])=="C6_PRODUTO"})
 
 					// Verifica se o Pedido eh de Bonificacao - Chamado 002553 - Fernando Nogueira
-					If cTpOper == '54'
+					If cTpOper == '54' .Or. lBlqNCM
 						// Faz uma varredura no aItens
 						For _n := 1 to Len(aItens)
 							nDescSuf  := 0
@@ -267,6 +268,11 @@ If lRetorno
 
 								If nPosRet > 0
 									nPrcVen	:= nPrcVen + aImpostos[nPosRet][05]
+									
+									// Fernando Nogueira - Chamado 004646
+									If SB1->(dbSeek(xFilial("SB1")+aItens[_n][nPosProd][2])) .And. AllTrim(SB1->B1_POSIPI) = '85395000' .And. aImpostos[nPosRet][05] = 0
+										lBlqIcmRet := .T.
+									Endif
 								EndIf
 
 								If nPosIPI > 0
@@ -281,8 +287,10 @@ If lRetorno
 							EndIf
 
 							MaFisEnd()
-
-							nTotBonif += nPrcVen
+							
+							If cTpOper == '54'
+								nTotBonif += nPrcVen
+							Endif
 						Next _n
 					Endif
 
@@ -294,6 +302,12 @@ If lRetorno
 					// Chamado 002553 - Fernando Nogueira
 					If nTotBonif > 0 .And. nTotBonif > Posicione("SA3",1,xFilial("SA3")+SZ3->Z3_VEND,"A3_ACMMKT")
 						cMensagem	+= "<b> Caro Representante. O Valor do seu Pedido de Bonificacao com Impostos ("+AllTrim(Transform(nTotBonif, _cSA3Cred))+") ultrapassou o seu Saldo de Credito de Marketing ("+AllTrim(Transform(SA3->A3_ACMMKT, _cSA3Cred))+"). </b>" + cEnter + cEnter
+					Endif
+					
+					// Chamado 003522 - Bloqueio Fiscal - Fernando Nogueira
+					// Chamado 003575
+					If SA1->A1_TIPO $ 'FR' .Or. lBlqIcmRet
+						aAdd(aCabec,{"C5_X_BLQFI" ,"S",NIL})
 					Endif
 
 					MsExecAuto({|a, b, c| MATA410(a, b, c)}, aCabec, aItens, 3)
