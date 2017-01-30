@@ -22,6 +22,7 @@ User Function MT410TOK()
 	Local nPosTot	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_VALOR"})
 	Local nPosCF	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_CF"})
 	Local lBonif	:= .F.
+	
 	Local nOpc    	:= PARAMIXB[1]
 	Local cCliente	:= M->C5_CLIENTE
 	Local cLojaCli	:= M->C5_LOJACLI
