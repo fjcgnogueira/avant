@@ -350,6 +350,7 @@ If lRetorno
 					// D = Pedido de Venda sem Desconto Especial Parado na Tela do Gerente Nacional
 					// E = Solicitacao de Bonificacao Parado na Tela do Gerente Regional
 					// F = Solicitacao de Bonificacao Aprovada na Tela do Gerente Regional
+					// P = Pedido em Processo de Integracao
 
 					MsUnlock()
 
