@@ -4,10 +4,10 @@
 /*----------------------+--------------------------------+------------------+
 |   Programa: M440STTS  | Autor: Kley Gonçalves          | Data: Julho/2014 |
 +-----------------------+--------------------------------+------------------+
-|  Descricao: Ponto de entrada para apagar os registros de Alçada de
+|  Descricao: Ponto de entrada para apagar os registros de Alçada de 
 |				Aprovação, se existir registros na SCR.
-|				Se tipo do pedido (C5_TIPO) = 'N' e gerou registro na SC9
-|				cria alcada de aprovacao.
+|				Se tipo do pedido (C5_TIPO) = 'N' e gerou registro na SC9 
+|				cria alcada de aprovacao. 
 +---------------------------------------------------------------------------+
 |    Projeto: AVANT
 +--------------------------------------------------------------------------*/
@@ -34,21 +34,21 @@ If !(SC5->C5_TIPO $ 'BD')
 	cExecSQL += " AND   CR_NUM    = '"+SC5->C5_NUM+"' "
 	cExecSQL += " AND   D_E_L_E_T_ = ' ' "
 	TcSqlExec(cExecSQL)
-
-	SC5->( RecLock('SC5',.f.) )
+	
+	SC5->( RecLock('SC5',.f.) ) 
 		SC5->C5_X_WF := ' '
 	SC5->( MsUnLock() )
-
+		
 	/*-------------------------------------------------------------------------+
-	|  Gerar aprovacao de PV somente para pedidos Normais.                     |
+	|  Gerar aprovacao de PV somente para pedidos Normais.                     |                                            
 	+--------------------------------------------------------------------------*/
 	If IsInCallStack("A410DELETA") .Or. SC5->C5_TIPO <> 'N'
 		Return
 	EndIf
-
+	
 	SA1->(DbSetOrder(1),DbSeek(xFilial("SA1")+SC5->(C5_CLIENTE+C5_LOJACLI)))
 	SE4->(DbSetOrder(1),DbSeek(xFilial("SE4")+SC5->C5_CONDPAG))
-
+	
 	If "ANTECIPADO" $ Upper(SE4->E4_DESCRI)
 		If !Empty(cGrpAprCR)
 			// Comentado temporariamente para teste, pedidos de bonificacao com pgto antecipado estao entrando em aberto - Fernando Nogueira
@@ -62,7 +62,7 @@ If !(SC5->C5_TIPO $ 'BD')
 				MsgAlert("A Condição de Pagamento do Pedido é de recebimento 'Antecipado', mas " + ;
 						  "o Grupo de Aprovação do Contas a Receber não está parametrizado."+CRLF+;
 						 "Por isso a Alçada de Aprovação será gerada para o Grupo de Aprovação padrão do sistema: " + cGrpAprov,"Alçada de Aprovação")
-			EndIf
+			EndIf	
 		EndIf
 	Else
 		If Empty(SA1->A1_X_GRAPV)
@@ -74,32 +74,32 @@ If !(SC5->C5_TIPO $ 'BD')
 			cGrpAprov	:= SA1->A1_X_GRAPV
 		EndIf
 	EndIf
-
+	
 	If Select(cAlias) > 0
 		(cAlias)->(dbCloseArea())
 	Endif
 	BeginSQL Alias cAlias
 		select sum( (C6_QTDVEN - C6_QTDENT)*C6_PRCVEN ) as TOTPED, count(SC9.C9_ITEM+SC9.C9_SEQUEN) as REGS
 		from %Table:SC6% SC6
-		left join SC9010 SC9 on C9_FILIAL = C6_FILIAL
+		left join SC9010 SC9 on C9_FILIAL = C6_FILIAL 
 		  and C9_CLIENTE = C6_CLI and C9_LOJA = C6_LOJA and C9_PEDIDO = C6_NUM and C9_ITEM = C6_ITEM and SC9.%NotDel%
 		where SC6.C6_FILIAL = %xFilial:SC6% and SC6.C6_NUM = %Exp:SC5->C5_NUM% and SC6.%NotDel%
 		group by C6_FILIAL, C6_NUM
 	EndSQL
 	(cAlias)->(DbGoTop())
-
+	
 	/*--------------------------------------------------------------------------+
 	| Verificar se houve a geracao do SC9. Se nao foi gerado, nao deve-se utili-|
 	| zar a geracao de alcadas. Caso contrario, prosseguir com as alcadas.      |
 	| Caso o PV entrou sem bloqueio de Crédito, gerar o SCR com status que sina-|
 	| lize liberacao automatica:                                                |
-	|  Gerar aprovacao de PV somente para pedidos Normais.                      |
+	|  Gerar aprovacao de PV somente para pedidos Normais.                      |                                            
 	+---------------------------------------------------------------------------*/
-
+	
 	If Empty(cGrpAprov) .and. !IsBlind()
 		MsgStop("Não gerada Alçada de Aprovação, porque o Grupo de Aprovação não está parametrizado corretamente.","Alçada de Aprovação")
 	EndIf
-
+	
 	If (cAlias)->REGS > 0
 		U_MaAlcDoc( {SC5->C5_NUM,"PV",(cAlias)->TOTPED,,,cGrpAprov,,,,,},Date(),1, "" )
 		If !IsBlind()
@@ -110,18 +110,18 @@ If !(SC5->C5_TIPO $ 'BD')
 			MsgInfo("Não gerada Alçada de Aprovação.","Alçada de Aprovação")	&&Kley
 		EndIf
 	EndIf
-
+	
 	// Grava o Total com Impostos no Pedido na Rotina de Liberacao
 	If AllTrim(FUNNAME()) == 'MATA440'
 		XTOTPED()
 	Endif
-
+	
 	SE4->( RestArea(aAreaSE4) )
 	SA1->( RestArea(aAreaSA1) )
 	SA1->( RestArea(aAreaSC6) )
 	SA1->( RestArea(aAreaSC5) )
 	SA1->( RestArea(aAreaSC9) )
-
+	
 Endif
 
 Return
@@ -146,8 +146,6 @@ Local nPosProd 	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_PRODUTO"})
 Local nPosTes	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_TES"})
 Local nPosPrc	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_PRCVEN"})
 Local nPosTot	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_VALOR"})
-Local nPosCF	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_CF"})
-Local lBonif	:= .F.
 Local cCliente	:= M->C5_CLIENTE
 Local cLojaCli	:= M->C5_LOJACLI
 Local nFrete	:= M->C5_FRETE
@@ -175,9 +173,6 @@ Local cTeste := Space(60)
 For _nX := 1 To Len(aCols)
 	If !aCols[_nX][Len(aHeader)+1]
 		nSomaTot += aCols[_nX,nPosTot]
-		If !lBonif .And. !(Right(AllTrim(aCols[_nX,nPosCF]),3) $ "910.949")
-			lBonif := .T.
-		Endif
 		_nItens++
 	Endif
 Next _nX
@@ -254,11 +249,9 @@ For nX := 1 To Len(aCols)
 
 			EndIf
 
-			If !lBonif
-				nTotFrete   := MaFisRet(NIL, "NF_FRETE")
-				If nTotFrete > 0
-					nPrcVen += nTotFrete
-				Endif
+			nTotFrete   := MaFisRet(NIL, "NF_FRETE")
+			If nTotFrete > 0
+				nPrcVen += nTotFrete
 			Endif
 
 			//Finaliza Funcao Fiscal
