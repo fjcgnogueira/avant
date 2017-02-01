@@ -45,6 +45,7 @@ Local nTotBonif    	:= 0
 Local _cSA3Cred 	:= PesqPict("SC6","C6_VALOR")
 Local cEnter	    := '<br />'
 Local lBlqNCM		:= .F.
+Local lBlqFis		:= .F.
 Local lBlqIcmRet	:= .F.
 
 Private cTpOper		:= ""
@@ -194,6 +195,14 @@ If lRetorno
 							lBlqNCM := .T.
 						Endif
 						
+						// Fernando Nogueira - Chamado 004664
+						If (SA1->A1_EST = 'PB' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.536.600') .Or. ;
+							(SA1->A1_EST = 'SE' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.536.600') .Or. ;
+							(SA1->A1_EST = 'RN' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.536.600') .Or. ;
+							(SA1->A1_EST = 'RS' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.082.536.600')
+							lBlqFis := .T.
+						Endif
+						
 						_aAreaSFM 	:= getArea("SFM")
 						SFM->(dbSetOrder(2))
 
@@ -306,7 +315,7 @@ If lRetorno
 					
 					// Chamado 003522 - Bloqueio Fiscal - Fernando Nogueira
 					// Chamado 003575
-					If SA1->A1_TIPO $ 'FR' .Or. lBlqIcmRet
+					If SA1->A1_TIPO $ 'FR' .Or. lBlqIcmRet .Or. lBlqFis
 						aAdd(aCabec,{"C5_X_BLQFI" ,"S",NIL})
 					Endif
 
