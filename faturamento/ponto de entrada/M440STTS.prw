@@ -175,16 +175,18 @@ Local cTeste := Space(60)
 For _nX := 1 To Len(aCols)
 	If !aCols[_nX][Len(aHeader)+1]
 		nSomaTot += aCols[_nX,nPosTot]
-		If !lBonif .And. !(Right(AllTrim(aCols[_nX,nPosCF]),3) $ "910.949")
+		If !lBonif .And. (Right(AllTrim(aCols[_nX,nPosCF]),3) $ "910.949")
 			lBonif := .T.
 		Endif
 		_nItens++
 	Endif
 Next _nX
 
-If nSomaTot > 0 .And. nSomaTot < 1500 .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F" .And. nFrete == 0 .And. cHabFrete == "S"
+If nSomaTot > 0 .And. nSomaTot < 1500 .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F" .And. nFrete == 0 .And. cHabFrete == "S" .And. !lBonif
 	nFrete := Val(Substr(cEstFrete,At(cEstado,cEstFrete)+2,6))/100
 Endif
+
+M->C5_FRETE := nFrete
 
 For nX := 1 To Len(aCols)
 	If !aCols[nX][Len(aHeader)+1]
