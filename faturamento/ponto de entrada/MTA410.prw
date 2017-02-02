@@ -66,21 +66,24 @@ If !(M->C5_TIPO $ 'BD')
 				// Bonificacao (910) e Troca (949) nao entram na regra
 				If !(Right(AllTrim(aCols[nI,nPosCF]),3) $ "910.949")
 					nSomaTot += aCols[nI,nPosTot]
+				Else
+					// Verifica se o Pedido eh de Bonificacao ou Troca
+					lBonif := .T.
 				EndIf
 			Endif
 		Next nI
-	
+
 		If lFlag
 			M->C5_VEND1  := Space(6)
 			M->C5_VEND2  := Space(6)
 			M->C5_COMIS1 := 0
 			M->C5_COMIS2 := 0
 		Endif
-	
-		If nSomaTot > 0 .And. nSomaTot < 1500 .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F"
+
+		If nSomaTot > 0 .And. nSomaTot < 1500 .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F" .And. cHabFrete == "S"
 			nVlrFrete := Val(Substr(cEstFrete,At(cEstado,cEstFrete)+2,6))/100
 		Endif
-	
+
 		// Definir o Valor do Frete
 		If cHabFrete == "S"
 			M->C5_FRETE := nVlrFrete
@@ -88,7 +91,7 @@ If !(M->C5_TIPO $ 'BD')
 			M->C5_FRETE := 0
 		Endif
 	Endif
-	
+
 	If lReturn .And. (Inclui .Or. Altera)
 		// Quantidade de itens do Pedido
 		For _n := 1 To Len(aCols)
@@ -96,19 +99,14 @@ If !(M->C5_TIPO $ 'BD')
 				_nItens++
 			Endif
 		Next _n
-	
+
 		// Faz uma varredura no aCols
 		For _n := 1 to Len(aCols)
 			nDescSuf  := 0
-	
+
 			// Caso a linha nao esteja deletada
 			If !aCols[_n,Len(aHeader)+1]
-	
-				// Verifica se o Pedido eh de Bonificacao
-				If !lBonif .And. Right(AllTrim(aCols[_n][nPosCF]),3) == '910'
-					lBonif := .T.
-				Endif
-	
+
 				// Chamado 001447 - Fernando Nogueira
 				If !Empty(cDuplic) .And. cDuplic <> Posicione('SF4',1,xFilial('SF4')+aCols[_n][nPosTes],'F4_DUPLIC')
 					ApMsgAlert('Incompatibilidade de Geração de Duplicatas!'+cEOL+'Item que gera duplicata e item que não gera.')
@@ -121,10 +119,10 @@ If !(M->C5_TIPO $ 'BD')
 					Return .F.
 				EndIf
 				cDuplic := Posicione('SF4',1,xFilial('SF4')+aCols[_n][nPosTes],'F4_DUPLIC')
-	
+
 				SA1->(DbSetorder(1))
 				If SA1->(DbSeek(xFilial("SA1") + cCliente + cLojaCli))
-	
+
 					MaFisIni(	SA1->A1_COD		,;		// 01-Codigo Cliente
 								SA1->A1_LOJA	,;		// 02-Loja do Cliente
 								"C"				,;		// 03-C:Cliente , F:Fornecedor
@@ -143,10 +141,10 @@ If !(M->C5_TIPO $ 'BD')
 								Nil				,;		// 16-Codigo do cliente de entrega na nota fiscal de saida
 								Nil				,;		// 17-Loja do cliente de entrega na nota fiscal de saida
 								Nil				)		// 18-Informacoes do transportador [01]-UF,[02]-TPTRANS
-	
-	
+
+
 					nPrcVen	:= aCols[_n][nPosTot]
-	
+
 					//Adiciona o Produto para Calculo dos Impostos
 					nItem := 	MaFisAdd(	aCols[_n][nPosProd]		,;   	// 1-Codigo do Produto ( Obrigatorio )
 											aCols[_n][nPosTes]		,;	   	// 2-Codigo do TES ( Opcional )
@@ -165,42 +163,44 @@ If !(M->C5_TIPO $ 'BD')
 											NIL						,;		// 15-RecNo do SB1
 											NIL						,;		// 16-RecNo do SF4
 											NIL						)
-	
+
 					aImpostos	:= MafisRet(NIL, "NF_IMPOSTOS")
 					If Len(aImpostos) > 0
 						nPosRet		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "ICR"})
 						nPosIPI		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "IPI"})
-	
+
 						If nPosRet > 0
 							nPrcVen	:= nPrcVen + aImpostos[nPosRet][05]
 						EndIf
-	
+
 						If nPosIPI > 0
 							nPrcVen	:= nPrcVen + aImpostos[nPosIPI][05]
 						EndIf
-	
+
 						If SA1->A1_CALCSUF = 'S'
 							nDescSuf := MafisRet(,"IT_DESCZF")
 							nPrcVen  := nPrcVen - nDescSuf
 						Endif
-	
+
 					EndIf
-	
+
 					// Fernando Nogueira - Somar o valor do Frete no Calculo dos Impostos
-					nTotFrete   := MaFisRet(NIL, "NF_FRETE")
-					If nTotFrete > 0
-						nPrcVen += nTotFrete
+					If !lBonif
+						nTotFrete   := MaFisRet(NIL, "NF_FRETE")
+						If nTotFrete > 0
+							nPrcVen += nTotFrete
+						Endif
 					Endif
-	
+
 					//Finaliza Funcao Fiscal
 					MaFisEnd()
-	
+
 					nTotPed += nPrcVen
-	
+
 				EndIf
-			Endif
+			Endif	
 		Next _n
-	
+
 		// Bloqueia se o Pedido for de Bonificacao e o Valor do Pedido com Impostos for maior que o Credito do Vendedor
 		If lBonif .And. nTotPed > Posicione("SA3",1,xFilial("SA3")+cVend,"A3_ACMMKT")
 			MsgInfo('Valor com impostos do Pedido ('+AllTrim(Transform(nTotPed, _cC5xTot))+') maior que o saldo em crédito de marketing do vendedor ('+AllTrim(Transform(SA3->A3_ACMMKT, _cC5xTot))+') !', 'Atenção')

@@ -55,17 +55,20 @@ User Function MT410TOK()
 			For _nX := 1 To Len(aCols)
 				If !aCols[_nX][Len(aHeader)+1]
 					nSomaTot += aCols[_nX,nPosTot]
-					If !lBonif .And. !(Right(AllTrim(aCols[_nX,nPosCF]),3) $ "910.949")
+					// Fernando Nogueira - Chamado 004231
+					If !lBonif .And. (Right(AllTrim(aCols[_nX,nPosCF]),3) $ "910.949")
 						lBonif := .T.
 					Endif
 					_nItens++
 				Endif
 			Next _nX
-
+			
 			// Fernando Nogueira - Chamado 002751
-			If nSomaTot > 0 .And. nSomaTot < 1500 .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F" .And. nFrete == 0 .And. cHabFrete == "S"
+			If nSomaTot > 0 .And. nSomaTot < 1500 .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F" .And. nFrete == 0 .And. cHabFrete == "S" .And. !lBonif
 				nFrete := Val(Substr(cEstFrete,At(cEstado,cEstFrete)+2,6))/100
 			Endif
+			
+			M->C5_FRETE := nFrete
 
 			For nX := 1 To Len(aCols)
 				If !aCols[nX][Len(aHeader)+1]
@@ -136,11 +139,9 @@ User Function MT410TOK()
 						EndIf
 
 						// Fernando Nogueira - Somar o valor do Frete no Calculo dos Impostos
-						If !lBonif
-							nTotFrete   := MaFisRet(NIL, "NF_FRETE")
-							If nTotFrete > 0
-								nPrcVen += nTotFrete
-							Endif
+						nTotFrete   := MaFisRet(NIL, "NF_FRETE")
+						If nTotFrete > 0
+							nPrcVen += nTotFrete
 						Endif
 
 						//Finaliza Funcao Fiscal
