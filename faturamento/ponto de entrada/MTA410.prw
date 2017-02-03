@@ -46,6 +46,7 @@ Local nPrcVen    := 0
 Local _nItens    := 0
 Local nDescSuf   := 0
 Local _cC5xTot   := PesqPict("SC5","C5_XTOTPED")
+Local lFrete     := .T.
 Local lBonif     := .F.
 
 // Pedido Diferente de Dev.Compras e Beneficiamento
@@ -67,8 +68,11 @@ If !(M->C5_TIPO $ 'BD')
 				If !(Right(AllTrim(aCols[nI,nPosCF]),3) $ "910.949")
 					nSomaTot += aCols[nI,nPosTot]
 				Else
-					// Verifica se o Pedido eh de Bonificacao ou Troca
-					lBonif := .T.
+					lFrete := .F.
+					// Verifica se o Pedido eh de Bonificacao
+					If (Right(AllTrim(aCols[nI,nPosCF]),3) $ "910")
+						lBonif := .T.
+					Endif
 				EndIf
 			Endif
 		Next nI
@@ -185,7 +189,7 @@ If !(M->C5_TIPO $ 'BD')
 					EndIf
 
 					// Fernando Nogueira - Somar o valor do Frete no Calculo dos Impostos
-					If !lBonif
+					If lFrete
 						nTotFrete   := MaFisRet(NIL, "NF_FRETE")
 						If nTotFrete > 0
 							nPrcVen += nTotFrete
@@ -198,7 +202,7 @@ If !(M->C5_TIPO $ 'BD')
 					nTotPed += nPrcVen
 
 				EndIf
-			Endif	
+			Endif
 		Next _n
 
 		// Bloqueia se o Pedido for de Bonificacao e o Valor do Pedido com Impostos for maior que o Credito do Vendedor
