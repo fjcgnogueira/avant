@@ -199,7 +199,8 @@ If lRetorno
 						If (SA1->A1_EST = 'PB' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.536.600') .Or. ;
 							(SA1->A1_EST = 'SE' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.536.600') .Or. ;
 							(SA1->A1_EST = 'RN' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.536.600') .Or. ;
-							(SA1->A1_EST = 'RS' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.082.536.600')
+							(SA1->A1_EST = 'RS' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.082.536.600') .Or. ;
+							(SA1->A1_EST = 'RO' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.536.600')
 							lBlqFis := .T.
 						Endif
 						
