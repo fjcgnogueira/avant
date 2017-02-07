@@ -73,6 +73,10 @@ User Function SupManager(w,y,nOpc)
 	Private oFlwU 	 := LoadBitmap( GetResources(), "BMPUSER.BMP" )
 	Private oFlwT 	 := LoadBitmap( GetResources(), "IC_20_USUARIO.GIF" )
 	Private oFlwP 	 := LoadBitmap( GetResources(), "IC_SCORECARD.GIF" )
+	Private oFlw1 	 := LoadBitmap( GetResources(), "BR_VIOLETA.PNG" )
+	Private oFlw2 	 := LoadBitmap( GetResources(), "BR_VERMELHO_OCEAN.PNG" )
+	Private oFlw3 	 := LoadBitmap( GetResources(), "BR_AMARELO_OCEAN.PNG" )
+	Private oFlw4 	 := LoadBitmap( GetResources(), "BR_AZUL_OCEAN.PNG" )
 
 	aAdd(aObjects,{100,100,.T.,.T.})
 	aAdd(aObjects,{100,030,.T.,.F.})
@@ -98,6 +102,7 @@ User Function SupManager(w,y,nOpc)
 	Endif
 
 	aAdd( aBut, { "FILTRO1.PNG"	, { || MTFilterU( oLbx3:aArray[oLbx3:nAt,2] ) } ,OemToAnsi("Filtrar por usuแrio") })
+	aAdd( aBut, { "BPMSEDT3.PNG", { || LegPri() } ,OemToAnsi("Leg.Prioridade") })
 
 	DEFINE MSDIALOG oDlgChamados TITLE "Console de Chamados"  FROM aSize[7],aSize[1] TO aSize[6],aSize[5] PIXEL // FROM 178,181 TO 654,967 PIXEL
 
@@ -105,45 +110,47 @@ User Function SupManager(w,y,nOpc)
 		// @ 014,006 TO 204,386 LABEL "" PIXEL OF oDlgChamados
 
 		@ aPosObj[1,1],aPosObj[1,2] LISTBOX oLbx3 VAR cVar FIELDS HEADER ;
-		" ",;				//[1]
-		"Chamado",;			//[2]
-		"DT Abert",;		//[3]
-		"HR Abert",;		//[4]
-		" ",;				//[5]
-		"Dias",;			//[6]
-		"Atualizado",;		//[7]
-		"Dias",;			//[8]
-		"T้cnico",;			//[9]
-		"Cod. Contato",;	//[10]
-		"Nome Contato",;	//[11]
-		"Mail Contato",;	//[12]
-		"Telefone",;		//[13]
-		"มrea",;            //[14]
-		"Status",;			//[15]
-		"DT Encerra",;		//[16]
-		"HR Encerra",;		//[17]
-		"Aloca็ใo",;		//[18]
-		"Assunto",;			//[19]
-		"Ocorr๊ncia" ;		//[20]
+		" ",;				//[01]
+		"Chamado",;			//[02]
+		"P",;				//[03]
+		"DT Abert",;		//[04]
+		"HR Abert",;		//[05]
+		" ",;				//[06]
+		"Dias",;			//[07]
+		"Atualizado",;		//[08]
+		"Dias",;			//[09]
+		"T้cnico",;			//[10]
+		"Cod. Contato",;	//[11]
+		"Nome Contato",;	//[12]
+		"Mail Contato",;	//[13]
+		"Telefone",;		//[14]
+		"มrea",;            //[15]
+		"Status",;			//[16]
+		"DT Encerra",;		//[17]
+		"HR Encerra",;		//[18]
+		"Aloca็ใo",;		//[19]
+		"Assunto",;			//[20]
+		"Ocorr๊ncia" ;		//[21]
 		SIZE aPosObj[1,4],(aPosObj[1,3]-15) OF oDlgChamados PIXEL
 		//ON dblClick( VisuLbx( oLbx3:aArray[oLbx3:nAt,2] ) ) SIZE aPosObj[1,4],(aPosObj[1,3]-15) OF oDlgChamados PIXEL;
 		oLbx3:bLDblClick := {|| VisuLbx( oLbx3:aArray[oLbx3:nAt,2] ), oLbx3:DrawSelect()}
 		oLbx3:bRClicked := {|| Posicione("SZU",1,xFilial("SZU")+oLbx3:aArray[oLbx3:nAt,2],"ZU_CHAMADO"), u_LjVerHist(), oLbx3:DrawSelect()}
 
 		oLbx3:SetArray( aChamados )
-		oLbx3:bLine := {|| { 	LoadBitmap( GetResources(), RetLegenda(aChamados[oLbx3:nAt,1]) ) ,;
-                               	aChamados[oLbx3:nAt,2],;
-                		       	aChamados[oLbx3:nAt,3],;
-		                       	aChamados[oLbx3:nAt,4],;
+		oLbx3:bLine := {|| { 	LoadBitmap( GetResources(), RetLegenda(aChamados[oLbx3:nAt,01]) ) ,;
+                               	aChamados[oLbx3:nAt,02],;
+                               	IIF( aChamados[oLbx3:nAt,24] == "1", oFlw1 , IIF( aChamados[oLbx3:nAt,24] == "2", oFlw2 , IIF( aChamados[oLbx3:nAt,24] == "3", oFlw3 , oFlw4 ) ) ),;
+                		       	aChamados[oLbx3:nAt,03],;
+		                       	aChamados[oLbx3:nAt,04],;
 								IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , IIF( aChamados[oLbx3:nAt,21] == "P", oFlwP , oFlwS ) ) ),;
 								aChamados[oLbx3:nAt,19],;	// No de dias TOTAl
 								aChamados[oLbx3:nAt,22],;	// Atualizado em
 								aChamados[oLbx3:nAt,23],;	// No de dias da Ult. Atualizacao
 								aChamados[oLbx3:nAt,20],;
-		                       	aChamados[oLbx3:nAt,5],;
-		                       	aChamados[oLbx3:nAt,6],;
-		                       	aChamados[oLbx3:nAt,7],;
-		                       	aChamados[oLbx3:nAt,9],;
+		                       	aChamados[oLbx3:nAt,05],;
+		                       	aChamados[oLbx3:nAt,06],;
+		                       	aChamados[oLbx3:nAt,07],;
+		                       	aChamados[oLbx3:nAt,09],;
 		                       	aChamados[oLbx3:nAt,10],;
 		                       	aChamados[oLbx3:nAt,11],;
 		                       	aChamados[oLbx3:nAt,12],;
@@ -227,6 +234,7 @@ Static Function LbxSort(nCol)
 		oLbx3:SetArray( aChamados )
 		oLbx3:bLine := {|| { 	LoadBitmap( GetResources(), RetLegenda(aChamados[oLbx3:nAt,1]) ) ,;
 	                            aChamados[oLbx3:nAt,2],;
+	                            IIF( aChamados[oLbx3:nAt,24] == "1", oFlw1 , IIF( aChamados[oLbx3:nAt,24] == "2", oFlw2 , IIF( aChamados[oLbx3:nAt,24] == "3", oFlw3 , oFlw4 ) ) ),;
 	                		    aChamados[oLbx3:nAt,3],;
 		                       	aChamados[oLbx3:nAt,4],;
 								IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , IIF( aChamados[oLbx3:nAt,21] == "P", oFlwP , oFlwS ) ) ),;
@@ -372,6 +380,7 @@ Static Function EditLbx( cChamado )
 			oLbx3:SetArray( aChamados )
 			oLbx3:bLine := {|| { 	LoadBitmap( GetResources(), RetLegenda(aChamados[oLbx3:nAt,1]) ) ,;
 	                               	aChamados[oLbx3:nAt,2],;
+	                               	IIF( aChamados[oLbx3:nAt,24] == "1", oFlw1 , IIF( aChamados[oLbx3:nAt,24] == "2", oFlw2 , IIF( aChamados[oLbx3:nAt,24] == "3", oFlw3 , oFlw4 ) ) ),;
 	                		       	aChamados[oLbx3:nAt,3],;
 			                       	aChamados[oLbx3:nAt,4],;
 									IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , IIF( aChamados[oLbx3:nAt,21] == "P", oFlwP , oFlwS ) ) ),;
@@ -580,6 +589,7 @@ Static Function MTLoadLbx(cDTAbrIni,cDTAbrFim,cFilArea,cFilTec,cFilStatus,cDTEnc
 						ZU_FEEDBAC ,;
 						STOD(ZU_DATAATU) ,;
 						LTrim(Str(nDiasAtu,3)),;
+						ZU_PRIORID;
 						} )
 
 `		TRB->( DbSkip() )
@@ -596,18 +606,19 @@ Static Function MTLoadLbx(cDTAbrIni,cDTAbrFim,cFilArea,cFilTec,cFilStatus,cDTEnc
 		aHeadLbx  := { {1,1},{2,2},{3,3},{4,4},{5,21},{6,19},{7,22},{8,23},{9,20},{10,5},{11,6},{12,7},{13,9},{14,10},{15,11},{16,12},{17,13},{18,14},{19,15},{20,16} }
 		oLbx3:SetArray( aRet )
 		oLbx3:bLine := {|| { 	LoadBitmap( GetResources(), RetLegenda(aRet[oLbx3:nAt,1]) ) ,;
-	                            aRet[oLbx3:nAt,2],;
-	 							aRet[oLbx3:nAt,3],;
-		                       	aRet[oLbx3:nAt,4],;
+	                            aRet[oLbx3:nAt,02],;
+	                            IIF( aChamados[oLbx3:nAt,24] == "1", oFlw1 , IIF( aChamados[oLbx3:nAt,24] == "2", oFlw2 , IIF( aChamados[oLbx3:nAt,24] == "3", oFlw3 , oFlw4 ) ) ),;
+	 							aRet[oLbx3:nAt,03],;
+		                       	aRet[oLbx3:nAt,04],;
 								IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , IIF( aChamados[oLbx3:nAt,21] == "P", oFlwP , oFlwS ) ) ),;
 		                       	aRet[oLbx3:nAt,19],;
 								aRet[oLbx3:nAt,22],;	// Atualizado em
 								aRet[oLbx3:nAt,23],;	// No de dias da Ult. Atualizacao
 		                       	aRet[oLbx3:nAt,20],;
-		                       	aRet[oLbx3:nAt,5],;
-		                       	aRet[oLbx3:nAt,6],;
-		                       	aRet[oLbx3:nAt,7],;
-		                       	aRet[oLbx3:nAt,9],;
+		                       	aRet[oLbx3:nAt,05],;
+		                       	aRet[oLbx3:nAt,06],;
+		                       	aRet[oLbx3:nAt,07],;
+		                       	aRet[oLbx3:nAt,09],;
 		                       	aRet[oLbx3:nAt,10],;
 		                       	aRet[oLbx3:nAt,11],;
 		                       	aRet[oLbx3:nAt,12],;
@@ -780,10 +791,12 @@ Static Function MTAlocFun(cChamado,cIDTecnico)
 		aChamados[oLbx3:nAt,20] := u_RetTecName(cIDTecnico)
 		aChamados[oLbx3:nAt,21] := SZU->ZU_FEEDBAC
 		aChamados[oLbx3:nAt,23] := LTrim(Str(ddatabase- SZU->ZU_DATAATU,3))
+		aChamados[oLbx3:nAt,24] := SZU->ZU_PRIORID
 
 		oLbx3:SetArray( aChamados )
 		oLbx3:bLine := {|| { 	LoadBitmap( GetResources(), RetLegenda(aChamados[oLbx3:nAt,1]) ) ,;
                                	aChamados[oLbx3:nAt,2],;
+                               	IIF( aChamados[oLbx3:nAt,24] == "1", oFlw1 , IIF( aChamados[oLbx3:nAt,24] == "2", oFlw2 , IIF( aChamados[oLbx3:nAt,24] == "3", oFlw3 , oFlw4 ) ) ),;
                 		       	aChamados[oLbx3:nAt,3],;
 		                       	aChamados[oLbx3:nAt,4],;
 								IIF( aChamados[oLbx3:nAt,21] == "U", oFlwU , IIF( aChamados[oLbx3:nAt,21] == "T", oFlwT , IIF( aChamados[oLbx3:nAt,21] == "P", oFlwP , oFlwS ) ) ),;
@@ -860,3 +873,26 @@ User Function ExpHtml( cNumero )
 	RestArea(aArea)
 
 Return()
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
+ฑฑบPrograma  ณ LegPri   บ Autor ณ Fernando Nogueira  บ Data ณ 06/02/2017  บฑฑ
+ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
+ฑฑบDesc.     ณ Legendas da Prioridade do Chamado                          บฑฑ
+ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+*/
+Static Function LegPri()
+
+	aLegenda := {}
+	aAdd( aLegenda, { "BR_VIOLETA" 	, "Urgente" } )
+	aAdd( aLegenda, { "BR_VERMELHO"	, "Alta"    } )
+	aAdd( aLegenda, { "BR_AMARELO" 	, "Media" } )
+	aAdd( aLegenda, { "BR_AZUL"  	, "Baixa" } )
+
+	BrwLegenda("Prioridades do Chamado (P)" ,"Legenda" ,aLegenda) 
+	                                    
+Return

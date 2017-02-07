@@ -67,7 +67,7 @@ User Function WEB270EDIT(x,y,nOpc)
 	Private lInclui	:= IIF( nOpc == 3 , .T. , .F. )
 	Private lAltera	:= IIF( nOpc == 4 , .T. , .F. )
 
-	Private aAltE1		:= {"ZU_NOMEUSR","ZU_MAILUSR","ZU_MAILSUP","ZU_EMAILS","ZU_TELUSR","ZU_ASSUNTO","ZU_ROTINA",If(nOpc == 3 .And. !(funname() == 'USRMENU'),"ZU_CODUSR",''),If(nOpc == 3 .And. !(funname() == 'USRMENU'),'ZU_IP_ADDR',''),"ZU_CODSUP",If(!funname() == 'USRMENU',"ZU_DTFECHA",'') }
+	Private aAltE1		:= {"ZU_NOMEUSR","ZU_MAILUSR","ZU_MAILSUP","ZU_EMAILS","ZU_TELUSR","ZU_ASSUNTO","ZU_ROTINA","ZU_PRIORID",If(nOpc == 3 .And. !(funname() == 'USRMENU'),"ZU_CODUSR",''),If(nOpc == 3 .And. !(funname() == 'USRMENU'),'ZU_IP_ADDR',''),"ZU_CODSUP",If(!funname() == 'USRMENU',"ZU_DTFECHA",'') }
 	Private aAltE2		:= {"ZV_TIPO"}
 	Private aPosE1
 	Private aPosE2
@@ -249,6 +249,7 @@ User Function WEB270EDIT(x,y,nOpc)
 					SZU->ZU_ASSUNTO	:= m->ZU_ASSUNTO
 					SZU->ZU_ROTINA		:= m->ZU_ROTINA
 					SZU->ZU_IP_ADDR 	:= m->ZU_IP_ADDR
+					SZU->ZU_PRIORID 	:= m->ZU_PRIORID
 
 					IF SZU->ZU_TECNICO == "AUTOMA" .And. !(funname() == 'USRMENU')
 						SZU->ZU_TECNICO	:= RetCodUsr()
