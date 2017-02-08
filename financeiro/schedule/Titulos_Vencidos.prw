@@ -121,7 +121,7 @@ Return
 Static Function EnvTit(aTitulos)
 
 Local cArquivo  := "\MODELOS\COBRANCA_DV.HTM"
-Local cPara     := AllTrim(Posicione("SA1",1,xFilial("SA1")+aTitulos[01,01]+aTitulos[01,02],"A1_EMAIL"))
+Local cPara     := Iif(!Empty(AllTrim(Posicione("SA1",1,xFilial("SA1")+aTitulos[01,01]+aTitulos[01,02],"A1_X_MAILC"))),AllTrim(SA1->A1_X_MAILC),AllTrim(SA1->A1_EMAIL))
 Local cMailBCC  := AllTrim(GetMv("ES_MAILCDV"))
 Local oProcess  := Nil
 Local cMensTit  := ""
