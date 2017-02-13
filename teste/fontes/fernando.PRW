@@ -1,6 +1,161 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "APWEBSRV.CH"
 #INCLUDE "FWMVCDEF.CH"
+#INCLUDE "SCROLLBX.CH"
+#include "JPEG.CH"
+#include 'Fileio.CH'
+
+#Define CMD_OPENWORKBOOK		1
+#Define CMD_CLOSEWORKBOOK		2
+#Define CMD_ACTIVEWORKSHEET  	3
+#Define CMD_READCELL			4
+
+//-------------------------------------------------------------------------------------------------
+
+// Inclusao de Imagem no Repositorio
+User Function IncRepImg()
+
+Local lIncluiu
+
+Private oRep := TBmpRep():New(0, 0, 0, 0, "", .T., oMainWnd, Nil, Nil, .F., .F.)
+
+oRep:OpenRepository()
+
+oRep:InsertBmp('D:\Fernando\imagens\foto.png', 'TESTE', @lIncluiu)
+
+//Alert(lIncluiu)
+
+//oRep:InsertBmp('\imagens\clientes\12195916000123.jpg', 'TESTES', @lIncluiu)
+
+//Alert(lIncluiu)
+
+//oRep:Extract('CAMPOS','D:\Fernando\imagens\teste.jpg')
+     
+oRep:CloseRepository()
+
+Return	
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ IMPPPEXC º Autor ³ Fernando Nogueira  º Data ³  03/02/2017 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDescricao ³ Importacao de Produtos (Via Planilha Excel)                º±±
+±±º          ³                                                            º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ Generico                                                   º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/
+
+User Function IMPPPEXC()
+
+	Local aPerg		:= {}
+	Local aParam   	:= {	Space(70),;
+							Space(10),;
+							1,;
+							Space(70)}
+
+	/*01*/AADD(aPerg,{6,"Arquivo a Processar "	,aParam[01]	,""	,".T."	,""	,80	,.T.," |*.*"	,"D:\",GETF_LOCALHARD+GETF_NETWORKDRIVE})
+	/*02*/AADD(aPerg,{1,"Pasta da Planilha "	,aParam[02]	,"@!","",""	,""	,0	,.T.})
+	/*03*/AADD(aPerg,{1,"Linha Inicial "		,aParam[03]	,"@!","",""	,""	,0	,.T.})	
+	/*04*/AADD(aPerg,{6,"Arquivo DLL "			,aParam[04]	,""	,".T."	,""	,80	,.T.," |*.*"	,"D:\",GETF_LOCALHARD+GETF_NETWORKDRIVE})
+
+	If ParamBox(aPerg,"",,,,,,,,"IMPCPEXC",.T.,.T.)
+		
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³ Processa Leitura / Gravacao			|
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		oProcess := MsNewProcess():New({|| LEARQUIVO(MV_PAR01,MV_PAR02,MV_PAR03,MV_PAR04,oProcess)}, "Selecionando Dados","Por favor Aguarde",.T.)
+		oProcess:Activate()	
+
+		MsgInfo("Processo Finalizado")
+
+	EndIf
+
+Return Nil
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ FUNCTION LEARQUIVO                               ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Static Function LEARQUIVO(	cArquivo, cPasta, nCelini, cArqDLL, oObjReg)
+
+	Local nHdl    	:= ExecInDLLOpen(AllTrim(cArqDLL))
+	//Local nHdl    	:= ExecInDLLOpen("mpexcel.dll")
+	Local cBuffer	:= ""
+	Local lContinua	:= .T.
+	Local nPlan		:= 0
+	Local nCel		:= 0
+
+	Local lExecuta	:= .T.
+	Local aValues	:= {}
+	
+	Local nHandle	:= 0
+	Local cRetDLL	:= 0
+	
+	Private aCells		:= {}
+	
+	If !( nHdl >= 0 )
+		Aviso("Aviso","Não foi possivel carregar a DLL " + cArqDLL,{"Retornar"},2)
+		//Aviso("Aviso","Não foi possivel carregar a DLL " + "mpexcel.dll",{"Retornar"},2)
+		Return Nil
+	Else
+	
+		//Carrega o Excel e Abre o arquivo
+		cBuffer := cArquivo + Space(512)
+		nBytes  := ExeDLLRun2(nHdl, CMD_OPENWORKBOOK, @cBuffer)
+
+		/*//Verifica se Arquivo Foi aberto Corretamente
+		If ( nBytes < 0 )
+			Aviso("Aviso","Não foi possivel abrir o arquivo : " + cArquivo,{"Ok"})
+			Return Nil
+		ElseIf ( nBytes > 0 )
+			MsgStop(Substr(cBuffer, 1, nBytes))
+			Return Nil
+		EndIf
+        
+		//Abre a Pasta p/ Iniciar a Leitura
+		cBuffer := cPasta + Space(512)
+		ExeDLLRun2(nHdl, CMD_ACTIVEWORKSHEET, @cBuffer)
+
+		oObjReg:SetRegua1( 0 )
+
+		nCel := 1
+
+		While lContinua
+		
+			nSeq 		:= 1
+			aValues		:= {}
+			cFornece 	:= ""
+			cLojaFor	:= ""
+			cChave		:= ""
+			lExecuta	:= .T.
+			
+			//Prefixo
+			cBuffer	 := Space(1024)
+			nBytes	 := ExeDLLRun2(nHdl, CMD_READCELL, @cBuffer)
+			cVarPref := Substr(cBuffer, 1, nBytes)
+			
+			MsgInfo(cVarPref)
+
+			oObjReg:IncRegua1("Lendo Produto")
+
+			lContinua := MsgYesNo("Continua?")
+
+		Enddo
+	
+		//Fecha o arquivo e remove o Excel da memoria
+		cBuffer := Space(512)
+		ExeDLLRun2(nHdl, CMD_CLOSEWORKBOOK, @cBuffer)*/
+		ExecInDLLClose(nHdl)
+
+	EndIf
+
+Return Nil
+
+//-------------------------------------------------------------------------------------------------
 
 User Function ListarFuncoes()
 
@@ -12,7 +167,9 @@ Next
  
 Return
 
-User Function TesteImp(cEmpInt, cFilInt, cCliente, cLoja, cOperacao,cProduto,nQuantidade,nValor)
+//-------------------------------------------------------------------------------------------------
+
+/*User Function TesteImp(cEmpInt, cFilInt, cCliente, cLoja, cOperacao,cProduto,nQuantidade,nValor)
 	Local aTabelas	:= {"SA1", "SC5", "SC6", "SC9", "SD2", "SF2", "SF4", "SF5", "SFM", "SB1", "SB2", "SB9"}
 	Local lRetorno 	:= .T.
 	Local cPicture	:= "@E 999,999,999,999.99"
@@ -117,10 +274,11 @@ User Function TesteImp(cEmpInt, cFilInt, cCliente, cLoja, cOperacao,cProduto,nQu
 		MaFisEnd()
 	EndIf
 
-Return lRetorno
+Return lRetorno*/
 
+//-------------------------------------------------------------------------------------------------
 
-User Function TesteWsImp(cEmpInt, cFilInt, cCliente, cLoja, cOperacao,cProduto,nQuantidade,nValor)
+/*User Function TesteWsImp(cEmpInt, cFilInt, cCliente, cLoja, cOperacao,cProduto,nQuantidade,nValor)
 //U_TesteWsImp('01','010104','022499','01','51','873261372',10,200)
 
 Local oWs := NIL
@@ -151,7 +309,9 @@ Endif
 
 Return
 
-User Function TesteWs(cEmpInt, cFilInt, cNumTroca, cDocumento)
+//-------------------------------------------------------------------------------------------------
+
+/*User Function TesteWs(cEmpInt, cFilInt, cNumTroca, cDocumento)
 //IntNFDev(cEmpInt, cFilInt, cNumTroca)
 //U_IntNFDev("01","010104","000004","DEVOLUCAO")
 //U_TesteWs("01","010104","000004","DEVOLUCAO")
@@ -177,88 +337,9 @@ Else
 	alert('Erro de Execução : '+GetWSCError())
 Endif
  
-Return
-
-
-/*User Function TESTLOT()
-
-ConOut("Teste")
-
-Return &("Eval({||cAlias:='SB1',.T.})")*/
-
-/*User Function TesteWs(ccnpj,cinscsuf)
- 
-Local oWs := NIL
-
-cCep := '09694010'
-
-oWs := WSCadastroConsultasWSService():New()
-
-If MsgYesNo('Suframa - sim, CNPJ - nao')
-	oWs:consultarSituacaoInscsuf(cinscsuf)
-	alert (oWs:nconsultarSituacaoInscsufReturn)
-Else
-	oWs:consultarSituacaoInscCnpj(ccnpj,cinscsuf)
-	alert (oWs:nconsultarSituacaoInscCnpjReturn)
-Endif
-
-oCep := WSCEPService():New()
-oCep:obterLogradouro(cCep)
-alert(oCep:cobterLogradouroResponse)
-
-conout('teste')
-  
 Return*/
 
-/*User Function AfterLogin()
-
-If Left(oMainWnd:cCaption,12) <> "Unitizadores" ;
-	.And. Left(oMainWnd:cCaption,17) <> "Pick List Pedidos" ;
-	.And. Left(oMainWnd:cCaption,13) <> "Pick List NFs" ;
-	.And. Left(oMainWnd:cCaption,13) <> "Pick List WMS" ;
-	.And. Left(oMainWnd:cCaption,12) <> "Habilita WMS" ;
-	.And. Left(oMainWnd:cCaption,06) <> "Normas" ;
-	.And. Left(oMainWnd:cCaption,17) <> "Zonas Armazenagem" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Estruturas Físicas" ;
-	.And. Left(oMainWnd:cCaption,07) <> "Funcoes" ;
-	.And. Left(oMainWnd:cCaption,16) <> "Recursos Humanos" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Conf.cod.endereços" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Excecoes Atividade" ;
-	.And. Left(oMainWnd:cCaption,09) <> "Endereços" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Seq. Abastecimento" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Tarefasxatividades" ;
-	.And. Left(oMainWnd:cCaption,16) <> "Serviçosxtarefas" ;
-	.And. Left(oMainWnd:cCaption,16) <> "Regra Convocacao" ;
-	.And. Left(oMainWnd:cCaption,13) <> "Etiqueta Lote" ;
-	.And. Left(oMainWnd:cCaption,15) <> "Etiqueta Volume" ;
-	.And. Left(oMainWnd:cCaption,16) <> "Etiq.Volume S/NF" ;
-	.And. Left(oMainWnd:cCaption,17) <> "Exec. de Servicos" ;
-	.And. Left(oMainWnd:cCaption,08) <> "O.s. Wms" ;
-	.And. Left(oMainWnd:cCaption,15) <> "Reabastecimento" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Monitor de Servico" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Monitor de Volumes" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Conf.o.s.wms Embal" ;
-	.And. Left(oMainWnd:cCaption,10) <> "Operadores" ;
-	.And. Left(oMainWnd:cCaption,15) <> "Local Impressao" ;
-	.And. Left(oMainWnd:cCaption,10) <> "Monitor Rf" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Controle de Tarefa" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Produto X Endereco" ;
-	.And. Left(oMainWnd:cCaption,17) <> "Mestre Inventario" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Lan. de Inventario" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Tipos de Embalagem" ;
-	.And. Left(oMainWnd:cCaption,16) <> "Etiq. Operadores" ;
-	.And. Left(oMainWnd:cCaption,14) <> "Etiq. Endereco" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Etiq. Recursos Prd" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Etiq. Transacao Pr" ;
-	.And. Left(oMainWnd:cCaption,17) <> "Reimpressao Etiq." ;
-	.And. Left(oMainWnd:cCaption,18) <> "Wizard Imp. Etique" ;
-	.And. Left(oMainWnd:cCaption,08) <> "Produtos" ;
-	.And. Left(oMainWnd:cCaption,18) <> "Altera Etiqueta Vo";
-	.And. Left(oMainWnd:cCaption,18) <> "Enderecar Produtos"
-	Final("Acesso não autorizado! Utilizar o ambiente Avant.")
-Endif
-
-Return*/
+//-------------------------------------------------------------------------------------------------
 
 /*User Function AfterLogin()
 	Local cId	:= ParamIXB[1]
@@ -285,6 +366,9 @@ Return*/
 		Final("Acesso não autorizado!"+Chr(13)+Chr(10)+"Somente módulo do WMS.")
 	Endif
 Return
+
+//-------------------------------------------------------------------------------------------------
+
 */
 /* ===============================================================================
 WSDL Location    http://www.byjg.com.br/site/webservice.php/ws/cep?WSDL
@@ -532,7 +616,6 @@ Return
 */
 
 
-
 /* ===============================================================================
 WSDL Location    https://200.198.228.131/cadastroWS/services/CadastroWebService?wsdl
 Gerado em        05/29/15 10:32:00
@@ -648,25 +731,7 @@ END WSMETHOD
 oXmlRet := NIL
 Return .T.
 
-
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ Fernando ºAutor  ³Fernando Nogueira   º Data ³ 25/02/2014  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Programa para testes                                       º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ Especifico Avant                                           º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
-User Function Fernando()
-
-Conout('teste')
-
-Return
+//-------------------------------------------------------------------------------------------------
 
 /*X31UPDTABLE("SB1")
 
@@ -680,69 +745,19 @@ Endif
 
 Return*/
 
+//-------------------------------------------------------------------------------------------------
+
 /*User Function Fernando()
 
 dbSelectArea("SE1")
 
 aBases := Fa440Comis(133777)
 
-ConOut("Teste")
-
 Return*/
-
-/*
-_cNota      := '000057108'
-_cSerie     := '1  '
-_cCliente   := '019676'
-_cLoja      := '01'
-_cItem      := '02'
-
-dbSelectArea("SC5")
-dbSetOrder(1)
-dbSelectArea("SC6")
-dbSetOrder(1)
-dbSelectArea("SA3")
-dbSetOrder(1)
-dbSelectArea("SF2")
-dbSetOrder(1)
-dbSelectArea("SD2")
-dbSetOrder(3)
-dbSelectArea("SA1")
-dbSetOrder(1)
-
-ConOut("teste")
-
-Return
-*/
-/*User Function Fernando()
-
-Static oDlgFuncao
-Static oSButConf
-Static oSButEnd
-Static oGetFuncao
-Static cGetFuncao := PadL(AllTrim(GetMV("ES_FERNAND")),250)
-Static oGroup1
-Static oSayNome
-
-  DEFINE MSDIALOG oDlgFuncao TITLE "Função" FROM 000, 000  TO 170, 480 COLORS 0, 16777215 PIXEL
-
-    @ 007, 005 GROUP oGroup1 TO 054, 232 OF oDlgFuncao COLOR 0, 16777215 PIXEL
-    @ 016, 013 SAY oSayNome PROMPT "Digite o nome da função:" SIZE 065, 009 OF oDlgFuncao COLORS 0, 16777215 PIXEL
-    @ 030, 013 MSGET oGetFuncao VAR cGetFuncao SIZE 210, 010 OF oDlgFuncao COLORS 0, 16777215 PIXEL  
-    
-    DEFINE SBUTTON oSButConf FROM 065, 160 TYPE 01 OF oDlgFuncao ENABLE ACTION (PutMV("ES_FERNAND",AllTrim(cGetFuncao)),&(AllTrim(cGetFuncao)),ApMsgAlert("Debug Finalizado"))
-    DEFINE SBUTTON oSButEnd  FROM 065, 200 TYPE 02 OF oDlgFuncao ENABLE ACTION (oDlgFuncao:End())
-    
-  ACTIVATE MSDIALOG oDlgFuncao CENTERED
-
-Return*/
-
 
 //-------------------------------------------------------------------------------------------------
 
-/* 
-
-
+/*
 User Function Arquivos() 
 
 _cArquivo := ""
@@ -756,7 +771,5 @@ For _n := 1 to Len(aDirectory)
 	  _cArquivo += aDirectory[_n][1]
 
 Next _n
-
-conout("teste")
 
 Return*/
