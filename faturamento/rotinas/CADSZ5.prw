@@ -1,4 +1,9 @@
-#INCLUDE "PROTHEUS.CH"         
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "APWEBSRV.CH"
+#INCLUDE "FWMVCDEF.CH"
+#INCLUDE "SCROLLBX.CH"
+#include "JPEG.CH"
+#include 'Fileio.CH'         
 
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
@@ -143,14 +148,20 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 	Local nOpc			:= 3
 	Local _cTipo	    := ""
 	Local _cGRPTRIB	    := ""
-	Local cMsgErro      := ""
-	Local aArea := GetArea()		// Salva a area
-	Local aAreaSZ5  := SZ5->(GetArea())
-	Local aAreaSA1  := SA1->(GetArea())
-	Local aAreaSA2  := SA2->(GetArea())
-	Local aAreaSA3  := SA3->(GetArea())
-	Private aRotAuto 	:= Nil
+	Local cMsgErro		:= ""
+	Local aArea 		:= GetArea()		// Salva a area
+	Local aAreaSZ5  	:= SZ5->(GetArea())
+	Local aAreaSA1  	:= SA1->(GetArea())
+	Local aAreaSA2  	:= SA2->(GetArea())
+	Local aAreaSA3  	:= SA3->(GetArea())
+	Local cPath			:= "\imagens\clientes\"
+	Local cBitMap		:= AllTrim(SZ5->Z5_CGC)
+	Local lIncluiu		
+	Local lExistImg		:= .F.
+	
+	Private aRotAuto	 := Nil
 	Private lMsErroAuto := .F.
+	Private oRep 		 := TBmpRep():New(0, 0, 0, 0, "", .T., oMainWnd, Nil, Nil, .F., .F.)
 
 	DbSelectarea("SZ5")
 	SZ5->(DbGoto(nRecno))
@@ -235,6 +246,20 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 		_cGRPTRIB := SZ5->Z5_GRPTRIB
 	EndIf
 	
+	// Fernando Nogueira - Chamado 004656
+	If File(cPath + cBitMap + ".jpg")
+		oRep:OpenRepository()
+		oRep:InsertBmp(cPath + cBitMap + ".jpg", cBitMap, @lIncluiu)
+		lExistImg := oRep:ExistBmp(cBitMap)
+		oRep:CloseRepository()
+	ElseIf File(cPath + cBitMap + ".png")
+		oRep:OpenRepository()
+		oRep:InsertBmp(cPath + cBitMap + ".png", cBitMap, @lIncluiu)
+		lExistImg := oRep:ExistBmp(cBitMap)
+		oRep:CloseRepository()
+	Endif
+	
+	
 	
 	aValues	:= {	{"A1_LOJA"		,cLojaCli			   , Nil},;
 					{"A1_COD"		,cCodCli			   , Nil},;
@@ -287,6 +312,7 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 					{"A1_XREGESP"	,SZ5->Z5_XREGESP       , Nil},;
 					{"A1_TIPO"	    ,_cTipo                , Nil},;
 					{"A1_REGIAO"    ,SZ5->Z5_REGIAO        , Nil},;
+					{"A1_BITMAP"    ,If(lExistImg,cBitMap,""), Nil},;
 					{"A1_GRPTRIB"	,_cGRPTRIB             , Nil}}
 
 	MSExecAuto({|x,y| MATA030(x,y)}, aValues, nOpc)			
