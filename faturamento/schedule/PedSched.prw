@@ -81,7 +81,9 @@ For _nXI := 1 to Len(aPedWeb)
 	If SZ3->Z3_STATUS = '3'
 		EnvInteg()
 	Else
-		EnvNaoInt(aPedWeb[_nXI][01],cMensagem)
+		If !("Seu Pedido tem produto faltando regra fiscal" $ cMensagem) // Fernando Nogueira - Chamado 004689
+			EnvNaoInt(aPedWeb[_nXI][01],cMensagem)
+		Endif
 	Endif
 	
 	Sleep(15000)

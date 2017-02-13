@@ -23,6 +23,14 @@ oBrowse:SetAlias('SZ3')
 //Descrição da Parte Superior Esquerda do Browse
 oBrowse:SetDescripton("Pedido Web") 
 
+//Legendas do Browse
+oBrowse:AddLegend("Z3_STATUS=='1'", "BLUE"  , "Parado na Web")
+oBrowse:AddLegend("Z3_STATUS=='2'", "YELLOW", "Aguardando Integração")
+oBrowse:AddLegend("Z3_STATUS=='3'", "GREEN" , "Integrado com Sucesso")
+oBrowse:AddLegend("Z3_STATUS=='4'", "RED"   , "Erro na Integração")
+oBrowse:AddLegend("Z3_STATUS=='P'", "ORANGE", "Em processo de Integração")
+oBrowse:AddLegend("!(Z3_STATUS$'1.2.3.4.P')", "WHITE", "Outros Status Web")
+
 //Habilita os Botões Ambiente e WalkThru
 oBrowse:SetAmbiente(.T.)
 oBrowse:SetWalkThru(.T.)
@@ -54,11 +62,15 @@ Local aMenu :=	{}
 	
 	ADD OPTION aMenu TITLE 'Pesquisar'  ACTION 'PesqBrw'       		OPERATION 1 ACCESS 0
 	ADD OPTION aMenu TITLE 'Visualizar' ACTION 'VIEWDEF.PedidoWeb'	OPERATION 2 ACCESS 0
-	ADD OPTION aMenu TITLE 'Incluir'    ACTION 'VIEWDEF.PedidoWeb' 	OPERATION 3 ACCESS 0
-	ADD OPTION aMenu TITLE 'Alterar'    ACTION 'VIEWDEF.PedidoWeb' 	OPERATION 4 ACCESS 0
-	ADD OPTION aMenu TITLE 'Excluir'    ACTION 'VIEWDEF.PedidoWeb' 	OPERATION 5 ACCESS 0
-	ADD OPTION aMenu TITLE 'Imprimir'   ACTION 'VIEWDEF.PedidoWeb'	OPERATION 8 ACCESS 0
-	ADD OPTION aMenu TITLE 'Copiar'     ACTION 'VIEWDEF.PedidoWeb'	OPERATION 9 ACCESS 0
+	// Usuarios que pertencem ao grupo de Administradores
+	If aScan(PswRet(1)[1][10],'000000') <> 0
+		ADD OPTION aMenu TITLE 'Incluir'    ACTION 'VIEWDEF.PedidoWeb' 	OPERATION 3 ACCESS 0
+		ADD OPTION aMenu TITLE 'Alterar'    ACTION 'VIEWDEF.PedidoWeb' 	OPERATION 4 ACCESS 0
+		ADD OPTION aMenu TITLE 'Excluir'    ACTION 'VIEWDEF.PedidoWeb' 	OPERATION 5 ACCESS 0
+		ADD OPTION aMenu TITLE 'Imprimir'   ACTION 'VIEWDEF.PedidoWeb'	OPERATION 8 ACCESS 0
+		ADD OPTION aMenu TITLE 'Copiar'     ACTION 'VIEWDEF.PedidoWeb'	OPERATION 9 ACCESS 0
+	Endif
+	ADD OPTION aMenu TITLE 'Volta Ped'  ACTION 'U_VoltaPedido'		OPERATION 4 ACCESS 0
 	
 Return(aMenu)
 
@@ -274,6 +286,36 @@ If SX5->(dbSeek(xFilial("SX5")+"ZA0008"))
 			SX5->X5_DESCRI := STRZERO(_nNum,10)
 		SX5->(MsUnlock())
 	Endif
+Endif
+
+Return
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ VoltaPedido º Autor ³ Fernando Nogueira º Data ³ 13/02/2017 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³ Volta Pedido para o Status de Aguardando Integracao         º±±
+±±º          ³ Chamado 004689                                              º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ Especifico Avant                                            º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+User Function VoltaPedido()
+
+If SZ3->Z3_STATUS <> '4'
+	ApMsgInfo('Só é permitido voltar Status de Pedido com erro na Integração.')
+ElseIf SZ3->(RecLock("SZ3",.F.))
+	If MsgNoYes('Deseja voltar o Pedido Web '+cValToChar(SZ3->Z3_NPEDWEB)+' para o Status de "Aguardando Integração"?')
+		SZ3->Z3_STATUS := '2'
+		SZ3->(MsUnlock())
+		ApMsgInfo('O Pedido Web '+cValToChar(SZ3->Z3_NPEDWEB)+' voltou para o Status "Aguardando Integração".')
+	Endif
+Else
+	ApMsgInfo('Não foi possível alterar o Status do Pedido.')
 Endif
 
 Return

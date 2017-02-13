@@ -418,9 +418,10 @@ _aAreaSA3 	:= getArea("SA3")
 
 _cMailVend := Posicione("SA3",1,xFilial("SA3")+SZ3->Z3_VEND,"A3_EMAIL")
 
-If !Empty(_cMailVend)
-	_cMailTo := _cMailTo + ";" + AllTrim(_cMailVend)
-Endif
+// Fernando Nogueira - Chamado 004689 (comentario)
+//If !Empty(_cMailVend)
+//	_cMailTo := _cMailTo + ";" + AllTrim(_cMailVend)
+//Endif
 
 If _cTipo == 'S'
 	_cTipo := 'REVENDEDOR'

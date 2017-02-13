@@ -190,11 +190,11 @@ If lRetorno
 						lTesInt := .F.
 
 						SB1->(dbSeek(xFilial("SB1")+SZ4->Z4_CODPROD))
-						
+
 						If AllTrim(SB1->B1_POSIPI) = '85395000'
 							lBlqNCM := .T.
 						Endif
-						
+
 						// Fernando Nogueira - Chamado 004664
 						If (SA1->A1_EST = 'PB' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.536.600') .Or. ;
 							(SA1->A1_EST = 'SE' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.536.600') .Or. ;
@@ -203,7 +203,7 @@ If lRetorno
 							(SA1->A1_EST = 'RO' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.536.600')
 							lBlqFis := .T.
 						Endif
-						
+
 						_aAreaSFM 	:= getArea("SFM")
 						SFM->(dbSetOrder(2))
 
@@ -278,7 +278,7 @@ If lRetorno
 
 								If nPosRet > 0
 									nPrcVen	:= nPrcVen + aImpostos[nPosRet][05]
-									
+
 									// Fernando Nogueira - Chamado 004646
 									If SB1->(dbSeek(xFilial("SB1")+aItens[_n][nPosProd][2])) .And. AllTrim(SB1->B1_POSIPI) = '85395000' .And. aImpostos[nPosRet][05] = 0
 										lBlqIcmRet := .T.
@@ -297,7 +297,7 @@ If lRetorno
 							EndIf
 
 							MaFisEnd()
-							
+
 							If cTpOper == '54'
 								nTotBonif += nPrcVen
 							Endif
@@ -313,7 +313,7 @@ If lRetorno
 					If nTotBonif > 0 .And. nTotBonif > Posicione("SA3",1,xFilial("SA3")+SZ3->Z3_VEND,"A3_ACMMKT")
 						cMensagem	+= "<b> Caro Representante. O Valor do seu Pedido de Bonificacao com Impostos ("+AllTrim(Transform(nTotBonif, _cSA3Cred))+") ultrapassou o seu Saldo de Credito de Marketing ("+AllTrim(Transform(SA3->A3_ACMMKT, _cSA3Cred))+"). </b>" + cEnter + cEnter
 					Endif
-					
+
 					// Chamado 003522 - Bloqueio Fiscal - Fernando Nogueira
 					// Chamado 003575
 					If SA1->A1_TIPO $ 'FR' .Or. lBlqIcmRet .Or. lBlqFis
@@ -364,7 +364,7 @@ If lRetorno
 
 					MsUnlock()
 
-					If !lRetorno
+					If !lRetorno .And. Empty(aTesInt) // Fernando Nogueira - Chamado 004689
 						U_DispPedErr(cMensagem,cPedWeb)
 					EndIf
 
@@ -509,9 +509,10 @@ _aAreaSA3 	:= getArea("SA3")
 
 _cMailVend := Posicione("SA3",1,xFilial("SA3")+SZ3->Z3_VEND,"A3_EMAIL")
 
-If !Empty(_cMailVend)
-	_cMailTo := _cMailTo + ";" + AllTrim(_cMailVend)
-Endif
+// Fernando Nogueira - Chamado 004689
+//If !Empty(_cMailVend)
+//	_cMailTo := _cMailTo + ";" + AllTrim(_cMailVend)
+//Endif
 
 If _cTipo == 'S'
 	_cTipo := 'REVENDEDOR'
