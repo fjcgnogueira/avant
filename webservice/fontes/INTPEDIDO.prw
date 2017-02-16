@@ -315,9 +315,10 @@ If lRetorno
 						cMensagem	+= "<b> Caro Representante. O Valor do seu Pedido de Bonificacao com Impostos ("+AllTrim(Transform(nTotBonif, _cSA3Cred))+") ultrapassou o seu Saldo de Credito de Marketing ("+AllTrim(Transform(SA3->A3_ACMMKT, _cSA3Cred))+"). </b>" + cEnter + cEnter
 					Endif
 
-					// Chamado 003522 - Bloqueio Fiscal - Fernando Nogueira
-					// Chamado 003575
-					If SA1->A1_TIPO $ 'FR' .Or. lBlqIcmRet .Or. lBlqFis
+					// Fernando Nogueira - Chamado 003522 - Bloqueio Fiscal
+					// Fernando Nogueira - Chamado 003575
+					// Fernando Nogueira - Chamado 004323
+					If SA1->A1_TIPO $ 'FR' .Or. lBlqIcmRet .Or. lBlqFis .Or. (!Empty(SA1->A1_X_DTRES) .And. SA1->A1_X_DTRES < dDataBase)
 						aAdd(aCabec,{"C5_X_BLQFI" ,"S",NIL})
 					Endif
 
