@@ -155,9 +155,10 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 	Local aAreaSA2  	:= SA2->(GetArea())
 	Local aAreaSA3  	:= SA3->(GetArea())
 	Local cPath			:= "\imagens\clientes\"
-	Local cBitMap		:= AllTrim(SZ5->Z5_CGC)
+	Local cBitMap		:= ""
 	Local lIncluiu		
 	Local lExistImg		:= .F.
+	Local cInscr		:= ""
 	
 	Private aRotAuto	 := Nil
 	Private lMsErroAuto := .F.
@@ -246,6 +247,8 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 		_cGRPTRIB := SZ5->Z5_GRPTRIB
 	EndIf
 	
+	cBitMap := AllTrim(SZ5->Z5_CGC)
+	
 	// Fernando Nogueira - Chamado 004656
 	If File(cPath + cBitMap + ".jpg")
 		oRep:OpenRepository()
@@ -259,61 +262,66 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 		oRep:CloseRepository()
 	Endif
 	
+	cInscr := Upper(AllTrim(SZ5->Z5_INSCEST))
 	
+	// Fernando Nogueira - Chamado 004482
+	If cInscr <> 'ISENTO'
+		cInscr := U_RetNum(cInscr)
+	Endif
 	
-	aValues	:= {	{"A1_LOJA"		,cLojaCli			   , Nil},;
-					{"A1_COD"		,cCodCli			   , Nil},;
-					{"A1_NOME"		,UPPER(SZ5->Z5_RAZASOC), Nil},;
-					{"A1_NREDUZ"	,UPPER(SZ5->Z5_NOMEABR), Nil},;
-					{"A1_PESSOA"  	,cTipoCli			   , Nil},;
-					{"A1_CGC"		,SZ5->Z5_CGC		   , Nil},;
-					{"A1_TIPO"  	,"S"				   , Nil},;
-					{"A1_END"   	,UPPER(cEndCli)		   , Nil},;
-					{"A1_EST"   	,UPPER(SZ5->Z5_UF)     , Nil},;
-					{"A1_COD_MUN"	,SZ5->Z5_CDMUNIC	   , Nil},;
-					{"A1_MUN"   	,UPPER(SZ5->Z5_CIDADE) , Nil},;
-					{"A1_COND"		,SZ5->Z5_CONDPAG	   , Nil},;
-					{"A1_INSCR"		,SZ5->Z5_INSCEST	   , Nil},;
-					{"A1_CEP"		,SZ5->Z5_CEP		   , Nil},;
-					{"A1_DDD"		,SZ5->Z5_TELEFDD	   , Nil},;
-					{"A1_TEL"		,SZ5->Z5_TELEFON	   , Nil},;
+	aValues	:= {	{"A1_LOJA"		,cLojaCli			   	, Nil},;
+					{"A1_COD"		,cCodCli			   	, Nil},;
+					{"A1_NOME"		,UPPER(SZ5->Z5_RAZASOC)	, Nil},;
+					{"A1_NREDUZ"	,UPPER(SZ5->Z5_NOMEABR)	, Nil},;
+					{"A1_PESSOA"  	,cTipoCli			  	, Nil},;
+					{"A1_CGC"		,SZ5->Z5_CGC		  	, Nil},;
+					{"A1_TIPO"  	,"S"				  	, Nil},;
+					{"A1_END"   	,UPPER(cEndCli)		  	, Nil},;
+					{"A1_EST"   	,UPPER(SZ5->Z5_UF)    	, Nil},;
+					{"A1_COD_MUN"	,SZ5->Z5_CDMUNIC	  	, Nil},;
+					{"A1_MUN"   	,UPPER(SZ5->Z5_CIDADE)	, Nil},;
+					{"A1_COND"		,SZ5->Z5_CONDPAG	   	, Nil},;
+					{"A1_INSCR"		,cInscr					, Nil},;
+					{"A1_CEP"		,SZ5->Z5_CEP		   	, Nil},;
+					{"A1_DDD"		,SZ5->Z5_TELEFDD	   	, Nil},;
+					{"A1_TEL"		,SZ5->Z5_TELEFON	   	, Nil},;
 					{"A1_VEND"		,ALLTRIM(SZ5->Z5_CODVEND), Nil},;
-					{"A1_BAIRRO"	,UPPER(SZ5->Z5_BAIRRO) , Nil},;
-					{"A1_CEL"		,SZ5->Z5_CELULAR	   , Nil},;
-					{"A1_FAX"		,SZ5->Z5_FAX		   , Nil},;
-					{"A1_CONTATO"	,UPPER(SZ5->Z5_CONTATO), Nil},;
-					{"A1_COMPLEM"	,UPPER(SZ5->Z5_ENDCOMP), Nil},;
-					{"A1_DTINCLU"	,SZ5->Z5_DTCADAS	   , Nil},;
-					{"A1_ENDCOB"	,UPPER(cEndCob)		   , Nil},;
-					{"A1_BAIRROC"	,UPPER(SZ5->Z5_BAIRROP), Nil},;
-					{"A1_CEPC"		,SZ5->Z5_CEPPG		   , Nil},;
-					{"A1_MUNC"		,UPPER(SZ5->Z5_CIDADEP), Nil},;
-					{"A1_ESTC"		,UPPER(SZ5->Z5_UFPG)   , Nil},;
-					{"A1_ENDENT"	,UPPER(cEndEnt)		   , Nil},;
-					{"A1_BAIRROE"	,UPPER(SZ5->Z5_BAIRROE), Nil},;
-					{"A1_CEPE"		,SZ5->Z5_CEPEN		   , Nil},;
-					{"A1_EMAIL"		,SZ5->Z5_EMAIL		   , Nil},;
-					{"A1_X_MAIL2"	,SZ5->Z5_EMAIL1		   , Nil},;
-					{"A1_X_MALT"	,SZ5->Z5_X_MALT		   , Nil},;
-					{"A1_PRF_OBS"	,SZ5->Z5_OBSERV		   , Nil},;
-					{"A1_SUFRAMA"	,SZ5->Z5_SUFRAMA	   , Nil},;
-					{"A1_NMGER"		,UPPER(SZ5->Z5_NMGEREN), Nil},;
-					{"A1_NMPRO"		,UPPER(SZ5->Z5_NMCOMPR), Nil},;
-					{"A1_DTGER"		,SZ5->Z5_ANIVGER	   , Nil},;
-					{"A1_DTPROR"	,SZ5->Z5_ANIVPRO	   , Nil},;
-					{"A1_DTCOMP"	,SZ5->Z5_ANIVCOM	   , Nil},;
-					{"A1_NMCOMP"	,UPPER(SZ5->Z5_PROPRIE), Nil},; 
-					{"A1_DESCWEB"	,SZ5->Z5_DESCWEB	   , Nil},;   
-					{"A1_CNAE"		,SZ5->Z5_CNAE		   , Nil},;
-					{"A1_X_HORA"	,SZ5->Z5_X_HORA	       , Nil},;
-					{"A1_SATIV1"	,SZ5->Z5_X_CANAL       , Nil},;
-					{"A1_SATIV2"	,SZ5->Z5_X_SEGME       , Nil},;
-					{"A1_SATIV4"	,SZ5->Z5_X_PERFI       , Nil},;		
-					{"A1_XREGESP"	,SZ5->Z5_XREGESP       , Nil},;
-					{"A1_TIPO"	    ,_cTipo                , Nil},;
-					{"A1_REGIAO"    ,SZ5->Z5_REGIAO        , Nil},;
+					{"A1_BAIRRO"	,UPPER(SZ5->Z5_BAIRRO)	, Nil},;
+					{"A1_CEL"		,SZ5->Z5_CELULAR	   	, Nil},;
+					{"A1_FAX"		,SZ5->Z5_FAX		   	, Nil},;
+					{"A1_CONTATO"	,UPPER(SZ5->Z5_CONTATO)	, Nil},;
+					{"A1_COMPLEM"	,UPPER(SZ5->Z5_ENDCOMP)	, Nil},;
+					{"A1_DTINCLU"	,SZ5->Z5_DTCADAS	   	, Nil},;
+					{"A1_ENDCOB"	,UPPER(cEndCob)		   	, Nil},;
+					{"A1_BAIRROC"	,UPPER(SZ5->Z5_BAIRROP)	, Nil},;
+					{"A1_CEPC"		,SZ5->Z5_CEPPG		   	, Nil},;
+					{"A1_MUNC"		,UPPER(SZ5->Z5_CIDADEP)	, Nil},;
+					{"A1_ESTC"		,UPPER(SZ5->Z5_UFPG)   	, Nil},;
+					{"A1_ENDENT"	,UPPER(cEndEnt)		   	, Nil},;
+					{"A1_BAIRROE"	,UPPER(SZ5->Z5_BAIRROE)	, Nil},;
+					{"A1_CEPE"		,SZ5->Z5_CEPEN		   	, Nil},;
+					{"A1_EMAIL"		,SZ5->Z5_EMAIL		   	, Nil},;
+					{"A1_X_MAIL2"	,SZ5->Z5_EMAIL1		   	, Nil},;
+					{"A1_X_MALT"	,SZ5->Z5_X_MALT		   	, Nil},;
+					{"A1_PRF_OBS"	,SZ5->Z5_OBSERV		   	, Nil},;
+					{"A1_SUFRAMA"	,SZ5->Z5_SUFRAMA	   	, Nil},;
+					{"A1_NMGER"		,UPPER(SZ5->Z5_NMGEREN)	, Nil},;
+					{"A1_NMPRO"		,UPPER(SZ5->Z5_NMCOMPR)	, Nil},;
+					{"A1_DTGER"		,SZ5->Z5_ANIVGER	   	, Nil},;
+					{"A1_DTPROR"	,SZ5->Z5_ANIVPRO	   	, Nil},;
+					{"A1_DTCOMP"	,SZ5->Z5_ANIVCOM	   	, Nil},;
+					{"A1_NMCOMP"	,UPPER(SZ5->Z5_PROPRIE)	, Nil},; 
+					{"A1_DESCWEB"	,SZ5->Z5_DESCWEB	   	, Nil},;   
+					{"A1_CNAE"		,SZ5->Z5_CNAE		   	, Nil},;
+					{"A1_X_HORA"	,SZ5->Z5_X_HORA	       	, Nil},;
+					{"A1_SATIV1"	,SZ5->Z5_X_CANAL       	, Nil},;
+					{"A1_SATIV2"	,SZ5->Z5_X_SEGME       	, Nil},;
+					{"A1_SATIV4"	,SZ5->Z5_X_PERFI       	, Nil},;		
+					{"A1_XREGESP"	,SZ5->Z5_XREGESP       	, Nil},;
+					{"A1_TIPO"	    ,_cTipo                	, Nil},;
+					{"A1_REGIAO"    ,SZ5->Z5_REGIAO        	, Nil},;
 					{"A1_BITMAP"    ,If(lExistImg,cBitMap,""), Nil},;
-					{"A1_GRPTRIB"	,_cGRPTRIB             , Nil}}
+					{"A1_GRPTRIB"	,_cGRPTRIB             	, Nil}}
 
 	MSExecAuto({|x,y| MATA030(x,y)}, aValues, nOpc)			
 
