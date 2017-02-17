@@ -36,6 +36,8 @@ Local cPara     := ""
 Local cMsgInt   := "Seu Pedido Web Nº "+cPedWeb+" voltou para a tela de não enviados. "
 Local cUpdSZ3   := ""
 Local _nResult  := 0
+Local cUpdSZ4   := ""
+Local _nResult1 := 0
 
 If nPedWeb > 0 .And. MsgYesNo("Deseja que esse Pedido volte para a Web?")
 
@@ -44,7 +46,13 @@ If nPedWeb > 0 .And. MsgYesNo("Deseja que esse Pedido volte para a Web?")
 	cUpdSZ3 += " WHERE SZ3.D_E_L_E_T_ = ' ' AND Z3_FILIAL = "+xFilial("SZ3")+" AND Z3_NPEDWEB = "+cPedWeb
 	_nResult := TcSqlExec(cUpdSZ3)
 	
-	If _nResult < 0
+	cUpdSZ4 := "UPDATE "+RetSqlName("SZ4")+" SET Z4_RESERVA = 'S' FROM "+RetSqlName("SZ3")+" SZ3"
+	cUpdSZ4 += " INNER JOIN "+RetSqlName("SZ4")+" SZ4 ON Z3_FILIAL = Z4_FILIAL AND Z3_NPEDWEB = Z4_NUMPEDW AND SZ4.D_E_L_E_T_ = ' '"
+	cUpdSZ4 += " WHERE SZ3.D_E_L_E_T_ = ' ' AND Z3_FILIAL = "+xFilial("SZ3")+" AND Z3_NPEDWEB = "+cPedWeb
+	_nResult1 := TcSqlExec(cUpdSZ4)	
+	
+	
+	If _nResult < 0 .AND. _nResult1 < 0
 		ApMsgInfo('Não foi possível voltar o Pedido Web, Informar o Depto de TI')
 	Else
 	
