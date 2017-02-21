@@ -32,66 +32,66 @@ User Function DV070QTD()
 	Local aAreaSB1  := SB1->(GetArea())
 	Local aAreaSB5  := SB5->(GetArea())
 	Local lContinua := .T.
-	
+
 	Private cProduto := PARAMIXB[3]
 	Private nMultip  := 1
 	Private cAlert   := ""
-	
+
 	Public ___cPassou
-	
+
 	ConOut("Ponto de Entrada : DV070QTD")
 
 	aRetorno	 := Array(02)
 	aRetorno[01] := lRetorno
 	aRetorno[02] := nQtde
-	
+
 	If nQtde == 0 .And. Type("__aProdAtu") <> "U" .And. VTLastKey() <> 27
-	
+
 		nPos    := aSCan(__aProdAtu,{|x|x[1] == cProduto})
 		nQtdSys := __aProdAtu[nPos][03]
 		nQtdAtu := __aProdAtu[nPos][04]
-	
+
 		If VTLastKey() <> 27 .And. lContinua
-		
-			While .T. 
+
+			While .T.
 				VtClear()
-				
+
 				_cLeitura := Space(15)
-				
-				@ 01,00 VTSay "Leitura:"		
+
+				@ 01,00 VTSay "Leitura:"
 				@ 02,00 VTGet _cLeitura Valid(If(VldCodBar(AllTrim(_cLeitura)),.T.,Eval({||_cLeitura := Space(15),.F.})))
-				@ 03,00 VTSay "Quant.: "+StrZero(nQtdSys-nQtdAtu-nQtdLida,4)+"/"+StrZero(nQtdSys,4)
-				
+				@ 03,00 VTSay "Quant.: "+StrZero(nQtdSys-nQtdAtu-nQtdLida,5)+"/"+StrZero(nQtdSys,5)
+
 				VTRead
-				
+
 				If VTLastKey() == 27
 					Exit
 				EndIf
-				
+
 				nQtdLida += nMultip
-					
+
 			Enddo
-			
+
 			aRetorno[02] := nQtdLida
-			
+
 		Endif
-		
-		VTRestore(,,,,aTela)		
+
+		VTRestore(,,,,aTela)
 
 	ElseIf VTLastKey() <> 27
-	
+
 		aArea		:= GetArea()
 		_aAreaSC9 	:= GetArea("SC9")
-	
+
 		If Empty(___cPassou)
 			___cPassou := "Passou"
 		Else
 			___cPassou := ""
 			Return aRetorno
 		Endif
-	
+
 		If Type("__aProdAtu") <> "U"
-	
+
 			//-- Formato do vetor __aProdAtu
 			//-- [01] = Produto
 			//-- [02] = Lote
@@ -100,29 +100,29 @@ User Function DV070QTD()
 			//-- [05] = Vetor unidimensional contendo os registros do arquivo SDB
 			//-- [06] = Finalizou a Conferencia
 			nPos := aSCan(__aProdAtu,{|x|x[1] == cProduto})
-					
+
 			If ValType(__aProdAtu[nPos][03]) == "N" .And. ValType(__aProdAtu[nPos][04]) == "N" .And. !__aProdAtu[nPos][06]
 				nQtdSys := __aProdAtu[nPos][03]
 				nQtdAtu := __aProdAtu[nPos][04]+nQtde
 				If SAH->AH_UNIMED == 'CX'
 					nQtdSys := __aProdAtu[nPos][03] / SB1->B1_CONV
-					nQtdAtu := __aProdAtu[nPos][04] / SB1->B1_CONV + nQtde 
+					nQtdAtu := __aProdAtu[nPos][04] / SB1->B1_CONV + nQtde
 				Endif
-	
+
 				dbSelectArea("SC9")
 				dbSetOrder(9)
-				dbSeek(xFilial("SC9")+SDB->DB_IDDCF)			
+				dbSeek(xFilial("SC9")+SDB->DB_IDDCF)
 				If nQtdSys == nQtdAtu
 					VTALERT("Conferencia Finalizada para o Produto " + cProduto,"AVISO",.T.,4000)
 					__aProdAtu[nPos][06] := .T.
-	
+
 					While !Eof() .And. SC9->C9_IDDCF == SDB->DB_IDDCF .And. SC9->C9_XCONF <> 'S'
 						SC9->(RecLock("SC9",.F.))
 						SC9->C9_XCONF := "S"
 						SC9->(MsUnLock())
 						SC9->(dbSkip())
 					End
-	
+
 				Else
 					While !Eof() .And. SC9->C9_IDDCF == SDB->DB_IDDCF .And. SC9->C9_XCONF <> 'N'
 						SC9->(RecLock("SC9",.F.))
@@ -134,17 +134,17 @@ User Function DV070QTD()
 				EndIf
 			EndIf
 		EndIf
-		
+
 		SC9->(DBCLOSEAREA())
-		
+
 		Restarea(_aAreaSC9)
 		RestArea(aArea)
-		
+
 	Endif
-	
+
 	SB1->(RestArea(aAreaSB1))
 	SB5->(RestArea(aAreaSB5))
-	
+
 Return aRetorno
 
 /*
@@ -165,7 +165,7 @@ Local _cCodBarras := ""
 
 If SB1->(dbSeek(xFilial("SB1")+AllTrim(cProduto)))
 	_cCodBarras := AllTrim(SB1->B1_X_BARI)+"."+AllTrim(SB1->B1_X_BAR2)+"."+AllTrim(SB1->B1_X_BARI2)+"."+AllTrim(SB1->B1_X_BARE2)
-	
+
 	If cCodBar == AllTrim(SB1->B1_CODBAR)
 		nMultip   := 1
 	ElseIf cCodBar $ _cCodBarras
