@@ -1748,6 +1748,7 @@ If cTipo == "1"
 						
 						cFieldMsg := GetNewPar("MV_CMPUSR","")  //Alterado por Alex Rodrigues - 19/05/2014                         
 						If !Empty(cFieldMsg) .and. SC5->(FieldPos(cFieldMsg)) > 0 .and. !Empty(&("SC5->"+cFieldMsg))
+							// Fernando Nogueira - Chamado 004717
 							cMensCli += If(Empty(cMensCli),'',' - ') + alltrim(&("SC5->"+cFieldMsg))
 						Else
 							cMensCli += IIF( SF2->(FieldPos("F2_MENNOTA")) > 0, AllTrim(SF2->F2_MENNOTA),AllTrim(SC5->C5_MENNOTA))
