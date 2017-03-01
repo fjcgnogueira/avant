@@ -167,11 +167,11 @@ User Function MT410TOK()
 		DbSetOrder(1)
 		If SE4->(DbSeek(xFilial("SE4") + M->C5_CONDPAG ) )
 			If MaVldTabPrc(M->C5_TABELA,M->C5_CONDPAG,,M->C5_EMISSAO)
-				If A410Recalc()
+				/*If A410Recalc()
 					Conout("Reprocesso do C5_CONDPAG ok! Pedido:" + M->C5_NUM )
 				Else
 					Conout("Erro no A410Recalc - Pedido: " + M->C5_NUM )
-				EndIf
+				EndIf*/
 			Else
 				Conout("Erro no MaVldTabPrc - Pedido: " + M->C5_NUM )
 			EndIf
