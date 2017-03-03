@@ -289,6 +289,9 @@ If SA7->(DbSeek(xFilial("SA7")+cCliente+cLoja+cPrdCli))
 		If SA7->A7_SERVTIM = "HOME"
 			_nQtdMult := nQtdPrd
 		EndIf
+		If SA7->A7_SERVTIM = "LEROY"
+			_nQtdMult := nQtdPrd
+		EndIf
 	EndIf
 
 	_nPrcVen := SA7->A7_PRECO01
