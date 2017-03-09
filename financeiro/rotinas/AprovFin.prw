@@ -44,7 +44,7 @@ oBrowse:SetTimer({|| oBrowse:Refresh(.T.)}, 600000) // 10 min
 oBrowse:SetIniWindow({||oBrowse:oBrowse:oTimer:lActive := .T.})
 
 SetKey (VK_F5  , {|| Processa({|lEnd|oBrowse:Refresh(.T.)},'Aprovacao Tit. a Receber','Selecionando Titulos...',.T.)})
-SetKey (VK_F12 , {|| Processa({|lEnd|Pergunte(cPerg,.T.),oBrowse:Refresh(.T.)},'Aprovacao Tit. a Receber','Selecionando Titulos...',.T.)})
+SetKey (VK_F12 , {|| Processa({|lEnd|If(Pergunte(cPerg,.T.),Eval({||oBrowse:SetFilterDefault("@"+AprFinQry()),oBrowse:Refresh(.T.)}),)},'Aprovacao Tit. a Receber','Selecionando Titulos...',.T.)})
 
 oBrowse:Activate()
 
@@ -70,7 +70,7 @@ Static Function MenuDef()
     //Adicionando opcoes
     ADD OPTION aRotina Title 'Pesquisar'  ACTION 'PesqBrw'          			OPERATION 1 ACCESS 0
 	ADD OPTION aRotina TITLE "Visualizar" ACTION 'VIEWDEF.AprovFin' 			OPERATION 2 ACCESS 0 
-	ADD OPTION aRotina TITLE "Aprovar"    ACTION 'StaticCall(AprovFin,ConfApr)'	OPERATION 4 ACCESS 0 
+	ADD OPTION aRotina TITLE "Aprovar"    ACTION 'StaticCall(AprovFin,ConfApr)'	OPERATION 5 ACCESS 0 
  
 Return aRotina
 
@@ -172,6 +172,44 @@ Return(cQuery)
 /*
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Funcao    ³ oConfApr ³ Autor ³ Fernando Nogueira       ³Data³23/02/2017³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡„o ³ Processo para a Confirmacao de Aprovacao da Data           ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³                                                            ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±*/
+Static Function oConfApr()
+
+Local lEnd := .F.
+Local cAliasSE1	:= GetNextAlias()
+
+Private _x_oProcess
+
+BeginSql Alias cAliasSE1
+	SELECT R_E_C_N_O_, E1_VENCAPR FROM %table:SE1% SE1
+	WHERE E1_FILIAL = %xFilial:SE1%
+		AND E1_X_OK = %exp:cMarca%
+		AND SE1.%NotDel%
+EndSql
+
+dbSelectArea(cAliasSE1)
+(cAliasSE1)->(DbGoTop())
+
+If (cAliasSE1)->(Eof())
+	ApMsgInfo("Nenhum Item para ser Aprovado.")
+ElseIf MsgNoYes("Confirma a Aprovação dos Itens Selecionados?")
+	_x_oProcess := MsNewProcess():New({|lEnd| ConfApr(lEnd)},"Processando...","Aprovando...",.T.)
+	_x_oProcess:Activate()
+	ApMsgInfo("Processo Finalizado.")
+Endif
+
+Return
+
+
+/*
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
 ±±³Funcao    ³ ConfApr  ³ Autor ³ Fernando Nogueira       ³Data³20/06/2016³±±
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
 ±±³Descri‡„o ³ Confirma Aprovacao da Data                                 ³±±
@@ -179,11 +217,10 @@ Return(cQuery)
 ±±³Parametros³                                                            ³±±
 ±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±*/
-Static Function ConfApr()
+Static Function ConfApr(lEnd)
 
 Local cAliasSE1	:= GetNextAlias()
 Local cMarca   	:= oBrowse:cMark
-LOCAL aArray 	:= {}
 
 BeginSql Alias cAliasSE1
 	SELECT R_E_C_N_O_, E1_VENCAPR FROM %table:SE1% SE1
@@ -199,9 +236,14 @@ dbSelectArea(cAliasSE1)
 (cAliasSE1)->(DbGoTop())
 
 While !(cAliasSE1)->(Eof())
-	aArray := {}
 	SE1->(dbGoTo((cAliasSE1)->R_E_C_N_O_))
-	aArray := { { "E1_VENCTO", (cAliasSE1)->E1_VENCAPR	, NIL } }
+	
+	If SE1->(RecLock("SE1",.F.))
+		SE1->E1_APRVENC := 'S'
+		SE1->(MsUnlock())
+	Endif
+	
+	(cAliasSE1)->(dbSkip())
 End
 
 Return
