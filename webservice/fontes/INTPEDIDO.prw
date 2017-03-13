@@ -176,7 +176,7 @@ If lRetorno
 						aAdd(aLinha,{"C6_X_GERE" ,SZ4->Z4_DESCGE ,NIL})
 						aAdd(aLinha,{"C6_X_ESPEC",SZ4->Z4_DESCESP,NIL})
 						aAdd(aLinha,{"C6_DESCPRO",SZ4->Z4_PRODESC,NIL})
-						aAdd(aLinha,{"C6_PRUNIT" ,SZ4->Z4_PRLIQ  ,NIL})
+						aAdd(aLinha,{"C6_PRUNIT" ,SZ4->Z4_PRLIQ  ,NIL}) // Fernando Nogueira - Chamado 004749
 						aAdd(aLinha,{"C6_LOCAL"  ,cArmazem       ,NIL})
 						// Fernando Nogueira - Verifica se vem comissao da web
 						If SZ4->Z4_PCCOMIS > 0
