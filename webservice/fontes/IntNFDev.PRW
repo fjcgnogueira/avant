@@ -145,6 +145,7 @@ If lRetorno
 						Aadd(_aItem,{"D1_LOTECTL",SD2->D2_LOTECTL        ,Nil})
 					Endif
 					Aadd(_aItem,{"D1_NUMTRC"     ,SZI->ZI_NUMTRC         ,Nil})
+					Aadd(_aItem,{"D1_ICMSRET"    ,SZI->ZI_ICMSRET        ,Nil})  // Fernando Nogueira - Chamado 004740
 					
 					Aadd(_aItensSD1, _aItem)
 					
