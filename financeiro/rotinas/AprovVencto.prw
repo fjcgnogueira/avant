@@ -25,7 +25,7 @@ Local bKeyF12 := SetKey(VK_F12)
 
 Private oBrowse
 Private lEnd  := .T.
-Private cPerg := "SE1AV"
+Private cPerg := "SE1VCTO"
 
 AjustaSX1(cPerg)
 Pergunte(cPerg,.F.)
