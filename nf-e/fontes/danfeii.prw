@@ -13,7 +13,7 @@
 #DEFINE SAYHSPACE  008
 #DEFINE HMARGEM    030
 #DEFINE VMARGEM    030
-#DEFINE MAXITEM    022                                                // Máximo de produtos para a primeira página
+#DEFINE MAXITEM    019                                                // Máximo de produtos para a primeira página
 #DEFINE MAXITEMP2  049                                                // Máximo de produtos para a pagina 2 em diante
 #DEFINE MAXITEMP2F 069                                                // Máximo de produtos para a página 2 em diante quando a página não possui informações complementares
 #DEFINE MAXITEMP3  025                                                // Máximo de produtos para a pagina 2 em diante (caso utilize a opção de impressao em verso) - Tratamento implementado para atender a legislacao que determina que a segunda pagina de ocupar 50%.
@@ -984,7 +984,7 @@ EndIf
 If nFaturas > 0
 	For nX := 1 To 3
 		aAux := {}
-		For nY := 1 To Min(9, nFaturas)
+		For nY := 1 To Min(18, nFaturas)
 			Do Case
 				Case nX == 1
 					If nFaturas > 1
@@ -1006,8 +1006,8 @@ If nFaturas > 0
 					EndIf
 			EndCase
 		Next nY
-		If nY <= 9
-			For nY := 1 To 9
+		If nY <= 18
+			For nY := 1 To 18
 				AAdd(aAux, Space(20))
 			Next nY
 		EndIf
@@ -2415,7 +2415,7 @@ oDanfe:Say(252,503,aHrEnt[01],oFont08:oFont)
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³Quadro fatura                                                           ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-aAux := {{{},{},{},{},{},{},{},{},{}}}
+aAux := {{{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}}}
 nY := 0
 For nX := 1 To Len(aFaturas)
 	nY++
@@ -2436,7 +2436,26 @@ For nX := 1 To Len(aFaturas)
 	aadd(Atail(aAux)[nY],aFaturas[nX][8])
 	nY++
 	aadd(Atail(aAux)[nY],aFaturas[nX][9])
-	If nY >= 9
+	nY++
+	aadd(Atail(aAux)[nY],aFaturas[nX][10])
+	nY++
+	aadd(Atail(aAux)[nY],aFaturas[nX][11])
+	nY++
+	aadd(Atail(aAux)[nY],aFaturas[nX][12])
+	nY++
+	aadd(Atail(aAux)[nY],aFaturas[nX][13])
+	nY++
+	aadd(Atail(aAux)[nY],aFaturas[nX][14])
+	nY++
+	aadd(Atail(aAux)[nY],aFaturas[nX][15])
+	nY++
+	aadd(Atail(aAux)[nY],aFaturas[nX][16])
+	nY++
+	aadd(Atail(aAux)[nY],aFaturas[nX][17])
+	nY++
+	aadd(Atail(aAux)[nY],aFaturas[nX][18])
+
+	If nY >= 18
 		nY := 0
 	EndIf
 Next nX
@@ -2452,6 +2471,16 @@ oDanfe:Box(265,402,296,469)
 oDanfe:Box(265,469,296,537)
 oDanfe:Box(265,536,296,603)
 
+oDanfe:Box(296,000,327,068)
+oDanfe:Box(296,067,327,134)
+oDanfe:Box(296,134,327,202)
+oDanfe:Box(296,201,327,268)
+oDanfe:Box(296,268,327,335)
+oDanfe:Box(296,335,327,403)
+oDanfe:Box(296,402,327,469)
+oDanfe:Box(296,469,327,537)
+oDanfe:Box(296,536,327,603)
+
 nColuna := 002
 If Len(aFaturas) >0
 	For nY := 1 To 9
@@ -2460,124 +2489,132 @@ If Len(aFaturas) >0
 		oDanfe:Say(289,nColuna,aAux[1][nY][3],oFont08:oFont)
 		nColuna:= nColuna+67
 	Next nY
+	
+	nColuna := 002
+	For nY := 10 To 18
+		oDanfe:Say(304,nColuna,aAux[1][nY][1],oFont08:oFont)
+		oDanfe:Say(312,nColuna,aAux[1][nY][2],oFont08:oFont)
+		oDanfe:Say(320,nColuna,aAux[1][nY][3],oFont08:oFont)
+		nColuna:= nColuna+67
+	Next nY
 Endif
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³Calculo do imposto                                                      ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-oDanfe:Say(305,002,"CALCULO DO IMPOSTO",oFont08N:oFont)
-oDanfe:Box(307,000,330,121)
-oDanfe:Say(316,002,"BASE DE CALCULO DO ICMS",oFont08N:oFont)
+oDanfe:Say(336,002,"CALCULO DO IMPOSTO",oFont08N:oFont)
+oDanfe:Box(338,000,361,121)
+oDanfe:Say(347,002,"BASE DE CALCULO DO ICMS",oFont08N:oFont)
 If cMVCODREG $ "3" 
-	oDanfe:Say(326,002,aTotais[01],oFont08:oFont)
+	oDanfe:Say(357,002,aTotais[01],oFont08:oFont)
 ElseIf lImpSimpN
-	oDanfe:Say(326,002,aSimpNac[01],oFont08:oFont)	
+	oDanfe:Say(357,002,aSimpNac[01],oFont08:oFont)	
 Endif
-oDanfe:Box(307,120,330,200)
-oDanfe:Say(316,125,"VALOR DO ICMS",oFont08N:oFont)
+oDanfe:Box(338,120,361,200)
+oDanfe:Say(347,125,"VALOR DO ICMS",oFont08N:oFont)
 If cMVCODREG $ "3" 
-	oDanfe:Say(326,125,aTotais[02],oFont08:oFont)
+	oDanfe:Say(357,125,aTotais[02],oFont08:oFont)
 ElseIf lImpSimpN
-	oDanfe:Say(326,125,aSimpNac[02],oFont08:oFont)
+	oDanfe:Say(357,125,aSimpNac[02],oFont08:oFont)
 Endif
-oDanfe:Box(307,199,330,360)
-oDanfe:Say(316,200,"BASE DE CALCULO DO ICMS SUBSTITUIÇÃO",oFont08N:oFont)
-oDanfe:Say(326,202,aTotais[03],oFont08:oFont)
-oDanfe:Box(307,360,330,490)
-oDanfe:Say(316,363,"VALOR DO ICMS SUBSTITUIÇÃO",oFont08N:oFont)
-oDanfe:Say(326,363,aTotais[04],oFont08:oFont)
-oDanfe:Box(307,490,330,603)
-oDanfe:Say(316,491,"VALOR TOTAL DOS PRODUTOS",oFont08N:oFont)
-oDanfe:Say(327,491,aTotais[05],oFont08:oFont)
+oDanfe:Box(338,199,361,360)
+oDanfe:Say(347,200,"BASE DE CALCULO DO ICMS SUBSTITUIÇÃO",oFont08N:oFont)
+oDanfe:Say(357,202,aTotais[03],oFont08:oFont)
+oDanfe:Box(338,360,361,490)
+oDanfe:Say(347,363,"VALOR DO ICMS SUBSTITUIÇÃO",oFont08N:oFont)
+oDanfe:Say(357,363,aTotais[04],oFont08:oFont)
+oDanfe:Box(338,490,361,603)
+oDanfe:Say(347,491,"VALOR TOTAL DOS PRODUTOS",oFont08N:oFont)
+oDanfe:Say(357,491,aTotais[05],oFont08:oFont)
 
 
-oDanfe:Box(330,000,353,110)
-oDanfe:Say(339,002,"VALOR DO FRETE",oFont08N:oFont)
-oDanfe:Say(349,002,aTotais[06],oFont08:oFont)
-oDanfe:Box(330,100,353,190)
-oDanfe:Say(339,102,"VALOR DO SEGURO",oFont08N:oFont)
-oDanfe:Say(349,102,aTotais[07],oFont08:oFont)
-oDanfe:Box(330,190,353,290)
-oDanfe:Say(339,194,"DESCONTO",oFont08N:oFont)
-oDanfe:Say(349,194,aTotais[08],oFont08:oFont)
-oDanfe:Box(330,290,353,415)
-oDanfe:Say(339,295,"OUTRAS DESPESAS ACESSÓRIAS",oFont08N:oFont)
-oDanfe:Say(349,295,aTotais[09],oFont08:oFont)
-oDanfe:Box(330,414,353,500)
-oDanfe:Say(339,420,"VALOR DO IPI",oFont08N:oFont)
-oDanfe:Say(349,420,aTotais[10],oFont08:oFont)
-oDanfe:Box(330,500,353,603)
-oDanfe:Say(339,506,"VALOR TOTAL DA NOTA",oFont08N:oFont)
-oDanfe:Say(349,506,aTotais[11],oFont08:oFont)
+oDanfe:Box(361,000,384,110)
+oDanfe:Say(370,002,"VALOR DO FRETE",oFont08N:oFont)
+oDanfe:Say(380,002,aTotais[06],oFont08:oFont)
+oDanfe:Box(361,100,384,190)
+oDanfe:Say(370,102,"VALOR DO SEGURO",oFont08N:oFont)
+oDanfe:Say(380,102,aTotais[07],oFont08:oFont)
+oDanfe:Box(361,190,384,290)
+oDanfe:Say(370,194,"DESCONTO",oFont08N:oFont)
+oDanfe:Say(380,194,aTotais[08],oFont08:oFont)
+oDanfe:Box(361,290,384,415)
+oDanfe:Say(370,295,"OUTRAS DESPESAS ACESSÓRIAS",oFont08N:oFont)
+oDanfe:Say(380,295,aTotais[09],oFont08:oFont)
+oDanfe:Box(361,414,384,500)
+oDanfe:Say(370,420,"VALOR DO IPI",oFont08N:oFont)
+oDanfe:Say(380,420,aTotais[10],oFont08:oFont)
+oDanfe:Box(361,500,384,603)
+oDanfe:Say(370,506,"VALOR TOTAL DA NOTA",oFont08N:oFont)
+oDanfe:Say(380,506,aTotais[11],oFont08:oFont)
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³Transportador/Volumes transportados                                     ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-oDanfe:Say(361,002,"TRANSPORTADOR/VOLUMES TRANSPORTADOS",oFont08N:oFont)
-oDanfe:Box(363,000,386,603)
-oDanfe:Say(372,002,"RAZÃO SOCIAL",oFont08N:oFont)
-oDanfe:Say(382,002,aTransp[01],oFont08:oFont)
-oDanfe:Box(363,245,386,315)
-oDanfe:Say(372,247,"FRETE POR CONTA",oFont08N:oFont)
+oDanfe:Say(392,002,"TRANSPORTADOR/VOLUMES TRANSPORTADOS",oFont08N:oFont)
+oDanfe:Box(394,000,417,603)
+oDanfe:Say(403,002,"RAZÃO SOCIAL",oFont08N:oFont)
+oDanfe:Say(413,002,aTransp[01],oFont08:oFont)
+oDanfe:Box(394,245,417,315)
+oDanfe:Say(403,247,"FRETE POR CONTA",oFont08N:oFont)
 If cModFrete =="0"
-	oDanfe:Say(382,247,"0-EMITENTE",oFont08:oFont)
+	oDanfe:Say(413,247,"0-EMITENTE",oFont08:oFont)
 ElseIf cModFrete =="1"
-	oDanfe:Say(382,247,"1-DEST/REM",oFont08:oFont)
+	oDanfe:Say(413,247,"1-DEST/REM",oFont08:oFont)
 ElseIf cModFrete =="2"
-	oDanfe:Say(382,247,"2-TERCEIROS",oFont08:oFont)
+	oDanfe:Say(413,247,"2-TERCEIROS",oFont08:oFont)
 ElseIf cModFrete =="9"
-	oDanfe:Say(382,247,"9-SEM FRETE",oFont08:oFont)
+	oDanfe:Say(413,247,"9-SEM FRETE",oFont08:oFont)
 Else
-	oDanfe:Say(382,247,"",oFont08:oFont)
+	oDanfe:Say(413,247,"",oFont08:oFont)
 Endif
 //oDanfe:Say(382,102,"0-EMITENTE/1-DESTINATARIO       [" + aTransp[02] + "]",oFont08:oFont)
-oDanfe:Box(363,315,386,370)
-oDanfe:Say(372,317,"CÓDIGO ANTT",oFont08N:oFont)
-oDanfe:Say(382,319,aTransp[03],oFont08:oFont)
-oDanfe:Box(363,370,386,490)
-oDanfe:Say(372,375,"PLACA DO VEÍCULO",oFont08N:oFont)
-oDanfe:Say(382,375,aTransp[04],oFont08:oFont)
-oDanfe:Box(363,450,386,510)
-oDanfe:Say(372,452,"UF",oFont08N:oFont)
-oDanfe:Say(382,452,aTransp[05],oFont08:oFont)
-oDanfe:Box(363,510,386,603)
-oDanfe:Say(372,512,"CNPJ/CPF",oFont08N:oFont)
-oDanfe:Say(382,512,aTransp[06],oFont08:oFont)
+oDanfe:Box(394,315,417,370)
+oDanfe:Say(403,317,"CÓDIGO ANTT",oFont08N:oFont)
+oDanfe:Say(413,319,aTransp[03],oFont08:oFont)
+oDanfe:Box(394,370,417,490)
+oDanfe:Say(403,375,"PLACA DO VEÍCULO",oFont08N:oFont)
+oDanfe:Say(413,375,aTransp[04],oFont08:oFont)
+oDanfe:Box(394,450,417,510)
+oDanfe:Say(403,452,"UF",oFont08N:oFont)
+oDanfe:Say(413,452,aTransp[05],oFont08:oFont)
+oDanfe:Box(394,510,417,603)
+oDanfe:Say(403,512,"CNPJ/CPF",oFont08N:oFont)
+oDanfe:Say(413,512,aTransp[06],oFont08:oFont)
 
-oDanfe:Box(385,000,409,603)
-oDanfe:Box(385,000,409,241)
-oDanfe:Say(393,002,"ENDEREÇO",oFont08N:oFont)
-oDanfe:Say(404,002,aTransp[07],oFont08:oFont)
-oDanfe:Box(385,240,409,341)
-oDanfe:Say(393,242,"MUNICIPIO",oFont08N:oFont)
-oDanfe:Say(404,242,aTransp[08],oFont08:oFont)
-oDanfe:Box(385,340,409,440)
-oDanfe:Say(393,342,"UF",oFont08N:oFont)
-oDanfe:Say(404,342,aTransp[09],oFont08:oFont)
-oDanfe:Box(385,440,409,603)
-oDanfe:Say(393,442,"INSCRIÇÃO ESTADUAL",oFont08N:oFont)
-oDanfe:Say(404,442,aTransp[10],oFont08:oFont)
+oDanfe:Box(416,000,440,603)
+oDanfe:Box(416,000,440,241)
+oDanfe:Say(424,002,"ENDEREÇO",oFont08N:oFont)
+oDanfe:Say(435,002,aTransp[07],oFont08:oFont)
+oDanfe:Box(416,240,440,341)
+oDanfe:Say(424,242,"MUNICIPIO",oFont08N:oFont)
+oDanfe:Say(435,242,aTransp[08],oFont08:oFont)
+oDanfe:Box(416,340,440,440)
+oDanfe:Say(424,342,"UF",oFont08N:oFont)
+oDanfe:Say(435,342,aTransp[09],oFont08:oFont)
+oDanfe:Box(416,440,440,603)
+oDanfe:Say(424,442,"INSCRIÇÃO ESTADUAL",oFont08N:oFont)
+oDanfe:Say(435,442,aTransp[10],oFont08:oFont)
 
 
-oDanfe:Box(408,000,432,603)
-oDanfe:Box(408,000,432,101)
-oDanfe:Say(418,002,"QUANTIDADE",oFont08N:oFont)
-oDanfe:Say(428,002,aTransp[11],oFont08:oFont)
-oDanfe:Box(408,100,432,200)
-oDanfe:Say(418,102,"ESPECIE",oFont08N:oFont)
-oDanfe:Say(428,102,Iif(!Empty(aTransp[12]),aTransp[12],Iif(Len(aEspVol)>0,aEspVol[1][1],"")),oFont08:oFont)
+oDanfe:Box(439,000,463,603)
+oDanfe:Box(439,000,463,101)
+oDanfe:Say(449,002,"QUANTIDADE",oFont08N:oFont)
+oDanfe:Say(459,002,aTransp[11],oFont08:oFont)
+oDanfe:Box(439,100,463,200)
+oDanfe:Say(449,102,"ESPECIE",oFont08N:oFont)
+oDanfe:Say(459,102,Iif(!Empty(aTransp[12]),aTransp[12],Iif(Len(aEspVol)>0,aEspVol[1][1],"")),oFont08:oFont)
 //oDanfe:Say(428,102,aEspVol[1][1],oFont08:oFont)
-oDanfe:Box(408,200,432,301)
-oDanfe:Say(418,202,"MARCA",oFont08N:oFont)
-oDanfe:Say(428,202,aTransp[13],oFont08:oFont)
-oDanfe:Box(408,300,432,400)
-oDanfe:Say(418,302,"NUMERAÇÃO",oFont08N:oFont)
-oDanfe:Say(428,302,aTransp[14],oFont08:oFont)
-oDanfe:Box(408,400,432,501)
-oDanfe:Say(418,402,"PESO BRUTO",oFont08N:oFont)
-oDanfe:Say(428,402,Iif(!Empty(aTransp[15]),aTransp[15],Iif(Len(aEspVol)>0 .And. Val(aEspVol[1][3])>0,Transform(Val(aEspVol[1][3]),"@E 999999.9999"),"")),oFont08:oFont)
+oDanfe:Box(439,200,463,301)
+oDanfe:Say(449,202,"MARCA",oFont08N:oFont)
+oDanfe:Say(459,202,aTransp[13],oFont08:oFont)
+oDanfe:Box(439,300,463,400)
+oDanfe:Say(449,302,"NUMERAÇÃO",oFont08N:oFont)
+oDanfe:Say(459,302,aTransp[14],oFont08:oFont)
+oDanfe:Box(439,400,463,501)
+oDanfe:Say(449,402,"PESO BRUTO",oFont08N:oFont)
+oDanfe:Say(459,402,Iif(!Empty(aTransp[15]),aTransp[15],Iif(Len(aEspVol)>0 .And. Val(aEspVol[1][3])>0,Transform(Val(aEspVol[1][3]),"@E 999999.9999"),"")),oFont08:oFont)
 //oDanfe:Say(428,402,Iif (!Empty(aEspVol[1][3]),Transform(val(aEspVol[1][3]),"@E 999999.9999"),""),oFont08:oFont)
-oDanfe:Box(408,500,432,603)
-oDanfe:Say(418,502,"PESO LIQUIDO",oFont08N:oFont)
-oDanfe:Say(428,502,Iif(!Empty(aTransp[16]),aTransp[16],Iif(Len(aEspVol)>0 .And. Val(aEspVol[1][2])>0,Transform(Val(aEspVol[1][2]),"@E 999999.9999"),"")),oFont08:oFont)
+oDanfe:Box(439,500,463,603)
+oDanfe:Say(449,502,"PESO LIQUIDO",oFont08N:oFont)
+oDanfe:Say(459,502,Iif(!Empty(aTransp[16]),aTransp[16],Iif(Len(aEspVol)>0 .And. Val(aEspVol[1][2])>0,Transform(Val(aEspVol[1][2]),"@E 999999.9999"),"")),oFont08:oFont)
 //oDanfe:Say(428,502,Iif (!Empty(aEspVol[1][2]),Transform(val(aEspVol[1][2]),"@E 999999.9999"),""),oFont08:oFont)
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
@@ -2730,63 +2767,63 @@ aAuxCabec := {;
 // Retorna o tamanho das colunas baseado em seu conteudo
 aTamCol := RetTamCol(aAuxCabec, aAux, oDanfe, oFont08:oFont, oFont08N:oFont)
 
-oDanfe:Say(440,002,"DADOS DO PRODUTO / SERVIÇO",oFont08N:oFont)
-oDanfe:Box(442,000,678,603)
+oDanfe:Say(471,002,"DADOS DO PRODUTO / SERVIÇO",oFont08N:oFont)
+oDanfe:Box(473,000,678,603)
 nAuxH := 0
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[1])
-oDanfe:Say(450, nAuxH + 2, "COD. PROD",oFont08N:oFont)
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[1])
+oDanfe:Say(481, nAuxH + 2, "COD. PROD",oFont08N:oFont)
 nAuxH += aTamCol[1]
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[2])
-oDanfe:Say(450, nAuxH + 2, "DESCRIÇÃO DO PROD./SERV.", oFont08N:oFont)
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[2])
+oDanfe:Say(481, nAuxH + 2, "DESCRIÇÃO DO PROD./SERV.", oFont08N:oFont)
 nAuxH += aTamCol[2]
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[3])
-oDanfe:Say(450, nAuxH + 2, "NCM/SH", oFont08N:oFont)
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[3])
+oDanfe:Say(481, nAuxH + 2, "NCM/SH", oFont08N:oFont)
 nAuxH += aTamCol[3]
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[4])
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[4])
 
 If cMVCODREG == "1"
-	oDanfe:Say(450, nAuxH + 2, "CSOSN", oFont08N:oFont)
+	oDanfe:Say(481, nAuxH + 2, "CSOSN", oFont08N:oFont)
 Else
-	oDanfe:Say(450, nAuxH + 2, "CST", oFont08N:oFont)
+	oDanfe:Say(481, nAuxH + 2, "CST", oFont08N:oFont)
 Endif
 
 nAuxH += aTamCol[4]
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[5])
-oDanfe:Say(450, nAuxH + 2, "CFOP", oFont08N:oFont)
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[5])
+oDanfe:Say(481, nAuxH + 2, "CFOP", oFont08N:oFont)
 nAuxH += aTamCol[5]
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[6])
-oDanfe:Say(450, nAuxH + 2, "UN", oFont08N:oFont)
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[6])
+oDanfe:Say(481, nAuxH + 2, "UN", oFont08N:oFont)
 nAuxH += aTamCol[6]
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[7])
-oDanfe:Say(450, nAuxH + 2, "QUANT.", oFont08N:oFont)
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[7])
+oDanfe:Say(481, nAuxH + 2, "QUANT.", oFont08N:oFont)
 nAuxH += aTamCol[7]
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[8])
-oDanfe:Say(450, nAuxH + 2, "V.UNITARIO", oFont08N:oFont)
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[8])
+oDanfe:Say(481, nAuxH + 2, "V.UNITARIO", oFont08N:oFont)
 nAuxH += aTamCol[8]
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[9])
-oDanfe:Say(450, nAuxH + 2, "V.TOTAL", oFont08N:oFont)
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[9])
+oDanfe:Say(481, nAuxH + 2, "V.TOTAL", oFont08N:oFont)
 nAuxH += aTamCol[9]
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[10])
-oDanfe:Say(450, nAuxH + 2, "BC.ICMS", oFont08N:oFont)
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[10])
+oDanfe:Say(481, nAuxH + 2, "BC.ICMS", oFont08N:oFont)
 nAuxH += aTamCol[10]
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[11])
-oDanfe:Say(450, nAuxH + 2, "V.ICMS", oFont08N:oFont)
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[11])
+oDanfe:Say(481, nAuxH + 2, "V.ICMS", oFont08N:oFont)
 nAuxH += aTamCol[11]
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[12])
-oDanfe:Say(450, nAuxH + 2, "V.IPI", oFont08N:oFont)
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[12])
+oDanfe:Say(481, nAuxH + 2, "V.IPI", oFont08N:oFont)
 nAuxH += aTamCol[12]
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[13])
-oDanfe:Say(450, nAuxH + 2, "A.ICMS", oFont08N:oFont)
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[13])
+oDanfe:Say(481, nAuxH + 2, "A.ICMS", oFont08N:oFont)
 nAuxH += aTamCol[13]
-oDanfe:Box(442, nAuxH, 678, nAuxH + aTamCol[14])
-oDanfe:Say(450, nAuxH + 2, "A.IPI", oFont08N:oFont)
+oDanfe:Box(473, nAuxH, 678, nAuxH + aTamCol[14])
+oDanfe:Say(481, nAuxH + 2, "A.IPI", oFont08N:oFont)
 
 If MV_PAR05=1 .And. nFolhas>1
 	oDanfe:Say(875,497,"CONTINUA NO VERSO")
 Endif
 
 // INICIANDO INFORMAÇÕES PARA O CABEÇALHO DA PAGINA 2
-nLinha	:= 460
+nLinha	:= 491
 nL	:= 0
 lFlag	:= .T.
 
