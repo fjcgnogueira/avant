@@ -21,6 +21,7 @@ Local aAreaSDB   := SDB->(GetArea())
 Local cAlias1SDB := GetNextAlias()
 Local cAlias2SDB := GetNextAlias()
 Local cAlias3SDB := GetNextAlias()
+Local cAlias5SDB := GetNextAlias()
 Local cAliasDCF  := GetNextAlias()
 Local cLocal     := SDB->DB_LOCAL
 Local cItem      := SDB->DB_SERIE
@@ -44,7 +45,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 
 	// Verifica se foi feita alguma separacao
 	BeginSQL Alias cAlias1SDB
-		SELECT * FROM SDB010 SDB
+		SELECT * FROM %table:SDB% SDB
 		WHERE SDB.%notDel%
 			AND DB_FILIAL    = %Exp:xFilial("SDB")%
 			AND DB_DOC       = %Exp:cPedido%
@@ -62,7 +63,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 
 		// Verifica se tem alguma separacao com outro recurso humano
 		BeginSQL Alias cAlias3SDB
-			SELECT * FROM SDB010 SDB
+			SELECT * FROM %table:SDB% SDB
 			WHERE SDB.%notDel%
 				AND DB_FILIAL    = %Exp:xFilial("SDB")%
 				AND DB_DOC       = %Exp:cPedido%
@@ -83,6 +84,27 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 			Return aReturn
 		Endif
 		(cAlias3SDB)->(dbCloseArea())
+
+		// Verifica se tem alguma outra separacao com o mesmo recurso humano
+		BeginSQL Alias cAlias5SDB
+			SELECT TOP 1 ADVPL.DB_DOCS(%Exp:xFilial("SDB")%,%Exp:cRecHum%) DOCS FROM %table:SDB% SDB
+		EndSQL
+		
+		(cAlias5SDB)->(dbGoTop())
+		
+		// Somente permite executar a separacao se nao tiver nenhuma outra para esse recurso humano ou se jah foi alocada para esse recurso humano
+		// Fernando Nogueira - Chamado 002756
+		If !Empty((cAlias5SDB)->DOCS) .And. !(AllTrim(cPedido) $ AllTrim((cAlias5SDB)->DOCS))
+			(cAlias5SDB)->(dbCloseArea())
+			aReturn  := {.F.}
+			Return aReturn
+		Endif
+		(cAlias5SDB)->(dbCloseArea())
+		
+		If SDB->DB_RECHUM <> cRecHum .And. SDB->(RecLock("SDB",.F.))
+			SDB->DB_RECHUM  := cRecHum
+			SDB->(MsUnlock())
+		Endif					
 
 		If (cAlias1SDB)->(Eof()) .And. DLVTAviso("Apanhe","Pedido "+cPedido+CHR(13)+CHR(10)+"Item: "+cItem+CHR(13)+CHR(10)+"Continua Nesse?",{"Sim","Nao"}) <> 1
 			aReturn  := {.F.}
@@ -110,7 +132,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 
 		// Verifica se tem alguma conferencia com outro recurso humano
 		BeginSQL Alias cAlias3SDB
-			SELECT * FROM SDB010 SDB
+			SELECT * FROM %table:SDB% SDB
 			WHERE SDB.%notDel%
 				AND DB_FILIAL    = %Exp:xFilial("SDB")%
 				AND DB_DOC       = %Exp:cPedido%
@@ -134,7 +156,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 
 		// Verifica se tem alguma execucao pendente
 		BeginSQL Alias cAliasDCF
-			SELECT * FROM DCF010 DCF
+			SELECT * FROM %table:DCF% DCF
 			WHERE DCF.%notDel%
 				AND DCF_FILIAL   = %Exp:xFilial("DCF")%
 				AND DCF_DOCTO    = %Exp:cPedido%
@@ -153,7 +175,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 		Else
 			// Verifica se tem alguma separacao pendente
 			BeginSQL Alias cAlias2SDB
-				SELECT * FROM SDB010 SDB
+				SELECT * FROM %table:SDB% SDB
 				WHERE SDB.%notDel%
 					AND DB_FILIAL    = %Exp:xFilial("SDB")%
 					AND DB_DOC       = %Exp:cPedido%
@@ -211,7 +233,7 @@ Local _lExit     := .F.
 
 // Lista os servicos a serem alterados
 BeginSQL Alias cAlias4SDB
-	SELECT * FROM SDB010 SDB
+	SELECT * FROM %table:SDB% SDB
 	WHERE SDB.%notDel%
 		AND DB_FILIAL    = %Exp:xFilial("SDB")%
 		AND DB_STATUS    <> '1'
