@@ -161,7 +161,7 @@ For _n := 1 to Len(aDiretorio)
 							AADD( aIdSZK, {'ZK_FILIAL' , xFilial("SZK")} )                   //FILIAL
 							AADD( aIdSZK, {'ZK_PEDEDI' , cNumPed} )                          //NUMERO DO PRE PEDIDO
 							AADD( aIdSZK, {'ZK_ITEM'   , cItem} )                            //ITEM DO PRE PEDIDO
-							AADD( aIdSZK, {'ZK_ITEMCLI', SubStr(cBuff, 007, 005)} )          //ITEM DO PEDIDO DO CLIENTE
+							AADD( aIdSZK, {'ZK_ITEMCLI', SubStr(cBuff, 003, 004)} )          //ITEM DO PEDIDO DO CLIENTE
 							AADD( aIdSZK, {'ZK_PRODCLI', SubStr(cBuff, 018, 014)} )          //CODIGO DO PRODUTO NO CLIENTE
 							AADD( aIdSZK, {'ZK_DESCCLI', Substr(cBuff, 032, 040)} )          //DESCRICAO DO PRODUTO NO CLIENTE
 							_cQuant := Val(SubStr(cBuff, 100, 015))
