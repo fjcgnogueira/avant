@@ -394,7 +394,15 @@ If Pergunte("NFSIGW",.T.)
 							oNfe := XmlParser(aXML[nX][2],"_",@cAviso,@cErro)
 							oNfeDPEC := XmlParser(aXML[nX][4],"_",@cAviso,@cErro)
 							If Empty(cAviso) .And. Empty(cErro)
-								ImpDet(@oDanfe,oNFe,cAutoriza,cModalidade,oNfeDPEC,cCodAutDPEC,aXml[nX][6],aXml[nX][7],aNotas[nX],lImpSimp)																	
+								ImpDet(@oDanfe,oNFe,cAutoriza,cModalidade,oNfeDPEC,cCodAutDPEC,aXml[nX][6],aXml[nX][7],aNotas[nX],lImpSimp)
+								
+								// Fernando Nogueira - Chamado 004783
+								// A impressao de marcacao eh feita caso tenha permissao para usar o controle de impressao
+								If Posicione("ZZL",01,xFilial("ZZL")+"1"+RetCodUsr()+"1.02","ZZL_PERMIS") == '1' .And. SF2->F2_X_IMP <> 'S' .And. SF2->(RecLock("SF2"))
+									SF2->F2_X_IMP := "S"
+									SF2->(MsUnlock())
+								Endif
+
 								lExistNfe := .T.
 							EndIf
 							oNfe     := nil
@@ -596,9 +604,25 @@ If Pergunte("NFSIGW",.T.)
 						//-------------------------------
 						If Empty(cAviso) .And. Empty(cErro) .And. MV_PAR04==1 .And. (oNfe:_NFE:_INFNFE:_IDE:_TPNF:TEXT=="0")
 							ImpDet(@oDanfe,oNFe,cAutoriza,cModalidade,oNfeDPEC,cCodAutDPEC,aXml[nX][6],aXml[nX][7],aNotas[nX],lImpSimp)
+							
+							// Fernando Nogueira - Chamado 004783
+							// A impressao de marcacao eh feita caso tenha permissao para usar o controle de impressao
+							If Posicione("ZZL",01,xFilial("ZZL")+"1"+RetCodUsr()+"1.02","ZZL_PERMIS") == '1' .And. SF2->F2_X_IMP <> 'S' .And. SF2->(RecLock("SF2"))
+								SF2->F2_X_IMP := "S"
+								SF2->(MsUnlock())
+							Endif							
+							
 							lExistNfe := .T.
 						ElseIf Empty(cAviso) .And. Empty(cErro) .And. MV_PAR04==2 .And. (oNfe:_NFE:_INFNFE:_IDE:_TPNF:TEXT=="1")
-							ImpDet(@oDanfe,oNFe,cAutoriza,cModalidade,oNfeDPEC,cCodAutDPEC,aXml[nX][6],aXml[nX][7],aNotas[nX],lImpSimp)							
+							ImpDet(@oDanfe,oNFe,cAutoriza,cModalidade,oNfeDPEC,cCodAutDPEC,aXml[nX][6],aXml[nX][7],aNotas[nX],lImpSimp)
+							
+							// Fernando Nogueira - Chamado 004783
+							// A impressao de marcacao eh feita caso tenha permissao para usar o controle de impressao
+							If Posicione("ZZL",01,xFilial("ZZL")+"1"+RetCodUsr()+"1.02","ZZL_PERMIS") == '1' .And. SF2->F2_X_IMP <> 'S' .And. SF2->(RecLock("SF2"))
+								SF2->F2_X_IMP := "S"
+								SF2->(MsUnlock())
+							Endif							
+														
 							lExistNfe := .T.
 						EndIf
 					Else
