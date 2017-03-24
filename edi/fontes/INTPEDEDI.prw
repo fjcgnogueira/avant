@@ -171,6 +171,9 @@ If lRetorno
 						aAdd(aLinha, {"C6_PEDCLI" , cPedCli			, NIL} )
 						aAdd(aLinha, {"C6_LOCAL"  , cArmazem		, NIL} )
 						aAdd(aLinha, {"C6_PRCVEN" , _nPrcVen		, NIL} )
+						aAdd(aLinha, {"C6_PRUNIT" , _nPrcVen		, NIL} )
+						aAdd(aLinha, {"C6_NUMPCOM" , SZJ->ZJ_PEDCLI	, NIL} )
+						aAdd(aLinha, {"C6_ITEMPC"  , SZK->ZK_ITEMCLI, NIL} )
 
 
 						aAdd(aItens,aLinha)
