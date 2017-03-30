@@ -135,7 +135,8 @@ While !(cAliasSE1)->(Eof())
 		
 		SA1->(RecLock("SA1",.F.))
 			SA1->A1_X_LCANT := SA1->A1_LC 
-			SA1->A1_LC := 1
+			SA1->A1_LC      := 1
+			SA1->A1_X_MOTRE := "1"
 		SA1->(MsUnlock())
 		cLog += " Cliente/Loja......: " + SA1->A1_COD+"/"+SA1->A1_LOJA + " - Nome: " + SA1->A1_NOME + "</p>"
 	Endif
