@@ -12,7 +12,7 @@
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 User Function MT120TEL()
-
+/*
 Local aPosGet	 := {}
 Local aPosObj	 := {}
 Local aObj	      // Array com os objetos utilizados no Folder
@@ -64,7 +64,7 @@ Public __av_cImpo  := If(l120Inclui.And. !lCopia,CriaVar("C7_XIMPSTA"),SC7->C7_X
 	PICTURE PesqPict("SC7","C7_XIMPSTA",3) F3 CpoRetF3('C7_XIMPSTA');
 	WHEN    !l120Visual .And. VisualSX3('C7_XIMPSTA') .And. !lMt120Ped PIXEL SIZE 080,006 HASBUTTON 
 
-		
+*/		
 
 Return
 
