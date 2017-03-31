@@ -27,13 +27,14 @@ Local nPosItem   := aScan(aHeader,{|x|Trim(x[2])=="C6_ITEM"})
 Local nPosTes    := aScan(aHeader,{|x|Trim(x[2])=="C6_TES"})
 Local aAreaSF4   := SF4->(GetArea())
 Local aAreaSB1   := SB1->(GetArea())
+Local aAreaSA1   := SA1->(GetArea())
 
 If IsMemVar("_x_oProcess")
 	_x_oProcess:IncRegua2("Colocando Pedido "+AllTrim(M->C5_NUM)+" Item "+aCols[n][nPosItem]+"/"+StrZero(nRegua2,02))
 Endif
 
-If aCols[n][nPosQtdLib] > 0 .And. aCols[n][nPosQtdVen] > aCols[n][nPosQtdLib]
-	MsgInfo('Não é permitido liberação parcial!', 'Atenção')
+If Empty(M->C5_TRANSP)
+	MsgInfo('Necessário definir a Transportadora antes de Incluir uma Linha!', 'Atenção')
 	lReturn := .F.
 ElseIf AllTrim(aRotina[3][2]) <> 'A410Copia' .And. Inclui .And. Empty(aCols[n][nPosOper]) .And. !aCols[n][Len(aHeader)+1]
 	MsgInfo('Obrigatório o preenchimento do Tipo de Operação!', 'Atenção')
@@ -42,8 +43,9 @@ ElseIf Empty(M->C5_CLIENTE)
 	MsgInfo('Necessário definir o Cliente antes de Incluir uma Linha!', 'Atenção')
 	aCols[n][nPosOper] := Space(02)
 	lReturn := .F.
-ElseIf Empty(M->C5_TRANSP)
-	MsgInfo('Necessário definir a Transportadora antes de Incluir uma Linha!', 'Atenção')
+ElseIf Posicione("SA1",01,xFilial("SA1")+M->C5_CLIENTE+M->C5_LOJACLI,"A1_X_FATPA") <> 'S' .And. ; //Fernando Nogueira - Chamado 004777
+				  aCols[n][nPosQtdLib] > 0 .And. aCols[n][nPosQtdVen] > aCols[n][nPosQtdLib]  
+	MsgInfo('Não é permitido liberação parcial para esse cliente!', 'Atenção')
 	aCols[n][nPosOper] := Space(02)
 	lReturn := .F.
 ElseIf !Empty(aCols[n][nPosServic]) .And. Empty(aCols[n][nPosEndPad]) //Fernando Nogueira - Chamado 002385
@@ -73,6 +75,7 @@ Endif
 
 SF4->(Restarea(aAreaSF4))
 SB1->(Restarea(aAreaSB1))
+SA1->(Restarea(aAreaSA1))
 
 /*If (aCols[n][nPosOper]$"6,51,06") .And. !IsBlind()
 	lReturn := .T.

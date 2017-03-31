@@ -42,13 +42,16 @@ If SDB->(dbSeek(xFilial('SDB')+DCF->DCF_DOCTO))
 Endif
 
 // Fernando Nogueira - Verifica se tem item nao liberado no Pedido de Vendas
+// Fernando Nogueira - Chamado 004777 (Condicao Faturamento Parcial)
 BeginSQL Alias cAliasSC9
 	SELECT * FROM
 	(SELECT	C6_ITEM ITEMC6,ISNULL(C9_ITEM,'00') ITEMC9 FROM %Table:SC6% SC6
+	INNER JOIN %Table:SA1% SA1 ON C6_CLI+C6_LOJA = A1_COD+A1_LOJA AND SA1.%NotDel%
 	LEFT JOIN %Table:SC9% SC9 ON C6_FILIAL = C9_FILIAL AND C6_NUM = C9_PEDIDO AND C6_ITEM = C9_ITEM AND SC9.%NotDel%
 	WHERE	SC6.%NotDel%
 	AND 	C6_FILIAL = %Exp:xFilial("SC6")%
 	AND		C6_NUM = %Exp:_cDoc%
+	AND 	A1_X_FATPA <> 'S'
 	GROUP BY C6_ITEM,C9_ITEM) ITENSC6
 	WHERE ITEMC9 = '00'
 	ORDER BY ITEMC6
@@ -58,7 +61,7 @@ EndSQL
 
 If !(cAliasSC9)->(Eof())
 	cMens1   := "O(s) Item(ns) abaixo do Pedido "+_cDoc+" estão em aberto no Pedido de Vendas:"+CHR(13)+CHR(10)
-	
+
 	While !(cAliasSC9)->(Eof())
 		If Empty(cMens2)
 			cMens2 := (cAliasSC9)->ITEMC6
@@ -67,7 +70,7 @@ If !(cAliasSC9)->(Eof())
 		Endif
 		(cAliasSC9)->(dbSkip())
 	Enddo
-	
+
 	ConOut(cMens1+cMens2)
 	Return .F.
 EndIf
@@ -75,13 +78,16 @@ EndIf
 (cAliasSC9)->(DbCloseArea())
 
 // Fernando Nogueira - Verifica se tem item do Pedido que nao gerou execucao
+// Fernando Nogueira - Chamado 004777 (Condicao Faturamento Parcial)
 BeginSQL Alias cAliasDCF
 	SELECT * FROM
 	(SELECT	C6_ITEM ITEMC6,ISNULL(DCF_SERIE,'00') ITEMDCF FROM %Table:SC6% SC6
+	INNER JOIN %Table:SA1% SA1 ON C6_CLI+C6_LOJA = A1_COD+A1_LOJA AND SA1.%NotDel%
 	LEFT JOIN %Table:DCF% DCF ON C6_FILIAL = DCF_FILIAL AND C6_NUM = DCF_DOCTO AND C6_ITEM = DCF_SERIE AND DCF.%NotDel%
 	WHERE	SC6.%NotDel%
 	AND 	C6_FILIAL = %Exp:xFilial("SC6")%
 	AND		C6_NUM = %Exp:_cDoc%
+	AND 	A1_X_FATPA <> 'S'
 	GROUP BY C6_ITEM,DCF_SERIE) ITENSC6
 	WHERE ITEMDCF = '00'
 	ORDER BY ITEMC6
@@ -91,7 +97,7 @@ EndSQL
 
 If !(cAliasDCF)->(Eof())
 	cMens1   := "O(s) Item(ns) abaixo do Pedido "+_cDoc+" não geraram execução de serviço:"+CHR(13)+CHR(10)
-	
+
 	While !(cAliasDCF)->(Eof())
 		If Empty(cMens2)
 			cMens2 := (cAliasDCF)->ITEMC6
@@ -100,7 +106,7 @@ If !(cAliasDCF)->(Eof())
 		Endif
 		(cAliasDCF)->(dbSkip())
 	Enddo
-	
+
 	ConOut(cMens1+cMens2)
 	Return .F.
 EndIf

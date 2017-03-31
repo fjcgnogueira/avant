@@ -54,6 +54,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 			AND DB_TIPO      = 'E'
 			AND DB_ESTORNO   = ' '
 			AND DB_STATUS    = '1'
+			AND DB_X_STATU   = ' '
 	EndSQL
 
 	(cAlias1SDB)->(dbGoTop())
@@ -74,6 +75,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 				AND DB_STATUS    <> '1'
 				AND DB_RECHUM    <> ' '
 				AND DB_RECHUM    <> %Exp:cRecHum%
+				AND DB_X_STATU   = ' '
 		EndSQL
 
 		(cAlias3SDB)->(dbGoTop())
@@ -89,9 +91,9 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 		BeginSQL Alias cAlias5SDB
 			SELECT TOP 1 ADVPL.DB_DOCS(%Exp:xFilial("SDB")%,%Exp:cRecHum%) DOCS FROM %table:SDB% SDB
 		EndSQL
-		
+
 		(cAlias5SDB)->(dbGoTop())
-		
+
 		// Somente permite executar a separacao se nao tiver nenhuma outra para esse recurso humano ou se jah foi alocada para esse recurso humano
 		// Fernando Nogueira - Chamado 002756
 		If !Empty((cAlias5SDB)->DOCS) .And. !(AllTrim(cPedido) $ AllTrim((cAlias5SDB)->DOCS))
@@ -100,11 +102,11 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 			Return aReturn
 		Endif
 		(cAlias5SDB)->(dbCloseArea())
-		
+
 		If SDB->DB_RECHUM <> cRecHum .And. SDB->(RecLock("SDB",.F.))
 			SDB->DB_RECHUM  := cRecHum
 			SDB->(MsUnlock())
-		Endif					
+		Endif
 
 		If (cAlias1SDB)->(Eof()) .And. DLVTAviso("Apanhe","Pedido "+cPedido+CHR(13)+CHR(10)+"Item: "+cItem+CHR(13)+CHR(10)+"Continua Nesse?",{"Sim","Nao"}) <> 1
 			aReturn  := {.F.}
@@ -142,6 +144,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 				AND DB_ESTORNO   = ' '
 				AND DB_RECHUM    <> ' '
 				AND DB_RECHUM    <> %Exp:cRecHum%
+				AND DB_X_STATU   = ' '
 		EndSQL
 
 		(cAlias3SDB)->(dbGoTop())
@@ -184,6 +187,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 					AND DB_TIPO      = 'E'
 					AND DB_ESTORNO   = ' '
 					AND DB_STATUS    <> '1'
+					AND DB_X_STATU   = ' '
 			EndSQL
 
 			(cAlias2SDB)->(dbGoTop())
@@ -237,6 +241,7 @@ BeginSQL Alias cAlias4SDB
 	WHERE SDB.%notDel%
 		AND DB_FILIAL    = %Exp:xFilial("SDB")%
 		AND DB_STATUS    <> '1'
+		AND DB_X_STATU   = ' '
 		AND DB_TAREFA    = %Exp:cTarefa%
 		AND DB_DOC       = %Exp:cPedido%
 		AND DB_LOCAL     = %Exp:cLocal%

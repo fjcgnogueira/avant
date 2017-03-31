@@ -17,12 +17,16 @@
 
 User Function M460FIM()
 
+Local lAltVol := .T.
+
 aArea		:= GetArea()
 _aAreaSE1 	:= getArea("SE1")
 _aAreaSF2 	:= getArea("SF2")
 _aAreaSD2 	:= getArea("SD2")
 _aAreaSC5 	:= getArea("SC5")
 _aAreaSC6 	:= getArea("SC6")
+_aAreaSC9 	:= getArea("SC9")
+_aAreaSDB 	:= getArea("SDB")
 _aAreaSA3 	:= getArea("SA3")
 _aAreaSB1 	:= getArea("SB1")
 _aAreaSBM 	:= getArea("SBM")
@@ -79,19 +83,23 @@ While !Eof() .And. 	SF2->F2_FILIAL == xFilial("SF2") .And.;
 EndDo
 
 dbSelectArea("SC5")
-dbSetOrder(1)
+dbSetOrder(01)
 dbSelectArea("SC6")
-dbSetOrder(1)
+dbSetOrder(01)
+dbSelectArea("SC9")
+dbSetOrder(07)
+dbSelectArea("SDB")
+dbSetOrder(06)
 dbSelectArea("SA3")
-dbSetOrder(1)
+dbSetOrder(01)
 
 dbSelectArea("SF2")
-dbSetOrder(1)
+dbSetOrder(01)
 dbGoTop()
 dbSeek(xFilial("SF2")+_cNota+_cSerie+_cCliente+_cLoja)
 
 dbSelectArea("SD2")
-dbSetOrder(3)
+dbSetOrder(03)
 dbGoTop()
 dbSeek(xFilial("SD2")+_cNota+_cSerie+_cCliente+_cLoja)
 
@@ -115,11 +123,20 @@ While SD2->(!Eof()) .And. 	SD2->D2_FILIAL == xFilial("SD2") .And. SD2->D2_DOC ==
 	ZZF->(dbSeek(xFilial("ZZF")+SB1->B1_FAMAVAN))
 
 	// Fernando Nogueira - Alimenta Volume na Nota de Saida
-	If SF2->F2_VOLUME1 <> SC5->C5_VOLUME1
+	If lAltVol .And. SF2->F2_VOLUME1 <> SC5->C5_VOLUME1
 		SF2->(RecLock("SF2",.F.))
 			SF2->F2_VOLUME1 := SC5->C5_VOLUME1
 		SF2->(MsUnlock())
 	Endif
+	
+	// Fernando Nogueira - Zera Volume no Pedido caso seja parcial
+	If lAltVol .And. Empty(SC5->C5_LIBEROK)
+		lAltVol := .F.
+		SC5->(RecLock("SC5",.F.))
+			SC5->C5_VOLUME1 := 0
+		SC5->(MsUnlock())
+	Endif
+
 
 	nRamo  := Iif(SC6->C6_X_RAMO  = 0, SA1->A1_DESCWEB               , SC6->C6_X_RAMO)
 	nVlOri := Iif(SC6->C6_X_VLORI = 0, SB1->B1_PRV1 * (1 - nRamo/100), SC6->C6_X_VLORI)
@@ -158,6 +175,25 @@ While SD2->(!Eof()) .And. 	SD2->D2_FILIAL == xFilial("SD2") .And. SD2->D2_DOC ==
 			SA3->A3_ACMMKT -= nDebito
 		SA3->(MsUnlock())
 	Endif
+	
+	// Fernando Nogueira - Chamado 004777 (Ajuste para Condicao Faturamento Parcial)
+	If SC9->(dbSeek(xFilial("SC9")+SD2->D2_COD+SD2->D2_LOCAL+SD2->D2_NUMSEQ))
+		While SD2->D2_COD+SD2->D2_LOCAL+SD2->D2_NUMSEQ = SC9->C9_PRODUTO+SC9->C9_LOCAL+SC9->C9_NUMSEQ  
+			If SD2->D2_PEDIDO = SC9->C9_PEDIDO .And. !Empty(SC9->C9_SERVIC)
+				If SDB->(dbSeek(xFilial("SDB")+SC9->C9_PEDIDO))
+					While AllTrim(SC9->C9_PEDIDO) = AllTrim(SDB->DB_DOC)
+						If SC9->C9_IDDCF = SDB->DB_IDDCF .And. SDB->DB_TIPO = 'E' .And. Empty(SDB->DB_ESTORNO) .And. SDB->DB_TAREFA $ ('002.003')
+							SDB->(RecLock("SDB",.F.))
+								SDB->DB_X_STATU := 'F'
+							SDB->(MsUnlock())							
+						Endif
+						SDB->(dbSkip())
+					End
+				Endif				
+			Endif
+			SC9->(dbSkip())
+		End
+	Endif
 
 	SD2->(dbSkip())
 EndDo
@@ -169,6 +205,8 @@ SD2->(DBCLOSEAREA())
 Restarea(_aAreaSE1)
 Restarea(_aAreaSC5)
 Restarea(_aAreaSC6)
+Restarea(_aAreaSC9)
+Restarea(_aAreaSDB)
 Restarea(_aAreaSA3)
 Restarea(_aAreaSB1)
 Restarea(_aAreaSBM)
