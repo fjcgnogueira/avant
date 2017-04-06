@@ -201,6 +201,7 @@ If lRetorno
 							(SA1->A1_EST = 'PI' .And. AllTrim(SB1->B1_GRTRIB) $ '029.032.033.034.035.036.037.038.039.044.536.600') .Or. ; // Fernando Nogueira - Chamado 004789
 							(!(SA1->A1_EST $ 'BA.CE.ES.GO.MG.PA.PR.RJ.RN.RO.RS.SP') .And. AllTrim(SB1->B1_GRTRIB) $ '601') .Or. ;  //Fernando Nogueira - Chamado 004726
 							(SA1->A1_EST $ 'AC.AL.AM.AP.MS.PB.PI' .And. SA1->A1_GRPTRIB $ '001.020.021.022.023.024.026' .And. AllTrim(SB1->B1_GRTRIB) $ '005.029.044.600') .Or. ;  //Fernando Nogueira - Chamado 004734
+							SA1->A1_EST $ 'PA.CE' .Or. ;  //Fernando Nogueira - Chamado 004832
 							SB1->B1_X_VLDFI = 'S'  //Fernando Nogueira - Chamado 004719
 							lBlqFis := .T.
 						Endif
@@ -352,16 +353,12 @@ If lRetorno
 					// 3 = Integrado com Sucesso
 					// 4 = Erro na Integracao
 					// 5 = Pedido sem Saldo no Estoque (Parado na Web)
-					// 6 = Pedido com Desconto Especial
-					// 7 = Pedido com Desconto Especial nao Aprovado pelo Gerente Nacional
-					// 8 = Pedido Bonificado
-					// 9 = Pedido com Bonificacao Parado na Tela do Gerente Nacional
-					// A = Pedido de Venda com Desconto Especial Parado na Tela do Gerente Regional
-					// B = Pedido de Venda com Desconto Especial Parado na Tela do Gerente Nacional
-					// C = Pedido de Venda sem Desconto Especial Parado na Tela do Gerente Regional
-					// D = Pedido de Venda sem Desconto Especial Parado na Tela do Gerente Nacional
-					// E = Solicitacao de Bonificacao Parado na Tela do Gerente Regional
-					// F = Solicitacao de Bonificacao Aprovada na Tela do Gerente Regional
+					// 6 = Pedido com Desconto Especial (Pendente Integracao)
+					// 7 = Orcamento parado na tela do Gerente aguardando aprovação
+					// 8 = Orcamento aprovado
+					// 9 = Orcamento nao aprovado
+					// A = Nao possui cadastro cliente 
+					// X = Pedidos que desconsidera o Saldo Web
 					// P = Pedido em Processo de Integracao
 
 					MsUnlock()
