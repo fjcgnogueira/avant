@@ -100,9 +100,9 @@ If lRetorno
 			Aadd(_aCabSF1,{"F1_EST"       ,SZH->ZH_EST        ,Nil})
 			Aadd(_aCabSF1,{"F1_TIPO"      ,"D"                ,Nil})
 			Aadd(_aCabSF1,{"F1_FORMUL"    ,SZH->ZH_FORMUL     ,Nil})
-			Aadd(_aCabSF1,{"F1_ESPECIE"   ,"NF"               ,Nil})
+			Aadd(_aCabSF1,{"F1_ESPECIE"   ,"SPED"             ,Nil})
 			Aadd(_aCabSF1,{"F1_DTDIGIT"   ,dDatabase          ,Nil})
-			Aadd(_aCabSF1,{"F1_HORA"      ,SubStr(Time(),1,5) ,Nil})
+			Aadd(_aCabSF1,{"F1_HORA"      ,SubStr(Time(),1,5),Nil})
 			Aadd(_aCabSF1,{"F1_NUMTRC"    ,SZH->ZH_NUMTRC     ,Nil})
 			
 			If SZH->ZH_FORMUL == "N"
@@ -173,13 +173,12 @@ If lRetorno
 				// 3 = Erro na Integracao
 				// 4 = Sota transmitiu o layout
 				// 5 = Gerado Pedido de Trocas
-				// 6 = Vermelho pedido rejeitado pela logistica
+				// 6 = Vermelho Nota Fiscal rejeitada pela logistica
 				// 7 = Cinza nao coletado
 				// 8 = Azul solicitado coleta
-				// 9 = Verde integrado no protheus
 				// A = Sem TES pedido sem TES cadastrada
 				// B = Pedido de Trocas Parado para liberacao fiscal
-				// C = Gerado reembolso ao cliente no Financeiro
+				// C = Feedback Rejeicao finalizado
 				
 				SZH->(MsUnlock())
 			Else
