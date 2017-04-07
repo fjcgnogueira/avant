@@ -198,9 +198,8 @@ If lRetorno
 
 						// Fernando Nogueira - Chamado 004664
 						If (SA1->A1_EST = 'PB' .And. AllTrim(SB1->B1_GRTRIB) $ '032.033.034.035.036.037.038.039.044.536.600') .Or. ;
-							(SA1->A1_EST = 'PI' .And. AllTrim(SB1->B1_GRTRIB) $ '029.032.033.034.035.036.037.038.039.044.536.600') .Or. ; // Fernando Nogueira - Chamado 004789
-							(!(SA1->A1_EST $ 'BA.CE.ES.GO.MG.PA.PR.RJ.RN.RO.RS.SP') .And. AllTrim(SB1->B1_GRTRIB) $ '601') .Or. ;  //Fernando Nogueira - Chamado 004726
-							(SA1->A1_EST $ 'AC.AL.AM.AP.MS.PB.PI' .And. SA1->A1_GRPTRIB $ '001.020.021.022.023.024.026' .And. AllTrim(SB1->B1_GRTRIB) $ '005.029.044.600') .Or. ;  //Fernando Nogueira - Chamado 004734
+							(!(SA1->A1_EST $ 'BA.CE.ES.GO.MG.PA.PI.PR.RJ.RN.RO.RS.SP') .And. AllTrim(SB1->B1_GRTRIB) $ '601') .Or. ;  //Fernando Nogueira - Chamado 004726
+							(SA1->A1_EST $ 'AC.AL.AM.AP.MS.PB' .And. SA1->A1_GRPTRIB $ '001.020.021.022.023.024.026' .And. AllTrim(SB1->B1_GRTRIB) $ '005.029.044.600') .Or. ;  //Fernando Nogueira - Chamado 004734
 							SA1->A1_EST $ 'PA.CE' .Or. ;  //Fernando Nogueira - Chamado 004832
 							SB1->B1_X_VLDFI = 'S'  //Fernando Nogueira - Chamado 004719
 							lBlqFis := .T.
