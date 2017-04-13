@@ -248,8 +248,6 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 		
 				(cAlias7SDB)->(dbGoTop())
 				
-				ConOut(GetLastQuery()[2])
-		
 				If (cAlias7SDB)->(!Eof())
 					(cAlias7SDB)->(dbCloseArea())
 					U_DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt)
