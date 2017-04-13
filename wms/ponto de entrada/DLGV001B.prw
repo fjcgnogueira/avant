@@ -22,6 +22,8 @@ Local cAlias1SDB := GetNextAlias()
 Local cAlias2SDB := GetNextAlias()
 Local cAlias3SDB := GetNextAlias()
 Local cAlias5SDB := GetNextAlias()
+Local cAlias6SDB := GetNextAlias()
+Local cAlias7SDB := GetNextAlias()
 Local cAliasDCF  := GetNextAlias()
 Local cLocal     := SDB->DB_LOCAL
 Local cItem      := SDB->DB_SERIE
@@ -109,12 +111,15 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 		Endif
 
 		If (cAlias1SDB)->(Eof()) .And. DLVTAviso("Apanhe","Pedido "+cPedido+CHR(13)+CHR(10)+"Item: "+cItem+CHR(13)+CHR(10)+"Continua Nesse?",{"Sim","Nao"}) <> 1
+			(cAlias1SDB)->(dbCloseArea())
 			aReturn  := {.F.}
 			Return aReturn
 		ElseIf !(cAlias1SDB)->(Eof())
 
 			If DLVTAviso("Apanhe","Pedido "+cPedido+" Separado Parcial"+CHR(13)+CHR(10)+"Item: "+cItem+CHR(13)+CHR(10)+"Continua Nesse?",{"Sim","Nao"}) <> 1
+				(cAlias1SDB)->(dbCloseArea())
 				aReturn := {.F.}
+				Return aReturn
 			Else
 				VtClear()
 
@@ -148,12 +153,36 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 		EndSQL
 
 		(cAlias3SDB)->(dbGoTop())
+		
+		// Verifica se tem alguma conferencia com o mesmo recurso humano
+		BeginSQL Alias cAlias6SDB
+			SELECT * FROM %table:SDB% SDB
+			WHERE SDB.%notDel%
+				AND DB_FILIAL    = %Exp:xFilial("SDB")%
+				AND DB_DOC       = %Exp:cPedido%
+				AND DB_TAREFA    = '003'
+				AND DB_LOCAL     = %Exp:cLocal%
+				AND DB_TIPO      = 'E'
+				AND DB_ESTORNO   = ' '
+				AND DB_RECHUM    = %Exp:cRecHum%
+				AND DB_X_STATU   = ' '
+		EndSQL
+
+		(cAlias6SDB)->(dbGoTop())
 
 		If (cAlias3SDB)->(!Eof())
+			If (cAlias6SDB)->(!Eof())
+				U_DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt)
+			Endif
+			(cAlias1SDB)->(dbCloseArea())
+			(cAlias6SDB)->(dbCloseArea())
 			(cAlias3SDB)->(dbCloseArea())
+			SDB->(RestArea(aAreaSDB))
+			RestArea(aArea)
 			aReturn  := {.F.}
 			Return aReturn
 		Endif
+		(cAlias6SDB)->(dbCloseArea())
 		(cAlias3SDB)->(dbCloseArea())
 
 
@@ -202,7 +231,30 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 			(cAlias2SDB)->(dbCloseArea())
 
 			If aReturn[1]
-				U_DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt)
+			
+				// Verifica se tem alguma conferencia diferente do recurso humano atual ou com o status 2
+				BeginSQL Alias cAlias7SDB
+					SELECT * FROM %table:SDB% SDB
+					WHERE SDB.%notDel%
+						AND DB_FILIAL    = %Exp:xFilial("SDB")%
+						AND DB_DOC       = %Exp:cPedido%
+						AND DB_TAREFA    = '003'
+						AND DB_LOCAL     = %Exp:cLocal%
+						AND DB_TIPO      = 'E'
+						AND DB_ESTORNO   = ' '
+						AND (DB_RECHUM   <> %Exp:cRecHum% OR DB_STATUS = '2')
+						AND DB_X_STATU   = ' '
+				EndSQL
+		
+				(cAlias7SDB)->(dbGoTop())
+				
+				ConOut(GetLastQuery()[2])
+		
+				If (cAlias7SDB)->(!Eof())
+					(cAlias7SDB)->(dbCloseArea())
+					U_DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt)
+				Endif
+
 			Endif
 
 		Endif
@@ -237,7 +289,7 @@ Local _lExit     := .F.
 
 // Lista os servicos a serem alterados
 BeginSQL Alias cAlias4SDB
-	SELECT * FROM %table:SDB% SDB
+	SELECT DB_FILIAL+DB_DOC+DB_SERIE+DB_ITEM CHAVE, * FROM %table:SDB% SDB
 	WHERE SDB.%notDel%
 		AND DB_FILIAL    = %Exp:xFilial("SDB")%
 		AND DB_STATUS    <> '1'
@@ -245,6 +297,7 @@ BeginSQL Alias cAlias4SDB
 		AND DB_TAREFA    = %Exp:cTarefa%
 		AND DB_DOC       = %Exp:cPedido%
 		AND DB_LOCAL     = %Exp:cLocal%
+	ORDER BY CHAVE
 EndSQL
 
 (cAlias4SDB)->(dbGoTop())
@@ -258,9 +311,7 @@ While (cAlias4SDB)->(!Eof())
 				If Empty(SDB->DB_RECHUM)
 					If SDB->(RecLock("SDB",.F.))
 						SDB->DB_RECHUM := cRecHum
-						If !(SDB->DB_STATUS == "2" .And. cStatus == "3")
-							SDB->DB_STATUS := cStatus
-						Endif
+						SDB->DB_STATUS := cStatus
 						SDB->(MsUnlock())
 					Else
 						VtClear()
@@ -269,17 +320,17 @@ While (cAlias4SDB)->(!Eof())
 						VTRead
 						Final()
 					Endif
-				ElseIf SDB->DB_RECHUM <> cRecHum
-					_lExit := .T.
-					Exit
+				//ElseIf SDB->DB_RECHUM <> cRecHum
+					//_lExit := .T.
+					//Exit
 				Endif
 			Endif
 			SDB->(dbSkip())
 		End
 	Endif
-	If _lExit
-		Exit
-	Endif
+	//If _lExit
+	//	Exit
+	//Endif
 	(cAlias4SDB)->(dbSkip())
 End
 
@@ -309,12 +360,10 @@ While (cAlias4SDB)->(!Eof())
 	SDB->(dbSetOrder(8))
 	If SDB->(dbSeek(xFilial("SDB")+(cAlias4SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)))
 		While SDB->(DB_FILIAL+DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM) == xFilial("SDB")+(cAlias4SDB)->(DB_STATUS+DB_SERVIC+DB_ORDTARE+DB_TAREFA+DB_ORDATIV+DB_ATIVID+DB_DOC+DB_SERIE+DB_CLIFOR+DB_LOJA+DB_ITEM)
-			If Empty(SDB->DB_ESTORNO) .And. !Empty(_cRecHum) .And. SDB->DB_RECHUM <> _cRecHum .And. cRecHum == _cRecHum
+			If Empty(SDB->DB_ESTORNO) .And. !Empty(_cRecHum) .And. ((SDB->DB_STATUS $ ('3') .And. SDB->DB_RECHUM <> _cRecHum) .Or. SDB->DB_STATUS $ ('2.4'))
 				If SDB->(RecLock("SDB",.F.))
 					SDB->DB_RECHUM := _cRecHum
-					If !(SDB->DB_STATUS == "2" .And. cStatus == "3")
-						SDB->DB_STATUS := cStatus
-					Endif
+					SDB->DB_STATUS := cStatus
 					SDB->(MsUnlock())
 				Else
 					VtClear()
