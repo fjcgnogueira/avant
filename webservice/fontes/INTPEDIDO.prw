@@ -282,6 +282,8 @@ If lRetorno
 									If SB1->(dbSeek(xFilial("SB1")+aItens[_n][nPosProd][2])) .And. AllTrim(SB1->B1_POSIPI) = '85395000' .And. aImpostos[nPosRet][05] = 0
 										lBlqIcmRet := .T.
 									Endif
+								ElseIf SB1->(dbSeek(xFilial("SB1")+aItens[_n][nPosProd][2])) .And. AllTrim(SB1->B1_POSIPI) = '85395000'  // Fernando Nogueira - Chamado 004874
+									lBlqIcmRet := .T.
 								EndIf
 
 								If nPosIPI > 0
