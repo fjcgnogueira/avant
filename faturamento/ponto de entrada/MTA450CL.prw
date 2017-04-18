@@ -21,6 +21,7 @@ Local _cPedido  := ""
 // Atualiza Total com impostos no cadastro de clientes
 SA1->(RecLock("SA1",.F.))
 	SA1->A1_X_VLRTO := 0
+	SA1->A1_X_CPGTO := Space(TamSx3("A1_X_CPGTO")[1])
 SA1->(MsUnlock())
 
 

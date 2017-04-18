@@ -57,6 +57,7 @@ If SC5->(AllTrim(C5_X_BLQFI)+AllTrim(C5_LIBEROK)) == 'SS'
 			// Atualiza Total com impostos no cadastro de clientes
 			SA1->(RecLock("SA1",.F.))
 				SA1->A1_X_VLRTO := U_TotPedCred(cCliente,cLoja)
+				SA1->A1_X_CPGTO := U_CondPgtoPed(cCliente,cLojaCli)
 			SA1->(MsUnlock())
 
 		End Transaction

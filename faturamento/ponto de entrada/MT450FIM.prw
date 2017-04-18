@@ -27,6 +27,7 @@ If !(SC5->C5_TIPO $ 'BD')
 	// Atualiza Total com impostos no cadastro de clientes
 	SA1->(RecLock("SA1",.F.))
 		SA1->A1_X_VLRTO := U_TotPedCred(cCliente,cLojaCli)
+		SA1->A1_X_CPGTO := U_CondPgtoPed(cCliente,cLojaCli)
 	SA1->(MsUnlock())
 	
 	SC9->(DBSetOrder(1))
