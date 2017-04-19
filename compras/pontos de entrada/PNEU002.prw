@@ -41,8 +41,8 @@ If !IsBlind() .And. oApp:nPort <> 1483 .And. cTipo == "D"
 	cLog += " Computer Name......: " + GetComputerName() + CRLF
 
 	ConOut(cLog)
-	
-	Final('Entrada de Nota de Devolução Somente na Comunicação "entrada"')
+
+	//Final('Entrada de Nota de Devolução Somente na Comunicação "entrada"')
 Endif
 
 Return .T.
