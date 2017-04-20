@@ -54,7 +54,7 @@ cLog += " Versão.............: " + GetVersao(.T.)  + CRLF
 cLog += " Usuário TOTVS .....: " + __cUserId + " " +  cUserName + CRLF
 cLog += " Computer Name......: " + GetComputerName() + CRLF
 
-ZZI->(dbSetOrder(01))
+ZZI->(dbSetOrder(02))
 ZZI->(dbGoTop())
 
 // Limpa a Tabela ZIA somente de Domingo
