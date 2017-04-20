@@ -14,7 +14,7 @@
 /*/
 User Function MT100LOK()
 
-Local cLog := ""
+/*Local cLog := ""
 
 // Derrubar usuario que estiver fazendo devolucao no servico errado
 If !IsBlind() .And. oApp:nPort <> 1483 .And. cTipo == "D"
@@ -41,7 +41,7 @@ If !IsBlind() .And. oApp:nPort <> 1483 .And. cTipo == "D"
 
 	ConOut(cLog)
 
-	//Final('Entrada de Nota de Devolução Somente na Comunicação "entrada"')
-Endif
+	Final('Entrada de Nota de Devolução Somente na Comunicação "entrada"')
+Endif*/
 
 Return .T.
