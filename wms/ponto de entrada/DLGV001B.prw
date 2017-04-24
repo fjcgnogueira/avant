@@ -132,7 +132,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 			Endif
 		Endif
 
-		U_DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt)
+		U_DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt,cFuncao)
 
 	// Se a chamada for de conferencia
 	ElseIf cFuncao == 'DLCONFEREN()' .And. !(cAlias1SDB)->(Eof())
@@ -279,11 +279,13 @@ Return aReturn
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
-User Function DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt)
+User Function DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt,cFuncao)
 
 Local cAlias4SDB := GetNextAlias()
 Local _cRecHum   := ""
 Local _lExit     := .F.
+
+Default cFuncao := ""
 
 // Lista os servicos a serem alterados
 BeginSQL Alias cAlias4SDB
@@ -309,7 +311,9 @@ While (cAlias4SDB)->(!Eof())
 				If Empty(SDB->DB_RECHUM)
 					If SDB->(RecLock("SDB",.F.))
 						SDB->DB_RECHUM := cRecHum
-						SDB->DB_STATUS := cStatus
+						If !(SDB->DB_STATUS = '2' .And. cFuncao = 'DLAPANHE()')
+							SDB->DB_STATUS := cStatus
+						Endif
 						SDB->(MsUnlock())
 					Else
 						VtClear()
@@ -361,7 +365,9 @@ While (cAlias4SDB)->(!Eof())
 			If Empty(SDB->DB_ESTORNO) .And. !Empty(_cRecHum) .And. ((SDB->DB_STATUS $ ('3') .And. SDB->DB_RECHUM <> _cRecHum) .Or. SDB->DB_STATUS $ ('2.4'))
 				If SDB->(RecLock("SDB",.F.))
 					SDB->DB_RECHUM := _cRecHum
-					SDB->DB_STATUS := cStatus
+					If !(SDB->DB_STATUS = '2' .And. cFuncao = 'DLAPANHE()')
+						SDB->DB_STATUS := cStatus
+					Endif
 					SDB->(MsUnlock())
 				Else
 					VtClear()
