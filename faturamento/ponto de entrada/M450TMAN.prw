@@ -29,7 +29,6 @@ Return CliLib(SA1->A1_COD,SA1->A1_LOJA)
 /*/
 Static Function CliLib(cCliente,cLoja)
 
-Local cAliasFIN := GetNextAlias()
 Local cAliasFIS := GetNextAlias()
 Local cAliasSC5 := GetNextAlias()
 Local lReturn   := .T.
@@ -47,7 +46,7 @@ EndSql
 If (cAliasFIS)->(!Eof())
 	If MsgNoYes("Cliente tem Pedido com Bloqueio Fiscal"+Chr(13)+Chr(10)+"Voltar Pedido(s) para o Faturamento?")
 		Begin Transaction
-			VoltaFat(cCliente,cLoja,"FIS")
+			VoltaFat(cCliente,cLoja,"FI")
 		End Transaction
 		Ma450Refr()
 	Endif
@@ -55,25 +54,6 @@ If (cAliasFIS)->(!Eof())
 Endif
 
 (cAliasFIS)->(dbCloseArea())
-
-// Chamado 004840 - Fernando Nogueira
-BeginSql alias cAliasFIN
-
-	SELECT C5_NUM FROM %table:SC5% SC5
-	WHERE SC5.%notDel% AND C5_FILIAL = %xfilial:SC5% AND C5_X_BLFIN IN ('S') AND C5_LIBEROK = 'S' AND C5_CLIENTE+C5_LOJACLI = %exp:cCliente+cLoja%
-	ORDER BY C5_NUM
-
-EndSql
-
-(cAliasFIN)->(dbGoTop())
-
-If (cAliasFIN)->(!Eof())
-	ApMsgInfo("Cliente tem Pedido com Bloqueio Financeiro")
-	lReturn := .F.
-Endif
-
-(cAliasFIN)->(dbCloseArea())
-
 
 BeginSql alias cAliasSC5
 
@@ -88,7 +68,7 @@ EndSql
 If lReturn .And. (cAliasSC5)->(!Eof())
 	If MsgNoYes("Cliente tem Pedido com Bloqueio de Faturamento"+Chr(13)+Chr(10)+"Voltar Pedido(s) para o Faturamento?")
 		Begin Transaction
-			VoltaFat(cCliente,cLoja,"AVA")
+			VoltaFat(cCliente,cLoja,"AV")
 		End Transaction
 		Ma450Refr()
 	Endif
@@ -117,11 +97,9 @@ Local aAreaSC5  := SC5->(GetArea())
 Local aAreaSC9  := SC9->(GetArea())
 Local cWhere 	:= "%%"
 
-If cTipo == "FIS"
+If cTipo == "FI"
 	cWhere := "% AND (C5_X_BLQFI = 'N' OR C5_X_BLQFI = ' ') %"
-ElseIf cTipo == "FIN"
-	cWhere := "% AND (C5_X_BLFIN = 'N' OR C5_X_BLFIN = ' ') %"
-ElseIf cTipo == "AVA"
+ElseIf cTipo == "AV"
 	cWhere := "% AND (C5_X_BLQ = 'N' OR C5_X_BLQ = ' ') %"
 Endif
 
@@ -153,11 +131,9 @@ While (cVoltaSC5)->(!Eof())
 	SC9->(dbSeek(xFilial("SC9")+(cVoltaSC5)->C5_NUM))
 
 	SC5->(RecLock("SC5",.F.))
-		If cTipo == "FIS"
+		If cTipo == "FI"
 			SC5->C5_X_BLQFI := 'S'
-		ElseIf cTipo == "FIN"
-			SC5->C5_X_BLFIN := 'S'
-		ElseIf cTipo == "AVA"
+		ElseIf cTipo == "AV"
 			SC5->C5_X_BLQ := 'C'
 		Endif
 	SC5->(MsUnlock())
@@ -165,11 +141,9 @@ While (cVoltaSC5)->(!Eof())
 	While SC9->(!Eof()) .And. SC9->C9_FILIAL+SC9->C9_PEDIDO == xFilial("SC9")+(cVoltaSC5)->C5_NUM
 
 		SC9->(RecLock("SC9",.F.))
-			If cTipo == "FIS"
+			If cTipo == "FI"
 				SC9->C9_BLOQUEI := '02'
-			ElseIf cTipo == "FIN"
-				SC9->C9_BLOQUEI := '03'
-			ElseIf cTipo == "AVA"
+			ElseIf cTipo == "AV"
 				SC9->C9_BLOQUEI := '01'
 			Endif
 		SC9->(MsUnlock())
