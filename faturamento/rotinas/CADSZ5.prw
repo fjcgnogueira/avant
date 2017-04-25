@@ -321,6 +321,7 @@ User Function CADSZ5IMP(cAlias, nRecno, nOpc)
 					{"A1_TIPO"	    ,_cTipo                	, Nil},;
 					{"A1_REGIAO"    ,SZ5->Z5_REGIAO        	, Nil},;
 					{"A1_BITMAP"    ,If(lExistImg,cBitMap,""), Nil},;
+					{"A1_X_BLFIS"   ,"5"                    , Nil},;
 					{"A1_GRPTRIB"	,_cGRPTRIB             	, Nil}}
 
 	MSExecAuto({|x,y| MATA030(x,y)}, aValues, nOpc)			

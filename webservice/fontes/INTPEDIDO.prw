@@ -131,11 +131,14 @@ If lRetorno
 					aAdd(aCabec,{"C5_X_BLQ" ,"S",NIL})
 				Endif
 
-				//-- Gustavo Viana -- Restricoes a liberacao automatica -- 18/02/2013
-				//-- Se tiver condicao de pagamento no parametro P.V. deverah ser analisado, ou seja, P.V. sem liberacao automatica
-				//If AllTrim(SZ3->Z3_CODPGTO) $ cCodPag
+                // Chamado 004840 - Bloqueio Financeiro - Fernando Nogueira
+				If AllTrim(SZ3->Z3_CODPGTO) $ cCodPag
+					aAdd(aCabec,{"C5_X_BLFIN" ,"S",NIL})
 				//	lLiberAut := .F.
-				//EndIf
+				EndIf
+				
+				DbSelectarea("C09")
+				C09->(DbSetorder(1))
 
 				DbSelectarea("SZ4")
 				SZ4->(DbSetorder(1))
@@ -197,10 +200,24 @@ If lRetorno
 						Endif
 
 						// Fernando Nogueira - Chamado 004664
-						If 	(!(SA1->A1_EST $ 'AC.AP.BA.CE.ES.GO.MS.MG.PA.PB.PI.PR.RJ.RN.RO.RS.SP') .And. AllTrim(SB1->B1_GRTRIB) $ '601') .Or. ;  //Fernando Nogueira - Chamado 004726
+						/*If 	(!(SA1->A1_EST $ 'AC.AP.BA.CE.ES.GO.MS.MG.PA.PB.PI.PR.RJ.RN.RO.RS.SP') .And. AllTrim(SB1->B1_GRTRIB) $ '601') .Or. ;  //Fernando Nogueira - Chamado 004726
 							(SA1->A1_EST $ 'AL.AM' .And. SA1->A1_GRPTRIB $ '001.020.021.022.023.024.026' .And. AllTrim(SB1->B1_GRTRIB) $ '005.029.044.600') .Or. ;  //Fernando Nogueira - Chamado 004734
 							SA1->A1_EST $ 'PI' .Or. ;  //Fernando Nogueira - Chamado 004886
 							SB1->B1_X_VLDFI = 'S'  //Fernando Nogueira - Chamado 004719
+							lBlqFis := .T.
+						Endif*/
+						
+						C09->(dbSeek(xFilial("C09")+SA1->A1_EST))
+						
+						// Fernando Nogueira - Chamado 004842
+						If 	SA1->A1_X_BLFIS = '1' .Or. ;  
+							SB1->B1_X_BLFIS = '1' .Or. ;  
+							C09->C09_X_BLFI = '1' .Or. ;
+							SA1->A1_X_BLFIS+SB1->B1_X_BLFIS = '22' .Or. ;
+							SA1->A1_X_BLFIS+C09->C09_X_BLFI = '33' .Or. ;
+							SB1->B1_X_BLFIS+C09->C09_X_BLFI = '32' .Or. ;
+							(SA1->A1_X_BLFIS <= '4' .And. SB1->B1_X_BLFIS <= '4' .And. C09->C09_X_BLFI <= '4')
+							
 							lBlqFis := .T.
 						Endif
 
@@ -357,7 +374,7 @@ If lRetorno
 					// 7 = Orcamento parado na tela do Gerente aguardando aprovação
 					// 8 = Orcamento aprovado
 					// 9 = Orcamento nao aprovado
-					// A = Nao possui cadastro cliente 
+					// A = Nao possui cadastro cliente
 					// X = Pedidos que desconsidera o Saldo Web
 					// P = Pedido em Processo de Integracao
 

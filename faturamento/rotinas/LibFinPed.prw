@@ -3,72 +3,50 @@
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
 ฑฑษออออออออออัอออออออออออหอออออออัอออออออออออออออออออหออออออัออออออออออออปฑฑ
-ฑฑบPrograma  ณ LibPedVen บ Autor ณ Fernando Nogueira บ Data ณ 11/11/2015 บฑฑ
+ฑฑบPrograma  ณ LibFinPed บ Autor ณ Fernando Nogueira บ Data ณ 24/04/2017 บฑฑ
 ฑฑฬออออออออออุอออออออออออสอออออออฯอออออออออออออออออออสออออออฯออออออออออออนฑฑ
-ฑฑบDescricao ณ Liberacao de Pedido de Vendas, Regra Avant                บฑฑ
-ฑฑบ          ณ Chamado 001777                                            บฑฑ
+ฑฑบDescricao ณ Liberacao de Pedido de Vendas, Regra Avant Financeira     บฑฑ
+ฑฑบ          ณ Chamado 004840                                            บฑฑ
 ฑฑฬออออออออออุอออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
 ฑฑบUso       ณ Especifico Avant                                          บฑฑ
 ฑฑศออออออออออฯอออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
 ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
 ฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
 /*/
-User Function LibPedVen()
+User Function LibFinPed()
 
 Local nVlrCred := 0
 Local aPedidos := {}
 Local cPedido  := SC5->C5_NUM
 Local cCliente := SC5->C5_CLIENTE
 Local cLoja    := SC5->C5_LOJACLI
+Local lTodos   := .F.
+Local lLibera  := .F.
 
-If SC5->(AllTrim(C5_X_BLQFI)+AllTrim(C5_LIBEROK)) == 'SS'
-	If SC5->(AllTrim(C5_X_BLQFI)+AllTrim(C5_X_BLFIN)+AllTrim(C5_LIBEROK)) == 'SSS'
-		If MsgYesNo("Pedido "+SC5->C5_NUM+" Estแ com Bloqueio Fiscal e Financeiro!"+Chr(13)+Chr(10)+"Liberar do Bloqueio Avant assim mesmo?")
-			SC5->(RecLock("SC5",.F.))
-				SC5->C5_X_BLQ := 'N'
-			SC5->(MsUnlock())
-			ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
-		Endif
-	// Fernando Nogueira - Chamado 004116
-	ElseIf MsgYesNo("Pedido "+SC5->C5_NUM+" Estแ com Bloqueio Fiscal!"+Chr(13)+Chr(10)+"Liberar do Bloqueio Avant assim mesmo?")
-		SC5->(RecLock("SC5",.F.))
-			SC5->C5_X_BLQ := 'N'
-		SC5->(MsUnlock())
-		ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
+If SC5->(AllTrim(C5_X_BLFIN)+AllTrim(C5_LIBEROK)) == 'SS'
+
+	If PedBloq(cCliente,cLoja,cPedido) .AND. AllTrim(SC5->C5_X_BLFIN) == 'S'
+		lTodos := MsgNoYes("Existem mais Pedidos desse cliente bloqueados no financeiro, liberar todos?")
+		lLibera := lTodos
 	Endif
-ElseIf SC5->(AllTrim(C5_X_BLFIN)+AllTrim(C5_LIBEROK)) == 'SS'
-	If MsgYesNo("Pedido "+SC5->C5_NUM+" Estแ com Bloqueio Financeiro!"+Chr(13)+Chr(10)+"Liberar do Bloqueio Avant assim mesmo?")
-		SC5->(RecLock("SC5",.F.))
-			SC5->C5_X_BLQ := 'N'
-		SC5->(MsUnlock())
-		ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
+	
+	If !lLibera
+		lLibera := MsgNoYes("Liberar o Pedido "+cPedido+" ?")
 	Endif
-ElseIf SC5->(AllTrim(C5_X_BLQ)+AllTrim(C5_LIBEROK)) $ ('CS.SS')
 
-	If PedBloq(cCliente,cLoja,cPedido) .AND. AllTrim(SC5->C5_X_BLQ) == 'S'
-		SC5->(RecLock("SC5",.F.))
-			SC5->C5_X_BLQ := 'C'
-		SC5->(MsUnlock())
-		ApMsgInfo("Pedido "+cPedido+" Bloqueado por Cliente!")
-
-	ElseIf PedBloq(cCliente,cLoja,cPedido) .AND. AllTrim(SC5->C5_X_BLQ) == 'C'
-		ApMsgInfo("Pedido "+cPedido+" Bloqueado por Cliente!")
-
-	ElseIf MsgNoYes("Liberar o Pedido "+cPedido+" ?")
+	If lLibera
 
 		Begin Transaction
 
-			If AllTrim(SC5->C5_X_BLQ) == 'S'
-				SC5->(RecLock("SC5",.F.))
-					SC5->C5_X_BLQ := 'C'
-				SC5->(MsUnlock())
+			If lTodos
+				aPedidos := RelPed(cCliente,cLoja)
+	
+				For _i := 1 to Len(aPedidos)
+					ExecLib(aPedidos[_i])
+				Next _i
+			Else
+				ExecLib(cPedido)
 			Endif
-
-			aPedidos := RelPed(cCliente,cLoja)
-
-			For _i := 1 to Len(aPedidos)
-				ExecLib(aPedidos[_i])
-			Next _i
 
 			SC5->(dbSetOrder(01))
 			SC5->(msSeek(xFilial("SC5")+cPedido))
@@ -84,12 +62,16 @@ ElseIf SC5->(AllTrim(C5_X_BLQ)+AllTrim(C5_LIBEROK)) $ ('CS.SS')
 
 		End Transaction
 
-		ApMsgInfo("Pedido "+cPedido+" Liberado!")
+		If lTodos
+			ApMsgInfo("Pedidos Liberados!")
+		Else
+			ApMsgInfo("Pedido "+cPedido+" Liberado!")
+		Endif
 
 	Endif
 
 Else
-	ApMsgInfo("Pedido "+SC5->C5_NUM+" Nใo Estแ com Bloqueio Avant!")
+	ApMsgInfo("Pedido "+cPedido+" Nใo Estแ com Bloqueio Financeiro!")
 Endif
 
 Return
@@ -98,7 +80,7 @@ Return
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
 ฑฑษออออออออออัอออออออออออหอออออออัอออออออออออออออออออหออออออัออออออออออออปฑฑ
-ฑฑบPrograma  ณ PedBloq   บ Autor ณ Fernando Nogueira บ Data ณ 18/11/2015 บฑฑ
+ฑฑบPrograma  ณ PedBloq   บ Autor ณ Fernando Nogueira บ Data ณ 24/04/2017 บฑฑ
 ฑฑฬออออออออออุอออออออออออสอออออออฯอออออออออออออออออออสออออออฯออออออออออออนฑฑ
 ฑฑบDescricao ณ Verifica se tem algum outro Pedido com Bloqueio para o    บฑฑ
 ฑฑบ          ณ mesmo cliente                                             บฑฑ
@@ -114,7 +96,7 @@ Local lReturn   := .F.
 BeginSql alias cAliasSC5
 
 	SELECT C5_NUM FROM %table:SC5% SC5
-	WHERE SC5.%notDel% AND C5_FILIAL = %xfilial:SC5% AND C5_X_BLQ = 'S' AND C5_LIBEROK = 'S' AND C5_CLIENTE+C5_LOJACLI = %exp:cCliente+cLoja% AND C5_NUM <> %exp:cPedido%
+	WHERE SC5.%notDel% AND C5_FILIAL = %xfilial:SC5% AND C5_X_BLQFI <> 'S' AND C5_X_BLFIN = 'S' AND C5_LIBEROK = 'S' AND C5_CLIENTE+C5_LOJACLI = %exp:cCliente+cLoja% AND C5_NUM <> %exp:cPedido%
 
 EndSql
 
@@ -131,7 +113,7 @@ Return lReturn
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
 ฑฑษออออออออออัอออออออออออหอออออออัอออออออออออออออออออหออออออัออออออออออออปฑฑ
-ฑฑบPrograma  ณ ExecLib   บ Autor ณ Fernando Nogueira บ Data ณ 18/11/2015 บฑฑ
+ฑฑบPrograma  ณ ExecLib   บ Autor ณ Fernando Nogueira บ Data ณ 24/04/2017 บฑฑ
 ฑฑฬออออออออออุอออออออออออสอออออออฯอออออออออออออออออออสออออออฯออออออออออออนฑฑ
 ฑฑบDescricao ณ Executa liberacao do Pedido de Vendas                     บฑฑ
 ฑฑศออออออออออฯอออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
@@ -146,7 +128,7 @@ SC5->(dbSetOrder(01))
 SC5->(msSeek(xFilial("SC5")+cPedido))
 
 SC5->(RecLock("SC5",.F.))
-	SC5->C5_X_BLQ := 'N'
+	SC5->C5_X_BLFIN := 'N'
 SC5->(MsUnlock())
 
 SC9->(dbSetOrder(01))
@@ -158,17 +140,25 @@ While SC9->(!Eof()) .And. SC9->C9_PEDIDO == SC5->C5_NUM
 	SC6->(RecLock("SC6",.F.))
 
 	SC9->(RecLock("SC9",.F.))
-		SC9->C9_BLOQUEI := ''
+	
+		If SC5->C5_X_BLQFI $ 'S'
+			SC9->C9_BLOQUEI := '02'
+		ElseIf SC5->C5_X_BLQ $ 'SC'
+			SC9->C9_BLOQUEI := '01'
+		Else
+		
+			SC9->C9_BLOQUEI := ''
+	
+			nVlrCred := SC9->C9_QTDLIB * SC9->C9_PRCVEN
+	
+			// Verifica se o credito esta liberado
+			If MaAvalCred(SC9->C9_CLIENTE,SC9->C9_LOJA,nVlrCred,SC5->C5_MOEDA,.T.,@cBlqCred)
+				SC9->C9_BLCRED := ''
+				// Libera o estoque e gera DCF
+				MaAvalSC9("SC9",5,{{ "","","","",SC9->C9_QTDLIB,SC9->C9_QTDLIB2,Ctod(""),"","","",SC9->C9_LOCAL}})
+			Endif
 
-		nVlrCred := SC9->C9_QTDLIB * SC9->C9_PRCVEN
-
-		// Verifica se o credito esta liberado
-		If MaAvalCred(SC9->C9_CLIENTE,SC9->C9_LOJA,nVlrCred,SC5->C5_MOEDA,.T.,@cBlqCred)
-			SC9->C9_BLCRED := ''
-			// Libera o estoque e gera DCF
-			MaAvalSC9("SC9",5,{{ "","","","",SC9->C9_QTDLIB,SC9->C9_QTDLIB2,Ctod(""),"","","",SC9->C9_LOCAL}})
 		Endif
-
 
 	SC9->(MsUnlock())
 
@@ -183,7 +173,7 @@ Return
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
 ฑฑษออออออออออัอออออออออออหอออออออัอออออออออออออออออออหออออออัออออออออออออปฑฑ
-ฑฑบPrograma  ณ RelPed    บ Autor ณ Fernando Nogueira บ Data ณ 18/11/2015 บฑฑ
+ฑฑบPrograma  ณ RelPed    บ Autor ณ Fernando Nogueira บ Data ณ 24/04/2017 บฑฑ
 ฑฑฬออออออออออุอออออออออออสอออออออฯอออออออออออออออออออสออออออฯออออออออออออนฑฑ
 ฑฑบDescricao ณ Relacao de Pedidos a Liberar                              บฑฑ
 ฑฑศออออออออออฯอออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
@@ -199,7 +189,7 @@ Local aPedidos  := {}
 BeginSql alias cAliasSC5
 
 	SELECT C5_NUM FROM %table:SC5% SC5
-	WHERE SC5.%notDel% AND C5_FILIAL = %xfilial:SC5% AND C5_X_BLQ = 'C' AND C5_LIBEROK = 'S' AND C5_CLIENTE+C5_LOJACLI = %exp:cCliente+cLoja%
+	WHERE SC5.%notDel% AND C5_FILIAL = %xfilial:SC5% AND C5_X_BLQFI <> 'S' AND C5_X_BLFIN = 'S' AND C5_LIBEROK = 'S' AND C5_CLIENTE+C5_LOJACLI = %exp:cCliente+cLoja%
 	ORDER BY C5_NUM
 
 EndSql
