@@ -47,6 +47,7 @@ Local cEnter	    := '<br />'
 Local lBlqNCM		:= .F.
 Local lBlqFis		:= .F.
 Local lBlqIcmRet	:= .F.
+Local lBloqFin		:= .F.
 
 Private cTpOper		:= ""
 Private lMsErroAuto	:= .F.
@@ -131,12 +132,6 @@ If lRetorno
 					aAdd(aCabec,{"C5_X_BLQ" ,"S",NIL})
 				Endif
 
-                // Chamado 004840 - Bloqueio Financeiro - Fernando Nogueira
-				If AllTrim(SZ3->Z3_CODPGTO) $ cCodPag
-					aAdd(aCabec,{"C5_X_BLFIN" ,"S",NIL})
-				//	lLiberAut := .F.
-				EndIf
-				
 				DbSelectarea("C09")
 				C09->(DbSetorder(1))
 
@@ -190,6 +185,12 @@ If lRetorno
 							aAdd(aLinha,{"C6_COMIS5" ,0              ,NIL})
 						Endif
 						aAdd(aItens,aLinha)
+						
+		                // Chamado 004840 - Bloqueio Financeiro - Fernando Nogueira
+						If !lBloqFin .And. AllTrim(SZ3->Z3_CODPGTO) $ cCodPag .And. cTpOper == '51'
+							aAdd(aCabec,{"C5_X_BLFIN" ,"S",NIL})
+							lBloqFin := .T.
+						EndIf						
 
 						lTesInt := .F.
 
