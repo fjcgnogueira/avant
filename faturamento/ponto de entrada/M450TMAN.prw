@@ -68,12 +68,7 @@ EndSql
 (cAliasFIN)->(dbGoTop())
 
 If (cAliasFIN)->(!Eof())
-	If MsgNoYes("Cliente tem Pedido com Bloqueio Financeiro"+Chr(13)+Chr(10)+"Voltar Pedido(s) para o Faturamento?")
-		Begin Transaction
-			VoltaFat(cCliente,cLoja,"FIN")
-		End Transaction
-		Ma450Refr()
-	Endif
+	ApMsgInfo("Cliente tem Pedido com Bloqueio Financeiro")
 	lReturn := .F.
 Endif
 
