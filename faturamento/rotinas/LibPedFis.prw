@@ -143,6 +143,8 @@ While SC9->(!Eof()) .And. SC9->C9_PEDIDO == SC5->C5_NUM
 	
 		If SC5->C5_X_BLQ $ 'SC'
 			SC9->C9_BLOQUEI := '01'
+		ElseIf SC5->C5_X_BLFIN = 'S'
+			SC9->C9_BLOQUEI := '03'
 		Else
 		
 			SC9->C9_BLOQUEI := ''
