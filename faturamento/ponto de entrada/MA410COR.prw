@@ -19,9 +19,10 @@ User Function MA410COR()
 Local aCores := {}
 
 Aadd(aCores,{"AllTrim(C5_X_BLQFI) == 'S' .And. AllTrim(C5_LIBEROK) == 'S' ","BR_PINK"})
-Aadd(aCores,{"AllTrim(C5_X_BLFIN) == 'S' .And. AllTrim(C5_X_BLQFI) <> 'S' .And. AllTrim(C5_LIBEROK) == 'S' ","BR_VERDE_ESCURO"})
-Aadd(aCores,{"AllTrim(C5_X_BLQ) == 'S' .And. AllTrim(C5_X_BLQFI) <> 'S' .And. AllTrim(C5_X_BLFIN) <> 'S' .And. AllTrim(C5_LIBEROK) == 'S' ","BR_PRETO"})
-Aadd(aCores,{"AllTrim(C5_X_BLQ) == 'C' .And. AllTrim(C5_X_BLQFI) <> 'S' .And. AllTrim(C5_X_BLFIN) <> 'S' .And. AllTrim(C5_LIBEROK) == 'S' ","BR_BRANCO"})
+Aadd(aCores,{"AllTrim(C5_X_BLQ) == 'S' .And. AllTrim(C5_X_BLQFI) <> 'S' .And. AllTrim(C5_LIBEROK) == 'S' ","BR_PRETO"})
+Aadd(aCores,{"AllTrim(C5_X_BLQ) == 'C' .And. AllTrim(C5_X_BLQFI) <> 'S' .And. AllTrim(C5_LIBEROK) == 'S' ","BR_BRANCO"})
+Aadd(aCores,{"AllTrim(C5_X_BLFIN) == 'S' .And. AllTrim(C5_X_BLQFI) <> 'S' .And. !(AllTrim(C5_X_BLQ) $ 'SC')  .And. AllTrim(C5_LIBEROK) == 'S' ","BR_VERDE_ESCURO"})
+
 
 For _i := 1 to Len(ParamIXB)
 	Aadd(aCores,ParamIXB[_i])
