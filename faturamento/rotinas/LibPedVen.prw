@@ -22,27 +22,19 @@ Local cCliente := SC5->C5_CLIENTE
 Local cLoja    := SC5->C5_LOJACLI
 
 If SC5->(AllTrim(C5_X_BLQFI)+AllTrim(C5_LIBEROK)) == 'SS'
-	If SC5->(AllTrim(C5_X_BLQFI)+AllTrim(C5_X_BLFIN)+AllTrim(C5_LIBEROK)) == 'SSS'
-		If MsgYesNo("Pedido "+SC5->C5_NUM+" Está com Bloqueio Fiscal e Financeiro!"+Chr(13)+Chr(10)+"Liberar do Bloqueio Avant assim mesmo?")
-			SC5->(RecLock("SC5",.F.))
-				SC5->C5_X_BLQ := 'N'
-			SC5->(MsUnlock())
-			ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
-		Endif
 	// Fernando Nogueira - Chamado 004116
-	ElseIf MsgYesNo("Pedido "+SC5->C5_NUM+" Está com Bloqueio Fiscal!"+Chr(13)+Chr(10)+"Liberar do Bloqueio Avant assim mesmo?")
+	If MsgYesNo("Pedido "+SC5->C5_NUM+" Está com Bloqueio Fiscal!"+Chr(13)+Chr(10)+"Liberar do Bloqueio Avant assim mesmo?")
 		SC5->(RecLock("SC5",.F.))
 			SC5->C5_X_BLQ := 'N'
 		SC5->(MsUnlock())
 		ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
 	Endif
 ElseIf SC5->(AllTrim(C5_X_BLFIN)+AllTrim(C5_LIBEROK)) == 'SS'
-	If MsgYesNo("Pedido "+SC5->C5_NUM+" Está com Bloqueio Financeiro!"+Chr(13)+Chr(10)+"Liberar do Bloqueio Avant assim mesmo?")
-		SC5->(RecLock("SC5",.F.))
-			SC5->C5_X_BLQ := 'N'
-		SC5->(MsUnlock())
-		ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
-	Endif
+	SC5->(RecLock("SC5",.F.))
+		SC5->C5_X_BLQ := 'N'
+	SC5->(MsUnlock())
+	ExecLib(cPedido)
+	ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
 ElseIf SC5->(AllTrim(C5_X_BLQ)+AllTrim(C5_LIBEROK)) $ ('CS.SS')
 
 	If PedBloq(cCliente,cLoja,cPedido) .AND. AllTrim(SC5->C5_X_BLQ) == 'S'
@@ -158,17 +150,21 @@ While SC9->(!Eof()) .And. SC9->C9_PEDIDO == SC5->C5_NUM
 	SC6->(RecLock("SC6",.F.))
 
 	SC9->(RecLock("SC9",.F.))
-		SC9->C9_BLOQUEI := ''
-
-		nVlrCred := SC9->C9_QTDLIB * SC9->C9_PRCVEN
-
-		// Verifica se o credito esta liberado
-		If MaAvalCred(SC9->C9_CLIENTE,SC9->C9_LOJA,nVlrCred,SC5->C5_MOEDA,.T.,@cBlqCred)
-			SC9->C9_BLCRED := ''
-			// Libera o estoque e gera DCF
-			MaAvalSC9("SC9",5,{{ "","","","",SC9->C9_QTDLIB,SC9->C9_QTDLIB2,Ctod(""),"","","",SC9->C9_LOCAL}})
+		If SC5->C5_X_BLFIN = 'S'
+			SC9->C9_BLOQUEI := '03'
+		Else
+	
+			SC9->C9_BLOQUEI := ''
+	
+			nVlrCred := SC9->C9_QTDLIB * SC9->C9_PRCVEN
+	
+			// Verifica se o credito esta liberado
+			If MaAvalCred(SC9->C9_CLIENTE,SC9->C9_LOJA,nVlrCred,SC5->C5_MOEDA,.T.,@cBlqCred)
+				SC9->C9_BLCRED := ''
+				// Libera o estoque e gera DCF
+				MaAvalSC9("SC9",5,{{ "","","","",SC9->C9_QTDLIB,SC9->C9_QTDLIB2,Ctod(""),"","","",SC9->C9_LOCAL}})
+			Endif
 		Endif
-
 
 	SC9->(MsUnlock())
 
