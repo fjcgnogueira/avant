@@ -55,6 +55,7 @@ Private lLiberAut 	:= .T.      //-- Se campo C6_QTDLIB serah preenchido no proce
 Private cCod      	:= ""
 Private cLocal    	:= "01"
 Private nQuant    	:= 0
+Private nVendComis := 0
 
 Default lAutomatic	:= .F.
 Default cMensagem  := ""
@@ -129,14 +130,33 @@ If lRetorno
 
 				// Chamado 001777 - Bloqueio Avant - Fernando Nogueira
 				If SZ3->Z3_PRODMKT <> 'N'
-					aAdd(aCabec,{"C5_X_BLQ" ,"S",NIL})
+					aAdd(aCabec,{"C5_X_BLQ","S",NIL})
 				Endif
-
+				
 				DbSelectarea("C09")
-				C09->(DbSetorder(1))
+				C09->(DbSetorder(01))
+
+				DbSelectarea("SA3")
+				SA3->(DbSetorder(01))
 
 				DbSelectarea("SZ4")
-				SZ4->(DbSetorder(1))
+				SZ4->(DbSetorder(01))
+				
+				
+				// Fernando Nogueira - Chamado 004919
+				If SA3->(dbSeek(xFilial("SA3")+SA1->A1_VEND))
+					nVendComis := SA3->A3_COMIS
+				Endif
+
+				If SA3->(dbSeek(xFilial("SA3")+SZ3->Z3_VEND)) .And. SA3->A3_TIPO = 'I'
+					aAdd(aCabec,{"C5_VEND1" ,SA1->A1_VEND ,NIL})
+					aAdd(aCabec,{"C5_COMIS1",nVendComis   ,NIL})
+					aAdd(aCabec,{"C5_VEND2" ,SZ3->Z3_VEND ,NIL})
+					aAdd(aCabec,{"C5_COMIS1",SA3->A3_COMIS,NIL})
+				ElseIf SA3->(dbSeek(xFilial("SA3")+SZ3->Z3_VEND)) .And. SA3->A3_TIPO = 'F'
+					aAdd(aCabec,{"C5_VEND1" ,SZ3->Z3_VEND ,NIL})
+					aAdd(aCabec,{"C5_COMIS1",SA3->A3_COMIS,NIL})
+				Endif
 
 				If SZ4->(DbSeek(xFilial("SZ4") + cPedidoW))
 					While SZ4->(!Eof()) .And. 	SZ4->Z4_FILIAL == xFilial("SZ4") .And.;
@@ -176,8 +196,9 @@ If lRetorno
 						aAdd(aLinha,{"C6_DESCPRO",SZ4->Z4_PRODESC,NIL})
 						aAdd(aLinha,{"C6_PRUNIT" ,SZ4->Z4_PRLIQ  ,NIL}) // Fernando Nogueira - Chamado 004749
 						aAdd(aLinha,{"C6_LOCAL"  ,cArmazem       ,NIL})
+						
 						// Fernando Nogueira - Verifica se vem comissao da web
-						If SZ4->Z4_PCCOMIS > 0
+						If SZ4->Z4_PCCOMIS > 0 .And. SA3->A3_TIPO = 'E'
 							aAdd(aLinha,{"C6_COMIS1" ,SZ4->Z4_PCCOMIS,NIL})
 							aAdd(aLinha,{"C6_COMIS2" ,0              ,NIL})
 							aAdd(aLinha,{"C6_COMIS3" ,0              ,NIL})
