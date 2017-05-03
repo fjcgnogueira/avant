@@ -69,30 +69,34 @@ SET CENTURY ON
 
 While ZZI->(!Eof())
 
-	ConOut("["+DtoC(Date())+" "+Time()+"] [Impostos] Inicio UF+Tipo: "+ZZI->(ZZI_UF+ZZI_TIPO))
-
-	SB1->(dbGoTop())
+	If Dow(dDataBase) = Val(ZZI->ZZI_DIAGER) .Or. ZZI->ZZI_DIAGER = '0'
 	
-	While SB1->(!Eof())
-		If SB1->B1_MSBLQL <> '1' .And. SB1->B1_TIPO $ ('PA.PR') 
-			If !ZIA->(dbSeek(xFilial("ZIA")+SB1->B1_COD+ZZI->(ZZI_UF+ZZI_TIPO)))
-				If SA1->(dbSeek(xFilial("SA1") + ZZI->ZZI_CLIENT + ZZI->ZZI_LOJA))
-					GeraZIA(.T.)
-				Endif
-			Else
-				If SA1->(dbSeek(xFilial("SA1") + ZZI->ZZI_CLIENT + ZZI->ZZI_LOJA))
-					GeraZIA(.F.)
+		ConOut("["+DtoC(Date())+" "+Time()+"] [Impostos] Inicio UF+Tipo: "+ZZI->(ZZI_UF+ZZI_TIPO))
+	
+		SB1->(dbGoTop())
+		
+		While SB1->(!Eof())
+			If SB1->B1_MSBLQL <> '1' .And. SB1->B1_TIPO $ ('PA.PR') 
+				If !ZIA->(dbSeek(xFilial("ZIA")+SB1->B1_COD+ZZI->(ZZI_UF+ZZI_TIPO)))
+					If SA1->(dbSeek(xFilial("SA1") + ZZI->ZZI_CLIENT + ZZI->ZZI_LOJA))
+						GeraZIA(.T.)
+					Endif
+				Else
+					If SA1->(dbSeek(xFilial("SA1") + ZZI->ZZI_CLIENT + ZZI->ZZI_LOJA))
+						GeraZIA(.F.)
+					Endif
 				Endif
 			Endif
-		Endif
-		SB1->(dbSkip())
-	End	
+			SB1->(dbSkip())
+		End	
+		
+		ConOut("["+DtoC(Date())+" "+Time()+"] [Impostos] Fim UF+Tipo: "+ZZI->(ZZI_UF+ZZI_TIPO))
+		
+		ZZI->(RecLock("ZZI",.F.))
+			ZZI->ZZI_DTCHCK := Date()
+		ZZI->(MsUnlock())
 	
-	ConOut("["+DtoC(Date())+" "+Time()+"] [Impostos] Fim UF+Tipo: "+ZZI->(ZZI_UF+ZZI_TIPO))
-	
-	ZZI->(RecLock("ZZI",.F.))
-		ZZI->ZZI_DTCHCK := Date()
-	ZZI->(MsUnlock())
+	Endif
 	
 	ZZI->(dbSkip())	
 End
