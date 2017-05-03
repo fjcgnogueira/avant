@@ -54,21 +54,9 @@ cLog += " Vers鉶.............: " + GetVersao(.T.)  + CRLF
 cLog += " Usu醨io TOTVS .....: " + __cUserId + " " +  cUserName + CRLF
 cLog += " Computer Name......: " + GetComputerName() + CRLF
 
+ConOut(cLog)
+
 ZZI->(dbSetOrder(02))
-ZZI->(dbGoTop())
-
-// Limpa a Tabela ZIA somente de Domingo
-If Dow(dDataBase) == 1
-	TcSqlExec("DELETE FROM "+RetSqlName(("ZIA")))
-	While ZZI->(!Eof())
-		ZZI->(Reclock("ZZI",.F.))
-			ZZI->ZZI_GERA := "1" // Eh para gerar a tabela de impostos
-		ZZI->(MsUnlock())
-		
-		ZZI->(dbSkip())
-	End
-Endif
-
 ZZI->(dbGoTop())
 
 ZIA->(dbSetOrder(01))
@@ -77,35 +65,34 @@ ZIA->(dbGoTop())
 SA1->(dbSetOrder(01))
 SB1->(dbSetOrder(01))
 
+SET CENTURY ON
+
 While ZZI->(!Eof())
+
+	ConOut("["+DtoC(Date())+" "+Time()+"] [Impostos] Inicio UF+Tipo: "+ZZI->(ZZI_UF+ZZI_TIPO))
 
 	SB1->(dbGoTop())
 	
-	If ZZI->ZZI_GERA == "1"
-		
-		While SB1->(!Eof())
-			If SB1->B1_MSBLQL <> '1' .And. SB1->B1_TIPO $ ('PA.PR')
+	While SB1->(!Eof())
+		If SB1->B1_MSBLQL <> '1' .And. SB1->B1_TIPO $ ('PA.PR') 
+			If !ZIA->(dbSeek(xFilial("ZIA")+SB1->B1_COD+ZZI->(ZZI_UF+ZZI_TIPO)))
 				If SA1->(dbSeek(xFilial("SA1") + ZZI->ZZI_CLIENT + ZZI->ZZI_LOJA))
-					GeraZIA()
+					GeraZIA(.T.)
+				Endif
+			Else
+				If SA1->(dbSeek(xFilial("SA1") + ZZI->ZZI_CLIENT + ZZI->ZZI_LOJA))
+					GeraZIA(.F.)
 				Endif
 			Endif
-			SB1->(dbSkip())
-		End
-		
-		ZZI->(Reclock("ZZI",.F.))
-			ZZI->ZZI_GERA := "2" // Nao eh para gerar mais
-		ZZI->(MsUnlock())
-
-	Else
-		While SB1->(!Eof())
-			If SB1->B1_MSBLQL <> '1' .And. SB1->B1_TIPO $ ('PA.PR') .And. !ZIA->(dbSeek(xFilial("ZIA")+SB1->B1_COD+ZZI->(ZZI_UF+ZZI_TIPO)))
-				If SA1->(dbSeek(xFilial("SA1") + ZZI->ZZI_CLIENT + ZZI->ZZI_LOJA))
-					GeraZIA()
-				Endif
-			Endif
-			SB1->(dbSkip())
-		End	
-	Endif
+		Endif
+		SB1->(dbSkip())
+	End	
+	
+	ConOut("["+DtoC(Date())+" "+Time()+"] [Impostos] Fim UF+Tipo: "+ZZI->(ZZI_UF+ZZI_TIPO))
+	
+	ZZI->(RecLock("ZZI",.F.))
+		ZZI->ZZI_DTCHCK := Date()
+	ZZI->(MsUnlock())
 	
 	ZZI->(dbSkip())	
 End
@@ -114,6 +101,8 @@ cLog += Replicate( "-", 128 ) + CRLF
 cLog += " Data / Hora Final.: " + DtoC( Date() ) + " / " + Time()  + CRLF
 cLog += Replicate( "-", 128 ) + CRLF
 cLog += Replicate( " ", 128 ) + CRLF
+
+ConOut(cLog)
 
 MemoWrite(cPathLog+cFileLog, cLog)
 
@@ -132,7 +121,10 @@ Return
 北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北
 哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌
 /*/
-Static Function GeraZIA()
+Static Function GeraZIA(_lInclui)
+
+// _lInclui = .T. -> Inclusao
+// _lInclui = .F. -> Alteracao
 
 Local cTpOper	:= "51" //Venda
 Local cTesOper	:= ""
@@ -147,7 +139,8 @@ Local nVlrPis	:= 0
 Local nVlrCof	:= 0
 Local nVlrRet	:= 0
 Local nDescSuf	:= 0
-Local nMargem	:= 0                                                                                                                      
+Local nMargem	:= 0
+Local _lAltera	:= .F.                                                                                                                      
 
 //Inicializa a Funcao Fiscal
 MaFisIni(	SA1->A1_COD		,;		// 01-Codigo Cliente
@@ -241,23 +234,51 @@ Endif
 //Finaliza Funcao Fiscal
 MaFisEnd()
 
+If !_lInclui
+	IIF(ZIA->ZIA_VALICM <> nVlrIcm  , _lAltera := .T.,)
+	IIF(ZIA->ZIA_DIFAL  <> nVlrDif  , _lAltera := .T.,)
+	IIF(ZIA->ZIA_ICMCOM <> nVlrIcc  , _lAltera := .T.,)
+	IIF(ZIA->ZIA_ICMRET <> nVlrRet  , _lAltera := .T.,)
+	IIF(ZIA->ZIA_VALIPI <> nVlrIpi  , _lAltera := .T.,)
+	IIF(ZIA->ZIA_VALPIS <> nVlrPis  , _lAltera := .T.,)
+	IIF(ZIA->ZIA_VALCOF <> nVlrCof  , _lAltera := .T.,)
+	IIF(ZIA->ZIA_DESCZF <> nDescSuf , _lAltera := .T.,)
+	IIF(ZIA->ZIA_MARGEM <> nMargem  , _lAltera := .T.,)
+	IIF(ZIA->ZIA_ICMDST <> nAlqIcdst, _lAltera := .T.,)
+Endif
+
 // Inclusao na Tabela de Impostos
 dbSelectArea('ZIA')
-RecLock("ZIA",.T.)
-ZIA->ZIA_FILIAL := xFilial("ZIA")
-ZIA->ZIA_COD	:= SB1->B1_COD
-ZIA->ZIA_UF		:= SA1->A1_EST
-ZIA->ZIA_TIPO	:= ZZI->ZZI_TIPO
-ZIA->ZIA_VALICM	:= nVlrIcm
-ZIA->ZIA_DIFAL	:= nVlrDif
-ZIA->ZIA_ICMCOM	:= nVlrIcc
-ZIA->ZIA_ICMRET	:= nVlrRet
-ZIA->ZIA_VALIPI	:= nVlrIpi
-ZIA->ZIA_VALPIS := nVlrPis
-ZIA->ZIA_VALCOF	:= nVlrCof
-ZIA->ZIA_DESCZF	:= nDescSuf
-ZIA->ZIA_MARGEM	:= nMargem
-ZIA->ZIA_ICMDST := nAlqIcdst
+RecLock("ZIA",_lInclui)
+If _lInclui
+	ZIA->ZIA_FILIAL := xFilial("ZIA")
+	ZIA->ZIA_COD	:= SB1->B1_COD
+	ZIA->ZIA_UF		:= SA1->A1_EST
+	ZIA->ZIA_TIPO	:= ZZI->ZZI_TIPO
+	ZIA->ZIA_VALICM	:= nVlrIcm
+	ZIA->ZIA_DIFAL	:= nVlrDif
+	ZIA->ZIA_ICMCOM	:= nVlrIcc
+	ZIA->ZIA_ICMRET	:= nVlrRet
+	ZIA->ZIA_VALIPI	:= nVlrIpi
+	ZIA->ZIA_VALPIS := nVlrPis
+	ZIA->ZIA_VALCOF	:= nVlrCof
+	ZIA->ZIA_DESCZF	:= nDescSuf
+	ZIA->ZIA_MARGEM	:= nMargem
+	ZIA->ZIA_ICMDST := nAlqIcdst
+	ZIA->ZIA_ULTATU := Date()
+ElseIf _lAltera
+	IIF(ZIA->ZIA_VALICM <> nVlrIcm  , ZIA->ZIA_VALICM	:= nVlrIcm,)
+	IIF(ZIA->ZIA_DIFAL  <> nVlrDif  , ZIA->ZIA_DIFAL	:= nVlrDif,)
+	IIF(ZIA->ZIA_ICMCOM <> nVlrIcc  , ZIA->ZIA_ICMCOM	:= nVlrIcc,)
+	IIF(ZIA->ZIA_ICMRET <> nVlrRet  , ZIA->ZIA_ICMRET	:= nVlrRet,)
+	IIF(ZIA->ZIA_VALIPI <> nVlrIpi  , ZIA->ZIA_VALIPI	:= nVlrIpi,)
+	IIF(ZIA->ZIA_VALPIS <> nVlrPis  , ZIA->ZIA_VALPIS	:= nVlrPis,)
+	IIF(ZIA->ZIA_VALCOF <> nVlrCof  , ZIA->ZIA_VALCOF	:= nVlrCof,)
+	IIF(ZIA->ZIA_DESCZF <> nDescSuf , ZIA->ZIA_DESCZF	:= nDescSuf,)
+	IIF(ZIA->ZIA_MARGEM <> nMargem  , ZIA->ZIA_MARGEM	:= nMargem,)
+	IIF(ZIA->ZIA_ICMDST <> nAlqIcdst, ZIA->ZIA_ICMDST	:= nAlqIcdst,)
+	ZIA->ZIA_ULTATU := Date()
+Endif
 MsUnlock()
 
 Return
