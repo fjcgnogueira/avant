@@ -149,10 +149,16 @@ If lRetorno
 				Endif
 
 				If SA3->(dbSeek(xFilial("SA3")+SZ3->Z3_VEND)) .And. SA3->A3_TIPO = 'I'
-					aAdd(aCabec,{"C5_VEND1" ,SA1->A1_VEND ,NIL})
-					aAdd(aCabec,{"C5_COMIS1",nVendComis   ,NIL})
-					aAdd(aCabec,{"C5_VEND2" ,SZ3->Z3_VEND ,NIL})
-					aAdd(aCabec,{"C5_COMIS1",SA3->A3_COMIS,NIL})
+					If SZ3->Z3_VEND <> SA1->A1_VEND
+						aAdd(aCabec,{"C5_VEND1" ,SA1->A1_VEND ,NIL})
+						aAdd(aCabec,{"C5_COMIS1",nVendComis   ,NIL})
+						aAdd(aCabec,{"C5_VEND2" ,SZ3->Z3_VEND ,NIL})
+						aAdd(aCabec,{"C5_COMIS2",SA3->A3_COMIS,NIL})
+					Else
+						// Fernando Nogueira - Chamado 004958
+						aAdd(aCabec,{"C5_VEND1" ,SZ3->Z3_VEND ,NIL})
+						aAdd(aCabec,{"C5_COMIS1",SA3->A3_COMIS,NIL})
+					Endif
 				ElseIf SA3->(dbSeek(xFilial("SA3")+SZ3->Z3_VEND)) .And. SA3->A3_TIPO = 'F'
 					aAdd(aCabec,{"C5_VEND1" ,SZ3->Z3_VEND ,NIL})
 					aAdd(aCabec,{"C5_COMIS1",SA3->A3_COMIS,NIL})
