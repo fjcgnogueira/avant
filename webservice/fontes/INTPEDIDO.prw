@@ -129,7 +129,7 @@ If lRetorno
 				aAdd(aCabec,{"C5_PEDCLI" ,SZ3->Z3_NPEDCLI,NIL})
 
 				// Chamado 001777 - Bloqueio Avant - Fernando Nogueira
-				If SZ3->Z3_PRODMKT <> 'N'
+				If SZ3->Z3_PRODMKT = 'S'
 					aAdd(aCabec,{"C5_X_BLQ","S",NIL})
 				Endif
 				
