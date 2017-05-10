@@ -5,7 +5,7 @@
 |   Programa: F050ROT   | Autor: Pedro Augusto           | Data: Maio/2014  |
 +-----------------------+--------------------------------+------------------+
 |  Descricao: Ponto de entrada criado para habilitar consulta do processo de
-|			   aprovacao (SCR ). 
+|			   aprovacao (SCR ).
 +---------------------------------------------------------------------------+
 |    Projeto: AVANT
 +--------------------------------------------------------------------------*/
@@ -14,9 +14,10 @@ User Function F050ROT()
 
 Local aRotina := ParamIxb
 aAdd( aRotina, {"Consulta Aprovacao", 'U_ConsultAprov("TP",SE2->(E2_PREFIXO+E2_NUM+E2_TIPO+E2_FORNECE+E2_LOJA+E2_PARCELA),"Título a Pagar",SE2->E2_NUM,SE2->E2_X_USUAR)', 0, 8,, .F. } )
-aadd( aRotina, {'Tirar Flag',"U_FlagE2", 0, 4, 0, nil})  
+aadd( aRotina, {'Tirar Flag',"U_FlagE2", 0, 4, 0, nil})
+aadd( aRotina, {'Nota Debito',"U_NotaDebito", 0, 4, 0, nil})
 
-Return aRotina  
+Return aRotina
 
 /*-------------------------+-----------------------------+------------------+
 |   Programa: ConsultAprov | Autor: Kley@TOTVS           | Data: Julho/2014 |
@@ -27,10 +28,10 @@ Return aRotina
 +---------------------------------------------------------------------------+
 |    Sintaxe: U_ConsultAprov(cCRTipo,cCRNum,cTitulo,cNumDocto,cUsuario)
 +----------------------------------------------------------------------------
-|    Retorno: (nOpc = 0)                                                               
+|    Retorno: (nOpc = 0)
 +--------------------------------------------------------------------------*/
-              
-User Function ConsultAprov(cCRTipo,cCRNum,cTitulo,cNumDocto,cUsuario)  
+
+User Function ConsultAprov(cCRTipo,cCRNum,cTitulo,cNumDocto,cUsuario)
 
 Local aAreaAnt := GetArea()
 Local bCampo
@@ -72,12 +73,12 @@ While !EOF() .And. (x3_arquivo == "SCR")
 		AADD(aHeader,{ TRIM(x3titulo()), x3_campo, x3_picture,x3_tamanho, x3_decimal, x3_valid,x3_usado, x3_tipo, x3_arquivo, x3_context } )
 		If AllTrim(x3_campo) == "CR_NIVEL"
 			AADD(aHeader,{ OemToAnsi("Usuario")     ,"bCR_NOME"   , "@", 15, 0, "","","C","",""} )
-			nUsado++		
+			nUsado++
 			AADD(aHeader,{ OemToAnsi("Situacao")    ,"bCR_SITUACA", "@", 20, 0, "","","C","",""} )
-			nUsado++						
+			nUsado++
 			AADD(aHeader,{ OemToAnsi("Aprovado por"),"bCR_NOMELIB", "@", 15, 0, "","","C","",""} )
-			nUsado++						
-		EndIf					 
+			nUsado++
+		EndIf
 	Endif
 	dbSkip()
 End
@@ -95,16 +96,16 @@ While !TMP->(Eof()) .And. TMP->(CR_FILIAL+CR_TIPO+Rtrim(CR_NUM)) == xFilial("SCR
 				Case TMP->CR_STATUS == "02"
 					cSituaca := OemToAnsi("Em Aprovação")
 				Case TMP->CR_STATUS == "03"
-					cSituaca := OemToAnsi("Aprovado")					
+					cSituaca := OemToAnsi("Aprovado")
 				Case TMP->CR_STATUS == "04"
-					cSituaca := OemToAnsi("Bloqueado")	
+					cSituaca := OemToAnsi("Bloqueado")
 					//lBloq := .T.
 				Case TMP->CR_STATUS == "05"
-					cSituaca := OemToAnsi("Nivel Liberado ") 
+					cSituaca := OemToAnsi("Nivel Liberado ")
 				EndCase
 			aCols[nAcols][nCntFor] := cSituaca
 		ElseIf aHeader[nCntFor][02] == "bCR_NOMELIB"
-			aCols[nAcols][nCntFor] := Capital(UsrFullName(TMP->CR_USERLIB))			
+			aCols[nAcols][nCntFor] := Capital(UsrFullName(TMP->CR_USERLIB))
 		ElseIf ( aHeader[nCntFor][10] != "V")
 			aCols[nAcols][nCntFor] := FieldGet(FieldPos(aHeader[nCntFor][2]))
 		EndIf
@@ -116,13 +117,13 @@ EndDo
 If Empty(aCols)
 	MsgInfo("Este documento não possui controle de Alçada de Aprovação.","Controle de Aprovação")
 Else
-	
+
 	Continua := .F.
 	nOpca 	  := 0
 	DEFINE FONT oBold NAME "Arial" SIZE 0, -12 BOLD
 	DEFINE MSDIALOG oDlg TITLE OEMTOANSI("Aprovação de " + Capital(cTitulo)) From 109,95 To 400,600 OF oMainWnd PIXEL
 		@ 5,3 TO 32,250 LABEL "" OF oDlg PIXEL
-		@ 15,7 SAY OemToAnsi("No. Docto.") Of oDlg FONT oBold PIXEL SIZE 46,9 
+		@ 15,7 SAY OemToAnsi("No. Docto.") Of oDlg FONT oBold PIXEL SIZE 46,9
 		@ 14,40 MSGET cNumDocto Picture "@"  When .F. PIXEL SIZE 38,9 Of oDlg FONT oBold
 		@ 15,110 SAY OemToAnsi("Usuário")  Of oDlg PIXEL SIZE 33,9 FONT oBold
 		@ 14,138 MSGET Capital(RTrim(UsrFullName(cUsuario))) Picture "@" When .F. of oDlg PIXEL SIZE 103,9 FONT oBold
