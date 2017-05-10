@@ -30,7 +30,8 @@ Local cFilCons	:= aParam[02]
 Local cLog		:= ""
 Local cFileLog	:= "ALTLIMITE.HTML"
 Local cPathLog	:= "\LOGS\"
-Local cAliasSE1
+Local cAliasIna
+Local cAliasFoi
 Local cAliasCnt
 Local lPassou	:= .F.
 Local _cMailTo	:= ""
@@ -69,7 +70,8 @@ dbSetOrder(01)
 dbGoTop()
 
 cAliasCnt := GetNextAlias()
-cAliasSE1 := GetNextAlias()
+cAliasIna := GetNextAlias()
+cAliasFoi := GetNextAlias()
 
 BeginSQL Alias cAliasCnt
 	SELECT COUNT(*) QUANT FROM
@@ -97,11 +99,21 @@ EndSQL
 
 nQtdReg := (cAliasCnt)->QUANT
 
-BeginSQL Alias cAliasSE1
+BeginSQL Alias cAliasIna
 	SELECT E1_CLIENTE+E1_LOJA CLI_LOJA FROM %Table:SE1% SE1
 	INNER JOIN %Table:SA1% SA1 ON E1_CLIENTE+E1_LOJA = A1_COD+A1_LOJA AND A1_X_ZLC = 'T' AND SA1.%NotDel%
 	WHERE SE1.%NotDel% AND E1_FILIAL = %Exp:xFilial("SE1")% AND E1_SALDO > 0 AND CONVERT(DATETIME,E1_VENCREA)+15 < GETDATE() AND A1_LC > 1
 	GROUP BY E1_CLIENTE+E1_LOJA
+	ORDER BY E1_CLIENTE+E1_LOJA
+EndSQL
+
+(cAliasIna)->(DbGoTop())
+
+BeginSQL Alias cAliasFoi
+	SELECT A1_COD+A1_LOJA CLI_LOJA FROM %Table:SA1% SA1
+	LEFT JOIN %Table:SE1% SE1 ON E1_FILIAL = %Exp:xFilial("SE1")% AND A1_COD+A1_LOJA = E1_CLIENTE+SE1.E1_LOJA AND E1_SALDO > 0 AND CONVERT(DATETIME,E1_VENCREA)+15 < GETDATE() AND SE1.%NotDel%
+	WHERE SA1.%NotDel% AND A1_X_ZLC = 'T' AND A1_X_MOTRE = '1' AND SE1.R_E_C_N_O_ IS NULL	
+	GROUP BY A1_COD+A1_LOJA
 	UNION
 	SELECT E1_CLIENTE+E1_LOJA CLI_LOJA FROM %Table:SE1% SE1
 	INNER JOIN %Table:SA1% SA1 ON E1_CLIENTE+E1_LOJA = A1_COD+A1_LOJA AND A1_LC > 1 AND A1_X_ZLC = 'T' AND SA1.%NotDel%
@@ -118,18 +130,18 @@ BeginSQL Alias cAliasSE1
 		AND SE5.%NotDel%
 	WHERE SE1.%NotDel% AND E1_FILIAL = %Exp:xFilial("SE1")% AND CONVERT(DATETIME,E1_VENCREA)+15 < CONVERT(DATETIME,E1_BAIXA) 
 	GROUP BY E1_CLIENTE+E1_LOJA
-	ORDER BY E1_CLIENTE+E1_LOJA
+	ORDER BY CLI_LOJA
 EndSQL
 
-(cAliasSE1)->(DbGoTop())
+(cAliasFoi)->(DbGoTop())
 
-While !(cAliasSE1)->(Eof())
-	If SA1->(dbSeek(xFilial("SA1")+(cAliasSE1)->CLI_LOJA))
+While !(cAliasIna)->(Eof())
+	If SA1->(dbSeek(xFilial("SA1")+(cAliasIna)->CLI_LOJA))
 	
 		If !lPassou
 			lPassou := .T.
 			cLog += "<hr>"
-			cLog += " Clientes Alterados:" + "</p>"
+			cLog += " Clientes Alterados para Inadimplentes:" + "</p>"
 			cLog += "<br>"
 		Endif
 		
@@ -140,7 +152,31 @@ While !(cAliasSE1)->(Eof())
 		SA1->(MsUnlock())
 		cLog += " Cliente/Loja......: " + SA1->A1_COD+"/"+SA1->A1_LOJA + " - Nome: " + SA1->A1_NOME + "</p>"
 	Endif
-	(cAliasSE1)->(DbSkip())
+	(cAliasIna)->(DbSkip())
+End
+
+lPassou	:= .F.
+
+While !(cAliasFoi)->(Eof())
+	If SA1->(dbSeek(xFilial("SA1")+(cAliasFoi)->CLI_LOJA))
+	
+		If !lPassou
+			lPassou := .T.
+			cLog += "<hr>"
+			cLog += " Clientes Alterados para Foi Inadimplentes:" + "</p>"
+			cLog += "<br>"
+		Endif
+		
+		SA1->(RecLock("SA1",.F.))
+			If SA1->A1_LC <> 1
+				SA1->A1_X_LCANT := SA1->A1_LC
+				SA1->A1_LC      := 1
+			Endif 
+			SA1->A1_X_MOTRE := "2"
+		SA1->(MsUnlock())
+		cLog += " Cliente/Loja......: " + SA1->A1_COD+"/"+SA1->A1_LOJA + " - Nome: " + SA1->A1_NOME + "</p>"
+	Endif
+	(cAliasFoi)->(DbSkip())
 End
 
 If nQtdReg > 0
@@ -161,7 +197,9 @@ Endif
 
 MemoWrite(cPathLog+cFileLog, cLog)
 
-(cAliasSE1)->(DbCloseArea())
+(cAliasIna)->(DbCloseArea())
+(cAliasFoi)->(DbCloseArea())
+(cAliasCnt)->(DbCloseArea())
 
 RpcClearEnv()
 
