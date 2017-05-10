@@ -162,6 +162,7 @@ End
 
 lPassou	:= .F.
 
+// Fernando Nogueira - Chamado 004947
 While !(cAliasFoi)->(Eof())
 	If SA1->(dbSeek(xFilial("SA1")+(cAliasFoi)->CLI_LOJA))
 	
