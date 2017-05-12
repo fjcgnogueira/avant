@@ -43,6 +43,9 @@ User Function NotaDebito()
 	OLE_NewFile(oWord,cPathEst+'Nota_Debito.dotx')
 	
 	// Dados do Arquivo
+	OLE_SetDocumentVar(oWord,'DOT_RAZAO'  , SM0->M0_NOMECOM)
+	OLE_SetDocumentVar(oWord,'DOT_CGC_AV' , TransForm(SM0->M0_CGC, PesqPict("SA2","A2_CGC")))
+	OLE_SetDocumentVar(oWord,'DOT_IE_AV'  , SM0->M0_INSC)
 	OLE_SetDocumentVar(oWord,'DOT_NOTA'   , SE2->E2_NUM)
 	OLE_SetDocumentVar(oWord,'DOT_TRANSP' , Posicione("SA2",01,xFilial("SA2")+SE2->(E2_FORNECE+E2_LOJA),"A2_NOME"))
 	OLE_SetDocumentVar(oWord,'DOT_CNPJ'   , TransForm(SA2->A2_CGC, PesqPict("SA2","A2_CGC")))
