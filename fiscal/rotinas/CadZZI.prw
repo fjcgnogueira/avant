@@ -132,31 +132,32 @@ Static Function ValidDia()
 Local lReturn := .T.
 Local cWhere  := "%%"
 
-If M->ZZI_DIAGER >= '2' .Or. M->ZZI_DIAGER = '0'
-	
-	If Altera
-		cWhere := "% AND ZZI.R_E_C_N_O_ <> " + cValToChar(ZZI->(Recno())) + " %" 
-	Endif
-
-	BeginSql alias 'TRB'
-	
-		SELECT COUNT(*) QUANT FROM %table:ZZI% ZZI
-		WHERE ZZI.%notDel%
-		 	%exp:cWhere%
-			AND ZZI_FILIAL = %exp:xFilial("ZZI")%
-			AND ZZI_DIAGER = %exp:M->ZZI_DIAGER%
-	
-	EndSql
-	
-	If TRB->QUANT >= 1 .And. M->ZZI_DIAGER = '0'
-		ApMsgInfo("Já existe uma regra com prioridade")
-		lReturn := .F.
-	ElseIf TRB->QUANT >= 3
-		ApMsgInfo("Esse dia já possui 3 regras, escolha outro dia ou Domingo")
-		lReturn := .F.
-	Endif
-	TRB->(dbCloseArea())
+If Altera
+	cWhere := "% AND ZZI.R_E_C_N_O_ <> " + cValToChar(ZZI->(Recno())) + " %" 
 Endif
+
+BeginSql alias 'TRB'
+
+	SELECT COUNT(*) QUANT FROM %table:ZZI% ZZI
+	WHERE ZZI.%notDel%
+	 	%exp:cWhere%
+		AND ZZI_FILIAL = %exp:xFilial("ZZI")%
+		AND ZZI_DIAGER = %exp:M->ZZI_DIAGER%
+
+EndSql
+
+If TRB->QUANT >= 1 .And. M->ZZI_DIAGER = '0'
+	ApMsgInfo("Já existe uma regra com prioridade")
+	lReturn := .F.
+ElseIf TRB->QUANT >= 14 .And. M->ZZI_DIAGER = '1'
+	ApMsgInfo("Use no máximo 14 regras para o Domingo, escolha outro dia")
+	lReturn := .F.
+ElseIf TRB->QUANT >= 3 .And. M->ZZI_DIAGER >= '2'
+	ApMsgInfo("Esse dia já possui 3 regras, escolha outro dia ou Domingo")
+	lReturn := .F.
+Endif
+
+TRB->(dbCloseArea())
 
 Return lReturn
 
