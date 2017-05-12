@@ -59,7 +59,7 @@ ConOut(cLog)
 ZZI->(dbSetOrder(02))
 ZZI->(dbGoTop())
 
-ZIA->(dbSetOrder(01))
+ZIA->(dbSetOrder(02))
 ZIA->(dbGoTop())
 
 SA1->(dbSetOrder(01))
@@ -79,7 +79,7 @@ While ZZI->(!Eof())
 				If SA1->(dbSeek(xFilial("SA1") + ZZI->ZZI_CLIENT + ZZI->ZZI_LOJA))
 					GeraZIA(.T.)
 				Endif
-			ElseIf Dow(dDataBase) = Val(ZZI->ZZI_DIAGER) .Or. ZZI->ZZI_DIAGER = '0'
+			ElseIf Dow(Date()) = Val(ZZI->ZZI_DIAGER) .Or. ZZI->ZZI_DIAGER = '0'
 				If SA1->(dbSeek(xFilial("SA1") + ZZI->ZZI_CLIENT + ZZI->ZZI_LOJA))
 					GeraZIA(.F.)
 				Endif
@@ -90,7 +90,7 @@ While ZZI->(!Eof())
 	
 	ConOut("["+DtoC(Date())+" "+Time()+"] [Impostos] Fim UF+Tipo: "+ZZI->(ZZI_UF+ZZI_TIPO))
 	
-	If Dow(dDataBase) = Val(ZZI->ZZI_DIAGER) .Or. ZZI->ZZI_DIAGER = '0'
+	If Dow(Date()) = Val(ZZI->ZZI_DIAGER) .Or. ZZI->ZZI_DIAGER = '0'
 		ZZI->(RecLock("ZZI",.F.))
 			ZZI->ZZI_DTCHCK := Date()
 		ZZI->(MsUnlock())
