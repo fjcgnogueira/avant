@@ -61,6 +61,8 @@ User Function NotaDebito()
 	OLE_SetDocumentVar(oWord,'DOT_VALOR'  , AllTrim(TransForm(SE2->E2_VALOR, PesqPict("SE2","E2_VALOR"))))
 	OLE_SetDocumentVar(oWord,'DOT_BOLETO' , "")
 	OLE_SetDocumentVar(oWord,'DOT_DATAEXT', cValToChar(Day(dDataBase))+" de "+MesExtenso(Month(dDataBase))+" de "+cValToChar(Year(dDataBase)))
+	OLE_SetDocumentVar(oWord,'DOT_END_AV' , AllTrim(SM0->M0_ENDENT)+" - "+AllTrim(SM0->M0_COMPENT)+" - "+AllTrim(SM0->M0_BAIRENT))
+	OLE_SetDocumentVar(oWord,'DOT_MUN_CEP', AllTrim(SM0->M0_CIDENT)+" - "+AllTrim(SM0->M0_ESTENT)+" - CEP: "+TransForm(SM0->M0_CEPENT, PesqPict("SA1","A1_CEP")))
 
 	OLE_UpdateFields(oWord)
 	
