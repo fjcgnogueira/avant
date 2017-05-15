@@ -21,7 +21,7 @@ Local cPedido  := SC5->C5_NUM
 Local cCliente := SC5->C5_CLIENTE
 Local cLoja    := SC5->C5_LOJACLI
 
-If SC5->(AllTrim(C5_X_BLQFI)+AllTrim(C5_LIBEROK)) == 'SS'
+If SC5->(AllTrim(C5_X_BLQ)+AllTrim(C5_X_BLQFI)+AllTrim(C5_LIBEROK)) == 'SSS'
 	// Fernando Nogueira - Chamado 004116
 	If MsgYesNo("Pedido "+SC5->C5_NUM+" Está com Bloqueio Fiscal!"+Chr(13)+Chr(10)+"Liberar do Bloqueio Avant assim mesmo?")
 		SC5->(RecLock("SC5",.F.))
@@ -29,7 +29,7 @@ If SC5->(AllTrim(C5_X_BLQFI)+AllTrim(C5_LIBEROK)) == 'SS'
 		SC5->(MsUnlock())
 		ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
 	Endif
-ElseIf SC5->(AllTrim(C5_X_BLFIN)+AllTrim(C5_LIBEROK)) == 'SS'
+ElseIf SC5->(AllTrim(C5_X_BLQ)+AllTrim(C5_X_BLFIN)+AllTrim(C5_LIBEROK)) == 'SSS'
 	SC5->(RecLock("SC5",.F.))
 		SC5->C5_X_BLQ := 'N'
 	SC5->(MsUnlock())
@@ -76,7 +76,7 @@ ElseIf SC5->(AllTrim(C5_X_BLQ)+AllTrim(C5_LIBEROK)) $ ('CS.SS')
 
 		End Transaction
 
-		ApMsgInfo("Pedido "+cPedido+" Liberado!")
+		ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
 
 	Endif
 
@@ -132,7 +132,7 @@ Return lReturn
 /*/
 Static Function ExecLib(cPedido)
 
-Local cBlqCred := ""
+Local aRegSC6  := {}
 
 SC5->(dbSetOrder(01))
 SC5->(msSeek(xFilial("SC5")+cPedido))
@@ -146,32 +146,32 @@ SC9->(msSeek(xFilial("SC9")+SC5->C5_NUM))
 
 While SC9->(!Eof()) .And. SC9->C9_PEDIDO == SC5->C5_NUM
 
-	SC6->(msSeek(xFilial("SC6")+SC9->C9_PEDIDO+SC9->C9_ITEM))
-	SC6->(RecLock("SC6",.F.))
-
 	SC9->(RecLock("SC9",.F.))
-		If SC5->C5_X_BLFIN = 'S'
-			SC9->C9_BLOQUEI := '03'
-		Else
-	
-			SC9->C9_BLOQUEI := ''
-	
-			nVlrCred := SC9->C9_QTDLIB * SC9->C9_PRCVEN
-	
-			// Verifica se o credito esta liberado
-			If MaAvalCred(SC9->C9_CLIENTE,SC9->C9_LOJA,nVlrCred,SC5->C5_MOEDA,.T.,@cBlqCred)
-				SC9->C9_BLCRED := ''
-				// Libera o estoque e gera DCF
-				MaAvalSC9("SC9",5,{{ "","","","",SC9->C9_QTDLIB,SC9->C9_QTDLIB2,Ctod(""),"","","",SC9->C9_LOCAL}})
-			Endif
-		Endif
+		
+	If SC5->C5_X_BLQFI $ 'S'
+		SC9->C9_BLOQUEI := '02'
+	ElseIf SC5->C5_X_BLFIN = 'S'
+		SC9->C9_BLOQUEI := '03'
+	Else
+		SC9->C9_BLOQUEI := ''
+	Endif
 
 	SC9->(MsUnlock())
 
-	SC6->(MsUnlock())
-
 	SC9->(dbSkip())
 End
+
+If !(SC5->C5_X_BLQFI = 'S' .Or. SC5->C5_X_BLFIN = 'S')
+	SC6->(dbSetOrder(01))
+	SC6->(msSeek(xFilial("SC6")+cPedido))
+	
+	While SC6->(!Eof()) .And. SC6->C6_NUM == cPedido
+		aAdd(aRegSC6,SC6->(RecNo()))
+		SC6->(dbSkip())
+	End
+
+	MaAvalSC5("SC5",3,.F.,.F.,,,,,,cPedido,aRegSC6,.T.,.T.)
+Endif
 
 Return
 
