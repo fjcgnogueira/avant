@@ -403,6 +403,7 @@ If lRetorno
 					// 8 = Orcamento aprovado
 					// 9 = Orcamento nao aprovado
 					// A = Nao possui cadastro cliente
+					// C = Pedido com bonificacao parado para aprovacao do gerente regional
 					// X = Pedidos que desconsidera o Saldo Web
 					// P = Pedido em Processo de Integracao
 
