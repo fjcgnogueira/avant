@@ -71,6 +71,10 @@ For nX := 1 to nRegua
 	
 	If SB1->(dbSeek(xFilial("SB1")+cProd))
 	
+		If File(cPath+cNewFile)
+			FErase(cPath+cNewFile)
+		Endif
+		
 		FRename(cPath+cOldFile,cPath+cNewFile)
 	
 		If oRep:ExistBmp(cBitMap)
