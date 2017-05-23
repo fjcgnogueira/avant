@@ -35,7 +35,7 @@ ElseIf SC5->(AllTrim(C5_X_BLQ)+AllTrim(C5_X_BLFIN)+AllTrim(C5_LIBEROK)) == 'SSS'
 	SC5->(MsUnlock())
 	ExecLib(cPedido)
 	ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
-ElseIf SC5->(AllTrim(C5_X_BLQ)+AllTrim(C5_LIBEROK)) $ ('CS.SS')
+ElseIf SC5->(C5_X_BLQ+C5_LIBEROK) $ ('CS.SS')
 
 	If PedBloq(cCliente,cLoja,cPedido) .AND. AllTrim(SC5->C5_X_BLQ) == 'S'
 		SC5->(RecLock("SC5",.F.))
@@ -79,7 +79,30 @@ ElseIf SC5->(AllTrim(C5_X_BLQ)+AllTrim(C5_LIBEROK)) $ ('CS.SS')
 		ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
 
 	Endif
+	
+ElseIf SC5->(AllTrim(C5_X_BLQ)) = 'S'
 
+	BeginSql alias 'TRB'
+		SELECT R_E_C_N_O_ FROM %table:SC9% SC9
+		WHERE SC9.%notDel% AND C9_FILIAL = %xfilial:SC9% AND C9_PEDIDO = %exp:cPedido%
+	EndSql
+	
+	TRB->(dbGoTop())
+
+	// Fernando Nogueira - Chamado 004987
+	If TRB->(Eof())
+		If MsgNoYes("Liberar o Pedido "+cPedido+" ?")
+			SC5->(RecLock("SC5",.F.))
+				SC5->C5_X_BLQ := 'N'
+			SC5->(MsUnlock())
+			ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
+		Endif
+	Else	
+		ApMsgInfo("É necessário tirar a Liberação Parcial do Pedido "+SC5->C5_NUM+" para fazer a Liberação Avant!")
+	Endif
+	
+	TRB->(DbCloseArea())
+	
 Else
 	ApMsgInfo("Pedido "+SC5->C5_NUM+" Não Está com Bloqueio Avant!")
 Endif
