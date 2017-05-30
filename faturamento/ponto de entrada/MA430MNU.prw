@@ -17,10 +17,14 @@ User Function MA430MNU()
 Local aRotAV := {}
 
 For _i := 1 to Len(aRotina)
-	If aRotina[_i,2] <> "A430Resid"
-		aAdd(aRotAV,aRotina[_i])
-	Else
+	If aRotina[_i,2] = "A430Depura"
+		If aScan(PswRet(1)[1][10],'000000') <> 0
+			aAdd(aRotAV,{"Depurar","A430Depura",0,5,0,NIL})
+		Endif
+	ElseIf aRotina[_i,2] = "A430Resid"
 		aAdd(aRotAV,{"Elim.Residuo","U_AVResid",0,2,0,NIL})
+	Else
+		aAdd(aRotAV,aRotina[_i])
 	Endif
 Next _i
 
