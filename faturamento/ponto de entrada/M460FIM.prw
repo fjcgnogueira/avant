@@ -130,7 +130,7 @@ While SD2->(!Eof()) .And. 	SD2->D2_FILIAL == xFilial("SD2") .And. SD2->D2_DOC ==
 		SF2->(MsUnlock())
 	Endif
 
-	// Fernando Nogueira - Zera Volume no Pedido caso seja parcial
+	// Fernando Nogueira - Zera Volume no Pedido caso o cliente esteja liberado para faturamento parcial
 	If lAltVol .And. SA1->A1_X_FATPA = 'S'
 		lAltVol := .F.
 		SC5->(RecLock("SC5",.F.))
