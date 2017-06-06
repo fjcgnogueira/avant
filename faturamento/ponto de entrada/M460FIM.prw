@@ -21,6 +21,7 @@ Local lAltVol := .T.
 
 aArea		:= GetArea()
 _aAreaSE1 	:= getArea("SE1")
+_aAreaSE1 	:= getArea("SA1")
 _aAreaSF2 	:= getArea("SF2")
 _aAreaSD2 	:= getArea("SD2")
 _aAreaSC5 	:= getArea("SC5")
@@ -128,9 +129,9 @@ While SD2->(!Eof()) .And. 	SD2->D2_FILIAL == xFilial("SD2") .And. SD2->D2_DOC ==
 			SF2->F2_VOLUME1 := SC5->C5_VOLUME1
 		SF2->(MsUnlock())
 	Endif
-	
+
 	// Fernando Nogueira - Zera Volume no Pedido caso seja parcial
-	If lAltVol .And. Empty(SC5->C5_LIBEROK)
+	If lAltVol .And. SA1->A1_X_FATPA = 'S'
 		lAltVol := .F.
 		SC5->(RecLock("SC5",.F.))
 			SC5->C5_VOLUME1 := 0
@@ -175,21 +176,21 @@ While SD2->(!Eof()) .And. 	SD2->D2_FILIAL == xFilial("SD2") .And. SD2->D2_DOC ==
 			SA3->A3_ACMMKT -= nDebito
 		SA3->(MsUnlock())
 	Endif
-	
+
 	// Fernando Nogueira - Chamado 004777 (Ajuste para Condicao Faturamento Parcial)
 	If SC9->(dbSeek(xFilial("SC9")+SD2->D2_COD+SD2->D2_LOCAL+SD2->D2_NUMSEQ))
-		While SD2->D2_COD+SD2->D2_LOCAL+SD2->D2_NUMSEQ = SC9->C9_PRODUTO+SC9->C9_LOCAL+SC9->C9_NUMSEQ  
+		While SD2->D2_COD+SD2->D2_LOCAL+SD2->D2_NUMSEQ = SC9->C9_PRODUTO+SC9->C9_LOCAL+SC9->C9_NUMSEQ
 			If SD2->D2_PEDIDO = SC9->C9_PEDIDO .And. !Empty(SC9->C9_SERVIC)
 				If SDB->(dbSeek(xFilial("SDB")+SC9->C9_PEDIDO))
 					While AllTrim(SC9->C9_PEDIDO) = AllTrim(SDB->DB_DOC)
 						If SC9->C9_IDDCF = SDB->DB_IDDCF .And. SDB->DB_TIPO = 'E' .And. Empty(SDB->DB_ESTORNO) .And. SDB->DB_TAREFA $ ('002.003')
 							SDB->(RecLock("SDB",.F.))
 								SDB->DB_X_STATU := 'F'
-							SDB->(MsUnlock())							
+							SDB->(MsUnlock())
 						Endif
 						SDB->(dbSkip())
 					End
-				Endif				
+				Endif
 			Endif
 			SC9->(dbSkip())
 		End
@@ -203,6 +204,7 @@ SF2->(DBCLOSEAREA())
 SD2->(DBCLOSEAREA())
 
 Restarea(_aAreaSE1)
+Restarea(_aAreaSA1)
 Restarea(_aAreaSC5)
 Restarea(_aAreaSC6)
 Restarea(_aAreaSC9)
