@@ -21,7 +21,7 @@ Local lAltVol := .T.
 
 aArea		:= GetArea()
 _aAreaSE1 	:= getArea("SE1")
-_aAreaSE1 	:= getArea("SA1")
+_aAreaSA1 	:= getArea("SA1")
 _aAreaSF2 	:= getArea("SF2")
 _aAreaSD2 	:= getArea("SD2")
 _aAreaSC5 	:= getArea("SC5")
