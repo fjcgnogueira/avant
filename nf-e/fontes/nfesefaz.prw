@@ -2748,7 +2748,8 @@ If cTipo == "1"
 		    Endif
 
 		    // Inscricao do Substituto - Fernando Nogueira - Chamado 002583
-		 	If !Empty(cAvInscSubs)
+		    // Fernando Nogueira - Chamado 005022 - Filtrar a Empresa
+		 	If !Empty(cAvInscSubs) .And. SM0->M0_CODIGO = '01'
 		    	cMensCli += " - Insc.Estadual do Subst.Trib.: " + AllTrim(cAvInscSubs)
 		    Endif
 
