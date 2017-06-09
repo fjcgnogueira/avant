@@ -197,7 +197,7 @@ Static Function AjustaSX1(cPerg)
 	PutSX1(cPerg,"01","Do Documento ?"   ,"","","mv_ch1","C",09,0,0,"G","","SF1","","","mv_par01","","","","","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 	aHelpPor := {"Doc Final a enderecar"}
 	PutSX1(cPerg,"02","Ate o Documento ?","","","mv_ch2","C",09,0,0,"G","","SF1","","","mv_par02","","","","","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
-	aHelpPor := {"Armazem dos Documentos que serao enderecados"}
+	aHelpPor := {"Armazem dos Documentos que serao","enderecados"}
 	PutSX1(cPerg,"03","Armazem ?"        ,"","","mv_ch3","C",02,0,0,"G","","NNR","","","mv_par03","","","","","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 	aHelpPor := {"Endereco onde sera enderecado"}
 	PutSX1(cPerg,"04","Endereco ?"       ,"","","mv_ch4","C",15,0,0,"G","","SBE","","","mv_par04","","","","","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
