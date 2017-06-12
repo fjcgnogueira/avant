@@ -33,6 +33,7 @@ Local cNumero    := ""
 Local cSerie     := ""
 Local dEmissao   := dDataBase
 Local cArmazem   := GetMV("ES_ARMTROC")
+Local lContinue  := .T.
 
 Default cMensagem   := ""
 Default cDocumen    := ""
@@ -106,11 +107,16 @@ If lRetorno
 			Aadd(_aCabSF1,{"F1_NUMTRC"    ,SZH->ZH_NUMTRC     ,Nil})
 			
 			If SZH->ZH_FORMUL == "N"
-				Aadd(_aCabSF1,{"F1_CHVNFE"    ,SZH->ZH_CHVNFE     ,Nil})
+				If !Empty(SZH->ZH_CHVNFE)
+					Aadd(_aCabSF1,{"F1_CHVNFE", SZH->ZH_CHVNFE,Nil})
+				// Fernando Nogueira - Chamado 005028
+				Else
+					lContinue := .F.
+				Endif
 			Endif
 			
 			SZI->(dbSetOrder(1))
-			If SZI->(msSeek(_cChave))
+			If lContinue .And. SZI->(msSeek(_cChave))
 				
 				// Posiciona no Cabecalho da Nota Original
 				SF2->(dbSetOrder(1))
@@ -181,11 +187,12 @@ If lRetorno
 				// C = Feedback Rejeicao finalizado
 				
 				SZH->(MsUnlock())
+			ElseIf !lContinue
+				lRetorno 	:= .F.
+				cMensagem	:= "Chave eletrônica não preenchida na devolução: " + cNumTroca
 			Else
-			
 				lRetorno 	:= .F.
 				cMensagem	:= "Não encontrado ítens para a devolução: " + cNumTroca
-			
 			Endif
 		Endif		
 	Else
