@@ -35,6 +35,8 @@ Private aPVlNFs  := {}
 
 PREPARE ENVIRONMENT EMPRESA aParam[1] FILIAL aParam[2]
 
+SET CENTURY ON
+
 lFatAut   := &(Posicione("SX5",1,xFilial("SX5")+"ZA0005","X5_DESCRI"))
 
 nMarcaAnt := Val(Posicione("SX5",1,xFilial("SX5")+"ZA0006","X5_DESCRI"))
