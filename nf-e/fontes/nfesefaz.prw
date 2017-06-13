@@ -317,6 +317,7 @@ Local nSD1Pos   := 0
 
 // Variaveis Locais Avant
 Local _aCubagem 	:= {}
+Local nCubagem		:= 0
 Local cAvSubtrib	:= ""
 Local cAvInscSubs	:= ""
 
@@ -2755,7 +2756,11 @@ If cTipo == "1"
 
 		    //Faz o Calculo de Cubagem - Fernando Nogueira
 		    If Len(_aCubagem) > 0
-		    	cMensCli += U_Cubagem(_aCubagem)
+		    	nCubagem := U_Cubagem(_aCubagem)
+		    	cMensCli += " - Cubagem (m3): " + AllTrim(Transform(nCubagem, "@E 9,999.9999"))
+		    	SF2->(RecLock("SF2",.F.))
+					SF2->F2_X_CUBAG  := nCubagem
+				SF2->(MsUnlock())
 		    Endif
 
 			//Tratamento para incluir a mensagem em informacoes adicionais do Suframa

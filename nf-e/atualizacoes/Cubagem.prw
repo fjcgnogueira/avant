@@ -20,7 +20,6 @@ User Function Cubagem(aCubagem)
 Local nCubagem := 0
 Local aAreaSB1 := SB1->(GetArea())
 Local aAreaSB5 := SB5->(GetArea())
-Local cRetorno := ""
 
 For _nI := 1 to Len(aCubagem)
 
@@ -55,14 +54,10 @@ For _nI := 1 to Len(aCubagem)
 	
 Next _nI
 
-If nCubagem > 0
-	cRetorno += " - Cubagem (m3): " + Transform(nCubagem, "@E 999.9999")
-Endif
-
 SB5->(RestArea(aAreaSB5))
 SB1->(RestArea(aAreaSB1))
 
-Return cRetorno
+Return nCubagem
 
 /*/
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
