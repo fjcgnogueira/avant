@@ -36,7 +36,7 @@ User Function MT103FIM()
 	Endif
 
 	// Fernando Nogueira - Debito de Bonificacao do Vendedor
-	If SF1->F1_TIPO == "D"
+	If (ParamIXB[1] == 3 .or. Inclui) .And. PARAMIXB[2] == 1 .And. SF1->F1_TIPO == "D"
 		_aAreaSD1 := SD1->(getArea("SD1"))
 		_aAreaSD2 := SD2->(getArea("SD2"))
 		_aAreaSA3 := SA3->(getArea("SA3"))
