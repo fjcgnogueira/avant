@@ -79,14 +79,14 @@ ElseIf SC5->(C5_X_BLQ+C5_LIBEROK) $ ('CS.SS')
 		ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
 
 	Endif
-	
-ElseIf SC5->(AllTrim(C5_X_BLQ)) = 'S'
+
+ElseIf SC5->(AllTrim(C5_X_BLQ)) $ 'CS'
 
 	BeginSql alias 'TRB'
 		SELECT R_E_C_N_O_ FROM %table:SC9% SC9
 		WHERE SC9.%notDel% AND C9_FILIAL = %xfilial:SC9% AND C9_PEDIDO = %exp:cPedido%
 	EndSql
-	
+
 	TRB->(dbGoTop())
 
 	// Fernando Nogueira - Chamado 004987
@@ -97,12 +97,12 @@ ElseIf SC5->(AllTrim(C5_X_BLQ)) = 'S'
 			SC5->(MsUnlock())
 			ApMsgInfo("Pedido "+cPedido+" Liberado do Bloqueio Avant!")
 		Endif
-	Else	
+	Else
 		ApMsgInfo("É necessário tirar a Liberação Parcial do Pedido "+SC5->C5_NUM+" para fazer a Liberação Avant!")
 	Endif
-	
+
 	TRB->(DbCloseArea())
-	
+
 Else
 	ApMsgInfo("Pedido "+SC5->C5_NUM+" Não Está com Bloqueio Avant!")
 Endif
@@ -170,7 +170,7 @@ SC9->(msSeek(xFilial("SC9")+SC5->C5_NUM))
 While SC9->(!Eof()) .And. SC9->C9_PEDIDO == SC5->C5_NUM
 
 	SC9->(RecLock("SC9",.F.))
-		
+
 	If SC5->C5_X_BLQFI $ 'S'
 		SC9->C9_BLOQUEI := '02'
 	ElseIf SC5->C5_X_BLFIN = 'S'
@@ -187,7 +187,7 @@ End
 If !(SC5->C5_X_BLQFI = 'S' .Or. SC5->C5_X_BLFIN = 'S')
 	SC6->(dbSetOrder(01))
 	SC6->(msSeek(xFilial("SC6")+cPedido))
-	
+
 	While SC6->(!Eof()) .And. SC6->C6_NUM == cPedido
 		aAdd(aRegSC6,SC6->(RecNo()))
 		SC6->(dbSkip())
