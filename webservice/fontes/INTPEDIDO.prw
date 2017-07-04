@@ -152,9 +152,11 @@ If lRetorno
 					If SZ3->Z3_VEND <> SA1->A1_VEND
 						aAdd(aCabec,{"C5_VEND1" ,SA1->A1_VEND ,NIL})
 						aAdd(aCabec,{"C5_COMIS1",nVendComis   ,NIL})
-						aAdd(aCabec,{"C5_VEND2" ,SZ3->Z3_VEND ,NIL})
-						aAdd(aCabec,{"C5_COMIS2",SA3->A3_COMIS,NIL})
-					Else
+						If SZ3->Z3_VEND <> SA1->A1_XVEND3
+							aAdd(aCabec,{"C5_VEND2" ,SZ3->Z3_VEND ,NIL})
+							aAdd(aCabec,{"C5_COMIS2",SA3->A3_COMIS,NIL})
+						Endif
+					ElseIf SZ3->Z3_VEND <> SA1->A1_XVEND3
 						// Fernando Nogueira - Chamado 004958
 						aAdd(aCabec,{"C5_VEND1" ,SZ3->Z3_VEND ,NIL})
 						aAdd(aCabec,{"C5_COMIS1",SA3->A3_COMIS,NIL})
