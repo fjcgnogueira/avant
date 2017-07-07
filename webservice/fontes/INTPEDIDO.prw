@@ -48,10 +48,12 @@ Local lBlqNCM		:= .F.
 Local lBlqFis		:= .F.
 Local lBlqIcmRet	:= .F.
 Local lBloqFin		:= .F.
+Local nTotPed		:= 0
+Local lHabWMS		:= &(Posicione("SX5",1,xFilial("SX5")+"ZA0001","X5_DESCRI"))
+Local nLimWMS		:= Val(Posicione("SX5",1,xFilial("SX5")+"ZA0011","X5_DESCRI"))
 
 Private cTpOper		:= ""
 Private lMsErroAuto	:= .F.
-Private lLiberAut 	:= .T.      //-- Se campo C6_QTDLIB serah preenchido no processo de inclusao -- Gustavo Viana -- 18/02/2013
 Private cCod      	:= ""
 Private cLocal    	:= "01"
 Private nQuant    	:= 0
@@ -107,7 +109,6 @@ If lRetorno
 
 			Else
 
-				lLiberAut := .T. //-- Gustavo Viana -- Restricoes a liberacao automatica -- 18/02/2013
 				cTpOper	 := Left(SZ3->Z3_CODTSAC,2)
 				dDtEmiss := SZ3->Z3_EMISSAO
 				cPedNew  := U_NUMPED()
@@ -167,8 +168,16 @@ If lRetorno
 				Endif
 
 				If SZ4->(DbSeek(xFilial("SZ4") + cPedidoW))
-					While SZ4->(!Eof()) .And. 	SZ4->Z4_FILIAL == xFilial("SZ4") .And.;
-						   Padl(Alltrim(Str(SZ4->Z4_NUMPEDW)),TamSx3("Z4_NUMPEDW")[01]) == cPedidoW
+					While SZ4->(!Eof()) .And. SZ4->Z4_FILIAL == xFilial("SZ4") .And. Padl(Alltrim(Str(SZ4->Z4_NUMPEDW)),TamSx3("Z4_NUMPEDW")[01]) == cPedidoW
+						nTotPed += SZ4->Z4_QTDE * SZ4->Z4_PRLIQ
+						SZ4->(DbSkip())
+					End
+				Endif
+				
+				SZ4->(dbGoTop())
+
+				If SZ4->(DbSeek(xFilial("SZ4") + cPedidoW))
+					While SZ4->(!Eof()) .And. SZ4->Z4_FILIAL == xFilial("SZ4") .And. Padl(Alltrim(Str(SZ4->Z4_NUMPEDW)),TamSx3("Z4_NUMPEDW")[01]) == cPedidoW
 
 						aLinha := {}
 						aAdd(aLinha,{"C6_FILIAL" ,SZ4->Z4_FILIAL ,NIL})
@@ -176,14 +185,7 @@ If lRetorno
 						aAdd(aLinha,{"C6_PRODUTO",SZ4->Z4_CODPROD,NIL})
 						aAdd(aLinha,{"C6_QTDVEN" ,SZ4->Z4_QTDE   ,NIL})
 						aAdd(aLinha,{"C6_TPOPERW",SZ4->Z4_TPOPERW,NIL})
-
-					   	// Produtos de Marketing - Fernando Nogueira - Chamado 000796
-					   	// Operacao Triangular
-					   	//If lLiberAut .And. SZ3->Z3_PRODMKT == 'N'
-							aAdd(aLinha,{"C6_QTDLIB",SZ4->Z4_QTDE,NIL})
-						//Else
-							//aAdd(aLinha,{"C6_QTDLIB",0           ,NIL})
-						//EndIf
+						aAdd(aLinha,{"C6_QTDLIB" ,SZ4->Z4_QTDE   ,NIL})
 
 						SB1->(dbSeek(xFilial("SB1")+SZ4->Z4_CODPROD))
 
@@ -196,7 +198,7 @@ If lRetorno
 						aAdd(aLinha,{"C6_PRCVEN" ,SZ4->Z4_PRLIQ  ,NIL})
 						aAdd(aLinha,{"C6_X_VLORI",nPrcOri        ,NIL})
 						aAdd(aLinha,{"C6_X_PLIST",SB1->B1_PRV1   ,NIL})
-						aAdd(aLinha,{"C6_OPER"   ,cTpOper		 ,NIL})
+						aAdd(aLinha,{"C6_OPER"   ,cTpOper        ,NIL})
 						aAdd(aLinha,{"C6_PEDCLI" ,SZ4->Z4_NUMPED ,NIL})
 						aAdd(aLinha,{"C6_X_RAMO" ,SZ4->Z4_DESCRA ,NIL})
 						aAdd(aLinha,{"C6_X_GERE" ,SZ4->Z4_DESCGE ,NIL})
@@ -213,6 +215,13 @@ If lRetorno
 							aAdd(aLinha,{"C6_COMIS4" ,0              ,NIL})
 							aAdd(aLinha,{"C6_COMIS5" ,0              ,NIL})
 						Endif
+						
+						// Fernando Nogueira - Tira o servico de WMS do Pedido - Chamado 005057
+						If !lHabWMS .And. nTotPed > nLimWMS
+							aAdd(aLinha,{"C6_SERVIC" ,Space(TamSx3("C6_SERVIC")[1]) ,NIL})
+							aAdd(aLinha,{"C6_ENDPAD" ,Space(TamSx3("C6_ENDPAD")[1]) ,NIL})
+						Endif
+						
 						aAdd(aItens,aLinha)
 						
 		                // Chamado 004840 - Bloqueio Financeiro - Fernando Nogueira
@@ -229,14 +238,6 @@ If lRetorno
 							lBlqNCM := .T.
 						Endif
 
-						// Fernando Nogueira - Chamado 004664
-						/*If 	(!(SA1->A1_EST $ 'AC.AP.BA.CE.ES.GO.MS.MG.PA.PB.PI.PR.RJ.RN.RO.RS.SP') .And. AllTrim(SB1->B1_GRTRIB) $ '601') .Or. ;  //Fernando Nogueira - Chamado 004726
-							(SA1->A1_EST $ 'AL.AM' .And. SA1->A1_GRPTRIB $ '001.020.021.022.023.024.026' .And. AllTrim(SB1->B1_GRTRIB) $ '005.029.044.600') .Or. ;  //Fernando Nogueira - Chamado 004734
-							SA1->A1_EST $ 'PI' .Or. ;  //Fernando Nogueira - Chamado 004886
-							SB1->B1_X_VLDFI = 'S'  //Fernando Nogueira - Chamado 004719
-							lBlqFis := .T.
-						Endif*/
-						
 						C09->(dbSeek(xFilial("C09")+SA1->A1_EST))
 						
 						// Fernando Nogueira - Chamado 004842
@@ -252,7 +253,7 @@ If lRetorno
 						Endif
 
 						_aAreaSFM 	:= getArea("SFM")
-						SFM->(dbSetOrder(2))
+						SFM->(dbSetOrder(02))
 
 						cTesOper := MaTesInt(02, cTpOper, SA1->A1_COD, SA1->A1_LOJA, "C", SB1->B1_COD, NIL)
 
