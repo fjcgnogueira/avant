@@ -15,13 +15,13 @@
 */
 User Function PedidoWeb()
 
-Private oBrowse := FwMBrowse():New() 
+Private oBrowse := FwMBrowse():New()
 
 //Alias do Browse
 oBrowse:SetAlias('SZ3')
 
 //Descrição da Parte Superior Esquerda do Browse
-oBrowse:SetDescripton("Pedido Web") 
+oBrowse:SetDescripton("Pedido Web")
 
 //Legendas do Browse
 oBrowse:AddLegend("Z3_STATUS=='1'", "BLUE"  , "Parado na Web")
@@ -59,19 +59,22 @@ Return
 Static Function MenuDef()
 
 Local aMenu :=	{}
-	
+
 	ADD OPTION aMenu TITLE 'Pesquisar'  ACTION 'PesqBrw'       		OPERATION 1 ACCESS 0
 	ADD OPTION aMenu TITLE 'Visualizar' ACTION 'VIEWDEF.PedidoWeb'	OPERATION 2 ACCESS 0
 	// Usuarios que pertencem ao grupo de Administradores
 	If aScan(PswRet(1)[1][10],'000000') <> 0
 		ADD OPTION aMenu TITLE 'Incluir'    ACTION 'VIEWDEF.PedidoWeb' 	OPERATION 3 ACCESS 0
-		ADD OPTION aMenu TITLE 'Alterar'    ACTION 'VIEWDEF.PedidoWeb' 	OPERATION 4 ACCESS 0
+		ADD OPTION aMenu TITLE 'Alterar'    ACTION 'VIEWDEF.PedidoWeb	' 	OPERATION 4 ACCESS 0
 		ADD OPTION aMenu TITLE 'Excluir'    ACTION 'VIEWDEF.PedidoWeb' 	OPERATION 5 ACCESS 0
 		ADD OPTION aMenu TITLE 'Imprimir'   ACTION 'VIEWDEF.PedidoWeb'	OPERATION 8 ACCESS 0
 		ADD OPTION aMenu TITLE 'Copiar'     ACTION 'VIEWDEF.PedidoWeb'	OPERATION 9 ACCESS 0
+	ElseIf aScan(PswRet(1)[1][10],'000067') <> 0
+		ADD OPTION aMenu TITLE 'Alterar'    ACTION 'VIEWDEF.PedidoWeb' 	OPERATION 4 ACCESS 0
 	Endif
 	ADD OPTION aMenu TITLE 'Volta Ped'  ACTION 'U_VoltaPedido'		OPERATION 4 ACCESS 0
-	
+	ADD OPTION aMenu TITLE 'Lib Integr' ACTION 'U_LibIntegr'		OPERATION 4 ACCESS 0
+
 Return(aMenu)
 
 /*
@@ -98,14 +101,14 @@ Local oModel
 oStruSZ3:SetProperty('Z3_NPEDWEB',MODEL_FIELD_INIT,{||ProxWeb()})
 
 //Instancia do Objeto de Modelo de Dados
-oModel := MpFormModel():New('MDPEDWEB',/*Pre-Validacao*/,/*Pos-Validacao*/,/*Commit*/,/*Cancel*/)
+oModel := MpFormModel():New('MDPEDWEB',/*Pre-Validacao*/,{|oModel| PosValPed(oModel)},/*Commit*/,/*Cancel*/)
 
 //Adiciona um modelo de Formulario de Cadastro Similar à Enchoice ou Msmget
 oModel:AddFields('ID_MODEL_FLD_PedidoWeb', /*cOwner*/, oStruSZ3, /*bPreValidacao*/, /*bPosValidacao*/, /*bCarga*/)
 
 //Setando a chave primaria da rotina
 oModel:SetPrimaryKey({'Z3_FILIAL','Z3_NPEDWEB'})
-                               		
+
 //Adiciona um Modelo de Grid somilar à MsNewGetDados, BrGetDb
 oModel:AddGrid('ID_MODEL_GRD_PedidoWeb', 'ID_MODEL_FLD_PedidoWeb', oStruSZ4, /*bLinePre*/, {|oModel| PosValid(oModel)}, /*bPreVal*/, /*bPosVal*/, /*BLoad*/)
 
@@ -124,6 +127,8 @@ oModel:SetDescription('Modelo de Dados do Pedido Web')
 //Adiciona Descricao dos Componentes do Modelo de Dados
 oModel:GetModel('ID_MODEL_FLD_PedidoWeb'):SetDescription('Formulario do Pedido Web')
 oModel:GetModel('ID_MODEL_GRD_PedidoWeb'):SetDescription('Grid do Pedido Web')
+
+oModel:SetVldActivate({|oModel|ActPed(oModel)})
 
 Return(oModel)
 
@@ -145,7 +150,7 @@ Static Function ViewDef()
 
 Local oStruSZ3	:=	FWFormStruct(2,'SZ3') 	 //Retorna a Estrutura do Alias passado como Parametro (1=Model,2=View)
 Local oStruSZ4	:=	FWFormStruct(2,'SZ4') 	 //Retorna a Estrutura do Alias passado como Parametro (1=Model,2=View)
-Local oModel	:=	FwLoadModel('PedidoWeb') //Retorna o Objeto do Modelo de Dados 
+Local oModel	:=	FwLoadModel('PedidoWeb') //Retorna o Objeto do Modelo de Dados
 Local oView		:=	FwFormView():New()       //Instancia do Objeto de Visualização
 
 //Define o Modelo sobre qual a Visualizacao sera utilizada
@@ -155,7 +160,7 @@ oView:SetModel(oModel)
 oStruSZ4:RemoveField('Z4_NUMPEDW')
 oStruSZ4:RemoveField('Z4_VALEPRE')
 
-//Vincula o Objeto visual de Cadastro com o modelo 
+//Vincula o Objeto visual de Cadastro com o modelo
 oView:AddField('ID_VIEW_FLD_PedidoWeb', oStruSZ3, 'ID_MODEL_FLD_PedidoWeb')
 
 //Adiciona no nosso View um controle do tipo FormGrid(antiga newgetdados)
@@ -174,6 +179,9 @@ oView:AddIncrementField('ID_VIEW_GRD_PedidoWeb', 'Z4_ITEMPED')
 
 // Executa acao no cancelamento
 oView:SetViewAction('BUTTONCANCEL', {|oView| If(Inclui,VoltaNum(M->Z3_NPEDWEB),Nil)})
+
+//Forca o fechamento da janela na confirmacao
+oView:SetCloseOnOk({||.T.})
 
 Return(oView)
 
@@ -248,7 +256,7 @@ If SX5->(dbSeek(xFilial("SX5")+"ZA0008"))
 	SX5->(RecLock("SX5",.F.))
 		SX5->X5_DESCRI := STRZERO(nNumProx+2,10)
 	SX5->(MsUnlock())
-Endif	
+Endif
 
 If nNumProx > nNumProx3 .And. !SZ3->(dbSeek(xFilial("SZ3")+PadL(Alltrim(cValToChar(nNumProx3)),TamSx3("Z3_NPEDWEB")[01])))
 	nNumProx := nNumProx3
@@ -319,3 +327,78 @@ Else
 Endif
 
 Return
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ LibIntegr   º Autor ³ Fernando Nogueira º Data ³ 20/07/2017 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³ Libera Pedido Gravado para o Status de Aguardando Integracaoº±±
+±±º          ³ Chamado 005084                                              º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ Especifico Avant                                            º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+User Function LibIntegr()
+
+If SZ3->Z3_STATUS <> '1'
+	ApMsgInfo('Só é permitido liberar Pedido com Status de Parado na Web.')
+ElseIf SZ3->(RecLock("SZ3",.F.))
+	If MsgNoYes('Deseja liberar o Pedido Web '+cValToChar(SZ3->Z3_NPEDWEB)+' para o Status de "Aguardando Integração"?')
+		SZ3->Z3_STATUS := '2'
+		SZ3->(MsUnlock())
+		ApMsgInfo('O Pedido Web '+cValToChar(SZ3->Z3_NPEDWEB)+' foi liberado para o Status "Aguardando Integração".')
+	Endif
+Else
+	ApMsgInfo('Não foi possível alterar o Status do Pedido.')
+Endif
+
+Return
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Funcao    ³ PosValPed³ Autor ³ Fernando Nogueira     ³ Data ³20/07/2017³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡…o ³ Funcao de Pos Validacao do Pedido                          ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/
+Static Function PosValPed(oModel)
+
+Local lRet := .T.
+
+If oModel:GetOperation() == MODEL_OPERATION_UPDATE
+	SZ3->(RecLock("SZ3",.F.))
+		SZ3->Z3_INTEGRA  := 'P'
+	SZ3->(MsUnlock())
+Endif
+
+Return lRet
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Funcao    ³ ActPed   ³ Autor ³ Fernando Nogueira     ³ Data ³20/07/2017³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡…o ³ Validacao na Ativacao do Pedido                            ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/
+Static Function ActPed(oModel)
+
+Local lRet := .T.
+
+If oModel:GetOperation() == MODEL_OPERATION_UPDATE .And. SZ3->Z3_STATUS <> '1'
+	MsgInfo("Somente Pedidos com Status de Parado na Web podem ser alterados.")
+	lRet := .F.
+Endif
+
+Return lRet
