@@ -19,7 +19,7 @@ User Function CadZZI()
 Private oBrowse := FwMBrowse():New()
 
 oBrowse:SetAlias('ZZI')
-oBrowse:SetDescripton("Regras de Impostos Avant") 
+oBrowse:SetDescripton("Regras de Impostos Avant")
 
 //Legendas do Browse
 oBrowse:AddLegend( "ZZI_DIAGER=='0'", "RED" , "Prioridade")
@@ -44,13 +44,13 @@ Return
 */
 Static Function MenuDef()
 Local aMenu :=	{}
-	
+
 ADD OPTION aMenu TITLE 'Pesquisar'  ACTION 'PesqBrw'       	OPERATION 1 ACCESS 0
 ADD OPTION aMenu TITLE 'Visualizar' ACTION 'VIEWDEF.CadZZI'	OPERATION 2 ACCESS 0
 ADD OPTION aMenu TITLE 'Incluir'    ACTION 'VIEWDEF.CadZZI' OPERATION 3 ACCESS 0
 ADD OPTION aMenu TITLE 'Alterar'    ACTION 'VIEWDEF.CadZZI' OPERATION 4 ACCESS 0
 ADD OPTION aMenu TITLE 'Excluir'    ACTION 'VIEWDEF.CadZZI' OPERATION 5 ACCESS 0
-	
+
 Return(aMenu)
 
 /*
@@ -69,7 +69,7 @@ Return(aMenu)
 Static Function ModelDef()
 
 //Retorna a Estrutura do Alias passado como Parametro (1=Model,2=View)
-Local oStruZZI := FWFormStruct(1,"ZZI") 
+Local oStruZZI := FWFormStruct(1,"ZZI")
 Local oModel
 
 oStruZZI:SetProperty('ZZI_UF'    , MODEL_FIELD_VALID, FWBuildFeature(STRUCT_FEATURE_VALID, "ExistChav('ZZI',M->ZZI_UF+M->ZZI_TIPO,01).And.ExistCPO('C09',M->ZZI_UF,01)"))
@@ -133,7 +133,7 @@ Local lReturn := .T.
 Local cWhere  := "%%"
 
 If Altera
-	cWhere := "% AND ZZI.R_E_C_N_O_ <> " + cValToChar(ZZI->(Recno())) + " %" 
+	cWhere := "% AND ZZI.R_E_C_N_O_ <> " + cValToChar(ZZI->(Recno())) + " %"
 Endif
 
 BeginSql alias 'TRB'
@@ -176,13 +176,13 @@ Return lReturn
 */
 Static Function ViewDef()
 Local oStruZZI	:=	FWFormStruct(2,"ZZI") 	//Retorna a Estrutura do Alias passado como Parametro (1=Model,2=View)
-Local oModel	:=	FwLoadModel('CadZZI')	//Retorna o Objeto do Modelo de Dados 
+Local oModel	:=	FwLoadModel('CadZZI')	//Retorna o Objeto do Modelo de Dados
 Local oView		:=	FwFormView():New()      //Instancia do Objeto de Visualizacao
 
-oView:SetModel(oModel)	
+oView:SetModel(oModel)
 oView:AddField( 'ID_VIEW_CadZZI', oStruZZI, 'ID_FLD_CadZZI')
 
 //Forca o fechamento da janela na confirmacao
 oView:SetCloseOnOk({||.T.})
 
-Return(oView)                       
+Return(oView)
