@@ -1,4 +1,4 @@
-#INCLUDE "PROTHEUS.CH"           
+#INCLUDE "PROTHEUS.CH"
 #INCLUDE "Totvs.ch"
 #INCLUDE "FILEIO.ch"
 #INCLUDE "TbiConn.ch"
@@ -21,7 +21,7 @@
 User Function STATUSPED()
 
 	Local cPara    := ""
-	Local cBCC     := "rogerio.machado@avantled.com.br; tecnologia@avantled.com.br"
+	Local cBCC     := "rogerio.machado@avantlux.com.br; tecnologia@avantlux.com.br"
 	Local cAssunto := "AVANT - Pedido na Transportadora"
 	Local cNota    := ""
 	Local cData    := ""
@@ -36,20 +36,20 @@ User Function STATUSPED()
 	Prepare Environment EMPRESA '01' FILIAL '010104'
 
 	BeginSql alias 'TRB'
-	
+
 				SELECT DISTINCT F2_DOC Nota, F2_EXPEDID Data, A1_NOME Cliente, A1_LOJA Loja, A1_EMAIL Email
 				FROM %table:SF2% SF2
 				INNER JOIN %table:SA1% SA1 ON F2_CLIENTE+F2_LOJA = A1_COD+A1_LOJA AND SA1.%notDel%
 				INNER JOIN %table:SD2% SD2 ON F2_FILIAL = D2_FILIAL AND F2_DOC+F2_SERIE = D2_DOC+D2_SERIE AND SD2.%notDel%
 				INNER JOIN %table:SF4% SF4 ON D2_FILIAL = F4_FILIAL AND D2_TES = F4_CODIGO AND SF4.%notDel%
 				WHERE SF2.%notDel% AND  F2_FILIAL = '010104' AND F2_EXPEDID <> '' AND F2_X_WFPWD = ''
-							
+
 	EndSql
 
-	While TRB->(!Eof())	
-			
+	While TRB->(!Eof())
+
 		cNota    := TRB->Nota
-		cData    := LEFT(TRB->Data,2) +"/"+ SubStr(TRB->Data,3,2) +"/"+ RIGHT(TRB->Data,4) 
+		cData    := LEFT(TRB->Data,2) +"/"+ SubStr(TRB->Data,3,2) +"/"+ RIGHT(TRB->Data,4)
 		cCliente := TRB->Cliente
 		cLoja    := TRB->Loja
 		//cEnd	 := TRB->End
@@ -58,19 +58,19 @@ User Function STATUSPED()
 		//cTel     := TRB->Tel
 		cPara    := TRB->Email
 
-	
+
 		cLog := "<html><body>"
 		cLog += "<br>"
 		cLog += "<div style='text-align: center;'><img style='width: 339px; height: 74px;' src='http://www.avantled.com.br/BI/acompanhe.png'>"
 		cLog += "<br><br>"
 		cLog += "<img style='width: 140px; height: 122px;' src='http://www.avantled.com.br/BI/truck.png'><br>"
 		cLog += "<br><br>"
-		cLog += "<p align=”center”> <b> Pedido na transportadora </b> </center></div>" 
-		cLog += "<br><br>" 
-		cLog += "<p align=”Left”> <b> DATA: </b>"+ cData 
+		cLog += "<p align=”center”> <b> Pedido na transportadora </b> </center></div>"
 		cLog += "<br><br>"
-		cLog += "<p align=”Left”> <b> Cliente: </b>"+ cCliente 
-		cLog += "<br> <b> Loja: </b>" + cLoja 
+		cLog += "<p align=”Left”> <b> DATA: </b>"+ cData
+		cLog += "<br><br>"
+		cLog += "<p align=”Left”> <b> Cliente: </b>"+ cCliente
+		cLog += "<br> <b> Loja: </b>" + cLoja
 		cLog += "<br> <b> Nota: </b>" + cNota + "</p>"
 		//cLog += "<p align=”Left”> Endereço: " + cEnd + "</p>"
 		//cLog += "<p align=”Left”> CEP: "+ cCEP + "</p>"
@@ -89,23 +89,23 @@ User Function STATUSPED()
 		cLog += "<br>"
 		cLog += "</body>"
 		cLog += "</html>"
-		
-		
+
+
 		U_MHDEnvMail(cPara, "", cBCC, cAssunto, cLog, "")
-		
+
 		SF2->(DBSetOrder(1))
 		SF2->(DbGoTop())
 		SF2->(DBSeek(xFilial("SF2")+TRB->Nota))
-		
+
 		If SF2->(RecLock("SF2",.F.))
 			SF2->F2_X_WFPWD := "S"
 		Endif
 		SF2->(MsUnlock())
-				
+
 		TRB->(dbSkip())
-		
+
 	EndDo
-		
-	RESET ENVIRONMENT	
-		
+
+	RESET ENVIRONMENT
+
 Return

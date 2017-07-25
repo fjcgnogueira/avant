@@ -26,18 +26,18 @@ Private cPerg    := PadR("DISPFAT",Len(SX1->X1_GRUPO))
 
 AjustaSX1(cPerg)
 If Pergunte(cPerg,.T.)
-		
+
 	If MV_PAR03 == 1
 		_cTipo := "DIARIO"
 	ElseIf MV_PAR03 == 2
 		_cTipo := "ACUMULADO"
 	Endif
-	
+
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	//³aParam     |  [01]  | [02]  |  [03]   |   [04]   |  [05]  |  [06] |  [07]    |  [08]   |  [09]  |
 	//³           | Regiao | Grupo | Data De | Data Ate | E-mail |   CC  | Schedule | Empresa | Filial |
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	
+
 	aadd(aParam, MV_PAR01)                             	// aParam{1]
 	aadd(aParam, MV_PAR02)                             	// aParam{2]
 	aadd(aParam, If(MV_PAR03 == 3,MV_PAR04,_cTipo))	// aParam{3]
@@ -45,15 +45,15 @@ If Pergunte(cPerg,.T.)
 	aadd(aParam, MV_PAR06)                            	// aParam{5]
 	aadd(aParam, MV_PAR07)                            	// aParam{6]
 	aadd(aParam, .F.)                                 	// aParam{7]
-	
+
 	_lReturn := U_Fat_Diario(aParam)
-	
+
 	If _lReturn
 		MsgInfo("E-mail enviado com sucesso!")
 	Else
 		MsgInfo("Erro ao enviar e-mail, favor entrar em contato com o Depto de TI.")
 	Endif
-	
+
 Endif
 
 Return
@@ -88,10 +88,10 @@ Static Function AjustaSX1(cPerg)
 	aHelpPor := {"Data Final"}
 	PutSX1(cPerg,"05","Data Ate ?","","","mv_ch5","D",8,0,0,"G","NaoVazio","","","","mv_par05","","","","DTOS(dDataBase)","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 	aHelpPor := {"Conta de e-mail"}
-	PutSX1(cPerg,"06","E-mail ?","","","mv_ch6","C",40,0,0,"G","NaoVazio","","","","mv_par06","","","","workflow@avantled.com.br","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
+	PutSX1(cPerg,"06","E-mail ?","","","mv_ch6","C",40,0,0,"G","NaoVazio","","","","mv_par06","","","","workflow@avantlux.com.br","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 	aHelpPor := {"Conta de e-mail que vai receber cópia"}
 	PutSX1(cPerg,"07","E-mail CC ?","","","mv_ch7","C",40,0,0,"G","","","","","mv_par07","","","","","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
-		
+
 	RestArea(aAreaAnt)
 
 Return Nil

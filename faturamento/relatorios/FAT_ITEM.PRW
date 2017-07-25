@@ -1,4 +1,4 @@
-#INCLUDE "PROTHEUS.CH"           
+#INCLUDE "PROTHEUS.CH"
 #INCLUDE "Totvs.ch"
 #INCLUDE "FILEIO.ch"
 #INCLUDE "TbiConn.ch"
@@ -58,41 +58,41 @@ cCopyMail := aParam[4]
 Do Case
 	Case cParaMail = "CO"
 	//cParaMail := "reginaldo.damaso@avantled.com.br"
-	cCopyMail := "wesley.pazini@avantled.com.br"
+	cCopyMail := "wesley.pazini@avantlux.com.br"
 	Case cParaMail = "ESP"
 	//cParaMail := "abel.capella@avantled.com.br"
 	Case cParaMail = "KEY"
-	cParaMail := "wesley.pazini@avantled.com.br"
+	cParaMail := "wesley.pazini@avantlux.com.br"
 	Case cParaMail = "LE"
 	//cParaMail := "felipe.filgueiras@avantled.com.br"
-	cCopyMail := "wesley.pazini@avantled.com.br"
+	cCopyMail := "wesley.pazini@avantlux.com.br"
 	Case cParaMail = "MG"
 	//cParaMail := "felipe.filgueiras@avantled.com.br"
-	cCopyMail := "wesley.pazini@avantled.com.br"
+	cCopyMail := "wesley.pazini@avantlux.com.br"
 	Case cParaMail = "NE"
 	//cParaMail := "adriano.souza@avantled.com.br"
-	cCopyMail := "wesley.pazini@avantled.com.br"
+	cCopyMail := "wesley.pazini@avantlux.com.br"
 	Case cParaMail = "NO"
 	//cParaMail := "miguel.alves@avantled.com.br"
-	cCopyMail := "wesley.pazini@avantled.com.br"
+	cCopyMail := "wesley.pazini@avantlux.com.br"
 	Case cParaMail = "OEM"
 	//cParaMail := "admilson.felix@avantled.com.br"
 	Case cParaMail = "SPC"
-	cParaMail := "wesley.pazini@avantled.com.br"
+	cParaMail := "wesley.pazini@avantlux.com.br"
 	Case cParaMail = "SPI"
 	//cParaMail := "lucas.alves@avantled.com.br"
-	cCopyMail := "wesley.pazini@avantled.com.br"
+	cCopyMail := "wesley.pazini@avantlux.com.br"
 	Case cParaMail = "SU"
 	//cParaMail := "erivelto.borguesan@avantled.com.br"
-	cCopyMail := "wesley.pazini@avantled.com.br"
+	cCopyMail := "wesley.pazini@avantlux.com.br"
 	Case cParaMail = "SUP"
 	//cParaMail := "adilson.moser@avantled.com.br"
-	cCopyMail := "wesley.pazini@avantled.com.br"
+	cCopyMail := "wesley.pazini@avantlux.com.br"
 	Case cParaMail = "GERAL"
-	cParaMail := "wesley.pazini@avantled.com.br"
+	cParaMail := "wesley.pazini@avantlux.com.br"
 	Case cParaMail = "TST"
 	cParaMail := ""
-	cCopyMail := "rogerio.machado@avantled.com.br"
+	cCopyMail := "rogerio.machado@avantlux.com.br"
 EndCase
 
 cMesRef := substr(Dtos(date()),5,2)
@@ -109,68 +109,68 @@ cDtFim := ZZP->ZZP_DATATE
 If nTipo == 1
 	If ALLTRIM(cRegional) == "GERAL"
 		BeginSql alias 'TRB'
-			SELECT	
+			SELECT
 				SB1.B1_DESC,
 				SUM(SD2.D2_QUANT) QTD,
 				SUM(SD2.D2_TOTAL) Reais
 			FROM %table:SD2% SD2
 			INNER JOIN %table:SF2% SF2 ON SD2.D2_FILIAL = SF2.F2_FILIAL AND SD2.D2_DOC = SF2.F2_DOC AND SD2.D2_SERIE = SF2.F2_SERIE AND SD2.D2_CLIENTE = SF2.F2_CLIENTE AND SD2.D2_LOJA = SF2.F2_LOJA AND SF2.%notDel%
 			INNER JOIN %table:SC5% SC5 ON SD2.D2_FILIAL = SC5.C5_FILIAL AND SD2.D2_PEDIDO = SC5.C5_NUM AND SC5.%notDel%
-			INNER JOIN %table:SC6% SC6 ON SD2.D2_FILIAL = SC6.C6_FILIAL AND SD2.D2_PEDIDO = SC6.C6_NUM AND SD2.D2_ITEMPV = SC6.C6_ITEM AND SC6.%notDel% 
+			INNER JOIN %table:SC6% SC6 ON SD2.D2_FILIAL = SC6.C6_FILIAL AND SD2.D2_PEDIDO = SC6.C6_NUM AND SD2.D2_ITEMPV = SC6.C6_ITEM AND SC6.%notDel%
 			INNER JOIN %table:SB1% SB1 ON SD2.D2_COD = SB1.B1_COD AND SB1.%notDel%
 			INNER JOIN %table:SF4% SF4 ON SD2.D2_FILIAL = SF4.F4_FILIAL AND SD2.D2_TES = SF4.F4_CODIGO AND SF4.F4_DUPLIC = 'S' AND SF4.%notDel%
 			WHERE D2_FILIAL = %Exp:_cFilial% AND SD2.D2_EMISSAO BETWEEN %exp:DTOS(cDtIni)% AND %exp:DTOS(cDtFim)% AND SD2.D2_TIPO = 'N' AND SD2.%notDel%
 			GROUP BY SB1.B1_DESC
-			ORDER BY Reais DESC		
+			ORDER BY Reais DESC
 		EndSql
-			
+
 		cLog += "<p align='center' class='style1'><strong>FATURAMENTO POR ITEM ACUMULADO</strong></p>"
 		cLog += "<p>  </p>"
 		cLog += "<p <strong>Data de: </strong>" +DTOC(cDtIni)+ "</p>"
 		cLog += "<p <strong>Data até: </strong>" +DTOC(cDtFim)+ "</p>"
 		cLog += "<p <strong>Filial: </strong> FILIAL SANTA CATARINA </p>"
 		cLog += "<p <strong>Regional: </strong>" +ALLTRIM(cRegional)+ "</p>"
-		
-		cLog += '  <table width="1300" border="1" align="left"> '		
+
+		cLog += '  <table width="1300" border="1" align="left"> '
 		cLog += "<tr>"
-		cLog += '<td align="center" width="180"><span class="style3"><strong>Produto</strong></span></td>'	
+		cLog += '<td align="center" width="180"><span class="style3"><strong>Produto</strong></span></td>'
 		cLog += '<td align="center" width="20"><span class="style3"><strong>Quantidade</strong></span></td>'
 		cLog += '<td align="center" width="20"><span class="style3"><strong>Valor R$</strong></span></td>'
 		cLog += '</tr>'
-				
+
 		cAssunto := "Teste - Faturamento por Item Acumulado - Regional " +DTOC(cDtIni)+ "] até [" +DTOC(cDtFim)+ "]"
 	Else
 		BeginSql alias 'TRB'
-			SELECT SF2.F2_REGIAO,	
+			SELECT SF2.F2_REGIAO,
 				SB1.B1_DESC,
 				SUM(SD2.D2_QUANT) QTD,
 				SUM(SD2.D2_TOTAL) Reais
 			FROM %table:SD2% SD2
 			INNER JOIN %table:SF2% SF2 ON SD2.D2_FILIAL = SF2.F2_FILIAL AND SD2.D2_DOC = SF2.F2_DOC AND SD2.D2_SERIE = SF2.F2_SERIE AND SD2.D2_CLIENTE = SF2.F2_CLIENTE AND SD2.D2_LOJA = SF2.F2_LOJA AND SF2.%notDel%
 			INNER JOIN %table:SC5% SC5 ON SD2.D2_FILIAL = SC5.C5_FILIAL AND SD2.D2_PEDIDO = SC5.C5_NUM AND SC5.%notDel%
-			INNER JOIN %table:SC6% SC6 ON SD2.D2_FILIAL = SC6.C6_FILIAL AND SD2.D2_PEDIDO = SC6.C6_NUM AND SD2.D2_ITEMPV = SC6.C6_ITEM AND SC6.%notDel% 
+			INNER JOIN %table:SC6% SC6 ON SD2.D2_FILIAL = SC6.C6_FILIAL AND SD2.D2_PEDIDO = SC6.C6_NUM AND SD2.D2_ITEMPV = SC6.C6_ITEM AND SC6.%notDel%
 			INNER JOIN %table:SB1% SB1 ON SD2.D2_COD = SB1.B1_COD AND SB1.%notDel%
 			INNER JOIN %table:SF4% SF4 ON SD2.D2_FILIAL = SF4.F4_FILIAL AND SD2.D2_TES = SF4.F4_CODIGO AND SF4.F4_DUPLIC = 'S' AND SF4.%notDel%
 			WHERE D2_FILIAL = %Exp:_cFilial% AND SF2.F2_REGIAO = %exp:cRegional% AND SD2.D2_EMISSAO BETWEEN %exp:DTOS(cDtIni)% AND %exp:DTOS(cDtFim)% AND SD2.D2_TIPO = 'N' AND SD2.%notDel%
 			GROUP BY SB1.B1_DESC, SF2.F2_REGIAO
-			ORDER BY Reais DESC		
+			ORDER BY Reais DESC
 		EndSql
-		
+
 		cLog += "<p align='center' class='style1'><strong>FATURAMENTO POR ITEM ACUMULADO</strong></p>"
 		cLog += "<p>  </p>"
 		cLog += "<p <strong>Data de: </strong>" +DTOC(cDtIni)+ "</p>"
 		cLog += "<p <strong>Data até: </strong>" +DTOC(cDtFim)+ "</p>"
 		cLog += "<p <strong>Filial: </strong> FILIAL SANTA CATARINA </p>"
 		cLog += "<p <strong>Regional: </strong>" +ALLTRIM(cRegional)+ "</p>"
-		
-		cLog += '  <table width="1300" border="1" align="left"> '		
+
+		cLog += '  <table width="1300" border="1" align="left"> '
 		cLog += "<tr>"
 		cLog += '<td align="center" width="20"><span class="style3"><strong>Região</strong></span></td>'
-		cLog += '<td align="center" width="180"><span class="style3"><strong>Produto</strong></span></td>'	
+		cLog += '<td align="center" width="180"><span class="style3"><strong>Produto</strong></span></td>'
 		cLog += '<td align="center" width="20"><span class="style3"><strong>Quantidade</strong></span></td>'
 		cLog += '<td align="center" width="20"><span class="style3"><strong>Valor R$</strong></span></td>'
 		cLog += '</tr>'
-				
+
 		cAssunto := "Teste - Faturamento por Item Acumulado - Regional " +ALLTRIM(cRegional)+ " de [" +DTOC(cDtIni)+ "] até [" +DTOC(cDtFim)+ "]"
 	EndIf
 Else
@@ -178,90 +178,90 @@ Else
 		If ALLTRIM(cRegional) == "GERAL"
 			cDtDiario := Dtos(date())
 			BeginSql alias 'TRB'
-				SELECT	
+				SELECT
 					SB1.B1_DESC,
 					SUM(SD2.D2_QUANT) QTD,
 					SUM(SD2.D2_TOTAL) Reais
 				FROM %table:SD2% SD2
 				INNER JOIN %table:SF2% SF2 ON SD2.D2_FILIAL = SF2.F2_FILIAL AND SD2.D2_DOC = SF2.F2_DOC AND SD2.D2_SERIE = SF2.F2_SERIE AND SD2.D2_CLIENTE = SF2.F2_CLIENTE AND SD2.D2_LOJA = SF2.F2_LOJA AND SF2.%notDel%
 				INNER JOIN %table:SC5% SC5 ON SD2.D2_FILIAL = SC5.C5_FILIAL AND SD2.D2_PEDIDO = SC5.C5_NUM AND SC5.%notDel%
-				INNER JOIN %table:SC6% SC6 ON SD2.D2_FILIAL = SC6.C6_FILIAL AND SD2.D2_PEDIDO = SC6.C6_NUM AND SD2.D2_ITEMPV = SC6.C6_ITEM AND SC6.%notDel% 
+				INNER JOIN %table:SC6% SC6 ON SD2.D2_FILIAL = SC6.C6_FILIAL AND SD2.D2_PEDIDO = SC6.C6_NUM AND SD2.D2_ITEMPV = SC6.C6_ITEM AND SC6.%notDel%
 				INNER JOIN %table:SB1% SB1 ON SD2.D2_COD = SB1.B1_COD AND SB1.%notDel%
 				INNER JOIN %table:SF4% SF4 ON SD2.D2_FILIAL = SF4.F4_FILIAL AND SD2.D2_TES = SF4.F4_CODIGO AND SF4.F4_DUPLIC = 'S' AND SF4.%notDel%
 				WHERE D2_FILIAL = %Exp:_cFilial% AND SD2.D2_EMISSAO BETWEEN %exp:cDtDiario% AND %exp:cDtDiario% AND SD2.D2_TIPO = 'N' AND SD2.%notDel%
 				GROUP BY SB1.B1_DESC
-				ORDER BY Reais DESC		
+				ORDER BY Reais DESC
 			EndSql
-				
+
 			cLog += "<p align='center' class='style1'><strong>FATURAMENTO POR ITEM DIÁRIO</strong></p>"
 			cLog += "<p>  </p>"
 			cLog += "<p <strong>Data: </strong>" +DTOC(date())+ "</p>"
 			cLog += "<p <strong>Filial: </strong> FILIAL SANTA CATARINA </p>"
 			cLog += "<p <strong>Regional: </strong>" +ALLTRIM(cRegional)+ "</p>"
-			
-			cLog += '  <table width="1300" border="1" align="left"> '		
+
+			cLog += '  <table width="1300" border="1" align="left"> '
 			cLog += "<tr>"
-			cLog += '<td align="center" width="180"><span class="style3"><strong>Produto</strong></span></td>'	
+			cLog += '<td align="center" width="180"><span class="style3"><strong>Produto</strong></span></td>'
 			cLog += '<td align="center" width="20"><span class="style3"><strong>Quantidade</strong></span></td>'
 			cLog += '<td align="center" width="20"><span class="style3"><strong>Valor R$</strong></span></td>'
 			cLog += '</tr>'
-					
+
 			cAssunto := "Teste - Faturamento por Item Diário - Regional " +ALLTRIM(cRegional)+ " [" +DTOC(date())+  "]"
 		Else
 			cDtDiario := Dtos(date())
 			BeginSql alias 'TRB'
-				SELECT SF2.F2_REGIAO,	
+				SELECT SF2.F2_REGIAO,
 					SB1.B1_DESC,
 					SUM(SD2.D2_QUANT) QTD,
 					SUM(SD2.D2_TOTAL) Reais
 				FROM %table:SD2% SD2
 				INNER JOIN %table:SF2% SF2 ON SD2.D2_FILIAL = SF2.F2_FILIAL AND SD2.D2_DOC = SF2.F2_DOC AND SD2.D2_SERIE = SF2.F2_SERIE AND SD2.D2_CLIENTE = SF2.F2_CLIENTE AND SD2.D2_LOJA = SF2.F2_LOJA AND SF2.%notDel%
 				INNER JOIN %table:SC5% SC5 ON SD2.D2_FILIAL = SC5.C5_FILIAL AND SD2.D2_PEDIDO = SC5.C5_NUM AND SC5.%notDel%
-				INNER JOIN %table:SC6% SC6 ON SD2.D2_FILIAL = SC6.C6_FILIAL AND SD2.D2_PEDIDO = SC6.C6_NUM AND SD2.D2_ITEMPV = SC6.C6_ITEM AND SC6.%notDel% 
+				INNER JOIN %table:SC6% SC6 ON SD2.D2_FILIAL = SC6.C6_FILIAL AND SD2.D2_PEDIDO = SC6.C6_NUM AND SD2.D2_ITEMPV = SC6.C6_ITEM AND SC6.%notDel%
 				INNER JOIN %table:SB1% SB1 ON SD2.D2_COD = SB1.B1_COD AND SB1.%notDel%
 				INNER JOIN %table:SF4% SF4 ON SD2.D2_FILIAL = SF4.F4_FILIAL AND SD2.D2_TES = SF4.F4_CODIGO AND SF4.F4_DUPLIC = 'S' AND SF4.%notDel%
 				WHERE D2_FILIAL = %Exp:_cFilial% AND SF2.F2_REGIAO = %exp:cRegional% AND SD2.D2_EMISSAO BETWEEN %exp:cDtDiario% AND %exp:cDtDiario% AND SD2.D2_TIPO = 'N' AND SD2.%notDel%
 				GROUP BY SB1.B1_DESC, SF2.F2_REGIAO
-				ORDER BY Reais DESC		
+				ORDER BY Reais DESC
 			EndSql
 			cLog += "<p align='center' class='style1'><strong>FATURAMENTO POR ITEM DIÁRIO</strong></p>"
 			cLog += "<p>  </p>"
 			cLog += "<p <strong>Data: </strong>" +DTOC(date())+ "</p>"
 			cLog += "<p <strong>Filial: </strong> FILIAL SANTA CATARINA </p>"
 			cLog += "<p <strong>Regional: </strong>" +ALLTRIM(cRegional)+ "</p>"
-			
-			cLog += '  <table width="1300" border="1" align="left"> '		
+
+			cLog += '  <table width="1300" border="1" align="left"> '
 			cLog += "<tr>"
 			cLog += '<td align="center" width="20"><span class="style3"><strong>Região</strong></span></td>'
-			cLog += '<td align="center" width="180"><span class="style3"><strong>Produto</strong></span></td>'	
+			cLog += '<td align="center" width="180"><span class="style3"><strong>Produto</strong></span></td>'
 			cLog += '<td align="center" width="20"><span class="style3"><strong>Quantidade</strong></span></td>'
 			cLog += '<td align="center" width="20"><span class="style3"><strong>Valor R$</strong></span></td>'
 			cLog += '</tr>'
-			
+
 			cAssunto := "Teste - Faturamento por Item Diário - Regional " +ALLTRIM(cRegional)+ " ["  +DTOC(date())+ "]"
 		EndIf
 	EndIf
 EndIf
 
-	
+
 TRB->(DbGoTop())
 
 If ALLTRIM(cRegional) == "GERAL"
 	While (!Eof('TRB'))
-		cLog += "<tr>"		
+		cLog += "<tr>"
 		cLog += '<td width="180"><span class="style3">' +TRB->B1_DESC+ '</span></td>'+ '<td align="right" width="20"><span class="style3">' +Transform(TRB->QTD, _cPctQtd)+ '</span></td>'+ '<td align="right" width="20"><span class="style3">' +Transform(TRB->Reais, _cD2Total)+ '</span></td>'
 		cLog += '</tr>'
 		nTotQtd := (nTotQtd + TRB->QTD)
-		nTotVlr := (nTotVlr + TRB->Reais)				
-		DbSkip()			
+		nTotVlr := (nTotVlr + TRB->Reais)
+		DbSkip()
 	End
 Else
 	While (!Eof('TRB'))
-		cLog += "<tr>"		
+		cLog += "<tr>"
 		cLog += '<td align="center" width="20"><span class="style3">' +TRB->F2_REGIAO+ '</span></td>' + '<td width="180"><span class="style3">' +TRB->B1_DESC+ '</span></td>'+ '<td align="right" width="20"><span class="style3">' +Transform(TRB->QTD, _cPctQtd)+ '</span></td>'+ '<td align="right" width="20"><span class="style3">' +Transform(TRB->Reais, _cD2Total)+ '</span></td>'
 		cLog += '</tr>'
 		nTotQtd := (nTotQtd + TRB->QTD)
-		nTotVlr := (nTotVlr + TRB->Reais)				
+		nTotVlr := (nTotVlr + TRB->Reais)
 		DbSkip()
 	End
 EndIf
@@ -274,11 +274,11 @@ If ALLTRIM(cRegional) == "GERAL"
 	cLog += '<td align="right" width="20"><span class="style3"><strong>'+Transform(nTotVlr, _cD2Total)+'</strong></span></td>'
 	cLog += '</tr>'
 	cLog += '</table>'
-	cLog += cFim	
+	cLog += cFim
 	cPara := cParaMail
-	cPara += ";rogerio.machado@avantled.com.br;"
+	cPara += ";rogerio.machado@avantlux.com.br;"
 	cPara += cCopyMail
-	U_MHDEnvMail(cPara, "", "", cAssunto, cLog, "")	
+	U_MHDEnvMail(cPara, "", "", cAssunto, cLog, "")
 Else
 	cLog += "<tr>"
 	cLog += '<td colspan = "2" align="center" width="20"><span class="style3"><strong>Total</strong></span></td>'
@@ -286,15 +286,15 @@ Else
 	cLog += '<td align="right" width="20"><span class="style3"><strong>'+Transform(nTotVlr, _cD2Total)+'</strong></span></td>'
 	cLog += '</tr>'
 	cLog += '</table>'
-	cLog += cFim	
+	cLog += cFim
 	cPara := cParaMail
-	cPara += ";rogerio.machado@avantled.com.br;"
+	cPara += ";rogerio.machado@avantlux.com.br;"
 	cPara += cCopyMail
 	U_MHDEnvMail(cPara, "", "", cAssunto, cLog, "")
 EndIf
 
 RESET ENVIRONMENT
-			
+
 Return
 
 
@@ -315,17 +315,17 @@ Static Function AjustaSX1(cPerg)
 
 	aHelpPor := {"Tipos:"," - Diario","- Acumulado (A partir do ultimo fechamento.)"}
 	PutSX1(cPerg,"01","Tipo?","Tipo?","Tipo?","mv_ch1","C",9,0,0,"C","NaoVazio","","","","mv_par01","Acumulado","Acumulado","Acumulado","1","Diario","Diario","Diario","","","","","","","","","",aHelpPor,"","")
-	
+
 	aHelpPor := {"Escolha a Regional"}
 	PutSX1(cPerg,"02","Regional?","Regional?","Regional?","mv_ch2","C",5,0,0,"G","","","","","mv_par02","","","","","","","","","","","","","","","","",aHelpPor,"","")
 
 	aHelpPor := {"Enviar Para? Após o e-mail colocar um ; "}
 	PutSX1(cPerg,"03","Enviar Para?","Enviar Para?","Enviar Para?","mv_ch3","C",50,0,0,"G","","","","","mv_par03","","","","","","","","","","","","","","","","",aHelpPor,"","")
-	
+
 	aHelpPor := {"Enviar Cc?  Após o e-mail colocar um ; "}
 	PutSX1(cPerg,"04","Enviar Cc?","Enviar Cc?","Enviar Cc?","mv_ch4","C",50,0,0,"G","","","","","mv_par04","","","","","","","","","","","","","","","","",aHelpPor,"","")
 
-	RestArea(aAreaAnt)      
+	RestArea(aAreaAnt)
 
 Return Nil
 

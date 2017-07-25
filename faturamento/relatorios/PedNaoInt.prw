@@ -49,8 +49,7 @@ EndSql
 
 While (!Eof('TRB'))
 
-		cPara := "elir.ribeiro@avantled.com.br; rogerio.machado@avantled.com.br; fernando.nogueira@avantlux.com.br; ewerson.silva@avantled.com.br; "
-		//cPara := "rogerio.machado@avantled.com.br; "
+		cPara := "elir.ribeiro@avantlux.com.br; rogerio.machado@avantlux.com.br; fernando.nogueira@avantlux.com.br; ewerson.silva@avantlux.com.br; "
 		cPara += TRB->A3_EMAIL
 
 		cLog := "<html><body>"
