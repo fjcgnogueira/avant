@@ -21,7 +21,7 @@
 User Function STATUSPED()
 
 	Local cPara    := ""
-	Local cBCC     := "rogerio.machado@avantlux.com.br; tecnologia@avantlux.com.br"
+	Local cBCC     := "rogerio.machado@avantlux.com.br,tecnologia@avantlux.com.br"
 	Local cAssunto := "AVANT - Pedido na Transportadora"
 	Local cNota    := ""
 	Local cData    := ""
