@@ -39,7 +39,7 @@ If SZH->(dbSeek(xFilial()+SF1->F1_NUMTRC))
 				oProcess:USerSiga := "000000"
 				oProcess:cTo  := cPara
 				oProcess:cCC  := "sota@avantlux.com.br"
-				oProcess:cBCC := "fernando.nogueira@avantlux.com.br;tecnologia@avantlux.com.br"
+				oProcess:cBCC := "fernando.nogueira@avantlux.com.br,tecnologia@avantlux.com.br"
 				oProcess:AttachFile(cAnexo)
 				oProcess:Start()
 				oProcess:Finish()
