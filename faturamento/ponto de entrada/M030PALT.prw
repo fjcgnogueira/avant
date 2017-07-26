@@ -17,7 +17,7 @@
 User Function M030PALT()
 
 Local cPara    := SA1->A1_EMAIL
-Local cBCC     := "rogerio.machado@avantlux.com.br; tecnologia@avantlux.com.br"
+Local cBCC     := "rogerio.machado@avantlux.com.br,tecnologia@avantlux.com.br"
 Local cAssunto := "Bem-vindo à Avant"
 
 	cLog := "<html><body>"
