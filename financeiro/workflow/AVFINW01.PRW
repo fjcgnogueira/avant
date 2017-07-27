@@ -7,7 +7,7 @@
 |   Programa: AVFINW01  | Autor: Pedro Augusto           | Data: Maio/2014  |
 +-----------------------+--------------------------------+------------------+
 |  Descricao: Workflow de Liberação de Pagamento de Títulos do Contas a Pagar
-|			  - Envio/Retorno dos Títulos para Aprovação 
+|			  - Envio/Retorno dos Títulos para Aprovação
 |			  - Tratamento das respostas via HTTP
 |			  - Envio de e-mail de pedidos de compra aprovados / reprovados aos compradores
 |			  - Envio de notificações de pedidos nao respondidos (TimeOut)
@@ -16,15 +16,15 @@
 +---------------------------------------------------------------------------+
 |    Sintaxe: U_AVCOMW10()
 +----------------------------------------------------------------------------
-|    Retorno: Nulo                                                               
+|    Retorno: Nulo
 +--------------------------------------------------------------------------*/
 
 /*-------------------------------------------------------------------------+
-|  Processa todas as atividades por Empresa                                |                                            
+|  Processa todas as atividades por Empresa                                |
 +--------------------------------------------------------------------------*/
 User Function AVFNW101()				//Empresa "01"
 
-Private _aMatriz  := {"01","010104"}  
+Private _aMatriz  := {"01","010104"}
 
 ConOut("["+DtoC(Date()) + ' ' + Time()+"] [U_AVFNW101] Inicio do processamento - Workflow CP.")
 
@@ -40,12 +40,12 @@ ConOut("["+DtoC(Date()) + ' ' + Time()+"] [U_AVFNW101] Final do processamento - 
 Return
 
 /*-------------------------------------------------------------------------+
-|  Envio/Retorno dos Títulos para Aprovação                                |                                            
+|  Envio/Retorno dos Títulos para Aprovação                                |
 +--------------------------------------------------------------------------*/
 User Function AVFINW01()
 Local _nEmp
 Private _aMatriz  := {"01","010101"}  // para abrir a 1a empresa //
-Private _aEmpresa := {}  
+Private _aEmpresa := {}
 Private _aNoEmp   := {}
 
 U_CONSOLE('Inicio do processamento - CP() ',cFunc)
@@ -65,20 +65,20 @@ DBSelectArea("SM0")
 DBSetOrder(1)
 DBSeek(_aMatriz[1],.F.)
 
-WHILE !SM0->(EOF())                       
-	Aadd(_aEmpresa, {SM0->M0_CODIGO,Alltrim(SM0->M0_CODFIL)})  
+WHILE !SM0->(EOF())
+	Aadd(_aEmpresa, {SM0->M0_CODIGO,Alltrim(SM0->M0_CODFIL)})
 	SM0->(DBSkip())
 END
 RpcClearEnv()
 
-For _nEmp := 1 To Len(_aEmpresa)   
-	U_CP({_aEmpresa[_nEmp]})  		
-Next 
+For _nEmp := 1 To Len(_aEmpresa)
+	U_CP({_aEmpresa[_nEmp]})
+Next
 U_CONSOLE('Final do processamento - CP() ',cFunc)
 Return
-   	
+
 /*-------------------------------------------------------------------------+
-|  Prepara ambiente - Empresa / Filial                                     |                                            
+|  Prepara ambiente - Empresa / Filial                                     |
 +--------------------------------------------------------------------------*/
 User Function CP( aParam )
 Local cFunc		:= "U_CP"
@@ -96,23 +96,23 @@ U_WKFCP(4)  		// 4 - ENVIO PC ITENS REPROVADOS PARA SOLICITANTE
 RpcClearEnv()
 U_CONSOLE('CP(aParam) final:' + aParam[1][1]   +'/'+ aParam[1][2],cFunc)
 RETURN
- 
+
 /*-------------------------------------------------------------------------+
 |Rotina principal:														   |
 |	- envio de e-mail de titulos para aprovacao                            |
 |	- Tratamento das respostas via HTTP                                    |
 |	- envio de e-mail de titulos aprovados / reprovados aos users do       |
-|     financeiro                                                           |  
-|  Prepara ambiente - Empresa / Filial                                     |                                            
+|     financeiro                                                           |
+|  Prepara ambiente - Empresa / Filial                                     |
 +--------------------------------------------------------------------------*/
-User Function WKFCP(_nOpc, oProcess)      
+User Function WKFCP(_nOpc, oProcess)
 Local _lProcesso  := .F.
 Local cCodFil	  := ""
 Local cChaveSCR	  := ""
 Local cFunc		  := "U_WKFCP"
-	
+
 Local cObs 		  := ""
-Local cGrupo	  := "" , lLiberou	:= .F. 
+Local cGrupo	  := "" , lLiberou	:= .F.
 Local cCodUsrFin  := AllTrim(GetNewPar("MV_XWFUSFI",""))
 Local nTamUsrFin  := 0
 Local aCodUsrFin  := {}
@@ -149,25 +149,25 @@ While Len(cCodUsrFin) - nTamUsrFin >= 6
 	aAdd(aCodUsrFin, AVWFPsqUsr(Substr(cCodUsrFin,nTamUsrFin+1,6)) )		// codigo, nome completo, e-mail do usuário
 	//ConOut("["+DtoC(Date())+" "+Time()+"] ["+cFunc+"] Usr.Financ. | Cod./Nome/Email: " + aCodUsrFin[Len(aCodUsrFin),1] + "/" + aCodUsrFin[Len(aCodUsrFin),2] + "/" + aCodUsrFin[Len(aCodUsrFin),3] )
 	lValUsrAnC := .T.
-	nTamUsrFin += 7	
+	nTamUsrFin += 7
 EndDo
 
 For nY := 1 to Len(aCodUsrFin)
 	If nY == 1
 		_cMailDest := aCodUsrFin[nY,3]
 	Else
-		_cMailDest += ";" + aCodUsrFin[nY,3]		
+		_cMailDest += ";" + aCodUsrFin[nY,3]
 	EndIf
 Next nY
 
 ChkFile("SCR")
 ChkFile("SA2")
 ChkFile("SE2")
-	
-DO 	CASE 
+
+DO 	CASE
 
 	/*-------------------------------------------------------------------------+
-	|  1 - Prepara os titulos a serem enviados para aprovacao                  |                                            
+	|  1 - Prepara os titulos a serem enviados para aprovacao                  |
 	+--------------------------------------------------------------------------*/
 	CASE _nOpc == 1
    		U_CONSOLE("1 - Prepara Titulos a serem enviados para aprovacao",cFunc)
@@ -176,7 +176,7 @@ DO 	CASE
 		If Select("TMP") > 0
 			("TMP")->(dbCloseArea())
 		Endif
-  		
+
 		//Busca as Alçada pendentes de aprovação de Títulos AP
   		BeginSQL Alias "TMP"
 			select
@@ -193,7 +193,7 @@ DO 	CASE
 
 		TMP->(dbGoTop())
 		While !TMP->(Eof())
-            
+
 			If Select(cAlias) > 0
 				(cAlias)->(dbCloseArea())
 			Endif
@@ -216,7 +216,7 @@ DO 	CASE
 				order by CR_FILIAL, CR_TIPO, CR_NUM, CR_NIVEL, CR_USER, CR_APROV
 			EndSQL
 				  //and CR_NIVEL  = %Exp:TMP->CR_NIVEL% and CR_USER = %Exp:TMP->CR_USER%
-			
+
 			cParcelas	:= ""									//Limpa conteúdo das parcelas
 			nTotalTit	:= 0									//Zera Total do Título
 			cChvSE2WF	:= ""									//Chave do Titulo a Pagar SEM PARCELA
@@ -236,14 +236,14 @@ DO 	CASE
 							MsUnlock("SCR")
 						EndIf
 						SCR->(DbSkip())
-					EndDo					
+					EndDo
 				Else
 					If Empty(cChvSE2WF)
-						cChvSE2WF	:= (cAlias)->(E2_FILIAL + E2_PREFIXO + E2_NUM + E2_TIPO + E2_FORNECE + E2_LOJA)					
-					EndIf					
+						cChvSE2WF	:= (cAlias)->(E2_FILIAL + E2_PREFIXO + E2_NUM + E2_TIPO + E2_FORNECE + E2_LOJA)
+					EndIf
 
-					If Len( AVWFPsqDoc(cChvSE2WF) ) == 0 			// Pesquisa os documentos do Banco de Conhecimento	
-						SE2->(DbOrderNickName("SE2WF01"), DbGoTop()) 
+					If Len( AVWFPsqDoc(cChvSE2WF) ) == 0 			// Pesquisa os documentos do Banco de Conhecimento
+						SE2->(DbOrderNickName("SE2WF01"), DbGoTop())
 						If SE2->(dbSeek( (cAlias)->(E2_FILIAL+E2_PREFIXO+E2_NUM+E2_TIPO+E2_FORNECE+E2_LOJA+E2_PARCELA) ) )
 							Reclock("SE2",.F.)
 								SE2->E2_X_WF	:= "9"			// (branco)=Não Enviado | 1=E-mail Enviado | 9=Tentativa de Envio sem Documento Anexo
@@ -254,20 +254,20 @@ DO 	CASE
 						cParcelas += Iif(Empty((cAlias)->E2_PARCELA),"",(cAlias)->E2_PARCELA + " - ") + DtoC(StoD((cAlias)->E2_VENCREA)) + " - " + Transform((cAlias)->E2_SALDO, PesqPict("SE2","E2_SALDO"))
 						nTotalTit += (cAlias)->E2_SALDO
 					EndIf
-				
+
 				EndIf
 				(cAlias)->(DbSkip())
 			EndDo
 			(cAlias)->(dbCloseArea())
-			
+
 		   	If nTotalTit # 0
 		   		aDocBcoCto	:= AVWFPsqDoc(cChvSE2WF)			// Pesquisa os documentos do Banco de Conhecimento
 			EndIf
-			
+
 			If Len(aDocBcoCto) == 0
-				U_Console("Nao existem anexos. Processamento abortado!"+CRLF+Space(30)+"SCR Fil/Num: "+ TMP->CR_FILIAL+"/"+RTrim(TMP->CR_NUM),cFunc)				
+				U_Console("Nao existem anexos. Processamento abortado!"+CRLF+Space(30)+"SCR Fil/Num: "+ TMP->CR_FILIAL+"/"+RTrim(TMP->CR_NUM),cFunc)
 			Else
-				U_Console("Encontrado anexos. Processando o envio..."+CRLF+Space(30)+"SCR Fil/Num: "+ TMP->CR_FILIAL+"/"+RTrim(TMP->CR_NUM),cFunc)				
+				U_Console("Encontrado anexos. Processando o envio..."+CRLF+Space(30)+"SCR Fil/Num: "+ TMP->CR_FILIAL+"/"+RTrim(TMP->CR_NUM),cFunc)
 
 	   			_aWF := U_EnviaCP(TMP->CR_FILIAL, TMP->CR_NUM, TMP->CR_USER, TMP->(CR_FILIAL+CR_TIPO+CR_NUM+CR_NIVEL+CR_USER), nTotalTit, , , _nOpc, cParcelas, cChvSE2WF)
 				_lProcesso 	:= .T.
@@ -282,20 +282,20 @@ DO 	CASE
 						MsUnlock("SCR")
 					EndIf
 					SCR->(DbSkip())
-				EndDo					
+				EndDo
 
 			EndIf
 
-			TMP->(DbSkip())           
+			TMP->(DbSkip())
 		EndDo
 
 		TMP->(dbCloseArea())
 
 	/*-------------------------------------------------------------------------+
-	|  2 - Processa O RETORNO DO EMAIL                                         |                                             
+	|  2 - Processa O RETORNO DO EMAIL                                         |
 	+--------------------------------------------------------------------------*/
 	CASE _nOPC	== 2
-	
+
 		U_CONSOLE("2 - Processa O RETORNO DO EMAIL",cFunc)
 		U_CONSOLE("2 - EmpFil: " + cEmpAnt + cFilAnt,cFunc)
 
@@ -309,7 +309,7 @@ DO 	CASE
 		cWFID     	:= AllTrim(oProcess:oHtml:RetByName("WFID"))
 
 		oProcess:Finish() // FINALIZA O PROCESSO
-		
+
 		U_CONSOLE("Parametros Recebidos...",cFunc)
 		U_CONSOLE("2 - cFilAnt    : " + cFilAnt,cFunc)
 		U_CONSOLE("2 - cChaveSCR  : " + cChaveSCR,cFunc)
@@ -318,11 +318,11 @@ DO 	CASE
 		U_CONSOLE("2 - WFId       : " + cWFID,cFunc)
 
 		If cOpc $ "S|N"  // Aprovacao S-Sim N-Nao
-			// Posiciona na tabela de Alcadas 
+			// Posiciona na tabela de Alcadas
 			DBSelectArea("SCR")
 			//DBSetNickName (2)
-			//DBSeek(__cChaveSCR)  
-			
+			//DBSeek(__cChaveSCR)
+
 		    aCpoChvSCR	:= {"CR_FILIAL","CR_TIPO","CR_NUM","CR_NIVEL","CR_USER"}	//Posições Fixas; se alterar varrer o fonte
 		    aVarChvSCR	:= Array(Len(aCpoChvSCR))
 			nTamSCRCpo	:= 0
@@ -354,7 +354,7 @@ DO 	CASE
 
 							lLiberou := MaAlcDoc({SCR->CR_NUM,"TP",SCR->CR_TOTAL,SCR->CR_APROV,,Alltrim(GetMV("MV_XGRAPRO")),,,,,cObs},msdate(),If(cOpc=="S",4,6))
 							U_CONSOLE("2 - Liberado :" + Iif(lLiberou, "Sim", "Nao"),cFunc)
-		
+
 							If lLiberou
 								U_CONSOLE("2 - Liberando titulo :" + Left(SCR->CR_NUM,nTamChSE2),cFunc)
 				                Reclock("SE2",.F.)
@@ -383,18 +383,18 @@ DO 	CASE
 				EndIf
 
 				SCR->(DbSkip())
-			EndDo					
+			EndDo
 
-			If !SCR->(Found())  
+			If !SCR->(Found())
 				U_CONSOLE("2 - Processo nao encontrado (Chave SCR): "+cChaveSCR,cFunc)
 				U_CONSOLE("2 - Semaforo Verde",cFunc)
 				//Return .T.
 			Endif
-							
-		EndIf				
+
+		EndIf
 
 	/*-------------------------------------------------------------------------+
-	|  3 - Envia resposta de titulos aprovado para o usuário do financeiro     |                                             
+	|  3 - Envia resposta de titulos aprovado para o usuário do financeiro     |
 	+--------------------------------------------------------------------------*/
 	CASE _nOpc == 3
 		U_CONSOLE("3 - Envia resposta Titulo aprovado p/ Financeiro",cFunc)
@@ -405,10 +405,10 @@ DO 	CASE
 		EndIf
 	  	/*_cQuery := ""
 	  	_cQuery += " SELECT"
-	  	_cQuery += " E2_FILIAL," 
+	  	_cQuery += " E2_FILIAL,"
 	  	_cQuery += " E2_PREFIXO,"
-	  	_cQuery += " E2_NUM,"  
-	  	_cQuery += " E2_PARCELA," 
+	  	_cQuery += " E2_NUM,"
+	  	_cQuery += " E2_PARCELA,"
 	  	_cQuery += " E2_TIPO,"
 	  	_cQuery += " E2_FORNECE,"
 	  	_cQuery += " E2_LOJA"
@@ -419,13 +419,13 @@ DO 	CASE
 	  	_cQuery += " AND E2_USUALIB <> '' "
 	  	_cQuery += " AND E2_X_WF <> '1'"	      			// (branco)=Não Enviado | 1=E-mail Enviado | 9=Tentativa de Envio sem Documento Anexo
 	  	_cQuery += " ORDER BY"
-	  	_cQuery += " E2_FILIAL," 
+	  	_cQuery += " E2_FILIAL,"
        	_cQuery += " E2_PREFIXO,"
 	  	_cQuery += " E2_NUM "
 
     	TcQuery _cQuery New Alias "TMP"
 		dbGotop()
-		
+
 		While !TMP->(Eof())
 			_cNum	   := TMP->(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA)
 			DBSelectarea("SCR")
@@ -442,7 +442,7 @@ DO 	CASE
 	       		IF SCR->CR_STATUS == '03' .AND. !EMPTY(SCR->CR_LIBAPRO)   // SOMENTE CASO APROVADO
        				_cChave	:= SCR->(CR_FILIAL+CR_TIPO+CR_NUM+CR_USER)
        				_lAprov	:= .T.
-					_lAchou  := .T.        				
+					_lAchou  := .T.
        				nTotalTit	:= SCR->CR_TOTAL
        			ENDIF
 	       		SCR->(DBSkip())
@@ -480,7 +480,7 @@ DO 	CASE
 		dbSelectArea("TMP")
 		dbCloseArea())
 		*/
-    	
+
     	If Select("TMP") > 0
     		TMP->(DbCloseArea())
     	EndIf
@@ -493,9 +493,9 @@ DO 	CASE
 			group by E2_FILIAL, E2_PREFIXO, E2_NUM, E2_TIPO, E2_FORNECE, E2_LOJA
 			order by E2_FILIAL, E2_PREFIXO, E2_NUM, E2_TIPO, E2_FORNECE, E2_LOJA, E2_PARCELA
     	EndSQL
-    	
+
     	While !TMP->(Eof())
-    	
+
 			cParcelas	:= ""									//Limpa conteúdo das parcelas
 			nTotalTit	:= 0									//Zera Total do Título
 			cChvSE2WF	:= ""
@@ -513,8 +513,8 @@ DO 	CASE
 				inner join %Table:SCR% SCR
 				   on SCR.CR_FILIAL = E2_FILIAL and CR_TIPO = 'TP' and CR_NUM = E2_PREFIXO+E2_NUM+E2_TIPO+E2_FORNECE+E2_LOJA+E2_PARCELA
 					   and SCR.%NotDel%
-				where E2_FILIAL  = %Exp:TMP->E2_FILIAL%  and E2_PREFIXO = %Exp:TMP->E2_PREFIXO% 
-				  and E2_NUM     = %Exp:TMP->E2_NUM%     and E2_TIPO    = %Exp:TMP->E2_TIPO% 
+				where E2_FILIAL  = %Exp:TMP->E2_FILIAL%  and E2_PREFIXO = %Exp:TMP->E2_PREFIXO%
+				  and E2_NUM     = %Exp:TMP->E2_NUM%     and E2_TIPO    = %Exp:TMP->E2_TIPO%
 				  and E2_FORNECE = %Exp:TMP->E2_FORNECE% and E2_LOJA    = %Exp:TMP->E2_LOJA%
 				  and E2_DATALIB <> ' ' and E2_USUALIB <> ' ' and E2_X_WF <> '1'
 				  and SE2.%NotDel%
@@ -531,15 +531,15 @@ DO 	CASE
 				U_CONSOLE("3 - Não Localizado Alçada (SCR) relacionado ao Titulo (SE2) liberado." + CRLF + Space(30) + ;
 						  "3 - Chave WF SE2 (Fil+Pref+Num+Tp+Forn+Lj) :" + TMP->(E2_FILIAL+E2_PREFIXO+E2_NUM+E2_TIPO+E2_FORNECE+E2_LOJA),cFunc)
 			EndIf
-			
+
 	    	While !(cAlias)->(Eof())
 
 				If Empty(cChvSE2WF)
 					cChvSE2WF	:= (cAlias)->(E2_FILIAL + E2_PREFIXO + E2_NUM + E2_TIPO + E2_FORNECE + E2_LOJA)
 					cCRNum		:= (cAlias)->(CR_NUM)
-					cSCRChave	:= (cAlias)->(CR_FILIAL+CR_TIPO+CR_NUM+CR_NIVEL+CR_USER) 					
+					cSCRChave	:= (cAlias)->(CR_FILIAL+CR_TIPO+CR_NUM+CR_NIVEL+CR_USER)
 					cEmailDest 	:= Iif( Empty((cAlias)->E2_X_USUAR), "", AVWFPsqUsr((cAlias)->E2_X_USUAR)[3] )
-				EndIf					
+				EndIf
 
 				cParcelas += Iif(!Empty(cParcelas)," | ","")
 				cParcelas += Iif(Empty((cAlias)->E2_PARCELA),"",(cAlias)->E2_PARCELA + " - ") + DtoC(StoD((cAlias)->E2_VENCREA)) + " - " + Transform((cAlias)->E2_VALOR, PesqPict("SE2","E2_VALOR"))
@@ -575,27 +575,27 @@ DO 	CASE
 		TMP->(dbCloseArea())
 
 	/*-------------------------------------------------------------------------+
-	|  4 - Envia resposta de titulos bloqueado para o usuário do financeiro    |                                             
+	|  4 - Envia resposta de titulos bloqueado para o usuário do financeiro    |
 	+--------------------------------------------------------------------------*/
 	CASE _nOpc == 4
-	
+
 		U_CONSOLE("4 - Envia resposta Titulo bloqueado p/ Financeiro",cFunc)
 		U_CONSOLE("4 - EmpFil: " + cEmpAnt + cFilAnt,cFunc)
-		
+
 		If !lValUsrAnC
 			ConOut("["+DtoC(Date())+" "+Time()+"] ["+cFunc+"] " + " - ERRO no conteúdo do parâmetro MV_XWFUSFI. Código do usuário informado não é valido")
 		EndIf
 	  	/*_cQuery := ""
 	  	_cQuery += " SELECT"
-	  	_cQuery += " CR_FILIAL," 
-	  	_cQuery += " CR_TIPO,"   
-	  	_cQuery += " CR_NUM,"    
-	  	_cQuery += " CR_NIVEL," 
-	  	_cQuery += " CR_TOTAL," 
-	  	_cQuery += " CR_USER,"   
-	  	_cQuery += " CR_APROV," 
-  		_cQuery += " CR_OBS"   
-	  	
+	  	_cQuery += " CR_FILIAL,"
+	  	_cQuery += " CR_TIPO,"
+	  	_cQuery += " CR_NUM,"
+	  	_cQuery += " CR_NIVEL,"
+	  	_cQuery += " CR_TOTAL,"
+	  	_cQuery += " CR_USER,"
+	  	_cQuery += " CR_APROV,"
+  		_cQuery += " CR_OBS"
+
 	  	_cQuery += " FROM " + RetSqlName("SCR") + " SCR"
 	  	_cQuery += " WHERE SCR.D_E_L_E_T_ <> '*'"
 	  	_cQuery += " AND CR_FILIAL = '" + cFilAnt + "'"
@@ -603,29 +603,29 @@ DO 	CASE
 	  	_cQuery += " AND CR_STATUS = '04'"                          // REPROVADO
 	  	_cQuery += " AND CR_TIPO = 'TP'"                            // Título a pagar
 	  	_cQuery += " AND CR_WF <> '1'"	      					    // 1-Enviado
-		  	
+
 	  	_cQuery += " ORDER BY"
-	  	_cQuery += " CR_FILIAL," 
+	  	_cQuery += " CR_FILIAL,"
 	  	_cQuery += " CR_NUM,"
 	  	_cQuery += " CR_NIVEL,"
 	  	_cQuery += " CR_USER"
-	  	
-		TcQuery _cQuery New Alias "TMP"   
-		
+
+		TcQuery _cQuery New Alias "TMP"
+
 		dbGotop()
 		While !TMP->(Eof())
 			DBSelectArea("SE2")
 			DBSetOrder(1)
 			DBSeek(xFilial("SE2")+LEFT(TMP->CR_NUM,LEN(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA)))
 
-			IF !FOUND()  
+			IF !FOUND()
               	DBSelectarea("SCR")
 		   		DBSetOrder(2)
 		   		IF DBSeek(TMP->(CR_FILIAL+CR_TIPO+CR_NUM+CR_USER))
 					Reclock("SCR",.F.)
 					SCR->CR_WF			:= "1" 		 // Status 1 - envio para aprovadores / branco-nao houve envio
      	  			SCR->CR_X_WFID		:= "N/D"	 // Rastreabilidade
-				ENDIF	
+				ENDIF
 			ELSE
 				_aWF	:= U_EnviaCP(TMP->CR_FILIAL, TMP->CR_NUM, _cMailDest , TMP->(CR_FILIAL+CR_TIPO+CR_NUM+CR_APROV) , TMP->CR_TOTAL, ctod('  /  /  '), '     ', _nOpc)
 
@@ -637,13 +637,13 @@ DO 	CASE
 		  			SCR->CR_X_WFID		:= _aWF[1]							// Rastreabilidade
 					MSUnlock()
 				ENDIF
-			ENDIF		
+			ENDIF
 			_lProcesso := .T.
-						
+
 			dbSelectArea("TMP")
 			DBSkip()
 		End
-		
+
 		dbSelectArea("TMP")
 		dbCloseArea()*/
 
@@ -659,9 +659,9 @@ DO 	CASE
 			group by E2_FILIAL, E2_PREFIXO, E2_NUM, E2_TIPO, E2_FORNECE, E2_LOJA
 			order by E2_FILIAL, E2_PREFIXO, E2_NUM, E2_TIPO, E2_FORNECE, E2_LOJA, E2_PARCELA
     	EndSQL
-    	
+
     	While !TMP->(Eof())
-    	
+
 			cParcelas	:= ""									//Limpa conteúdo das parcelas
 			nTotalTit	:= 0									//Zera Total do Título
 			cChvSE2WF	:= ""
@@ -679,8 +679,8 @@ DO 	CASE
 				inner join %Table:SCR% SCR
 				   on SCR.CR_FILIAL = E2_FILIAL and CR_TIPO = 'TP' and CR_NUM = E2_PREFIXO+E2_NUM+E2_TIPO+E2_FORNECE+E2_LOJA+E2_PARCELA
 					   and SCR.%NotDel%
-				where E2_FILIAL  = %Exp:TMP->E2_FILIAL%  and E2_PREFIXO = %Exp:TMP->E2_PREFIXO% 
-				  and E2_NUM     = %Exp:TMP->E2_NUM%     and E2_TIPO    = %Exp:TMP->E2_TIPO% 
+				where E2_FILIAL  = %Exp:TMP->E2_FILIAL%  and E2_PREFIXO = %Exp:TMP->E2_PREFIXO%
+				  and E2_NUM     = %Exp:TMP->E2_NUM%     and E2_TIPO    = %Exp:TMP->E2_TIPO%
 				  and E2_FORNECE = %Exp:TMP->E2_FORNECE% and E2_LOJA    = %Exp:TMP->E2_LOJA%
 				  and E2_DATALIB = ' ' and E2_USUALIB = ' ' and E2_X_WF <> '1'
 				  and SE2.%NotDel%
@@ -697,15 +697,15 @@ DO 	CASE
 				U_CONSOLE("4 - Não Localizada Alçada (SCR) REPROVADA relacionado ao Titulo (SE2) bloqueado." + CRLF + Space(30) + ;
 						  "4 - Chave WF SE2 (Fil+Pref+Num+Tp+Forn+Lj) :" + TMP->(E2_FILIAL+E2_PREFIXO+E2_NUM+E2_TIPO+E2_FORNECE+E2_LOJA),cFunc)
 			EndIf
-			
+
 	    	While !(cAlias)->(Eof())
 
 				If Empty(cChvSE2WF)
 					cChvSE2WF	:= (cAlias)->(E2_FILIAL + E2_PREFIXO + E2_NUM + E2_TIPO + E2_FORNECE + E2_LOJA)
 					cCRNum		:= (cAlias)->(CR_NUM)
-					cSCRChave	:= (cAlias)->(CR_FILIAL+CR_TIPO+CR_NUM+CR_NIVEL+CR_USER) 					
+					cSCRChave	:= (cAlias)->(CR_FILIAL+CR_TIPO+CR_NUM+CR_NIVEL+CR_USER)
 					cEmailDest 	:= Iif( Empty((cAlias)->E2_X_USUAR), "", AVWFPsqUsr((cAlias)->E2_X_USUAR)[3] )
-				EndIf					
+				EndIf
 
 				cParcelas += Iif(!Empty(cParcelas)," | ","")
 				cParcelas += Iif(Empty((cAlias)->E2_PARCELA),"",(cAlias)->E2_PARCELA + " - ") + DtoC(StoD((cAlias)->E2_VENCREA)) + " - " + Transform((cAlias)->E2_VALOR, PesqPict("SE2","E2_VALOR"))
@@ -738,14 +738,14 @@ DO 	CASE
     	EndDo
 		TMP->(dbCloseArea())
 
-END CASE			
-	
-IF 	_lProcesso 
+END CASE
+
+IF 	_lProcesso
 	U_CONSOLE("Mensagem processada ",cFunc)
 ELSE
 	U_CONSOLE("Nao houve processamento",cFunc)
-ENDIF	
-				
+ENDIF
+
 RETURN
 
 /*
@@ -766,23 +766,23 @@ USER Function EnviaCP(_cFilial,_cNum, _cUser, cChaveSCR, nTotalTit, _dDTLimit, _
 Local _cHttp	 := GetNewPar("MV_WFDHTTP", "http://189.20.203.131:9898")
 Local cDirDoc	 := ""
 //Local _cTo	   	 := IIF(_nOpc == 1, _cUser , UsrRetMail(_cUser))
-Local _cTo	   	 := _cUser 
+Local _cTo	   	 := _cUser
 Local _cEmail	 := UsrRetMail(_cUser)
 Local _nDD   	 := GetNewPar("MV_WFTODD", 0)		// TimeOut - Dias
 Local _cTimeOut	 := GetNewPar("MV_WFTOPC","24:00")
 Local _dDataLib	 := IIF( !EMPTY(_dDTLimit), _dDTLimit, MSDATE() )
 Local _cHoraLib	 := IIF( !EMPTY(_cHRLimit), _cHRLimit, LEFT(TIME(),5) )
-Local _nTimeOut  := (_nDD * 24) + VAL(LEFT(_cTimeOut,2)) + (VAL(RIGHT(_cTimeOut,2))/60) 
+Local _nTimeOut  := (_nDD * 24) + VAL(LEFT(_cTimeOut,2)) + (VAL(RIGHT(_cTimeOut,2))/60)
 Local _nVrSC	 := 0
-Local _cUnidReq	 := ""  
+Local _cUnidReq	 := ""
 Local _aAreaSM0	 := {}
 
 Local _nVALMERC	 := 0
 Local _nVALIPI	 := 0
 Local _nFRETE	 := 0
 Local _nSEGURO	 := 0
-Local _nDESCONTO := 0   
-Local _nDESPESA	 := 0   	
+Local _nDESCONTO := 0
+Local _nDESPESA	 := 0
 Local _nVALTOT	 := 0
 Local _lCotacao  := .F.
 Local nW		 := 0
@@ -792,7 +792,7 @@ Local nTamChvSCR := TamSX3("CR_FILIAL")[1] + TamSX3("CR_TIPO")[1] +TamSX3("CR_NU
 Local cAlias	 := GetNextAlias()
 
 _aTimeOut	:= U_GetTimeOut(_nTimeOut,_dDATALIB,_cHoraLib)
-Private _aPedidos:= {}       
+Private _aPedidos:= {}
 
 //Define o diretório virtual como raiz, para ser usado pelo link do formulário de aprovação e do documento do banco de conhecimento
 If "workflow/" $ Lower(_cHttp)
@@ -814,28 +814,28 @@ EndIf
 _lError := .F.
 if Empty(_cTo)
    aMsg := {}
-   cTitle  := "Administrador do Workflow : NOTIFICACAO" 
+   cTitle  := "Administrador do Workflow : NOTIFICACAO"
    aADD(aMsg , REPLICATE('*',80) )
    aADD(aMsg , Dtoc(MSDate()) + " - " + Time() + ' * Ocorreu um ERRO no envio da mensagem :' )
    aADD(aMsg , "Titulo a pagar (completar dados) No: " + ALLTRIM(SE2->E2_NUM)  + " Filial : " + cFilAnt + " Usuario : " + UsrRetName(_cUser) )
    aADD(aMsg , "Campo EMAIL do cadastro de usuario NAO PREENCHIDO" )
    aADD(aMsg , REPLICATE('*',80) )
-		
+
    _lError := .T.
 Endif
-                  
+
 IF _lError
    U_NotifyAdm(cTitle, aMsg)
    _aReturn := {}
    AADD(_aReturn, "")
    AADD(_aReturn, _aTimeOut[1])
    AADD(_aReturn, _aTimeOut[2])
-	
+
    RETURN _aReturn
 ENDIF
 
 // ----- FIM DA VALIDACAO
-              
+
 //_cChaveSCR	:= PADR(_cFilial + 'TP' + _cNum,60)
 //_cNum 		:= PADR(ALLTRIM(_cNum),LEN(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA) )
 
@@ -859,24 +859,24 @@ DBSelectArea("SA2")
 SA2->(DBSetOrder(1), DbSeek(xFilial("SA2")+SE2->E2_FORNECE+SE2->E2_LOJA))
 //_cFornece := SE2->E2_FORNECE
 //_cLojaFor := SE2->E2_LOJA
-       
-DO CASE 
-//-------------------------------------------------------- INICIO PROCESSO WORKFLOW	   		
+
+DO CASE
+//-------------------------------------------------------- INICIO PROCESSO WORKFLOW
    CASE _nOpc == 1		// Envio de email para aprovacao
 		oProcess          	:= TWFProcess():New( "000011", "Envio Aprovacao CP :" + _cFilial + "/" +  ALLTRIM(SE2->E2_NUM) )
 		oProcess:NewTask( "Envio CP : "+_cFilial + _cNum, "\WORKFLOW\Financeiro\TPAPROV.HTM" )
     	oProcess:cFromName 	:= "Administrador Workflow"
 		oProcess:bReturn  	:= "U_WKFCP(2)"
-		
+
    CASE _nOpc == 3		// Envio de email Aprovacao para solicitante
 		oProcess          	:= TWFProcess():New( "000013", "Envio p/ o financeiro CP aprovado : " + _cFilial + "/" +  ALLTRIM(SE2->E2_NUM) )
 		oProcess          	:NewTask( "Envio CP aprovado : "+_cFilial + _cNum, "\WORKFLOW\Financeiro\TPRESP.HTM" )
 		_cResposta			:= " A P R O V A D O "
-			
+
    CASE _nOpc == 4		// Envio de email Reprovado para solicitante
 		oProcess          	:= TWFProcess():New( "000014", "Envio p/ o financeiro CP reprovado : " + _cFilial + "/" +  ALLTRIM(SE2->E2_NUM) )
 		oProcess          	:NewTask( "Envio CP reprovado : "+_cFilial + _cNum, "\WORKFLOW\Financeiro\TPRESP.HTM" )
-		_cResposta			:= "<font color='#FF0000'>R E P R O V A D O </font>"	
+		_cResposta			:= "<font color='#FF0000'>R E P R O V A D O </font>"
 ENDCASE
 
 oProcess:cTo      	:= _cTo
@@ -891,9 +891,9 @@ If _nOpc == 1
 ENDIF
 
 IF _nOpc == 3 .OR. _nOpc == 4
-	oHtml:ValByName( "resposta"  	, _cResposta)	 
+	oHtml:ValByName( "resposta"  	, _cResposta)
 ENDIF
-   
+
 //Cabecalho
 oHtml:ValByName( "E2_NUM"	    , RTrim(SE2->E2_PREFIXO) + "/" + RTrim(SE2->E2_NUM) + "/" + RTrim(SE2->E2_TIPO) )	// Numero
 oHtml:ValByName( "E2_FILIAL"	, SM0->M0_FILIAL )                                          // Filial
@@ -907,7 +907,7 @@ oHtml:ValByName( "E2_MODSPB"   	, Iif(SE2->E2_MODSPB=="1","TED",Iif(SE2->E2_MODS
 oHtml:ValByName( "E2_MDPARCE"	, cParcelas )
 
 /*-------------------------------------------------------------------------+
-|  Pesquisa e alimenta os Itens da Nota Fiscal                             |                                             
+|  Pesquisa e alimenta os Itens da Nota Fiscal                             |
 +--------------------------------------------------------------------------*/
 If Select("D1DOC") > 0
 	("D1DOC")->(dbCloseArea())
@@ -915,7 +915,7 @@ Endif
 BeginSQL Alias "D1DOC"
 	select D1_DOC, D1_SERIE, D1_FORNECE, D1_LOJA, D1_ITEM, D1_COD, D1_QUANT, D1_UM, D1_VUNIT, D1_VALIPI, D1_VALICM, D1_TOTAL, B1_DESC
 	from %Table:SF1% SF1
-	inner join %Table:SD1% SD1 on D1_FILIAL = F1_FILIAL 
+	inner join %Table:SD1% SD1 on D1_FILIAL = F1_FILIAL
 	  and D1_DOC = F1_DOC and D1_SERIE = F1_SERIE and D1_FORNECE = F1_FORNECE and D1_LOJA = F1_LOJA and SD1.%NotDel%
 	inner join %Table:SB1% SB1 on B1_FILIAL = %xFilial:SB1% and B1_COD = D1_COD and SB1.%NotDel%
 	where F1_FILIAL = %xFilial:SF1% and F1_DOC = %Exp:SE2->E2_NUM% and F1_SERIE = %Exp:SE2->E2_PREFIXO%
@@ -937,7 +937,7 @@ If D1DOC->(Eof())
 	AAdd( (oHtml:ValByName( "td.8"  )), "" )
 	AAdd( (oHtml:ValByName( "td.9"  )), "" )
 Else
-	While !D1DOC->(Eof()) 	
+	While !D1DOC->(Eof())
 		AAdd( (oHtml:ValByName( "td.1" )), D1DOC->D1_ITEM )
 		AAdd( (oHtml:ValByName( "td.2" )), D1DOC->D1_COD )
 		AAdd( (oHtml:ValByName( "td.3" )), D1DOC->B1_DESC )
@@ -951,22 +951,22 @@ Else
 	EndDo
 EndIf
 
-DbCloseArea("D1DOC")   
+DbCloseArea("D1DOC")
 
 /*-------------------------------------------------------------------------+
-|  ALIMENTA A TELA DE DOCUMENTOS ASSOCIADOS - BCO DE CONHECIMENTO          |                                             
+|  ALIMENTA A TELA DE DOCUMENTOS ASSOCIADOS - BCO DE CONHECIMENTO          |
 +--------------------------------------------------------------------------*/
 aDocBcoCto	:= AVWFPsqDoc(cChvSE2WF)
 
-//	    dbSelectArea("SE2")	
+//	    dbSelectArea("SE2")
 If Len(aDocBcoCto) < 1
  		_cExibe  := "<p><font color='#FF0000'>*** Nao há documentos associados ***</font></p>"
 	AAdd( (oHtml:ValByName( "tc.1"  )), "" )
 	AAdd( (oHtml:ValByName( "tc.2"  )), _cExibe )
 	AAdd( (oHtml:ValByName( "tc.3"  )), "" )
-	
-Else	
-    For nW := 1 To Len(aDocBcoCto)   
+
+Else
+    For nW := 1 To Len(aDocBcoCto)
 		AAdd( (oHtml:ValByName( "tc.1" )), aDocBcoCto[nW][1] )
 		AAdd( (oHtml:ValByName( "tc.2" )), "<a target='_blank' href='" + cDirDoc + alltrim(aDocBcoCto[nW][2]) + "'>"+Alltrim(aDocBcoCto[nW][2])+"</a>")
 		AAdd( (oHtml:ValByName( "tc.3" )), aDocBcoCto[nW][3] )
@@ -992,7 +992,7 @@ While !SCR->(Eof()) .and. Left(SCR->(CR_FILIAL+CR_TIPO+CR_NUM),nTamChvSCR) == Le
               lBloq := .T.
          Case SCR->CR_STATUS == "05"
               cSituaca := "Nivel Liberado"
-      EndCase	
+      EndCase
 
 	  AAdd( (oHtml:ValByName( "t1.1"    )), SCR->CR_NIVEL )
 	  AAdd( (oHtml:ValByName( "t1.2"    )), UsrFullName(SCR->CR_USER) )
@@ -1000,7 +1000,7 @@ While !SCR->(Eof()) .and. Left(SCR->(CR_FILIAL+CR_TIPO+CR_NUM),nTamChvSCR) == Le
 	  AAdd( (oHtml:ValByName( "t1.4"    )), Iif(Empty(SCR->CR_USERLIB),"",UsrRetName(SCR->CR_USERLIB)) )
 	  AAdd( (oHtml:ValByName( "t1.5"    )), DTOC(SCR->CR_DATALIB) )
 	  AAdd( (oHtml:ValByName( "t1.6"    )), Iif(Empty(SCR->CR_OBS),"", SCR->CR_OBS) )
-		
+
 	  SCR->(DBSkip())
 ENDDO
 
@@ -1013,22 +1013,22 @@ DO CASE
 		oHtml     				:= oProcess:oHTML
 		oProcess:nEncodeMime    := 0
 		cMailID := oProcess:Start(Alltrim(GetMv("MV_WFDIR"))+"\emp"+cEmpAnt+"\wfcp\")   //Faz a gravacao do e-mail no cPath
-		
+
 		chtmlfile  := cmailid + ".htm"
-	
-		csubj := "Aprovação Título a pagar - Filial: "+_cFilial+" / Numero: "+ALLTRIM(SE2->E2_NUM) 
+
+		csubj := "Aprovação Título a pagar - Filial: "+_cFilial+" / Numero: "+ALLTRIM(SE2->E2_NUM)
 		oProcess:newtask("Link", "\workflow\Financeiro\Link_avant.htm")  //Cria um novo processo de workflow que informara o Link ao usuario
 		oHtml:ValByName( "descproc"	  ,"O Título a pagar abaixo aguarda sua aprovação:")
 		oProcess:oHtml:ValByName("cNomeProcesso", Alltrim(GetMv("MV_WFDHTTP"))+"/emp"+cempant+"/wfcp/"+chtmlfile ) // envia o link onde esta o arquivo html
 		oHtml:ValByName( "cDocto"	  ,"Título a Pagar No. "+ AllTrim(SE2->E2_NUM))
-			
+
 		oProcess:cTo 	   := _cEmail
 		oProcess:cSubject  := cSubj
-			
+
 		oProcess:Start()
 
-	OTHERWISE       
-	    oProcess:cSubject    := "WORKFLOW  - Título a pagar - Filial: "+_cFilial+" / Número: " + ALLTRIM(SE2->E2_NUM)  +Iif(_nOpc=3," APROVADO"," REPROVADO")
+	OTHERWISE
+	    oProcess:cSubject    := "WORKFLOW  - Titulo a pagar - Filial: "+_cFilial+" / Numero: " + ALLTRIM(SE2->E2_NUM)  +Iif(_nOpc=3," APROVADO"," REPROVADO")
 
    		oProcess:Start()
 END CASE
@@ -1043,19 +1043,19 @@ Return _aReturn
 /*-----------------------+-------------------------------+------------------+
 |   Programa: AVWFPsqDoc | Autor: Kley@TOTVS             | Data: 25/06/2014 |
 +------------------------+-------------------------------+------------------+
-|  Descricao: Pesquisa os documentos do Banco de Conhecimento associados ao 
+|  Descricao: Pesquisa os documentos do Banco de Conhecimento associados ao
 |             respectivo Titulo do Contas a Pagar.
 |
 |			  Parâmetros recebidos:
 |				<ExpC1> - cChvSE2WF = Chave do Documento
 |							SE2 -> E2_FILIAL + E2_PREFIXO + E2_NUM + E2_TIPO + E2_FORNECE + E2_LOJA
-|							SF1 -> 
+|							SF1 ->
 +---------------------------------------------------------------------------+
 |    Projeto: AVANT
 +---------------------------------------------------------------------------+
 |    Sintaxe: AVWFPsqDoc(cChvSE2WF)
 +----------------------------------------------------------------------------
-|    Retorno: aDocBcoCto                                                               
+|    Retorno: aDocBcoCto
 |             Retorna um array de três dimensões, e cada um contendo:
 |				[1] = Descrição do Documento
 |				[2] = Nome do objetivo/arquivo
@@ -1082,7 +1082,7 @@ Endif
 BeginSQL Alias cAlias
 	select distinct /*E2_PREFIXO, E2_NUM, E2_TIPO, E2_FORNECE, E2_LOJA, E2_PARCELA,*/
 		   AC9_FILENT, AC9_CODENT, AC9_ENTIDA, ACB_CODOBJ, ACB_OBJETO, ACB_DESCRI,
-		   case AC9_ENTIDA when 'SE2' then 'Título a Pagar' when 'SF1' then 'Documento de Entrada' else AC9_ENTIDA end as AC9ENTIDA  
+		   case AC9_ENTIDA when 'SE2' then 'Título a Pagar' when 'SF1' then 'Documento de Entrada' else AC9_ENTIDA end as AC9ENTIDA
 	from %Table:AC9% AC9
 	inner join %Table:ACB% ACB on ACB_FILIAL = AC9_FILIAL and ACB_CODOBJ = AC9_CODOBJ and ACB.%NotDel%
 	inner join %Table:SE2% SE2 on E2_FILIAL  = AC9_FILENT and rtrim(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA) = rtrim(AC9_CODENT) and SE2.%NotDel%
@@ -1090,12 +1090,12 @@ BeginSQL Alias cAlias
 	  and left(AC9_FILENT+AC9_CODENT,%Exp:nTamFil+nTamPref+nTamNum%) = %Exp:Left(cChvSE2WF,nTamFil+nTamPref+nTamNum)%
 	  and substring(AC9_FILENT+AC9_CODENT,%Exp:nTamFil+nTamPref+nTamNum+nParcela+1%,%Exp:nTipo+nFornLoja%) = %Exp:Substr(cChvSE2WF,nTamFil+nTamPref+nTamNum+1,nTipo+nFornLoja)%
 	  and AC9.%NotDel%
-	
+
 	union all
-	
+
 	select distinct /*E2_PREFIXO, E2_NUM, E2_TIPO, E2_FORNECE, E2_LOJA, E2_PARCELA,*/
 		   AC9_FILENT, AC9_CODENT, AC9_ENTIDA, ACB_CODOBJ, ACB_OBJETO, ACB_DESCRI,
-		   case AC9_ENTIDA when 'SE2' then 'Título a Pagar' when 'SF1' then 'Documento de Entrada' else AC9_ENTIDA end as AC9ENTIDA  
+		   case AC9_ENTIDA when 'SE2' then 'Título a Pagar' when 'SF1' then 'Documento de Entrada' else AC9_ENTIDA end as AC9ENTIDA
 	from %Table:AC9% AC9
 	inner join %Table:ACB% ACB on ACB_FILIAL = AC9_FILIAL and ACB_CODOBJ = AC9_CODOBJ and ACB.%NotDel%
 	inner join %Table:SF1% SF1 on F1_FILIAL  = AC9_FILENT and rtrim(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA) = rtrim(AC9_CODENT) and SF1.%NotDel%
@@ -1122,7 +1122,7 @@ Return(aDocBcoCto)
 /*-----------------------+-------------------------------+------------------+
 |   Programa: AVWFPsqUsr | Autor: Kley@TOTVS             | Data: 25/06/2014 |
 +------------------------+-------------------------------+------------------+
-|  Descricao: Pesquisa informações do Código do Usuário informado. 
+|  Descricao: Pesquisa informações do Código do Usuário informado.
 |			  Parâmetros recebidos:
 |				<ExpC1> - cCodUsuar = Código do Usuário do Sistema
 +---------------------------------------------------------------------------+
@@ -1130,7 +1130,7 @@ Return(aDocBcoCto)
 +---------------------------------------------------------------------------+
 |    Sintaxe: AVWFPsqUsr(cCodUsuar)
 +----------------------------------------------------------------------------
-|    Retorno: aUserInfo                                                               
+|    Retorno: aUserInfo
 |             Retorna um array de três dimensões, e cada um contendo:
 |				[1] = Código do Usuário
 |				[2] = Nome do Usuário
