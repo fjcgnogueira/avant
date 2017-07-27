@@ -697,7 +697,7 @@ User Function TecEdit()
 
 				End Transaction
 
-				LjMsgRun("Aguarde ... Encerrando chamado ... "  ,, { || u_ConfEncerra(SZU->ZU_CHAMADO,DTOC(SZU->ZU_DATA),SZU->ZU_HRABERT,SZU->ZU_TECNICO,cTexto,alltrim(SZU->ZU_MAILUSR)+';'+alltrim(SZU->ZU_MAILSUP)+';'+alltrim(SZU->ZU_EMAILS)) })
+				LjMsgRun("Aguarde ... Encerrando chamado ... "  ,, { || u_ConfEncerra(SZU->ZU_CHAMADO,DTOC(SZU->ZU_DATA),SZU->ZU_HRABERT,SZU->ZU_TECNICO,cTexto,alltrim(SZU->ZU_MAILUSR)+','+alltrim(SZU->ZU_MAILSUP)+','+alltrim(SZU->ZU_EMAILS)) })
 
 			Elseif SZG->ZG_TRANSF == "S" .And. SZG->ZG_ENCERRA !="S'
 
@@ -1417,7 +1417,7 @@ User Function OpenProc(cChamado,cOp,nAcao,cArqTrb)
 	oHtml:ValByName("cContato"		,SZU->ZU_NOMEUSR)
 	oHtml:ValByName("cContatoEmail"	,SZU->ZU_MAILUSR)
 	oHtml:ValByName("cTelRetorno"	,SZU->ZU_TELUSR)
-	oHtml:ValByName("cEmail"	    ,alltrim(SZU->ZU_MAILUSR)+ENTER+alltrim(SZU->ZU_MAILSUP)+ENTER+StrTran(alltrim(SZU->ZU_EMAILS),";",ENTER))
+	oHtml:ValByName("cEmail"	    ,alltrim(SZU->ZU_MAILUSR)+ENTER+alltrim(SZU->ZU_MAILSUP)+ENTER+StrTran(alltrim(SZU->ZU_EMAILS),",",ENTER))
 
 /*	If cOp == "W"
 		cLink := '<Left>'
@@ -1484,16 +1484,16 @@ User Function OpenProc(cChamado,cOp,nAcao,cArqTrb)
 		cMailList := cMailList
 	Else
 		If cOp == "W" //Envia somente para o dono do chamado
-			cMailList := If(lower(alltrim(SZU->ZU_MAILUSR)) $ lower(alltrim(GetMv("ES_CRMMAIL"))) .or. Empty(SZU->ZU_MAILUSR) .or. cOp == "E",'','; '+lower(alltrim(SZU->ZU_MAILUSR)))
+			cMailList := If(lower(alltrim(SZU->ZU_MAILUSR)) $ lower(alltrim(GetMv("ES_CRMMAIL"))) .or. Empty(SZU->ZU_MAILUSR) .or. cOp == "E",'',', '+lower(alltrim(SZU->ZU_MAILUSR)))
 		Else
-			cMailList := cMailList+If(lower(alltrim(SZU->ZU_MAILUSR)) $ lower(alltrim(GetMv("ES_CRMMAIL"))) .or. Empty(SZU->ZU_MAILUSR) .or. cOp == "E",'','; '+lower(alltrim(SZU->ZU_MAILUSR)))+If(lower(alltrim(SZU->ZU_MAILSUP)) $ lower(alltrim(GetMv("ES_CRMMAIL"))) .or. Empty(SZU->ZU_MAILSUP),'','; '+lower(alltrim(SZU->ZU_MAILSUP)))+If(lower(alltrim(SZU->ZU_EMAILS)) $ lower(alltrim(GetMv("ES_CRMMAIL"))) .or. Empty(SZU->ZU_EMAILS),'','; '+lower(alltrim(SZU->ZU_EMAILS)))
+			cMailList := cMailList+If(lower(alltrim(SZU->ZU_MAILUSR)) $ lower(alltrim(GetMv("ES_CRMMAIL"))) .or. Empty(SZU->ZU_MAILUSR) .or. cOp == "E",'',', '+lower(alltrim(SZU->ZU_MAILUSR)))+If(lower(alltrim(SZU->ZU_MAILSUP)) $ lower(alltrim(GetMv("ES_CRMMAIL"))) .or. Empty(SZU->ZU_MAILSUP),'',', '+lower(alltrim(SZU->ZU_MAILSUP)))+If(lower(alltrim(SZU->ZU_EMAILS)) $ lower(alltrim(GetMv("ES_CRMMAIL"))) .or. Empty(SZU->ZU_EMAILS),'',', '+lower(alltrim(SZU->ZU_EMAILS)))
 		EndIf
 	Endif
 
 	IF cOp != "P"
 		oProcess:USerSiga	:= "000000"
 		oProcess:cTo		:= cMailList
-		oProcess:cCC		:= If(cOp == "W",'',alltrim(lower(GetMv("ES_CRMMAIL"))))+If(lower(alltrim(u_usr_campos(SZU->ZU_TECNICO)[3]))$cMailList,'','; '+lower(alltrim(u_usr_campos(SZU->ZU_TECNICO)[3])))
+		oProcess:cCC		:= If(cOp == "W",'',alltrim(lower(GetMv("ES_CRMMAIL"))))+If(lower(alltrim(u_usr_campos(SZU->ZU_TECNICO)[3]))$cMailList,'',', '+lower(alltrim(u_usr_campos(SZU->ZU_TECNICO)[3])))
 		oProcess:cBCC		:= If(cOp == "W",'FERNANDO.NOGUEIRA@AVANTLUX.COM.BR','')
 		oProcess:Start()
 		oProcess:Finish()
