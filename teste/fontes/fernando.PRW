@@ -4,7 +4,7 @@
 #INCLUDE "SCROLLBX.CH"
 #include "JPEG.CH"
 #include 'Fileio.CH'
-
+//
 #Define CMD_OPENWORKBOOK		1
 #Define CMD_CLOSEWORKBOOK		2
 #Define CMD_ACTIVEWORKSHEET  	3
