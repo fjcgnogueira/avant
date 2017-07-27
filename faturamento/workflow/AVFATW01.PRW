@@ -16,15 +16,15 @@
 +---------------------------------------------------------------------------+
 |    Sintaxe: U_AVFTW101()
 +----------------------------------------------------------------------------
-|    Retorno: Nulo                                                               
+|    Retorno: Nulo
 +--------------------------------------------------------------------------*/
 
 /*-------------------------------------------------------------------------+
-|  Processa todas as atividades por Empresa                                |                                            
+|  Processa todas as atividades por Empresa                                |
 +--------------------------------------------------------------------------*/
 User Function AVFTW101()				//Empresa "01"
 
-Private _aMatriz  := {"01","010104"}  
+Private _aMatriz  := {"01","010104"}
 
 ConOut("["+DtoC(Date()) + ' ' + Time()+"] [U_AVFTW101] Inicio do processamento - Workflow PV.")
 
@@ -40,9 +40,9 @@ ConOut("["+DtoC(Date()) + ' ' + Time()+"] [U_AVFTW101] Final do processamento - 
 Return
 
 /*-------------------------------------------------------------------------+
-|  Envio do Pedido de Venda para Aprovação                                 |                                            
+|  Envio do Pedido de Venda para Aprovação                                 |
 +--------------------------------------------------------------------------*/
-  
+
 User Function AVFATW01(_nOpc,pcPedido,oProcess,cMailCC)
 
 Private _cIndex, _cFiltro, _cOrdem, _lProcesso := .F.
@@ -63,7 +63,7 @@ Else
 EndIf
 
 Return
-	
+
 /*----------------------+--------------------------------+------------------+
 |   Programa: AVFTW01P  | Autor: Autor: Kley@TOTVS       | Data: Julho/2014 |
 +-----------------------+--------------------------------+------------------+
@@ -74,12 +74,12 @@ Return
 +---------------------------------------------------------------------------+
 |    Sintaxe: AVFTW01P(_nOpc,pcPedido,oProcess,cMailCC)
 +----------------------------------------------------------------------------
-|    Retorno: Nulo                                                               
+|    Retorno: Nulo
 +--------------------------------------------------------------------------*/
 
 Static Function AVFTW01P(_nOpc,pcPedido,oProcess,cMailCC)
 
-Local _cBlqEst                  
+Local _cBlqEst
 Local _cPed
 //Local aAreaSCR
 Local _lEstoque := .f.
@@ -96,7 +96,7 @@ Local lLiber	  := .T.
 Local lTransf	  := .F.
 
 /*-------------------------------------------------------------------------+
-|  1 - Prepara os pedidos a serem enviados para aprovacao                  |                                            
+|  1 - Prepara os pedidos a serem enviados para aprovacao                  |
 +--------------------------------------------------------------------------*/
 If _nOpc == 1
 	U_Console("1 - Prepara os pedidos a serem enviados para aprovacao",cFunc)
@@ -122,7 +122,7 @@ If _nOpc == 1
 	DbGotop()
 	If TMP->(Eof())
 		U_Console("2 - Nao houve processamento",cFunc)
-	Else   
+	Else
 		While !TMP->(Eof())
 			_cWFId 	    := AVW01EnvPV(TMP->CR_FILIAL, TMP->CR_NUM, TMP->CR_USER , TMP->CR_APROV, TMP->(CR_FILIAL+CR_TIPO+CR_NUM+CR_USER), TMP->CR_TOTAL, TMP->CR_WF, _nOpc)
 			_lProcesso  := .T.
@@ -145,7 +145,7 @@ If _nOpc == 1
 	Ferase(_cIndex+OrdBagExt())
 
 /*-------------------------------------------------------------------------+
-|  2 - Processa O RETORNO DO EMAIL                                         |                                             
+|  2 - Processa O RETORNO DO EMAIL                                         |
 +--------------------------------------------------------------------------*/
 ElseIf _nOPC	== 2
 	U_Console("2 - Processa O RETORNO DO EMAIL",cFunc)
@@ -173,7 +173,7 @@ ElseIf _nOPC	== 2
 
 	oProcess:Finish() // FINALIZA O PROCESSO
 
-	If cOpc	$ "S|N"  // Aprovacao S-Sim N-Nao 
+	If cOpc	$ "S|N"  // Aprovacao S-Sim N-Nao
 		// Posiciona na tabela de Alcadas
 		DbSelectArea("SCR")
 		DbSetOrder(1)
@@ -196,13 +196,13 @@ ElseIf _nOPC	== 2
 		Reclock("SCR",.F.)
 			SCR->CR_WF		:= "2"			// Status 2 - respondido
 		MSUnlock()
-		
+
 		nRegSCR := SCR->( Recno() )
 		If !Empty(SCR->CR_DATALIB) .And. SCR->CR_STATUS$"03#04#05"
 			U_Console("2 - Semaforo Verde",cFunc)
 			Return .T.
 		EndIf
-		
+
 		DbSelectArea("SAK")
 		DbSetOrder(1)
 		MsSeek(xFilial("SAK")+SCR->CR_APROV)
@@ -210,11 +210,11 @@ ElseIf _nOPC	== 2
 		_lProcesso := .T.
 		_cBlqEst   := .F.
 		//RestArea(aAreaSCR)
-		
+
 		If lLiberou
 
 			/*-------------------------------------------------------------------------+
-			|  STATUS de Bloqueio do Pedido de Venda                                   |                                             
+			|  STATUS de Bloqueio do Pedido de Venda                                   |
 			|                                                                          |
 			| C9_BLCRED - Bloqueio de Crédito                                          |
 			|     " " - Liberado                                                       |
@@ -235,11 +235,11 @@ ElseIf _nOPC	== 2
 			DbSelectArea("SC5")
 			DbSetOrder(1)
 			MsSeek( xFilial("SC5") + _cPed )
-			
+
 			DbSelectArea("SC9")
 			DbSetOrder(1)
 			MsSeek( xFilial("SC9") + _cPed )
-			
+
 			DbSelectArea("SC6")
 			DbSetOrder(1)
 			MsSeek( xFilial("SC6") + _cPed )
@@ -270,7 +270,7 @@ ElseIf _nOPC	== 2
 					DbSetOrder(1)
 					If MsSeek(xFilial("SB2")+SC9->C9_PRODUTO+SC9->C9_LOCAL)
 					   _nSaldo := SaldoSB2() //(SB2->B2_QATU - SB2->B2_RESERVA - SB2->B2_QACLASS - SB2->B2_QEMP)
-					EndIf 
+					EndIf
 					DbSelectArea("SC6")
 					_cLibEst := ( SC9->C9_BLEST = '02' .and. SC9->C9_QTDLIB <= _nSaldo )
 					U_Console("2 - Bloqueio Estoque (C9_BLEST Antes Liberação): " + SC9->C9_BLEST,cFunc)
@@ -281,51 +281,51 @@ ElseIf _nOPC	== 2
 					SC9->( RecLock("SC9",.F.) )
 						SC9->C9_BLCRED := "  "
 					SC9->( MsUnLock() )
-				EndIf				
-								
+				EndIf
+
 				SC6->(DbSkip())
 			End
 			SC6->(dbCloseArea())
-			
+
 		EndIf
 	EndIf
-	
+
 	U_Console("2 - Semaforo Verde",cFunc)
-		
+
 /*-------------------------------------------------------------------------+
-|  3 - Envia resposta de Pedido de Venda Bloqueado                         |                                             
+|  3 - Envia resposta de Pedido de Venda Bloqueado                         |
 +--------------------------------------------------------------------------*/
 ElseIf  _nOpc == 3
-	
+
 	U_Console("3 - Envia resposta de pedido bloqueado para o solicitante",cFunc)
-	
+
 	CHKfile("SC5")	// Pedido de Compras
 	CHKFile("SCR")  // Documentos com alçadas
 	CHKFile("SCR",.F.,"TMP")
-	
+
 	_cIndex := CriaTrab(,.F.)
-	
+
 	_cFiltro := ""
 	_cFiltro += " CR_FILIAL=='" + cFilAnt + "' 	.AND."  // Filial
 	_cFiltro += " CR_TIPO=='PV'   .AND. "				// Pedido de Vendas
 	_cFiltro += " CR_STATUS=='04' .AND. "				// Reprovado
 	_cFiltro += " !EMPTY(CR_LIBAPRO) .AND. "			// Seleciona o Aprovador que reprovou
 	_cFiltro += " CR_WF = '2'           "			    // ' '-Reprovado manualmente / 2-reprovado via workflow
-	
+
 	_cOrdem	 := "CR_FILIAL+CR_NUM"
-	
+
 	dbSelectArea("TMP")
-	
+
 	IndRegua("TMP",_cIndex,_cOrdem,,_cFiltro,"") //"Selecionando Registros..."
-	
+
 	#IFNDEF TOP
 		dbSetIndex(_cIndex+OrdBagExt())
 	#ENDIF
-	
+
 	dbGotop()
 	While !TMP->(Eof())
 		_cWFId 	:= AVW01EnvPV(TMP->CR_FILIAL, TMP->CR_NUM, TMP->CR_USER, TMP->CR_APROV, TMP->(CR_FILIAL+CR_TIPO+CR_NUM+CR_USER), TMP->CR_TOTAL, "3")
-		
+
 		DBSelectarea("SCR")
 		DBSetOrder(2)
 		DbGoTo( TMP->(Recno()) )
@@ -335,40 +335,40 @@ ElseIf  _nOpc == 3
 			SCR->CR_X_WFID := _cWFId		// Rastreabilidade
 			MSUnlock()
 		ENDIF
-		
+
 		_lProcesso := .T.
-		
+
 		dbSelectArea("TMP")
 		DBSkip()
 	EndDo
-	
+
 	dbSelectArea("TMP")
 	dbClearFilter()
 	dbCloseArea()
 	Ferase(_cIndex+OrdBagExt())
-		
+
 /*-------------------------------------------------------------------------+
-| 5 - Envia resposta de Pedido de Venda Liberado                           |                                             
+| 5 - Envia resposta de Pedido de Venda Liberado                           |
 +--------------------------------------------------------------------------*/
 ElseIf  _nOpc == 5
-	
+
 	U_Console("5 - Envia resposta de pedido APROVADO para o Solicitante",cFunc)
-	
+
 	CHKfile("SC5", .F., "TMP")	// Pedido de Venda
 	CHKFile("SCR")              // Documentos com alçadas
 	CHKFile("SC5")
-	
+
 	Private _cIndex  := CriaTrab(,.F.)
 	Private aItensPV := {}
-	
+
 	/*-------------------------------------------------------------------------+
 	| Obter a matrix para alimentar a resposta dos itens caso venha do parecer |
-	| logístico.                                             
-	+--------------------------------------------------------------------------*/	
+	| logístico.
+	+--------------------------------------------------------------------------*/
 	If pcPedido <> Nil
 		ProcesRet(oProcess)
 	EndIf
-		
+
 	//_cWF     := '5'
 	_cFiltro := " SELECT C5_FILIAL, C5_NUM FROM "+RetSqlName('SC5')
 	_cFiltro += " WHERE C5_FILIAL  = '"+xFilial('SC5')+"' "
@@ -384,42 +384,42 @@ ElseIf  _nOpc == 5
 	_cFiltro += "                            AND   C9_BLCRED = '  ' "
 	_cFiltro += "                            AND   D_E_L_E_T_ = '  ' ) "
 	_cFiltro += " ORDER BY C5_FILIAL, C5_NUM "
-	
+
 	U_MontaView( _cFiltro, "TMP" )
-	
+
 	DbSelectArea("TMP")
 	DbGotop()
-	
+
 	While !TMP->(Eof())
-		
+
 		_cQuery := " SELECT SUM( (C6_QTDVEN - C6_QTDENT)*C6_PRCVEN ) AS TOTPED "
 		_cQuery += " FROM "+RetSqlName("SC6")
 		_cQuery += " WHERE C6_FILIAL  = '"+xFilial('SC6')+"' "
 		_cQuery += " AND   C6_NUM     = '"+TMP->C5_NUM+"' "
 		_cQuery += " AND   D_E_L_E_T_ = ' ' "
-		
+
 		U_MontaView( _cQuery, "SOMASC6" )
-		
+
 		SOMASC6->( DbGoTop() )
-		
+
 		_cWFId := AVW01EnvPV(TMP->C5_FILIAL, TMP->C5_NUM, Nil,, TMP->(C5_FILIAL+"PV"+C5_NUM), SOMASC6->TOTPED, '5')
-		
+
 		SC5->( DbSetOrder(1), DbSeek( TMP->C5_FILIAL+TMP->C5_NUM ) )
-		
+
 		SC5->( RecLock('SC5',.f.) )
 		SC5->C5_X_WF := '1'
 		SC5->( MsUnLock() )
-		
+
 		_lProcesso := .t.
-		
+
 		TMP->( DbSkip() )
-		
+
 	EndDo
-	
+
 	DbSelectArea("TMP")
 	DbCloseArea()
 	Ferase(_cIndex+OrdBagExt())
-	
+
 EndIf
 
 IF 	_lProcesso
@@ -429,7 +429,7 @@ ELSE
 ENDIF
 
 RETURN
-	
+
 /*----------------------+--------------------------------+------------------+
 |   Programa: AVW01EnvPV| Autor: Kley@TOTVS              | Data: Julho/2014 |
 +-----------------------+--------------------------------+------------------+
@@ -443,7 +443,7 @@ RETURN
 +---------------------------------------------------------------------------+
 |    Sintaxe: AVW01EnvPV(_cFilial,_cNum, _cUser, _cAprov, _cChave, _nTotal, _cWF, cMailCC)
 +----------------------------------------------------------------------------
-|    Retorno: ID do Workflow                                                               
+|    Retorno: ID do Workflow
 +--------------------------------------------------------------------------*/
 
 Static Function AVW01EnvPV(_cFilial, _cNum, _cUser, _cAprov, _cChave, _nTotal, _cWF, _nOpc)
@@ -456,8 +456,8 @@ Local nLineSize 	:= 80, nTabSize  := 2
 Local cObsAM 		:= ""
 Local _cHttp		:= GetNewPar("MV_WFDHTTP", "http://192.168.10.22:8081")
 Local _cEmail		:= Alltrim(UsrRetMail(_cUser))
-Local _dDataLib	:= MSDATE() 
-Local _cHoraLib	:= LEFT(TIME(),5) 
+Local _dDataLib	:= MSDATE()
+Local _cHoraLib	:= LEFT(TIME(),5)
 Local _cTo			:= IIF(_nOpc == 1, _cUser , UsrRetMail(_cUser))
 Local cFunc	 	:= "U_AVFATW01::AVW01EnvPV"
 Local _cWfDir  	:= "\workflow\"
@@ -520,21 +520,21 @@ If Trim(_cWF) $ '3/5'
 		select distinct CR_USER as CR_USER from (
 			select distinct CR_USER
 			from %Table:SCR% SCR
-			where CR_FILIAL = %xFilial:SCR% and CR_TIPO = 'PV' and CR_NUM like '%'+%Exp:cNum%+'%' 
+			where CR_FILIAL = %xFilial:SCR% and CR_TIPO = 'PV' and CR_NUM like '%'+%Exp:cNum%+'%'
 			  and SCR.%NotDel%
 			union all
 			select isnull(SA3V.A3_CODUSR,' ') as A3_CODUSR
 			from %Table:SC5% SC5
 			left join %Table:SA1% SA1 on A1_FILIAL = %xFilial:SA1% and A1_COD = C5_CLIENTE and A1_LOJA = C5_LOJACLI and SA1.%NotDel%
 			left join %Table:SA3% SA3V on SA3V.A3_FILIAL = %xFilial:SA3% and SA3V.A3_COD = A1_VEND       and SA3V.%NotDel%
-			where C5_FILIAL = %xFilial:SC5% and C5_NUM like '%'+%Exp:cNum%+'%' 
+			where C5_FILIAL = %xFilial:SC5% and C5_NUM like '%'+%Exp:cNum%+'%'
 			  and SC5.%NotDel%
 			union all
 			select isnull(SA3V.A3_EMAIL,' ') as A3_CODUSR
 			from %Table:SC5% SC5
 			left join %Table:SA1% SA1 on A1_FILIAL = %xFilial:SA1% and A1_COD = C5_CLIENTE and A1_LOJA = C5_LOJACLI and SA1.%NotDel%
 			left join %Table:SA3% SA3V on SA3V.A3_FILIAL = %xFilial:SA3% and SA3V.A3_COD = A1_VEND       and SA3V.%NotDel%
-			where C5_FILIAL = %xFilial:SC5% and C5_NUM like '%'+%Exp:cNum%+'%' 
+			where C5_FILIAL = %xFilial:SC5% and C5_NUM like '%'+%Exp:cNum%+'%'
 			  and SC5.%NotDel%
 			union all
 			select isnull(SA3G.A3_CODUSR,' ') as A3_CODUSR
@@ -542,7 +542,7 @@ If Trim(_cWF) $ '3/5'
 			left join %Table:SA1% SA1 on A1_FILIAL = %xFilial:SA1% and A1_COD = C5_CLIENTE and A1_LOJA = C5_LOJACLI and SA1.%NotDel%
 			left join %Table:SA3% SA3V on SA3V.A3_FILIAL = %xFilial:SA3% and SA3V.A3_COD = A1_VEND       and SA3V.%NotDel%
 			left join %Table:SA3% SA3G on SA3G.A3_FILIAL = %xFilial:SA3% and SA3G.A3_COD = SA3V.A3_GEREN and SA3G.%NotDel%
-			where C5_FILIAL = %xFilial:SC5% and C5_NUM like '%'+%Exp:cNum%+'%' 
+			where C5_FILIAL = %xFilial:SC5% and C5_NUM like '%'+%Exp:cNum%+'%'
 			  and SC5.%NotDel%
 			union all
 			select isnull(SA3G.A3_EMAIL,' ') as A3_CODUSR
@@ -550,7 +550,7 @@ If Trim(_cWF) $ '3/5'
 			left join %Table:SA1% SA1 on A1_FILIAL = %xFilial:SA1% and A1_COD = C5_CLIENTE and A1_LOJA = C5_LOJACLI and SA1.%NotDel%
 			left join %Table:SA3% SA3V on SA3V.A3_FILIAL = %xFilial:SA3% and SA3V.A3_COD = A1_VEND       and SA3V.%NotDel%
 			left join %Table:SA3% SA3G on SA3G.A3_FILIAL = %xFilial:SA3% and SA3G.A3_COD = SA3V.A3_GEREN and SA3G.%NotDel%
-			where C5_FILIAL = %xFilial:SC5% and C5_NUM like '%'+%Exp:cNum%+'%' 
+			where C5_FILIAL = %xFilial:SC5% and C5_NUM like '%'+%Exp:cNum%+'%'
 			  and SC5.%NotDel%) as USERS
 	EndSQL
 
@@ -560,7 +560,7 @@ If Trim(_cWF) $ '3/5'
 		If Len(RTrim((cAliasUsr)->(CR_USER))) == 6
 			cDestEmail	+= UsrRetMail(RTrim((cAliasUsr)->(CR_USER)))
 		Else
-			cDestEmail	+= RTrim((cAliasUsr)->(CR_USER))		
+			cDestEmail	+= RTrim((cAliasUsr)->(CR_USER))
 		EndIf
 		(cAliasUsr)->(DbSkip())
 	EndDo
@@ -582,7 +582,7 @@ ElseIf TRIM(_cWF) == "3"
 	oProcess:cTo      	:= cDestEmail	//UsrRetMail(PswId())
 ElseIf TRIM(_cWF) == "5"
 	oProcess          	:NewTask( "Envio PV : "+_cFilial + cNum, "\workflow\Faturamento\PVAprovado.htm" )
-	oProcess:cSubject 	:= "Pedido de Vendas APROVADO(Crédito Aprovado): "+SC5->C5_NUM+"/"+SC5->C5_FILIAL
+	oProcess:cSubject 	:= "Pedido de Vendas APROVADO(Credito Aprovado): "+SC5->C5_NUM+"/"+SC5->C5_FILIAL
 	oProcess:cTo      	:= cDestEmail	//UsrRetMail(PswId())
 EndIf
 
@@ -620,7 +620,7 @@ Do Case
 	Case SC9->C9_BLCRED == "  "
 		_cBLCRED	:= "Liberado"
 	Otherwise
-		_cBLCRED	:= ""	
+		_cBLCRED	:= ""
 EndCase
 
 // TRATAMENTO DAS VARIAVEIS DE CREDITO
@@ -696,9 +696,9 @@ oHtml:ValByName( "t42"	, aTab4Cred[2] )
 
 aDocBcoCto	:= AVWFPsqDoc( SA1->(A1_FILIAL + A1_COD + A1_LOJA) )
 If Len(aDocBcoCto) > 0 .and. SA1->A1_X_ENVBC == "2"
-	oHtml:ValByName( "t43"	, "<a target='_blank' href='" + cDirDoc + Alltrim(aDocBcoCto[1][2]) + "'>"+Alltrim(aDocBcoCto[1][1])+"</a>")	
-Else	
-	oHtml:ValByName( "t43"	, "" )	
+	oHtml:ValByName( "t43"	, "<a target='_blank' href='" + cDirDoc + Alltrim(aDocBcoCto[1][2]) + "'>"+Alltrim(aDocBcoCto[1][1])+"</a>")
+Else
+	oHtml:ValByName( "t43"	, "" )
 EndIf
 
 /*--------------------------------------------------------+
@@ -770,15 +770,15 @@ SCR->( DbSetOrder(1), DbSeek(cChaveSCR,.T.) )
 
 While !SCR->(Eof()) .AND. AllTrim(SCR->(CR_FILIAL+CR_TIPO+CR_NUM)) == AllTrim(cChaveSCR)
 	cSituaca := ""
-	
+
 	// Posicionar no SAL para identificar o tipo de aprovacao do aprovador
 	// referente ao item atual:
-	
+
 	// CR_USERLIB = Codigo do Usuario Aprovador
 	// C5_X_APROV = Codigo do Grupo de Aprovacao no Pedido de Vendas
-	
+
 	SAL->( DbSeek(xFilial('SAL')+GetMV('MV_XGRAPPV')+SCR->CR_LIBAPRO) )
-	
+
 	Do Case
 		Case SCR->CR_STATUS == "01"
 			cSituaca := 'Aguardando'
@@ -797,14 +797,14 @@ While !SCR->(Eof()) .AND. AllTrim(SCR->(CR_FILIAL+CR_TIPO+CR_NUM)) == AllTrim(cC
 		OtherWise
 			cSituaca := 'Nao houve bloqueio de Crédito'
 	EndCase
-	
+
 	_cT4 := UsrRetName(SCR->CR_USERLIB)
 	If SCR->( FieldPos('CR_X_OBS') ) > 0
 		_cT6 := SCR->CR_X_OBS
 	Else
 		_cT6 := SCR->CR_OBS
 	EndIf
-	
+
 	AAdd( (oHtml:ValByName( "t.1"    )), SCR->CR_NIVEL)
 	AAdd( (oHtml:ValByName( "t.2"    )), UsrFullName(SCR->CR_USER))
 	AAdd( (oHtml:ValByName( "t.3"    )), cSituaca    )
@@ -820,19 +820,19 @@ ENDDO
 _cWFID := oProcess:fProcessId
 
 If !TRIM(_cWF) $ "5|8"
-	
+
 	_cProcesso := "Segue link para aprovação de documento gerado pelo workflow do sistema Microsiga Protheus.<p>"+;
                   "Para visualização, por favor clique: "
-	
+
 	cOldTo  := oProcess:cTo
 	cOldCC  := oProcess:cCC
 	cOldBCC := oProcess:cBCC
-	
+
 	//Uso um endereco invalido, apenas para criar o processo de workflow, mas sem envia-lo
 	oProcess:cTo  := NIL
 	oProcess:cCC  := NIL
 	oProcess:cBCC := NIL
-	
+
 	cMailId    := oProcess:Start(_cWfDir+"emp"+cEmpAnt+"\"+cDirHtml,.T.)
 	//chtmlfile  := cmailid + ".htm"
 	cHtmlFile  := "emp"+cEmpAnt+"\"+cDirHtml+cMailId + ".htm"
@@ -843,7 +843,7 @@ If !TRIM(_cWF) $ "5|8"
 	EndIf
 
 	U_EnviaLink(cHtmlFile,cOldTo,cOldCC,cOldBCC,oProcess:cSubject,cFilAnt,'PC',cNum,_cProcesso,UsrFullName(_cUser))		//faz a criacao e envio do link para resposta
-	
+
 Else
 	oProcess:Start()  // Crio o processo e gravo o ID do processo de Workflow
 EndIf
@@ -860,7 +860,7 @@ Return _cWFId
 +---------------------------------------------------------------------------+
 |    Sintaxe: ACDetPV(_cFilial, _cPedido, _cSeq, _cWF, _cStatus)
 +----------------------------------------------------------------------------
-|    Retorno: Nulo                                                               
+|    Retorno: Nulo
 +--------------------------------------------------------------------------*/
 
 Static Function ACDetPV(_cFilial, _cPedido, _cSeq, _cWF, _cStatus)
@@ -912,7 +912,7 @@ Return
 +---------------------------------------------------------------------------+
 |    Sintaxe: ProcesRet( oProcess2 )
 +----------------------------------------------------------------------------
-|    Retorno: Nulo                                                               
+|    Retorno: Nulo
 +--------------------------------------------------------------------------*/
 
 Static Function ProcesRet( oProcess2 )
@@ -946,7 +946,7 @@ Return
 +---------------------------------------------------------------------------+
 |    Sintaxe: MontaTit(nOpc)
 +----------------------------------------------------------------------------
-|    Retorno: Array com resultado da consulta                                                               
+|    Retorno: Array com resultado da consulta
 +--------------------------------------------------------------------------*/
 
 User Function MontaTit(nOpc)
@@ -964,83 +964,83 @@ Local aParam 	:= {}
 +---------------------------------------------------------*/
 If ( nOpc == 1 )     // Titulos em Aberto
 	cAlias	:= 'FC010QRY01'
-	
+
 	dbSelectArea("SX3")
 	dbSetOrder(2)
-	
+
 	dbSeek("E1_PREFIXO")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_NUM")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_PARCELA")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_TIPO")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_CLIENTE")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_LOJA")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_EMISSAO")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_VENCTO")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_VENCREA")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_VLCRUZ")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_VALJUR")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	aadd(aStru ,{"E1_ABT","N",14,2})
-	
+
 	dbSeek("E1_SALDO")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_PORCJUR")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_HIST")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	aadd(aStru ,{"E1_ATR","N",5,0})
 	aadd(aStru ,{"XX_RECNO","N",12,0})
-	
+
 	aadd(aQuery,{"E1_MOEDA","N",02,0})
-	
+
 	dbSeek("E1_VALOR")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("X5_DESCRI")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	SX3->(dbSetOrder(1))
-	
+
 	If ( Select(cAlias) ==	0 )
 		cArquivo := CriaTrab(,.F.)
 		aadd(aAlias,{ cAlias , cArquivo })
@@ -1048,14 +1048,14 @@ If ( nOpc == 1 )     // Titulos em Aberto
 		dbCreate(cArquivo,aStru)
 		dbUseArea(.T.,,cArquivo,cAlias,.F.,.F.)
 		IndRegua(cAlias,cArquivo,"E1_CLIENTE+E1_LOJA+E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO")
-		
+
 		If ( TcSrvType()!="AS/400" )
 			lQuery := .T.
 			cQuery := ""
 			aEval(aQuery,{|x| cQuery += ","+AllTrim(x[1])})
 			cQuery := "SELECT "+SubStr(cQuery,2)
 			cQuery +=         ",SE1.R_E_C_N_O_ SE1RECNO "+chr(13)+chr(10)
-			
+
 			cQuery += " FROM "+RetSqlName("SE1")+" SE1,"+chr(13)+chr(10)
 			cQuery += "      "+RetSqlName("SX5")+" SX5"+chr(13)+chr(10)
 			cQuery += " WHERE SE1.E1_FILIAL='"+xFilial("SE1")+"' AND "+chr(13)+chr(10)
@@ -1075,15 +1075,15 @@ If ( nOpc == 1 )     // Titulos em Aberto
 			cQuery +=		"SX5.X5_TABELA='07' AND "+chr(13)+chr(10)
 			cQuery +=		"SX5.X5_CHAVE=SE1.E1_SITUACA AND "+chr(13)+chr(10)
 			cQuery +=		"SX5.D_E_L_E_T_<>'*' "+chr(13)+chr(10)
-			
+
 			cQuery += " AND SE1.E1_TIPO NOT LIKE '__-' UNION ALL "+cQuery+chr(13)+chr(10)
 			cQuery += " AND SE1.E1_TIPO LIKE '__-'"
-			
+
 			cQuery := ChangeQuery(cQuery)
 			cQry   := cArquivo+"A"
-			
+
 			dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),cQry,.T.,.T.)
-			
+
 			aEval(aQuery,{|x| If(x[2]!="C",TcSetField(cQry,x[1],x[2],x[3],x[4]),Nil)})
 		Else
 			cQry := "SE1"
@@ -1092,7 +1092,7 @@ If ( nOpc == 1 )     // Titulos em Aberto
 		If ( !lQuery )
 			dbSetOrder(2)
 			dbSeek(xFilial("SE1")+SA1->A1_COD+SA1->A1_LOJA)
-			
+
 			bWhile := {|| !Eof() .And. xFilial("SE1") == SE1->E1_FILIAL .And.;
 			SA1->A1_COD    == SE1->E1_CLIENTE .And.;
 			SA1->A1_LOJA   == SE1->E1_LOJA }
@@ -1107,7 +1107,7 @@ If ( nOpc == 1 )     // Titulos em Aberto
 			bWhile := {|| !Eof() }
 			bFiltro:= {|| .T. }
 		EndIf
-		
+
 		While ( Eval(bWhile) )
 			If ( Eval(bFiltro) )
 				If ( !lQuery )
@@ -1131,16 +1131,16 @@ If ( nOpc == 1 )     // Titulos em Aberto
 				nTotAbat := 0
 				For nCntFor := 1 To Len(aStru)
 					Do Case
-						
+
 						Case ( AllTrim(aStru[nCntFor][1])=="X5_DESCRI" )
 							If ( lQuery )
 								(cAlias)->X5_DESCRI := (cQry)->X5_DESCRI
 							Else
 								(cAlias)->X5_DESCRI := SX5->X5_DESCRI
 							EndIf
-							
+
 						Case ( AllTrim(aStru[nCntFor][1])=="E1_VALJUR" )
-							
+
 						Case ( AllTrim(aStru[nCntFor][1])=="E1_ABT" )
 							nTaxaM:=round((cQry)->E1_VLCRUZ / (cQry)->E1_VALOR,4)  // Pegar a taxa da moeda usada qdo da inclusão do titulo
 							If ( (cQry)->(E1_TIPO)	$ MVABATIM )
@@ -1149,7 +1149,7 @@ If ( nOpc == 1 )     // Titulos em Aberto
 							If ( !lQuery )
 								(cAlias)->E1_ABT := (nTotAbat := SomaAbat(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,"R",1,,SE1->E1_CLIENTE,SE1->E1_LOJA))
 							Endif
-							
+
 						Case ( AllTrim(aStru[nCntFor][1])=="E1_SALDO" )
 							nTaxaM:=round((cQry)->E1_VLCRUZ / (cQry)->E1_VALOR,4)  // Pegar a taxa da moeda usada qdo da inclusão do titulo
 							If ( (cQry)->(E1_TIPO)	$ MVABATIM )
@@ -1160,7 +1160,7 @@ If ( nOpc == 1 )     // Titulos em Aberto
 							If ( !lQuery )
 								(cAlias)->E1_SALDO -= nTotAbat
 							EndIf
-							
+
 						Case ( AllTrim(aStru[nCntFor][1])=="XX_RECNO" )
 							If !( (cQry)->(E1_TIPO)	$ MVABATIM )
 								If ( lQuery )
@@ -1169,7 +1169,7 @@ If ( nOpc == 1 )     // Titulos em Aberto
 									(cAlias)->XX_RECNO := SE1->(RecNo())
 								EndIf
 							Endif
-							
+
 						Case ( AllTrim(aStru[nCntFor][1])=="E1_TIPO" )
 							If ( Empty((cAlias)->E1_TIPO) )
 								(cAlias)->E1_TIPO := (cQry)->E1_TIPO
@@ -1181,7 +1181,7 @@ If ( nOpc == 1 )     // Titulos em Aberto
 								(cAlias)->E1_ATR := dDataBase - DataValida((cQry)->E1_VENCREA,.T.)
 							Endif
 						Case ( AllTrim(aStru[nCntFor][1])=="FLAG" )
-							
+
 						OtherWise
 							If ( lQuery )
 								If !( (cQry)->(E1_TIPO)	$ MVABATIM )
@@ -1211,7 +1211,7 @@ If ( nOpc == 1 )     // Titulos em Aberto
 		dbSelectArea(cAlias)
 		IndRegua(cAlias,cArquivo,"DTOS(E1_VENCREA)")
 	EndIf
-	
+
 	aView := {}
 	dbSelectArea(cAlias)
 	dbGotop()
@@ -1219,80 +1219,80 @@ If ( nOpc == 1 )     // Titulos em Aberto
 		AADD( aView, {E1_PREFIXO + '-' + E1_NUM + '/' + E1_PARCELA, E1_TIPO, E1_EMISSAO, E1_VENCREA, E1_VALOR, E1_SALDO, X5_DESCRI, E1_ATR, E1_HIST})
 		dbSkip()
 	Enddo
-	
+
 /*--------------------------------------------------------+
 | Titulos Recebidos                                       |
 +---------------------------------------------------------*/
 ElseIf ( nOpc == 2 )
 	cAlias	:= 'FC010QRY02'
-	
+
 	dbSelectArea("SX3")
 	dbSetOrder(2)
-	
+
 	dbSeek("E1_PREFIXO")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_NUM")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_PARCELA")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_TIPO")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_VLCRUZ")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_VALOR")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E5_VALOR")
 	aadd(aStru ,{"E1_PAGO",SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_EMISSAO")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_VENCTO")
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E1_VENCREA")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E5_DATA")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E5_DTDISPO")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E5_HISTOR")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E5_MOTBX")
 	aadd(aStru ,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	dbSeek("E5_TIPODOC")
 	aadd(aQuery,{AllTrim(SX3->X3_CAMPO),SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-	
+
 	aadd(aStru ,{"E1_ATR","N",5,0})
-	
+
 	aadd(aStru,{"XX_RECNO","N",12,0})
-	
+
 	SX3->(DbSetOrder(1))
-	
+
 	If ( Select(cAlias) ==	0 )
 		cArquivo := CriaTrab(,.F.)
 		aadd(aAlias,{ cAlias , cArquivo })
@@ -1300,7 +1300,7 @@ ElseIf ( nOpc == 2 )
 		dbCreate(cArquivo,aStru)
 		dbUseArea(.T.,,cArquivo,cAlias,.F.,.F.)
 		IndRegua(cAlias,cArquivo,"E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO")
-		
+
 		#IFDEF TOP
 			If ( TcSrvType()!="AS/400" )
 				cQuery := ""
@@ -1344,14 +1344,14 @@ ElseIf ( nOpc == 2 )
 				cQuery +=		"A.E5_TIPODOC='ES' AND "+chr(13)+chr(10)
 				cQuery +=		"A.E5_RECPAG<>'R' AND "+chr(13)+chr(10)
 				cQuery +=		"A.D_E_L_E_T_<>'*')"
-				
+
 				cQuery := ChangeQuery(cQuery)
 				cQry   := cArquivo+"A"
-				
+
 				dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),cQry,.T.,.T.)
-				
+
 				aEval(aQuery,{|x| If(x[2]!="C",TcSetField(cQry,x[1],x[2],x[3],x[4]),Nil)})
-				
+
 				dbSelectArea(cQry)
 				bWhile := {|| !Eof() }
 				bFiltro:= {|| (cQry)->E5_TIPODOC $ "VL/BA/V2/CP/LJ/R$" }
@@ -1383,7 +1383,7 @@ ElseIf ( nOpc == 2 )
 								Case ( AllTrim(aStru[nCntFor][1])=="XX_RECNO" )
 									(cAlias)->XX_RECNO := (cQry)->SE5RECNO
 								Case ( AllTrim(aStru[nCntFor][1])=="FLAG" )
-									
+
 								OtherWise
 									(cAlias)->(FieldPut(nCntFor,(cQry)->(FieldGet(FieldPos(aStru[nCntFor][1])))))
 							EndCase
@@ -1414,14 +1414,14 @@ ElseIf ( nOpc == 2 )
 					dbSelectArea("SE5")
 					dbSetOrder(4)
 					dbSeek(xFilial("SE5")+SE1->E1_NATUREZ+SE1->E1_PREFIXO+SE1->E1_NUM+SE1->E1_PARCELA+SE1->E1_TIPO)
-					
+
 					While ( !Eof() .And. xFilial("SE5") == SE5->E5_FILIAL .And.;
 						SE1->E1_NATUREZ == SE5->E5_NATUREZ .And.;
 						SE1->E1_PREFIXO == SE5->E5_PREFIXO .And.;
 						SE1->E1_NUM == SE5->E5_NUMERO      .And.;
 						SE1->E1_PARCELA == SE5->E5_PARCELA .And.;
 						SE1->E1_TIPO == SE5->E5_TIPO )
-						
+
 						If ((!SE5->E5_TIPO $ "RA /PA /"+MV_CRNEG+"/"+MV_CPNEG) .And. !TemBxCanc() .and. ;
 							SE5->E5_SITUACA <> "C" .And. SE5->E5_TIPODOC $ "VL/BA/V2/CP/LJ/R$")
 							RecLock(cAlias,.T.)
@@ -1463,7 +1463,7 @@ ElseIf ( nOpc == 2 )
 		dbSelectArea(cAlias)
 		IndRegua(cAlias,cArquivo,"DTOS(E1_VENCREA)")
 	EndIf
-	
+
 	aView := {}
 	dbSelectArea(cAlias)
 	dbGotop()
@@ -1471,7 +1471,7 @@ ElseIf ( nOpc == 2 )
 		AADD( aView, {E1_PREFIXO + '-' + E1_NUM + '/' + E1_PARCELA, E1_TIPO, E1_EMISSAO, E1_VENCREA, E1_VALOR, E1_PAGO, E5_MOTBX, E1_ATR, E5_HISTOR})
 		dbSkip()
 	Enddo
-	
+
 EndIf
 
 (cAlias)->(dbCloseArea())
@@ -1483,7 +1483,7 @@ Return aView
 /*-----------------------+-------------------------------+------------------+
 |   Programa: AVWFPsqDoc | Autor: Kley@TOTVS             | Data: 25/06/2014 |
 +------------------------+-------------------------------+------------------+
-|  Descricao: Pesquisa os documentos do Banco de Conhecimento associados ao 
+|  Descricao: Pesquisa os documentos do Banco de Conhecimento associados ao
 |             respectivo Titulo do Contas a Pagar.
 |
 |			  Parâmetros recebidos:
@@ -1494,7 +1494,7 @@ Return aView
 +---------------------------------------------------------------------------+
 |    Sintaxe: AVWFPsqDoc( SA1 ->( A1_FILIAL + A1_FORNECE + A1_LOJA ) )
 +----------------------------------------------------------------------------
-|    Retorno: aDocBcoCto                                                               
+|    Retorno: aDocBcoCto
 |             Retorna um array de três dimensões, e cada um contendo:
 |				[1] = Descrição do Documento
 |				[2] = Nome do objetivo/arquivo
