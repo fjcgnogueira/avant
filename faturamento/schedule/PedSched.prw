@@ -1,4 +1,4 @@
-#INCLUDE "PROTHEUS.CH"           
+#INCLUDE "PROTHEUS.CH"
 #INCLUDE "TbiConn.ch"
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
@@ -29,7 +29,7 @@ Private aPVlNFs  := {}
 	//³aParam     |  [01]   |  [02]  |
 	//³           | Empresa | Filial |
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	
+
 RpcClearEnv()
 RPCSetType(3)
 RpcSetEnv(aParam[1], aParam[2], NIL, NIL, "FAT", NIL, aTabelas)
@@ -51,11 +51,11 @@ While (cNextAlias)->(!EoF())
 	aAdd(aPedWeb, {(cNextAlias)->Z3_NPEDWEB,(cNextAlias)->SZ3RECNO})
 
 	SZ3->(dbGoTo((cNextAlias)->SZ3RECNO))
-	
+
 	SZ3->(RecLock("SZ3",.F.))
 		SZ3->Z3_STATUS := 'P'
 	SZ3->(MsUnlock())
-	
+
 	(cNextAlias)->(dbSkip())
 End
 
@@ -64,20 +64,20 @@ For _nXI := 1 to Len(aPedWeb)
 
 	cMensagem := ""
 	cDocumen  := ""
-	
+
 	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Processando Pedido Web: "+AllTrim(cValToChar(aPedWeb[_nXI][01])))
 
 	U_INTPEDIDO(aParam[1], aParam[2], AllTrim(cValToChar(aPedWeb[_nXI][01])), @cMensagem, @cDocumen, .F.)
-	
+
 	If !Empty(cMensagem)
 		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] "+cMensagem)
 	Endif
 	If !Empty(cDocumen)
 		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] "+cDocumen)
 	Endif
-	
+
 	SZ3->(dbGoTo(aPedWeb[_nXI][02]))
-	
+
 	If SZ3->Z3_STATUS = '3'
 		EnvInteg()
 	Else
@@ -85,22 +85,22 @@ For _nXI := 1 to Len(aPedWeb)
 			EnvNaoInt(aPedWeb[_nXI][01],cMensagem)
 		Endif
 	Endif
-	
+
 	Sleep(15000)
-	
+
 Next
 
 // Caso tenha pulado algum Pedido com Status P, volta para o Status 2, que entra na proxima execucao
 For _nXI := 1 to Len(aPedWeb)
 
 	SZ3->(dbGoTo(aPedWeb[_nXI][02]))
-	
+
 	If SZ3->Z3_STATUS = 'P'
 		SZ3->(RecLock("SZ3",.F.))
 			SZ3->Z3_STATUS := '2'
 		SZ3->(MsUnlock())
 	Endif
-	
+
 Next
 
 (cNextAlias)->(DbCloseArea())
@@ -143,7 +143,7 @@ If lMailCad
 	cMsgInt   += "<br /> "
 	cMsgInt   += "Setor de Cadastro de Clientes e Representantes:<br /> "
 	cMsgInt   += "O representante "+SA3->A3_COD+" não recebeu esse e-mail.<br /> "
-	cMsgInt   += "Acertar o cadastro do representante e repassar o e-mail para ele. "	
+	cMsgInt   += "Acertar o cadastro do representante e repassar o e-mail para ele. "
 Endif
 
 If Time() > "18:00:00"
@@ -180,12 +180,12 @@ While SC6->(!EoF()) .And. SC6->C6_NUM == SC5->C5_NUM
 	aAdd((oHTML:ValByName("aR.cQtd"))    , Transform(SC6->C6_QTDVEN, "@e 999,999,999"))
 	aAdd((oHTML:ValByName("aR.cVlr"))    , Transform(SC6->C6_PRCVEN, PesqPict("SC6","C6_VALOR")))
 	aAdd((oHTML:ValByName("aR.cTot"))    , Transform(SC6->C6_VALOR , PesqPict("SC6","C6_VALOR")))
-	
+
 	cTotQtd += SC6->C6_QTDVEN
 	cTotal  += SC6->C6_VALOR
 
 	SC6->(dbSkip())
-		
+
 End
 
 oHtml:ValByName("cTotQtd", Transform(cTotQtd, "@e 999,999,999"))
@@ -261,7 +261,7 @@ If lMailCad
 	cMsgInt   += "<br /> "
 	cMsgInt   += "Setor de Cadastro de Clientes e Representantes:<br /> "
 	cMsgInt   += "O representante "+(cPedTRB)->Z3_VEND+" não recebeu esse e-mail.<br /> "
-	cMsgInt   += "Acertar o cadastro do representante e repassar o e-mail para ele. "	
+	cMsgInt   += "Acertar o cadastro do representante e repassar o e-mail para ele. "
 Endif
 
 oProcess := TWFProcess():New("PEDNAOINT","PEDIDO NAO INTEGRADO")
@@ -285,19 +285,19 @@ While (cPedTRB)->(!EoF())
 	aAdd((oHTML:ValByName("aR.cQtd"))    , Transform((cPedTRB)->Z4_QTDE, "@e 999,999,999"))
 	aAdd((oHTML:ValByName("aR.cVlr"))    , Transform((cPedTRB)->Z4_PRLIQ, PesqPict("SC6","C6_VALOR")))
 	aAdd((oHTML:ValByName("aR.cTot"))    , Transform((cPedTRB)->Z4_VLRTTIT, PesqPict("SC6","C6_VALOR")))
-	
+
 	cTotQtd += (cPedTRB)->Z4_QTDE
 	cTotal  += (cPedTRB)->Z4_VLRTTIT
 
 	(cPedTRB)->(dbSkip())
-		
+
 End
 
 oHtml:ValByName("cTotQtd"  , Transform(cTotQtd, "@e 999,999,999"))
 oHtml:ValByName("cTotal"   , Transform(cTotal , PesqPict("SC6","C6_VALOR")))
 oHtml:ValByName("cMensagem", cMensagem)
 
-oProcess:cSubject := "[Pedido Web "+cValtoChar(nPedWeb)+" Não Integrado - "+DtoC(Date())+"] "
+oProcess:cSubject := "[Pedido Web "+cValtoChar(nPedWeb)+" Nao Integrado - "+DtoC(Date())+"] "
 oProcess:USerSiga := "000000"
 oProcess:cTo      := cPara
 If lMailCad
