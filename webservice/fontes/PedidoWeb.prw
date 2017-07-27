@@ -397,7 +397,7 @@ Static Function ActPed(oModel)
 Local lRet := .T.
 
 If oModel:GetOperation() == MODEL_OPERATION_UPDATE .And. SZ3->Z3_STATUS <> '1'
-	MsgInfo("Somente Pedidos com Status de Parado na Web podem ser alterados.")
+	oModel:GetModel():SetErrorMessage(oModel:GetId(),,,,"Alteração de Pedido Web","Status de Pedido Web sem permissão de alteração","Somente Pedidos com Status de 'Parado na Web' podem ser alterados")
 	lRet := .F.
 Endif
 
