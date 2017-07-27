@@ -192,7 +192,7 @@ oHtml:ValByName("cTotQtd", Transform(cTotQtd, "@e 999,999,999"))
 oHtml:ValByName("cTotal" , Transform(cTotal , PesqPict("SC6","C6_VALOR")))
 oHtml:ValByName("cTotImp", Transform(SC5->C5_XTOTPED , PesqPict("SC6","C6_VALOR")))
 
-oProcess:cSubject := "[Pedido Web "+cValtoChar(SC5->C5_PEDWEB)+" Integrado - "+DtoC(Date())+"] "+"Nº Pedido Interno: " + SC5->C5_NUM
+oProcess:cSubject := "[Pedido Web "+cValtoChar(SC5->C5_PEDWEB)+" Integrado - "+DtoC(Date())+"] "+"No Pedido Interno: " + SC5->C5_NUM
 oProcess:USerSiga := "000000"
 oProcess:cTo      := cPara
 If lMailCad
