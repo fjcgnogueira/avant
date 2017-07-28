@@ -50,7 +50,7 @@ User Function Fat_Diario(aParam)
 	Private _cGrupo     := aParam[2]
 	Private _cDataDe    := ""
 	Private _cDataAte   := Date()
-	Private _cTitulo    := "Faturamento Diário"
+	Private _cTitulo    := "Faturamento Diario"
 	Private _cEmail     := aParam[5]
 	Private _cEmailCC   := aParam[6]
 	Private _lSchedule  := aParam[7]

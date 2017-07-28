@@ -49,7 +49,7 @@ User Function Fat_Canal(aParam)
 	Private _cGrupo     := aParam[2]
 	Private _cDataDe    := ""
 	Private _cDataAte   := Date()
-	Private _cTitulo    := "Faturamento Diário Canal"
+	Private _cTitulo    := "Faturamento Diario Canal"
 	Private _cEmail     := aParam[5]
 	Private _cEmailCC   := aParam[6]
 	Private _lSchedule  := aParam[7]
