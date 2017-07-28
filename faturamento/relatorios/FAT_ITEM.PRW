@@ -206,7 +206,7 @@ Else
 			cLog += '<td align="center" width="20"><span class="style3"><strong>Valor R$</strong></span></td>'
 			cLog += '</tr>'
 
-			cAssunto := "Teste - Faturamento por Item Diário - Regional " +ALLTRIM(cRegional)+ " [" +DTOC(date())+  "]"
+			cAssunto := "Teste - Faturamento por Item Diario - Regional " +ALLTRIM(cRegional)+ " [" +DTOC(date())+  "]"
 		Else
 			cDtDiario := Dtos(date())
 			BeginSql alias 'TRB'
@@ -238,7 +238,7 @@ Else
 			cLog += '<td align="center" width="20"><span class="style3"><strong>Valor R$</strong></span></td>'
 			cLog += '</tr>'
 
-			cAssunto := "Teste - Faturamento por Item Diário - Regional " +ALLTRIM(cRegional)+ " ["  +DTOC(date())+ "]"
+			cAssunto := "Teste - Faturamento por Item Diario - Regional " +ALLTRIM(cRegional)+ " ["  +DTOC(date())+ "]"
 		EndIf
 	EndIf
 EndIf
