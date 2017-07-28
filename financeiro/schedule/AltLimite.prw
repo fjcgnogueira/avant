@@ -45,7 +45,7 @@ RpcSetEnv(cEmpCons, cFilCons, NIL, NIL, "FAT", NIL, aTabelas)
 
 _cMailTo  := GetMv("ES_MAILCRD")
 _cMailCC  := GetMv("ES_EMAILTI")
-_cAssunto := "["+DtoC(Date())+" "+Time()+"] [AltLimite] Atualização de Limite de Crédito"
+_cAssunto := "["+DtoC(Date())+" "+Time()+"] [AltLimite] Atualizacao de Limite de Credito"
 
 cLog += '<html><font face="Lucida Console"><body>'
 cLog += "<hr>"
