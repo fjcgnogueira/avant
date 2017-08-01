@@ -27,7 +27,7 @@ User Function MS520VLD()
 ศออออออออออออฯอออออออออออออออออออออผ
 /*/
 
-If SF2->F2_FIMP == 'S' .And. Left(DtoS(SF2->F2_EMISSAO),06) <> Left(DtoS(Date()),06)
+If SF2->F2_FIMP == 'S' .And. Left(DtoS(SF2->F2_EMISSAO),06) <> Left(DtoS(Date()),06) .And. !(aScan(PswRet(1)[1][10],'000000') <> 0)
 	ApMsgInfo("Exclusใo de NF autorizada deve ser feita dentro do mesmo m๊s em que a mesma foi emitida.")
 	Return .F.
 ElseIf SF2->F2_FIMP == ' ' .And. Left(DtoS(SF2->F2_EMISSAO),06) <> Left(DtoS(dDataBase),06)
