@@ -19,11 +19,12 @@ Local lRet
 Local aArea      := GetArea()
 Local nQuant     := 0
 Local cNumReserv := ""
+Local cAliasZZR  := GetNextAlias()
 
 dbSelectArea("ZZR")
 dbSetOrder(01)
 
-BeginSql alias 'TRB'
+BeginSql alias cAliasZZR
 
 	SELECT ZZR_TIPO,ZZR_NUM,ZZR_SOLICI,ZZR_FILIAL,ZZR_OBS,ZZR_PRODUT,ZZR_LOCAL,ZZR_QUANT FROM %table:ZZR% ZZR
 	WHERE ZZR.%notDel% 
@@ -31,18 +32,19 @@ BeginSql alias 'TRB'
 		AND ZZR_STATUS IN ('A','P')
 		AND ZZR_PRODUT = %Exp:SDB->DB_PRODUTO%
 		AND ZZR_LOCAL = %Exp:SDB->DB_LOCAL%
+	ORDER BY ZZR_NUM,ZZR_PRODUT,ZZR_LOCAL
 
 EndSql
 
-TRB->(dbGoTop())
+(cAliasZZR)->(dbGoTop())
 
-While TRB->(!EoF())
+While (cAliasZZR)->(!EoF())
 
 	lParcial  := .F.
 
-	aOperacao := {01,TRB->ZZR_TIPO,'P'+TRB->ZZR_NUM,TRB->ZZR_SOLICI,TRB->ZZR_FILIAL,TRB->ZZR_OBS}
+	aOperacao := {01,(cAliasZZR)->ZZR_TIPO,'P'+(cAliasZZR)->ZZR_NUM,(cAliasZZR)->ZZR_SOLICI,(cAliasZZR)->ZZR_FILIAL,(cAliasZZR)->ZZR_OBS}
 	
-	nQuant := If(SDB->DB_QUANT >= TRB->ZZR_QUANT, TRB->ZZR_QUANT, SDB->DB_QUANT)
+	nQuant := If(SDB->DB_QUANT >= (cAliasZZR)->ZZR_QUANT, (cAliasZZR)->ZZR_QUANT, SDB->DB_QUANT)
 	
 	cNumReserv := NumReserv()
 	
@@ -54,7 +56,7 @@ While TRB->(!EoF())
 						{Space(TamSx3("DB_NUMLOTE")[1]),Space(TamSx3("DB_LOTECTL")[1]),Space(TamSx3("DB_LOCALIZ")[1]),Space(TamSx3("DB_NUMSERI")[1])})
 						
 	If lRet
-		ZZR->(dbSeek(TRB->(ZZR_FILIAL+ZZR_NUM+ZZR_PRODUT+ZZR_LOCAL)))
+		ZZR->(dbSeek((cAliasZZR)->(ZZR_FILIAL+ZZR_NUM+ZZR_PRODUT+ZZR_LOCAL)))
 		ZZR->(RecLock("ZZR",.F.))
 			ZZR->ZZR_QUANT -= nQuant
 			If ZZR->ZZR_QUANT = 0
@@ -65,10 +67,10 @@ While TRB->(!EoF())
 		ZZR->(MsUnlock())
 	Endif	
 
-	TRB->(dbSkip())
+	(cAliasZZR)->(dbSkip())
 End
 
-TRB->(dbCloseArea())
+(cAliasZZR)->(dbCloseArea())
 
 RestArea(aArea)
 
