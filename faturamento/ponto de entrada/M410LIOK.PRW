@@ -25,7 +25,7 @@ Local nPosServic := aScan(aHeader,{|x|Trim(x[2])=="C6_SERVIC"})
 Local nPosEndPad := aScan(aHeader,{|x|Trim(x[2])=="C6_ENDPAD"})
 Local nPosItem   := aScan(aHeader,{|x|Trim(x[2])=="C6_ITEM"})
 Local nPosTes    := aScan(aHeader,{|x|Trim(x[2])=="C6_TES"})
-Local nReserva   := aScan(aHeader,{|x|Trim(x[2])=="C6_RESERVA"})
+Local nPosReserv := aScan(aHeader,{|x|Trim(x[2])=="C6_RESERVA"})
 Local aAreaSF4   := SF4->(GetArea())
 Local aAreaSB1   := SB1->(GetArea())
 Local aAreaSA1   := SA1->(GetArea())
@@ -68,7 +68,7 @@ Endif
 
 // Verifica se a quantidade liberada eh maior que o saldo disponivel em estoque na inclusao do Pedido de Vendas
 If Posicione('SF4',1,xFilial('SF4')+aCols[n][nPosTes],'F4_ESTOQUE') == "S" //Chamado 002624
-	If lReturn .And. Inclui .And. Empty(aCols[n][nReserva]) .And. aCols[n][nPosQtdLib] > U_SaldoProd(aCols[n][nPosProd],aCols[n][nPosLocal])
+	If lReturn .And. Inclui .And. Empty(aCols[n][nPosReserv]) .And. aCols[n][nPosQtdLib] > U_SaldoProd(aCols[n][nPosProd],aCols[n][nPosLocal])
 		MsgInfo('Quantidade liberada do produto '+AllTrim(aCols[n][nPosProd])+' maior que o saldo disponível em estoque!', 'Atenção')
 		lReturn := .F.
 	Endif
