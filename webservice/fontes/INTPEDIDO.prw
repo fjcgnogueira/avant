@@ -206,7 +206,7 @@ If lRetorno
 						aAdd(aLinha,{"C6_DESCPRO",SZ4->Z4_PRODESC,NIL})
 						aAdd(aLinha,{"C6_PRUNIT" ,SZ4->Z4_PRLIQ  ,NIL}) // Fernando Nogueira - Chamado 004749
 						aAdd(aLinha,{"C6_LOCAL"  ,cArmazem       ,NIL})
-						aAdd(aLinha,{"C6_RESERV" ,SZ4->Z4_PRESERV,NIL}) // Fernando Nogueira - Chamado 005107
+						aAdd(aLinha,{"C6_RESERVA",SZ4->Z4_PRESERV,NIL}) // Fernando Nogueira - Chamado 005107
 						
 						// Fernando Nogueira - Verifica se vem comissao da web
 						If SZ4->Z4_PCCOMIS > 0 .And. SA3->A3_TIPO = 'E'
