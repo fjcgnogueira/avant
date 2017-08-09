@@ -56,6 +56,7 @@ While (cAliasZZR)->(!EoF())
 						{Space(TamSx3("DB_NUMLOTE")[1]),Space(TamSx3("DB_LOTECTL")[1]),Space(TamSx3("DB_LOCALIZ")[1]),Space(TamSx3("DB_NUMSERI")[1])})
 						
 	If lRet
+		ConfirmSX8()
 		ZZR->(dbSeek((cAliasZZR)->(ZZR_FILIAL+ZZR_NUM+ZZR_PRODUT+ZZR_LOCAL)))
 		ZZR->(RecLock("ZZR",.F.))
 			ZZR->ZZR_QUANT -= nQuant
@@ -65,6 +66,8 @@ While (cAliasZZR)->(!EoF())
 				ZZR->ZZR_STATUS := 'P'
 			Endif
 		ZZR->(MsUnlock())
+	Else
+		RollBackSX8()
 	Endif	
 
 	(cAliasZZR)->(dbSkip())
