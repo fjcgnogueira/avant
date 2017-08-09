@@ -1,5 +1,6 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "APWEBSRV.CH"
+#INCLUDE "TbiConn.ch"
 
 
 /*
@@ -47,21 +48,28 @@ Local nVlrRet	:= 0
 Local nDescSuf	:= 0
 Local cPedWeb	:= ""
 Local lSZ4      := ""
-//Local aTabelas	:= {"SA1", "SC5", "SC6", "SC9", "SD2", "SF2", "SF4", "SF5", "SFM", "SB1", "SB2", "SB9"}
+Local cPara := ""
+Local cCC := ""
+Local cBCC := ""
+Local cAssunto := ""
+Local cCorpo := ""
+Local cAttach := ""
+Local cEmail := ""
+Local aParam := PARAMIXB
 
-//Private _lSchedule  := aParam[1]
-/*
+Private _lSchedule  := aParam[1]
+
 If _lSchedule
-	PREPARE ENVIRONMENT EMPRESA aParam[2] FILIAL aParam[3]
+	PREPARE ENVIRONMENT EMPRESA aParam[1] FILIAL aParam[2]
 Endif
-*/
+
 
 BeginSql alias 'TRB'
 
-	SELECT Z3_NPEDWEB, Z3_WA1_COD, Z3_WA1_LOJ, Z4_CODPROD, Z4_QTDE, Z4_PRVEN, Z4_ITEMPED  FROM %table:SZ3% SZ3
+	SELECT Z3_NPEDWEB, Z3_WA1_COD, Z3_WA1_LOJ, Z4_CODPROD, Z4_QTDE, Z4_PRVEN, Z4_ITEMPED, A3_EMAIL  FROM %table:SZ3% SZ3
 	INNER JOIN %table:SZ4% SZ4 ON Z3_FILIAL = Z4_FILIAL AND Z3_NPEDWEB = Z4_NUMPEDW AND SZ4.%notDel%
+	INNER JOIN SA3010 SA3 ON Z3_VEND = A3_COD AND SA3.D_E_L_E_T_ = ''
 	WHERE SZ3.%notDel% AND Z3_STATUS = '8'
-	AND Z4_NUMPEDW IN ('864079','864080','864081')
 	ORDER BY Z3_NPEDWEB, Z4_ITEMPED
 
 EndSql
@@ -83,6 +91,7 @@ While TRB->(!EoF())
 	nVlrProd = TRB->Z4_PRVEN
 	nVlrTot  = (nQtdProd * nVlrProd)
 	cItemped = TRB->Z4_ITEMPED	
+	cEmail   = TRB->A3_EMAIL
 	
 	nVlrTot := nQtdProd * nVlrProd
 	
@@ -196,19 +205,36 @@ While TRB->(!EoF())
 		SZ4->(MSUNLOCK())
 	EndIf
 	
-	DbSelectarea("SZ3")
-	SZ3->(DbSetorder(1))
-	SZ3->(dbGoTop())
-	
-	DbSeek(xFilial("SZ3") + cPedWeb)
-	
-	SZ3->(Reclock("SZ3",.F.))
-	SZ3->Z3_STATUS := "7"
-	SZ3->(MSUNLOCK())
+
 	
 	ConOut('[ Pedido: ' +Alltrim(cPedWeb) +' ] [ Item: '+ Alltrim(cProduto) +']')
-
+	
+	
 	TRB->(DbSkip())
+	
+	
+	
+	If PadL(TRB->Z3_NPEDWEB,TamSx3("Z3_NPEDWEB")[01]) <> cPedWeb
+	
+		DbSelectarea("SZ3")
+		SZ3->(DbSetorder(1))
+		SZ3->(dbGoTop())
+		
+		DbSeek(xFilial("SZ3") + cPedWeb)
+		
+		SZ3->(Reclock("SZ3",.F.))
+		SZ3->Z3_STATUS := "9"
+		SZ3->(MSUNLOCK())
+		
+		cCorpo := "<!doctype html><html><head><meta charset='utf-8'><title>Chamado Avant</title><style type='text/css'>    body {        font: normal normal 1em/1.2em Gotham, 'Helvetica Neue', Helvetica, Arial, 'sans-serif';        color: #444444; }    blockquote {        border-left: solid 5px #DA261C;        padding: 2px 10px 12px 10px;        background: #f1f1f1;		.tituloPag {	FONT-SIZE: 20px;	COLOR: #666699;	FONT-FAMILY: Arial, Helvetica, sans-serif;	TEXT-DECORATION: none;	font-weight: bold;}.formulario {	FONT-SIZE: 10px;	COLOR: #000000;	FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;	TEXT-DECORATION: none;	font-weight: bold;}.formulario2 {	"
+		cCorpo += "FONT-SIZE: 11px;	COLOR: #333333;	FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;	TEXT-DECORATION: none;}.formularioTit {	FONT-SIZE: 13px;	COLOR: #000000;	FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;	TEXT-DECORATION: none;	font-weight: bold;}.tituloAtencao {	FONT-SIZE: 10px;	COLOR: #990000;	FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;	TEXT-DECORATION: none;	font-weight: bold;}body {	background-color: #999999;    }</style></head><body><table width='800' border='0' align='center' cellpadding='0' cellspacing='0'>  <thead>    <tr>      <th height='150'>        <table width='100%' border='0' cellspacing='0' cellpadding='0'>"          
+		cCorpo += "<tbody>            <tr>              <td height='100' align='center' valign='middle' bgcolor='#DA261C'><h1><a href='http://avantlux.com.br/' target='_blank'><img src='http://www.avantlux.com.br/emkt/sistema/header.png' width='250' height='55' alt='Avant - Seu melhor parceiro em iluminação'/></a>              </h1></td>            </tr>          </tbody>        </table>              </th>    </tr>  </thead>      <td><table width='700' border='0' align='center' cellpadding='0' cellspacing='0'>        <tr bgcolor='#336699'>          <td bgcolor='#dbdbdb' class='formularioTit' align='center'><strong>Oraçamento "+cPedWeb+"</strong></td>        </tr>        <tr bgcolor='#FFFFFF'>"          
+		cCorpo += "<td>&nbsp;</td>        </tr>        <tr bgcolor='#FFFFFF'>          <td class='formulario2'>Prezado Representante,</td>        </tr>        <tr bgcolor='#FFFFFF'>          <td>&nbsp;</td>        </tr>        <tr bgcolor='#FFFFFF'>          <td class='formulario2'>O orçamento "+cPedWeb+" foi gerado com sucesso.<br></td>        </tr>        <tr bgcolor='#FFFFFF'>          <td>&nbsp;</td>        </tr>        <tr bgcolor='#FFFFFF'>          <td class='formulario2'><span class='style3'>Acesse nosso portal de vendas para visualizar o documento com impostos.</span></td>        </tr>        <tr bgcolor='#FFFFFF'>          <td class='formulario2'>&nbsp;</td>        </tr>        <tr bgcolor='#FFFFFF'>		  "
+		cCorpo += "<td class='formulario2'>Atenciosamente,</td>        </tr>        <tr bgcolor='#FFFFFF'>          <td><span class='formulario2'>Departamento T.I.</span></td>        </tr>        <tr bgcolor='#FFFFFF'>          <td class='formulario2'>&nbsp;</td>        </tr>      </table>      <table width='700' border='0' align='center' cellpadding='0' cellspacing='0'>        <tr>          <td><table width='700' border='0' align='center' cellpadding='0' cellspacing='2' bordercolor='#FFFFFF' bgcolor='#FFFFFF'>              <tr>      <table width='700' border='0' align='center' bgcolor='#FFFFFF'>        <tr>          <td> <strong><span class='tituloAtencao'>AVISO  - Mensagem automática, favor não responder este e-mail.</span></strong> </td>        </tr>      "
+		cCorpo += "</table></td>    <tfoot>    <tr>      <td align='center' valign='bottom'><br><a href='http://avantlux.com.br/' target='_blank'><img src='http://www.avantlux.com.br/emkt/sistema/footer.png' width='760' height='47' alt='acesse www.avantlux.com.br'/></a>      </td>    </tr>  </tfoot></table></body></html>"
+		cPara = cEmail
+		U_MHDEnvMail(cPara,'rogerio.machado@avantlux.com.br, elir.ribeiro@avantlux.com.br','tecnologia@avantlux.com.br','Avant - Orçamento gerado com sucesso',cCorpo,cAttach)
+	EndIf
 
 End
 
