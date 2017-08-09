@@ -98,21 +98,38 @@ Local oStruSZ3  := FWFormStruct(1,'SZ3', /*bAvalCampo*/, /*lViewUsado*/) //Retor
 Local oStruSZ4  := FWFormStruct(1,'SZ4', /*bAvalCampo*/, /*lViewUsado*/) //Retorna a Estrutura do Alias passado como Parametro (1=Model,2=View)
 Local oModel
 Local nTotItem  := 0
+Local aGat1Prl  := {}
+Local aGat2Prl  := {}
+Local aGat3Prl  := {}
+Local aGat4Prl  := {}
 Local aGat1Res  := {}
 Local aGat2Res  := {}
 Local aGat3Res  := {}
+Local aGat4Res  := {}
 
 SetKey(VK_F4,({||If(IsMemVar("M->Z4_PRESERV"),MaViewSB2(GdFieldGet("Z4_CODPROD")),Nil)}))
 
 oStruSZ3:SetProperty('Z3_NPEDWEB',MODEL_FIELD_INIT,{||ProxWeb()})
 
+aGat1Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","0"                                ,.F.,,,,"Empty(GdFieldGet('Z4_PRESERV')).And.U_SaldoProd(GdFieldGet('Z4_CODPROD'),'01') < GdFieldGet('Z4_QTDE') ","001")
+aGat2Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","GdFieldGet('Z4_QTDE')*M->Z4_PRLIQ",.F.,,,,"Empty(GdFieldGet('Z4_PRESERV')).And.U_SaldoProd(GdFieldGet('Z4_CODPROD'),'01') >= GdFieldGet('Z4_QTDE')","002")
+aGat3Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","0"                                ,.F.,,,,"!Empty(GdFieldGet('Z4_PRESERV')).And.!U_WebReserv()"                                                    ,"003")
+aGat4Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","GdFieldGet('Z4_QTDE')*M->Z4_PRLIQ",.F.,,,,"!Empty(GdFieldGet('Z4_PRESERV')).And.U_WebReserv()"                                                     ,"004")
+
 aGat1Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","0"                                           ,.F.,,,,"Empty(M->Z4_PRESERV).And.U_SaldoProd(GdFieldGet('Z4_CODPROD'),'01') < GdFieldGet('Z4_QTDE') ","001")
 aGat2Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","GdFieldGet('Z4_QTDE')*GdFieldGet('Z4_PRLIQ')",.F.,,,,"Empty(M->Z4_PRESERV).And.U_SaldoProd(GdFieldGet('Z4_CODPROD'),'01') >= GdFieldGet('Z4_QTDE')","002")
-aGat3Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","GdFieldGet('Z4_QTDE')*GdFieldGet('Z4_PRLIQ')",.F.,,,,"!Empty(M->Z4_PRESERV).And.U_WebReserv()"                                                     ,"003")
+aGat3Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","0"                                           ,.F.,,,,"!Empty(M->Z4_PRESERV).And.!U_WebReserv()"                                                    ,"003")
+aGat4Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","GdFieldGet('Z4_QTDE')*GdFieldGet('Z4_PRLIQ')",.F.,,,,"!Empty(M->Z4_PRESERV).And.U_WebReserv()"                                                     ,"004")
+
+oStruSZ4:AddTrigger(aGat1Prl[1],aGat1Prl[2],aGat1Prl[3],aGat1Prl[4])
+oStruSZ4:AddTrigger(aGat2Prl[1],aGat2Prl[2],aGat2Prl[3],aGat2Prl[4])
+oStruSZ4:AddTrigger(aGat3Prl[1],aGat3Prl[2],aGat3Prl[3],aGat3Prl[4])
+oStruSZ4:AddTrigger(aGat4Prl[1],aGat4Prl[2],aGat4Prl[3],aGat4Prl[4])
 
 oStruSZ4:AddTrigger(aGat1Res[1],aGat1Res[2],aGat1Res[3],aGat1Res[4])
 oStruSZ4:AddTrigger(aGat2Res[1],aGat2Res[2],aGat2Res[3],aGat2Res[4])
 oStruSZ4:AddTrigger(aGat3Res[1],aGat3Res[2],aGat3Res[3],aGat3Res[4])
+oStruSZ4:AddTrigger(aGat4Res[1],aGat4Res[2],aGat4Res[3],aGat4Res[4])
 
 //Instancia do Objeto de Modelo de Dados
 oModel := MpFormModel():New('MDPEDWEB',/*Pre-Validacao*/,{|oModel| PosValPed(oModel)},/*Commit*/,/*Cancel*/)
@@ -131,6 +148,8 @@ oModel:SetRelation('ID_MODEL_GRD_PedidoWeb', {{'Z4_FILIAL', 'xFilial("SZ4")'}, {
 
 //Liga o controle de não repetição de Linha
 oModel:GetModel('ID_MODEL_GRD_PedidoWeb'):SetUniqueLine({'Z4_ITEMPED'})
+
+oModel:AddCalc('ID_COMP_CALC','ID_MODEL_FLD_PedidoWeb','ID_MODEL_GRD_PedidoWeb','Z4_VLRTTIT','TOTVLRTTIT' ,'SUM',/*bCond*/,/*bInitValue*/,"Total do Pedido: ",/*bFormula*/,,02)
 
 //Adiciona Descricao do Modelo de Dados
 oModel:SetDescription('Modelo de Dados do Pedido Web')
@@ -159,10 +178,11 @@ Return(oModel)
 */
 Static Function ViewDef()
 
-Local oStruSZ3	:=	FWFormStruct(2,'SZ3') 	 //Retorna a Estrutura do Alias passado como Parametro (1=Model,2=View)
-Local oStruSZ4	:=	FWFormStruct(2,'SZ4') 	 //Retorna a Estrutura do Alias passado como Parametro (1=Model,2=View)
-Local oModel	:=	FwLoadModel('PedidoWeb') //Retorna o Objeto do Modelo de Dados
-Local oView		:=	FwFormView():New()       //Instancia do Objeto de Visualização
+Local oStruSZ3	:= FWFormStruct(2,'SZ3') 	 //Retorna a Estrutura do Alias passado como Parametro (1=Model,2=View)
+Local oStruSZ4	:= FWFormStruct(2,'SZ4') 	 //Retorna a Estrutura do Alias passado como Parametro (1=Model,2=View)
+Local oModel	:= FwLoadModel('PedidoWeb') //Retorna o Objeto do Modelo de Dados
+Local oView		:= FwFormView():New()       //Instancia do Objeto de Visualização
+Local oCalc1	:= FWCalcStruct(oModel:GetModel('ID_COMP_CALC'))
 
 //Define o Modelo sobre qual a Visualizacao sera utilizada
 oView:SetModel(oModel)
@@ -177,13 +197,22 @@ oView:AddField('ID_VIEW_FLD_PedidoWeb', oStruSZ3, 'ID_MODEL_FLD_PedidoWeb')
 //Adiciona no nosso View um controle do tipo FormGrid(antiga newgetdados)
 oView:AddGrid('ID_VIEW_GRD_PedidoWeb', oStruSZ4, 'ID_MODEL_GRD_PedidoWeb')
 
+oView:AddField('ID_VIEW_CALC',oCalc1,'ID_COMP_CALC')
+
 //Define o Preenchimento da Janela
 oView:CreateHorizontalBox('ID_HBOX_SUPERIOR', 40)
-oView:CreateHorizontalBox('ID_HBOX_INFERIOR', 60)
+oView:CreateHorizontalBox('ID_HBOX_INFERIOR', 50)
+oView:CreateHorizontalBox('ID_HBOX_TOTAIS'  , 10)
+
+oView:CreateVerticalBox('ID_VBOX_LEFT_TOTAIS' ,80,'ID_HBOX_TOTAIS')
+oView:CreateVerticalBox('ID_VBOX_RIGHT_TOTAIS',20,'ID_HBOX_TOTAIS')
 
 // Relaciona o ID da View com o "box" para exibicao
 oView:SetOwnerView('ID_VIEW_FLD_PedidoWeb', 'ID_HBOX_SUPERIOR')
 oView:SetOwnerView('ID_VIEW_GRD_PedidoWeb', 'ID_HBOX_INFERIOR')
+oView:SetOwnerView('ID_VIEW_CALC'         , 'ID_VBOX_RIGHT_TOTAIS')
+
+//oView:SetViewProperty("ID_VIEW_GRD_PedidoWeb","ENABLENEWGRID")
 
 // Define campos que terao Auto Incremento
 oView:AddIncrementField('ID_VIEW_GRD_PedidoWeb', 'Z4_ITEMPED')
@@ -485,13 +514,10 @@ If ( lRetorna )
 		EndIf
 	Next nCntFor
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³Quantida utilizada no item                                              ³
+	//³Quantidade utilizada no item                                            ³
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	If ( nQtdRes == 0 )
-		nQtdRes -= aCols[n][nPQtdVen]
-	Else
-		nQtdRes -= Min(aCols[n][nPQtdVen],nQtdRes)
-	EndIf
+	nQtdRes -= aCols[n][nPQtdVen]
+
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	//³Valida a Reserva                                                        ³
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
