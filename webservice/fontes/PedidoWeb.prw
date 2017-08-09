@@ -94,11 +94,25 @@ Return(aMenu)
 */
 Static Function ModelDef()
 
-Local oStruSZ3 := FWFormStruct(1,'SZ3', /*bAvalCampo*/, /*lViewUsado*/) //Retorna a Estrutura do Alias passado como Parametro (1=Model,2=View)
-Local oStruSZ4 := FWFormStruct(1,'SZ4', /*bAvalCampo*/, /*lViewUsado*/) //Retorna a Estrutura do Alias passado como Parametro (1=Model,2=View)
+Local oStruSZ3  := FWFormStruct(1,'SZ3', /*bAvalCampo*/, /*lViewUsado*/) //Retorna a Estrutura do Alias passado como Parametro (1=Model,2=View)
+Local oStruSZ4  := FWFormStruct(1,'SZ4', /*bAvalCampo*/, /*lViewUsado*/) //Retorna a Estrutura do Alias passado como Parametro (1=Model,2=View)
 Local oModel
+Local nTotItem  := 0
+Local aGat1Res  := {}
+Local aGat2Res  := {}
+Local aGat3Res  := {}
+
+SetKey(VK_F4,({||If(IsMemVar("M->Z4_PRESERV"),MaViewSB2(GdFieldGet("Z4_CODPROD")),Nil)}))
 
 oStruSZ3:SetProperty('Z3_NPEDWEB',MODEL_FIELD_INIT,{||ProxWeb()})
+
+aGat1Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","0"                                           ,.F.,,,,"Empty(M->Z4_PRESERV).And.U_SaldoProd(GdFieldGet('Z4_CODPROD'),'01') < GdFieldGet('Z4_QTDE') ","001")
+aGat2Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","GdFieldGet('Z4_QTDE')*GdFieldGet('Z4_PRLIQ')",.F.,,,,"Empty(M->Z4_PRESERV).And.U_SaldoProd(GdFieldGet('Z4_CODPROD'),'01') >= GdFieldGet('Z4_QTDE')","002")
+aGat3Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","GdFieldGet('Z4_QTDE')*GdFieldGet('Z4_PRLIQ')",.F.,,,,"!Empty(M->Z4_PRESERV).And.U_WebReserv()"                                                     ,"003")
+
+oStruSZ4:AddTrigger(aGat1Res[1],aGat1Res[2],aGat1Res[3],aGat1Res[4])
+oStruSZ4:AddTrigger(aGat2Res[1],aGat2Res[2],aGat2Res[3],aGat2Res[4])
+oStruSZ4:AddTrigger(aGat3Res[1],aGat3Res[2],aGat3Res[3],aGat3Res[4])
 
 //Instancia do Objeto de Modelo de Dados
 oModel := MpFormModel():New('MDPEDWEB',/*Pre-Validacao*/,{|oModel| PosValPed(oModel)},/*Commit*/,/*Cancel*/)
@@ -117,9 +131,6 @@ oModel:SetRelation('ID_MODEL_GRD_PedidoWeb', {{'Z4_FILIAL', 'xFilial("SZ4")'}, {
 
 //Liga o controle de não repetição de Linha
 oModel:GetModel('ID_MODEL_GRD_PedidoWeb'):SetUniqueLine({'Z4_ITEMPED'})
-
-// Indica que é opcional ter dados informados na Grid
-//oModel:GetModel( 'ID_MODEL_FLD_PedidoWeb' ):SetOptional(.T.)
 
 //Adiciona Descricao do Modelo de Dados
 oModel:SetDescription('Modelo de Dados do Pedido Web')
@@ -418,9 +429,12 @@ Return lRet
 User Function WebReserv()
 
 Local aArea  		:= GetArea()
-Local nPProduto		:= aScan(aHeader,{|x| AllTrim(x[2])=="Z4_CODPROD" })
+Local nPProduto		:= aScan(aHeader,{|x| AllTrim(x[2])=="Z4_CODPROD"})
 Local nPQtdVen		:= aScan(aHeader,{|x| AllTrim(x[2])=="Z4_QTDE"})
 Local nPReserva		:= aScan(aHeader,{|x| AllTrim(x[2])=="Z4_PRESERV"})
+Local nPVlrItem		:= aScan(aHeader,{|x| AllTrim(x[2])=="Z4_VLRTTIT"})
+Local nPQtde		:= aScan(aHeader,{|x| AllTrim(x[2])=="Z4_QTDE"})
+Local nPPrliq		:= aScan(aHeader,{|x| AllTrim(x[2])=="Z4_PRLIQ"})
 Local lGrade		:= MaGrade()
 Local lRetorna		:= .T.
 Local nQtdRes		:= 0
