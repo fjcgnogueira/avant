@@ -1,6 +1,7 @@
-#INCLUDE "PROTHEUS.CH"
-#INCLUDE "APWEBSRV.CH"
-#INCLUDE "TbiConn.ch"
+#include "TOTVS.ch"
+#include "TbiConn.ch"
+#include "TbiCode.ch"
+#include "TopConn.ch"
 
 
 /*
@@ -23,6 +24,8 @@ User Function ImpOrcam()
 
 Local lRetorno 	:= .T.
 Local cPicture	:= "@E 999,999,999,999.99"
+
+//Local aParam
 
 //Local cEmpCons	:= EmpCons
 //Local cFilCons	:= FilCons
@@ -55,13 +58,12 @@ Local cAssunto := ""
 Local cCorpo := ""
 Local cAttach := ""
 Local cEmail := ""
-Local aParam := PARAMIXB
 
-Private _lSchedule  := aParam[1]
+//Private _lSchedule  := aParam[1]
 
-If _lSchedule
-	PREPARE ENVIRONMENT EMPRESA aParam[1] FILIAL aParam[2]
-Endif
+//If _lSchedule
+	PREPARE ENVIRONMENT EMPRESA '01' FILIAL '010104'
+//Endif
 
 
 BeginSql alias 'TRB'
