@@ -26,21 +26,9 @@ Local cMailBCC   := ""
 Local oProcess  := Nil
 Local cArquivo  := "\MODELOS\CobrancaIndevida.html"
 Local aTabelas  := {"SA1"}
+Local cAliasSA1 := GetNextAlias()
 
-/*
-RpcClearEnv()
-RPCSetType(3)
-RpcSetEnv(aParam[1], aParam[2], NIL, NIL, "FIN", NIL, aTabelas)
-*/
-
-oProcess := TWFProcess():New("COBINDEVIDA","COBINDEVIDA")
-oProcess:NewTask("Enviando Notificação de Cobrança Indevida",cArquivo)
-oHTML := oProcess:oHTML
-
-
-//Prepare Environment EMPRESA '01' FILIAL '010104'
-
-BeginSql alias 'TRF'
+BeginSql alias cAliasSA1
 
 	SELECT RTRIM(A1_EMAIL) AS A1_EMAIL FROM %table:SA1% SA1 
 	WHERE SA1.%notDel% AND A1_EMAIL LIKE '%@%'
@@ -49,12 +37,15 @@ EndSql
 
 ConOut("[CobIndevida] - Disparando e-mails")
 
-DbSelectArea('TRF')
-TRF->(DbGoTop())
+(cAliasSA1)->(DbGoTop())
 
-While TRF->(!Eof())
+While (cAliasSA1)->(!Eof())
 
-	_cPara     := TRF->A1_EMAIL
+	oProcess := TWFProcess():New("COBINDEVIDA","COBINDEVIDA")
+	oProcess:NewTask("Enviando Notificação de Cobrança Indevida",cArquivo)
+	oHTML := oProcess:oHTML
+
+	_cPara     := (cAliasSA1)->A1_EMAIL
 	cAssunto := "Avant - Comunicado importante sobre 'BOLETOS FALSOS'"
 	
 	oProcess:cSubject := "Avant - Comunicado importante sobre 'Cobranca'"
@@ -66,15 +57,12 @@ While TRF->(!Eof())
 	oProcess:Finish()
 
 	ConOut("Enviado para: "+ _cPara)
-	TRF->(DbSkip())
+	(cAliasSA1)->(DbSkip())
 End
 
 ConOut("[CobIndevida] - Finalizado")
 
-TRF->(dbCloseArea())
+(cAliasSA1)->(dbCloseArea())
 
 Return
-
-
-//RESET ENVIRONMENT
 	
