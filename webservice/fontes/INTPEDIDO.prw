@@ -58,6 +58,7 @@ Private cCod      	:= ""
 Private cLocal    	:= "01"
 Private nQuant    	:= 0
 Private nVendComis := 0
+Private nProdComis := 0
 
 Default lAutomatic	:= .F.
 Default cMensagem  := ""
@@ -210,11 +211,16 @@ If lRetorno
 						
 						// Fernando Nogueira - Verifica se vem comissao da web
 						If SZ4->Z4_PCCOMIS > 0 .And. SA3->A3_TIPO = 'E'
-							aAdd(aLinha,{"C6_COMIS1" ,SZ4->Z4_PCCOMIS,NIL})
-							aAdd(aLinha,{"C6_COMIS2" ,0              ,NIL})
-							aAdd(aLinha,{"C6_COMIS3" ,0              ,NIL})
-							aAdd(aLinha,{"C6_COMIS4" ,0              ,NIL})
-							aAdd(aLinha,{"C6_COMIS5" ,0              ,NIL})
+							If Empty(SZ4->Z4_INTCOMI)   // Fernando Nogueira - Chamado 005147
+								nProdComis := SZ4->Z4_PCCOMIS
+							Else
+								nProdComis := SZ4->Z4_INTCOMI
+							Endif
+							aAdd(aLinha,{"C6_COMIS1" ,nProdComis,NIL})
+							aAdd(aLinha,{"C6_COMIS2" ,0         ,NIL})
+							aAdd(aLinha,{"C6_COMIS3" ,0         ,NIL})
+							aAdd(aLinha,{"C6_COMIS4" ,0         ,NIL})
+							aAdd(aLinha,{"C6_COMIS5" ,0         ,NIL})
 						Endif
 						
 						// Fernando Nogueira - Tira o servico de WMS do Pedido - Chamado 005057
