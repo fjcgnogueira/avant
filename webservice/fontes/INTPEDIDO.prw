@@ -210,7 +210,7 @@ If lRetorno
 						aAdd(aLinha,{"C6_RESERVA",SZ4->Z4_PRESERV,NIL}) // Fernando Nogueira - Chamado 005107
 						
 						// Fernando Nogueira - Verifica se vem comissao da web
-						If SZ4->Z4_PCCOMIS > 0 .And. SA3->A3_TIPO = 'E'
+						If (SZ4->Z4_PCCOMIS > 0 .Or. SZ4->Z4_INTCOMI > 0) .And. SA3->A3_TIPO = 'E'
 							If Empty(SZ4->Z4_INTCOMI)   // Fernando Nogueira - Chamado 005147
 								nProdComis := SZ4->Z4_PCCOMIS
 							Else
