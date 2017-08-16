@@ -149,7 +149,7 @@ oModel:SetRelation('ID_MODEL_GRD_PedidoWeb', {{'Z4_FILIAL', 'xFilial("SZ4")'}, {
 //Liga o controle de não repetição de Linha
 oModel:GetModel('ID_MODEL_GRD_PedidoWeb'):SetUniqueLine({'Z4_ITEMPED'})
 
-oModel:AddCalc('ID_COMP_CALC','ID_MODEL_FLD_PedidoWeb','ID_MODEL_GRD_PedidoWeb','Z4_VLRTTIT','TOTVLRTTIT' ,'SUM',/*bCond*/,/*bInitValue*/,"Total do Pedido: ",/*bFormula*/,,02)
+oModel:AddCalc('ID_COMP_CALC','ID_MODEL_FLD_PedidoWeb','ID_MODEL_GRD_PedidoWeb','Z4_VLRTTIT','TOTVLRTTIT' ,'SUM',/*bCond*/,/*bInitValue*/,"Total do Pedido: ",/*bFormula*/,10,02)
 
 //Adiciona Descricao do Modelo de Dados
 oModel:SetDescription('Modelo de Dados do Pedido Web')
