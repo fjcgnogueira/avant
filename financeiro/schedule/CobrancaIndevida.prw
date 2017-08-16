@@ -27,11 +27,13 @@ Local oProcess  := Nil
 Local cArquivo  := "\MODELOS\CobrancaIndevida.html"
 Local aTabelas  := {"SA1"}
 Local cAliasSA1 := GetNextAlias()
+Local cTabela   := "%EXCEL...TABELA%"
+
 
 BeginSql alias cAliasSA1
 
-	SELECT RTRIM(A1_EMAIL) AS A1_EMAIL FROM %table:SA1% SA1 
-	WHERE SA1.%notDel% AND A1_EMAIL LIKE '%@%'
+	SELECT A1_EMAIL FROM %Exp:cTabela%
+	ORDER BY A1_EMAIL
 
 EndSql
 
@@ -65,4 +67,4 @@ ConOut("[CobIndevida] - Finalizado")
 (cAliasSA1)->(dbCloseArea())
 
 Return
-	
+
