@@ -2579,9 +2579,9 @@ oDanfe:Say(413,002,aTransp[01],oFont08:oFont)
 oDanfe:Box(394,245,417,315)
 oDanfe:Say(403,247,"FRETE POR CONTA",oFont08N:oFont)
 If cModFrete =="0"
-	oDanfe:Say(413,247,"0-EMITENTE",oFont08:oFont)
+	oDanfe:Say(413,247,"REMETENTE-CIF",oFont08:oFont) // Fernando Nogueira - Chamado 005150
 ElseIf cModFrete =="1"
-	oDanfe:Say(413,247,"1-DEST/REM",oFont08:oFont)
+	oDanfe:Say(413,247,"DESTINATÁRIO-FOB",oFont08:oFont)
 ElseIf cModFrete =="2"
 	oDanfe:Say(413,247,"2-TERCEIROS",oFont08:oFont)
 ElseIf cModFrete =="9"
