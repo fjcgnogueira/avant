@@ -111,6 +111,8 @@ SetKey(VK_F4,({||If(IsMemVar("M->Z4_PRESERV"),MaViewSB2(GdFieldGet("Z4_CODPROD")
 
 oStruSZ3:SetProperty('Z3_NPEDWEB',MODEL_FIELD_INIT,{||ProxWeb()})
 
+oStruSZ3:AddField('Frete','Habilita Frete','Z3_FRETE','L',1,0,,,,,{||.F.},,,.T.)
+
 aGat1Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","0"                                ,.F.,,,,"Empty(GdFieldGet('Z4_PRESERV')).And.U_SaldoProd(GdFieldGet('Z4_CODPROD'),'01') < GdFieldGet('Z4_QTDE') ","001")
 aGat2Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","GdFieldGet('Z4_QTDE')*M->Z4_PRLIQ",.F.,,,,"Empty(GdFieldGet('Z4_PRESERV')).And.U_SaldoProd(GdFieldGet('Z4_CODPROD'),'01') >= GdFieldGet('Z4_QTDE')","002")
 aGat3Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","0"                                ,.F.,,,,"!Empty(GdFieldGet('Z4_PRESERV')).And.!U_WebReserv()"                                                    ,"003")
@@ -132,7 +134,7 @@ oStruSZ4:AddTrigger(aGat3Res[1],aGat3Res[2],aGat3Res[3],aGat3Res[4])
 oStruSZ4:AddTrigger(aGat4Res[1],aGat4Res[2],aGat4Res[3],aGat4Res[4])
 
 //Instancia do Objeto de Modelo de Dados
-oModel := MpFormModel():New('MDPEDWEB',/*Pre-Validacao*/,{|oModel| PosValPed(oModel)},/*Commit*/,/*Cancel*/)
+oModel := MpFormModel():New('MDPEDWEB',/*Pre-Validacao*/,{|oModel| PosValPed(oModel)},/*bCommit*/,/*Cancel*/)
 
 //Adiciona um modelo de Formulario de Cadastro Similar à Enchoice ou Msmget
 oModel:AddFields('ID_MODEL_FLD_PedidoWeb', /*cOwner*/, oStruSZ3, /*bPreValidacao*/, /*bPosValidacao*/, /*bCarga*/)
@@ -149,7 +151,7 @@ oModel:SetRelation('ID_MODEL_GRD_PedidoWeb', {{'Z4_FILIAL', 'xFilial("SZ4")'}, {
 //Liga o controle de não repetição de Linha
 oModel:GetModel('ID_MODEL_GRD_PedidoWeb'):SetUniqueLine({'Z4_ITEMPED'})
 
-oModel:AddCalc('ID_COMP_CALC','ID_MODEL_FLD_PedidoWeb','ID_MODEL_GRD_PedidoWeb','Z4_VLRTTIT','TOTVLRTTIT' ,'SUM',/*bCond*/,/*bInitValue*/,"Total do Pedido: ",/*bFormula*/,,02)
+oModel:AddCalc('ID_COMP_CALC','ID_MODEL_FLD_PedidoWeb','ID_MODEL_GRD_PedidoWeb','Z4_VLRTTIT','TOTVLRTTIT' ,'FORMULA',/*bCond*/,/*bInitValue*/,"Total do Pedido: ",{|oModel| VlrTot(oModel)},,02)
 
 //Adiciona Descricao do Modelo de Dados
 oModel:SetDescription('Modelo de Dados do Pedido Web')
@@ -218,12 +220,38 @@ oView:SetOwnerView('ID_VIEW_CALC'         , 'ID_VBOX_RIGHT_TOTAIS')
 oView:AddIncrementField('ID_VIEW_GRD_PedidoWeb', 'Z4_ITEMPED')
 
 // Executa acao no cancelamento
-oView:SetViewAction('BUTTONCANCEL', {|oView| If(Inclui,VoltaNum(M->Z3_NPEDWEB),Nil)})
+oView:SetViewAction('BUTTONCANCEL',{|oView|If(Inclui,VoltaNum(M->Z3_NPEDWEB),Nil)})
+
+// Executa acao apos confirmacãao do campo
+oView:SetFieldAction('Z4_PRLIQ',{|oView,cIDView,cField,xValue|FreteRefr(oView)})
 
 //Forca o fechamento da janela na confirmacao
 oView:SetCloseOnOk({||.T.})
 
 Return(oView)
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Funcao    ³ FreteRefr ³ Autor ³ Fernando Nogueira     ³ Data ³17/08/2017³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descricao ³ Faz refresh de tela quando o valor do Pedido eh abaixo do   ³±±
+±±³          ³ limite para cobranca de frete                               ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/
+Static Function FreteRefr(oView)
+
+Local oModel    := oView:GetModel()
+Local oMdlCalc  := oModel:GetModel('ID_COMP_CALC')
+
+If oMdlCalc:GetValue("TOTVLRTTIT") < 1500
+	oView:Refresh()
+Endif
+
+Return
 
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
@@ -404,7 +432,7 @@ Return
 ±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
 ±±³Funcao    ³ PosValPed³ Autor ³ Fernando Nogueira     ³ Data ³20/07/2017³±±
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Descri‡…o ³ Funcao de Pos Validacao do Pedido                          ³±±
+±±³Descricao ³ Funcao de Pos Validacao do Pedido                          ³±±
 ±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
@@ -427,7 +455,7 @@ Return lRet
 ±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
 ±±³Funcao    ³ ActPed   ³ Autor ³ Fernando Nogueira     ³ Data ³20/07/2017³±±
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Descri‡…o ³ Validacao na Ativacao do Pedido                            ³±±
+±±³Descricao ³ Validacao na Ativacao do Pedido                            ³±±
 ±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
@@ -533,3 +561,55 @@ EndIf
 RestArea(aArea)
 
 Return(lRetorna)
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Funcao    ³ VlrTot    ³ Autor ³ Fernando Nogueira     ³ Data ³17/08/2017³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descricao ³ Calcula o Valor Total do Pedido e Altera o Tipo de Frete    ³±±
+±±³          ³ conforme limite estabelecido                                ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/
+Static Function VlrTot(oModel)
+
+Local oMdlField := oModel:GetModel('ID_MODEL_FLD_PedidoWeb')
+Local oMdlGrid  := oModel:GetModel('ID_MODEL_GRD_PedidoWeb')
+Local oMdlCalc  := oModel:GetModel('ID_COMP_CALC')
+Local cEstFrete := Posicione("SX5",01,xFilial("SX5")+"ZA"+"0002","X5_DESCRI")
+Local cEstado   := Posicione("SA1",03,xFilial("SA1")+oMdlField:GetValue("Z3_CNPJ"),"A1_EST")
+Local cTransp   := Posicione("SZ1",01,xFilial("SZ1")+SA1->(A1_COD+A1_LOJA),"Z1_TRANSP")
+Local cHabFrete := SA1->A1_X_HBFRT
+Local cPessoa   := SA1->A1_PESSOA
+Local nTotal    := 0
+Local cTipoOper := AllTrim(oMdlField:GetValue("Z3_CODTSAC"))
+Local nPosVlrIt := aScan(oMdlGrid:aHeader,{|x| AllTrim(x[2]) == "Z4_VLRTTIT"})
+
+For nI := 1 To Len(oMdlGrid:aCols)
+	If !oMdlGrid:aCols[nI,Len(oMdlGrid:aHeader)+1]
+		nTotal += oMdlGrid:aCols[nI,nPosVlrIt]
+	Endif
+Next nI
+
+If nTotal < oMdlCalc:GetValue("TOTVLRTTIT") .And. nTotal > 0 .And. nTotal < 1500 .And. cPessoa <> "F" .And. cHabFrete == "S" .And. cTipoOper = '51'
+	If cEstado $ cEstFrete
+		oMdlField:SetValue("Z3_FREPAGO","C")
+	Else
+		oMdlField:SetValue("Z3_FREPAGO","F")
+	Endif
+	If !oMdlField:GetValue("Z3_FRETE")
+		Aviso('Limite Frete',"O valor total do Pedido vai ficar abaixo de 1500, portanto o frete será cobrado",{'Ok'})
+	Endif
+	oMdlField:SetValue("Z3_FRETE",.T.)
+ElseIf nTotal >= 1500
+	If oMdlField:GetValue("Z3_CODTRAN") <> cTransp
+		oMdlField:SetValue("Z3_CODTRAN",cTransp)
+	Endif
+	oMdlField:SetValue("Z3_FREPAGO","C")
+	oMdlField:SetValue("Z3_FRETE",.F.)
+Endif
+
+Return nTotal
