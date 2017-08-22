@@ -1,4 +1,4 @@
-#INCLUDE "PROTHEUS.CH"           
+#INCLUDE "PROTHEUS.CH"
 #INCLUDE "TbiConn.ch"
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
@@ -27,7 +27,7 @@ Local _cQuery   := ""
 //³aParam     |  [01]   |  [02]  |
 //³           | Empresa | Filial |
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	
+
 RpcClearEnv()
 RPCSetType(3)
 RpcSetEnv(aParam[1], aParam[2], NIL, NIL, "FIN", NIL, aTabelas)
@@ -44,7 +44,7 @@ If Dow(dDataBase) == 2
 	_cQuery += "    AND E1_VENCREA < GETDATE() "
 	_cQuery += "    AND E1_X_WFDV = 'S' "
 	_cQuery += "    AND A1_X_WFDV = 'S' "
-	
+
 	TcSqlExec(_cQuery)
 
 Endif
@@ -56,8 +56,8 @@ BeginSql alias cAliasSE1
 	INNER JOIN %table:SA1% SA1 ON E1_CLIENTE+E1_LOJA = A1_COD+A1_LOJA AND SA1.%notDel%
 	WHERE SE1.%notDel%
 		AND E1_FILIAL = %xfilial:SE1%
-		AND E1_SALDO > 0 
-		AND E1_TIPO = 'NF' 
+		AND E1_SALDO > 0
+		AND E1_TIPO = 'NF'
 		AND E1_VENCREA < GETDATE()
 		AND E1_X_WFDV <> 'S'
 		AND A1_X_WFDV = 'S'
@@ -73,14 +73,14 @@ While (cAliasSE1)->(!EoF())
 	cCliente := (cAliasSE1)->E1_CLIENTE
 	cLoja    := (cAliasSE1)->E1_LOJA
 	aTitulos := {}
-	
+
 	While (cAliasSE1)->(!EoF()) .And. cCliente+cLoja == (cAliasSE1)->E1_CLIENTE+(cAliasSE1)->E1_LOJA
-	
+
 		// Somente adiciona quando o vecimento estiver atrasado a mais de 3 dias uteis
 		If Stod((cAliasSE1)->E1_VENCREA) <= U_RetDiasUteis(03)
 			AADD(aTitulos,{cCliente,cLoja,(cAliasSE1)->E1_PREFIXO,(cAliasSE1)->E1_NUM,(cAliasSE1)->E1_PARCELA,Stod((cAliasSE1)->E1_VENCREA),(cAliasSE1)->E1_VALOR,(cAliasSE1)->E1_SALDO})
 		Endif
-		
+
 		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 		//³ aTitulos:                                            ³
 		//³ [1] Cliente                                          ³
@@ -95,7 +95,7 @@ While (cAliasSE1)->(!EoF())
 
 		(cAliasSE1)->(dbSkip())
 	End
-	
+
 	If !Empty(aTitulos)
 		EnvTit(aTitulos)
 	Endif
@@ -121,7 +121,7 @@ Return
 Static Function EnvTit(aTitulos)
 
 Local cArquivo  := "\MODELOS\COBRANCA_DV.HTM"
-Local cPara     := Iif(!Empty(AllTrim(Posicione("SA1",1,xFilial("SA1")+aTitulos[01,01]+aTitulos[01,02],"A1_X_MAILC"))),AllTrim(SA1->A1_X_MAILC),AllTrim(SA1->A1_EMAIL))
+Local cPara     := Iif(!Empty(AllTrim(Posicione("SA1",1,xFilial("SA1")+aTitulos[01,01]+aTitulos[01,02],"A1_X_MAILC"))),AllTrim(SA1->A1_X_MAILC),If(AllTrim(SA1->A1_EMAIL)='ISENTO',AllTrim(GetMv("ES_MAILCDV")),AllTrim(SA1->A1_EMAIL)))
 Local cMailBCC  := AllTrim(GetMv("ES_MAILCDV"))
 Local oProcess  := Nil
 Local cMensTit  := ""
@@ -145,14 +145,14 @@ For _n := 1 To Len(aTitulos)
 	aAdd((oHTML:ValByName("aR.cSld")), Transform(aTitulos[_n,08], PesqPict("SE1","E1_SALDO")))
 	aAdd((oHTML:ValByName("aR.cJrs")), Transform(nJurCust, PesqPict("SE1","E1_VALOR")))
 	aAdd((oHTML:ValByName("aR.cVlt")), Transform(nJurCust+aTitulos[_n,08], PesqPict("SE1","E1_VALOR")))
-	
+
 	nTotal += nJurCust+aTitulos[_n,08]
 
 	// Marca que o titulo que jah foi enviado via workflow
 	If SE1->(dbSeek(xFilial("SE1")+aTitulos[_n,03]+aTitulos[_n,04]+aTitulos[_n,05]))
 		SE1->(RecLock("SE1",.F.))
 			SE1->E1_X_WFDV := "S"
-		SE1->(MsUnlock())	
+		SE1->(MsUnlock())
 	Endif
 Next
 

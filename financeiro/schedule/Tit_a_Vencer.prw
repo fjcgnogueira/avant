@@ -1,4 +1,4 @@
-#INCLUDE "PROTHEUS.CH"           
+#INCLUDE "PROTHEUS.CH"
 #INCLUDE "TbiConn.ch"
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
@@ -23,7 +23,7 @@ Local cAliasSE1 := GetNextAlias()
 //³aParam     |  [01]   |  [02]  |
 //³           | Empresa | Filial |
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	
+
 RpcClearEnv()
 RPCSetType(3)
 RpcSetEnv(aParam[1], aParam[2], NIL, NIL, "FIN", NIL, aTabelas)
@@ -32,11 +32,11 @@ RpcSetEnv(aParam[1], aParam[2], NIL, NIL, "FIN", NIL, aTabelas)
 BeginSql alias cAliasSE1
 
 	SELECT E1_PREFIXO,E1_NUM,E1_PARCELA,E1_VENCREA,E1_CLIENTE,E1_LOJA FROM %table:SE1% SE1
-	INNER JOIN %table:SA1% SA1 ON E1_CLIENTE+E1_LOJA = A1_COD+A1_LOJA AND SA1.%notDel% 
-	WHERE SE1.%notDel% 
-		AND E1_FILIAL = %xfilial:SE1% 
-		AND E1_SALDO > 0 
-		AND E1_TIPO = 'NF' 
+	INNER JOIN %table:SA1% SA1 ON E1_CLIENTE+E1_LOJA = A1_COD+A1_LOJA AND SA1.%notDel%
+	WHERE SE1.%notDel%
+		AND E1_FILIAL = %xfilial:SE1%
+		AND E1_SALDO > 0
+		AND E1_TIPO = 'NF'
 		AND E1_VENCREA BETWEEN GETDATE() AND GETDATE()+7
 		AND E1_X_WFAV <> 'S'
 		AND A1_X_WFAV = 'S'
@@ -72,7 +72,7 @@ Return
 Static Function EnvTit(cPrefixo,cTitulo,cParc,dVencReal,cCliente,cLoja)
 
 Local cArquivo  := "\MODELOS\COBRANCA_AV.HTM"
-Local cPara     := Iif(!Empty(AllTrim(Posicione("SA1",1,xFilial("SA1")+cCliente+cLoja,"A1_X_MAILC"))),AllTrim(SA1->A1_X_MAILC),AllTrim(SA1->A1_EMAIL))
+Local cPara     := Iif(!Empty(AllTrim(Posicione("SA1",1,xFilial("SA1")+cCliente+cLoja,"A1_X_MAILC"))),AllTrim(SA1->A1_X_MAILC),If(AllTrim(SA1->A1_EMAIL)='ISENTO',AllTrim(GetMv("ES_MAILCAV")),AllTrim(SA1->A1_EMAIL)))
 Local cMailBCC  := AllTrim(GetMv("ES_MAILCAV"))
 Local oProcess  := Nil
 Local cMensTit  := ""
@@ -96,15 +96,15 @@ oHtml:ValByName("cDias"   , cDias)
 SE1->(dbSetOrder(01))
 
 If SE1->(dbSeek(xFilial("SE1")+cPrefixo+cTitulo))
-	While SE1->(!EoF()) .And. SE1->(E1_FILIAL+E1_PREFIXO+E1_NUM) = xFilial("SE1")+cPrefixo+cTitulo 
-	
+	While SE1->(!EoF()) .And. SE1->(E1_FILIAL+E1_PREFIXO+E1_NUM) = xFilial("SE1")+cPrefixo+cTitulo
+
 		aAdd((oHTML:ValByName("aR.cPar")), SE1->E1_PARCELA)
 		aAdd((oHTML:ValByName("aR.cVnc")), DtoC(SE1->E1_VENCTO))
 		aAdd((oHTML:ValByName("aR.cVnR")), DtoC(SE1->E1_VENCREA))
 		aAdd((oHTML:ValByName("aR.cVlr")), Transform(SE1->E1_VALOR, PesqPict("SE1","E1_VALOR")))
 		aAdd((oHTML:ValByName("aR.cSld")), Transform(SE1->E1_SALDO, PesqPict("SE1","E1_SALDO")))
 		aAdd((oHTML:ValByName("aR.cSt" )), IF(SE1->E1_SALDO=SE1->E1_VALOR,"Aberto",IF(SE1->E1_SALDO=0,"Pago","Parcial")))
-		
+
 		SE1->(dbSkip())
 	End
 Endif
@@ -121,7 +121,7 @@ oProcess:Finish()
 If SE1->(dbSeek(xFilial("SE1")+cPrefixo+cTitulo+cParc))
 	SE1->(RecLock("SE1",.F.))
 		SE1->E1_X_WFAV := "S"
-	SE1->(MsUnlock())	
+	SE1->(MsUnlock())
 Endif
 
 Return
