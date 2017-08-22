@@ -14,9 +14,9 @@
 */
 User Function TesteJSON()
 
-Local cUrl       := "http://numbersapi.com/random/trivia"
+Local cUrl       := "http://api1.27hub.com/api/emh/a/v2?k=261C7C92&e=acarol@eletricavivalux.com.br"
 Local cGetParams := ""
-Local nTimeOut   := 200
+Local nTimeOut   := 10000
 Local aHeadStr   := {"Content-Type: application/json"}
 Local cHeaderGet := ""
 Local cRetorno   := ""
@@ -24,13 +24,11 @@ Local oObjJson   := Nil
 
 cRetorno := HttpGet(cUrl,cGetParams,nTimeOut,aHeadStr,@cHeaderGet)
 
-MsgInfo(cRetorno)
-
 If !FwJsonDeserialize(cRetorno,@oObjJson)
 	MsgStop("Erro no processamento do Json")
 	Return
 Endif 
 
-MsgInfo("O valor "+oObjJson:type+" para o número "+AllTrim(Str(oObjJson:number))+" equivale: "+oObjJson:text)
+MsgInfo("Resultado "+oObjJson:result+", razão: "+oObjJson:reason)
 
 Return
