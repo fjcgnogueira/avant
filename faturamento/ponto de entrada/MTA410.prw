@@ -48,6 +48,7 @@ Local nDescSuf   := 0
 Local _cC5xTot   := PesqPict("SC5","C5_XTOTPED")
 Local lFrete     := .T.
 Local lBonif     := .F.
+Local nLimite    := SA1->A1_X_VLVEN
 
 // Pedido Diferente de Dev.Compras e Beneficiamento
 If !(M->C5_TIPO $ 'BD')
@@ -84,7 +85,7 @@ If !(M->C5_TIPO $ 'BD')
 			M->C5_COMIS2 := 0
 		Endif
 
-		If nSomaTot > 0 .And. nSomaTot < 1500 .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F" .And. cHabFrete == "S"
+		If nSomaTot > 0 .And. nSomaTot < nLimite .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F" .And. cHabFrete == "S"
 			nVlrFrete := Val(Substr(cEstFrete,At(cEstado,cEstFrete)+2,6))/100
 		Endif
 

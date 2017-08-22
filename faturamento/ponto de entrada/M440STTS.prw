@@ -162,6 +162,7 @@ Local nTotPed	:= 0
 Local nX		:= 0
 Local nDescSuf 	:= 0
 Local _nItens 	:= 0
+Local nLimite   := SA1->A1_X_VLVEN
 
 Local aArea		:= GetArea()
 Local aAreaSC5	:= SC5->(GetArea())
@@ -182,7 +183,7 @@ For _nX := 1 To Len(aCols)
 	Endif
 Next _nX
 
-If nSomaTot > 0 .And. nSomaTot < 1500 .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F" .And. nFrete == 0 .And. cHabFrete == "S" .And. !lBonif
+If nSomaTot > 0 .And. nSomaTot < nLimite .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F" .And. nFrete == 0 .And. cHabFrete == "S" .And. !lBonif
 	nFrete := Val(Substr(cEstFrete,At(cEstado,cEstFrete)+2,6))/100
 Endif
 

@@ -22,7 +22,7 @@ User Function MT410TOK()
 	Local nPosTot	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_VALOR"})
 	Local nPosCF	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_CF"})
 	Local lBonif	:= .F.
-	
+
 	Local nOpc    	:= PARAMIXB[1]
 	Local cCliente	:= M->C5_CLIENTE
 	Local cLojaCli	:= M->C5_LOJACLI
@@ -41,6 +41,7 @@ User Function MT410TOK()
 	Local nDescSuf 	:= 0
 	Local _nItens 	:= 0
 	Local nTeste 	:= 0
+	Local nLimite   := SA1->A1_X_VLVEN
 
 	Local aAreaAT	:= GetArea()
 	Local aAreaC5	:= SC5->(GetArea())
@@ -62,12 +63,12 @@ User Function MT410TOK()
 					_nItens++
 				Endif
 			Next _nX
-			
+
 			// Fernando Nogueira - Chamado 002751
-			If nSomaTot > 0 .And. nSomaTot < 1500 .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F" .And. nFrete == 0 .And. cHabFrete == "S" .And. !lBonif
+			If nSomaTot > 0 .And. nSomaTot < nLimite .And. cEstado $ cEstFrete .And. M->C5_TPFRETE == "C" .And. cPessoa <> "F" .And. nFrete == 0 .And. cHabFrete == "S" .And. !lBonif
 				nFrete := Val(Substr(cEstFrete,At(cEstado,cEstFrete)+2,6))/100
 			Endif
-			
+
 			M->C5_FRETE := nFrete
 
 			For nX := 1 To Len(aCols)
