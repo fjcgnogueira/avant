@@ -593,23 +593,27 @@ For nI := 1 To Len(oMdlGrid:aCols)
 		nTotal += oMdlGrid:aCols[nI,nPosVlrIt]
 	Endif
 Next nI
+	
+If oModel:GetOperation() == MODEL_OPERATION_INSERT .Or. oModel:GetOperation() == MODEL_OPERATION_UPDATE
 
-If nTotal < oMdlCalc:GetValue("TOTVLRTTIT") .And. nTotal > 0 .And. nTotal < 1500 .And. cPessoa <> "F" .And. cHabFrete == "S" .And. cTipoOper = '51'
-	If cEstado $ cEstFrete
+	If nTotal < oMdlCalc:GetValue("TOTVLRTTIT") .And. nTotal > 0 .And. nTotal < 1500 .And. cPessoa <> "F" .And. cHabFrete == "S" .And. cTipoOper = '51'
+		If cEstado $ cEstFrete
+			oMdlField:SetValue("Z3_FREPAGO","C")
+		Else
+			oMdlField:SetValue("Z3_FREPAGO","F")
+		Endif
+		If !oMdlField:GetValue("Z3_FRETE")
+			Aviso('Limite Frete',"O valor total do Pedido vai ficar abaixo de 1500, portanto o frete será cobrado",{'Ok'})
+		Endif
+		oMdlField:SetValue("Z3_FRETE",.T.)
+	ElseIf nTotal >= 1500
+		If oMdlField:GetValue("Z3_CODTRAN") <> cTransp
+			oMdlField:SetValue("Z3_CODTRAN",cTransp)
+		Endif
 		oMdlField:SetValue("Z3_FREPAGO","C")
-	Else
-		oMdlField:SetValue("Z3_FREPAGO","F")
+		oMdlField:SetValue("Z3_FRETE",.F.)
 	Endif
-	If !oMdlField:GetValue("Z3_FRETE")
-		Aviso('Limite Frete',"O valor total do Pedido vai ficar abaixo de 1500, portanto o frete será cobrado",{'Ok'})
-	Endif
-	oMdlField:SetValue("Z3_FRETE",.T.)
-ElseIf nTotal >= 1500
-	If oMdlField:GetValue("Z3_CODTRAN") <> cTransp
-		oMdlField:SetValue("Z3_CODTRAN",cTransp)
-	Endif
-	oMdlField:SetValue("Z3_FREPAGO","C")
-	oMdlField:SetValue("Z3_FRETE",.F.)
+
 Endif
 
 Return nTotal
