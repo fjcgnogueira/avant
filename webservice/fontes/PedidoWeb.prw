@@ -246,8 +246,11 @@ Static Function FreteRefr(oView)
 
 Local oModel    := oView:GetModel()
 Local oMdlCalc  := oModel:GetModel('ID_COMP_CALC')
+Local oMdlField := oModel:GetModel('ID_MODEL_FLD_PedidoWeb')
+Local nLimite   := Posicione("SA1",03,xFilial("SA1")+oMdlField:GetValue("Z3_CNPJ"),"A1_X_VLVEN")
 
-If oMdlCalc:GetValue("TOTVLRTTIT") < 1500
+
+If oMdlCalc:GetValue("TOTVLRTTIT") < nLimite
 	oView:Refresh()
 Endif
 
@@ -587,26 +590,27 @@ Local cPessoa   := SA1->A1_PESSOA
 Local nTotal    := 0
 Local cTipoOper := AllTrim(oMdlField:GetValue("Z3_CODTSAC"))
 Local nPosVlrIt := aScan(oMdlGrid:aHeader,{|x| AllTrim(x[2]) == "Z4_VLRTTIT"})
+Local nLimite   := SA1->A1_X_VLVEN
 
 For nI := 1 To Len(oMdlGrid:aCols)
 	If !oMdlGrid:aCols[nI,Len(oMdlGrid:aHeader)+1]
 		nTotal += oMdlGrid:aCols[nI,nPosVlrIt]
 	Endif
 Next nI
-	
+
 If oModel:GetOperation() == MODEL_OPERATION_INSERT .Or. oModel:GetOperation() == MODEL_OPERATION_UPDATE
 
-	If nTotal < oMdlCalc:GetValue("TOTVLRTTIT") .And. nTotal > 0 .And. nTotal < 1500 .And. cPessoa <> "F" .And. cHabFrete == "S" .And. cTipoOper = '51'
+	If nTotal < oMdlCalc:GetValue("TOTVLRTTIT") .And. nTotal > 0 .And. nTotal < nLimite .And. cPessoa <> "F" .And. cHabFrete == "S" .And. cTipoOper = '51'
 		If cEstado $ cEstFrete
 			oMdlField:SetValue("Z3_FREPAGO","C")
 		Else
 			oMdlField:SetValue("Z3_FREPAGO","F")
 		Endif
 		If !oMdlField:GetValue("Z3_FRETE")
-			Aviso('Limite Frete',"O valor total do Pedido vai ficar abaixo de 1500, portanto o frete será cobrado",{'Ok'})
+			Aviso('Limite Frete',"O valor total do Pedido vai ficar abaixo de "+cValToChar(nLimite)+", portanto o frete será cobrado",{'Ok'})
 		Endif
 		oMdlField:SetValue("Z3_FRETE",.T.)
-	ElseIf nTotal >= 1500
+	ElseIf nTotal >= nLimite
 		If oMdlField:GetValue("Z3_CODTRAN") <> cTransp
 			oMdlField:SetValue("Z3_CODTRAN",cTransp)
 		Endif
