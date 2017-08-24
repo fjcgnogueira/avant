@@ -44,20 +44,22 @@ User Function AV_EDIJ01(aParam)
 Return Nil
 
 //ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-//ณ Chamada de Usuario (Nao Setar para abrir Empresa)               ณ
+//ณ Chamada de Usuario (Nao Setar para abrir Empresa)                ณ
 //ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
 User Function AV_EDIJA(lSchedule)
 
 //ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
 //ณ Declaracao de Variaveis                                             ณ
 //ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
-Local cTipo    		:= "Arquivos EDI (*.edi)    | *.EDI |"
-Local cArqEDI  		:= ""
-Local cArqTxt  		:= "log_"+CriaTrab(nil, .f. )+".Log"
+//Local cTipo    		:= "Arquivos EDI (*.edi)    | *.EDI |"
+//Local cArqEDI  		:= ""
+Local cArqTxt  		:= "\neogrid\LOGS\log_"+CriaTrab(nil, .f. )+".Log"
 Local cEOL       	:= ( CHR( 13 ) + CHR( 10 ) )
 Local lRetorno		:= .T.
 Local lErro			:= .F.
-Local cHTML			:= ""
+//Local cHTML			:= ""
+Local __i
+Local _x
 
 Private aLogs    	:= {} // Array utilizado para gerar um LOG de inconsistencia
 Private cCaption 	:= "importacao do arquivo EDI"
@@ -127,7 +129,7 @@ ConOut( "erro na cria็ใo do arquivo de LOG..." + cArqTxt )
 EndIf
 
 If lErro
-	U_SENDMAEDI(GetSrvProfString("Startpath","") + cArqTxt, "Leitura de Arquivo de Transporte")
+	U_SENDMAEDI(cArqTxt, "Leitura de Arquivo de Transporte")
 EndIf
 
 If lSchedule
@@ -137,73 +139,44 @@ EndIf
 Return Nil
 
 /*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณSENDMAEDI บAutor  ณ Amedeo D. P. Filho บ Data ณ  16/02/12   บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc.     ณ Envia e-mail do erro na Leitura do Arquivo.                บฑฑ
-ฑฑบ          ณ                                                            บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ AVAN                                                       บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+ฑฑษออออออออออัอออออออออออออหอออออออัออออออออออออออออออออออออออออหออออออัออออออออออปฑฑ
+ฑฑบPrograma  ณ SENDMAEDI   บ Autor ณ Amedeo D. P. Filho         บ Data ณ16/02/2012บฑฑ
+ฑฑฬออออออออออุอออออออออออออสอออออออฯออออออออออออออออออออออออออออสออออออฯออออออออออนฑฑ
+ฑฑบDesc.     ณ Envia e-mail do erro na Leitura do Arquivo.                        บฑฑ
+ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
+ฑฑบUso       ณ Especifico AVANT.                   	                              บฑฑ
+ฑฑฬออออออออออฯอออออออออัออออออออออัอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
+ฑฑบAnalista Responsavelณ   Data   ณ Manutencao Efetuada                           บฑฑ
+ฑฑฬออออออออออออออออออออุออออออออออุอออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
+ฑฑบFernando Nogueira   ณ24/08/2017ณ Troca do Connect SMTP pelo WorkFlow           บฑฑ
+ฑฑศออออออออออออออออออออฯออออออออออฯอออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
 */
 User Function SENDMAEDI(cAnexo, cAssunto)
-	Local cError    := ""
-	Local cCorpo	:= ""
-	Local cSubject	:= cAssunto
-	Local cTo		:= SuperGetMV("AV_MAILEDI", Nil, "it2@avantsp.com.br;helpdesk@avantsp.com.br")
-	Local cPassword	:= Trim(GetMV("MV_RELPSW"))
-	Local cServer	:= Trim(GetMV("MV_RELSERV"))
-	Local cAccount	:= Trim(GetMV("MV_RELACNT"))
-	Local cFrom		:= Trim(GetMV("MV_RELACNT"))
-	Local lAuth    	:= GetNewPar("MV_RELAUTH",.F.)
-	Local lEnviado	:= .T.
-	Local lConnect	:= .T.
 
-	CONNECT SMTP SERVER cServer ACCOUNT cAccount PASSWORD cPassword RESULT lConnect
-	
-	If lAuth
-	  lRetAuth := MailAuth(cAccount,cPassword)
-	Else
-	  lRetAuth := .T.
-	EndIf
+Local cPara		:= SuperGetMV("AV_MAILEDI", Nil,"tecnologia@avantlux.com.br")
+Local cArquivo	:= "\MODELOS\AVISOCONEMB.HTM"
 
-	ConOut(" ==== Enviando E-Mail ==== ")
-	ConOut("De   : " + cFrom	)
-	ConOut("Para : " + cTo		)
-	
-	cCorpo +=" <!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
-	cCorpo +="  <html xmlns='http://www.w3.org/1999/xhtml'>
-	cCorpo +="  <head>
-	cCorpo +="  <meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1' />
-	cCorpo +="  <title>Untitled Document</title>
-	cCorpo +="  </head>
-	cCorpo +="  <body>
-	cCorpo +="  <div>
-	cCorpo +="  <table width='1000' border='0' align='center'>
-	cCorpo +="    <tr>
-	cCorpo +="      <td><div align='left'>Erro ao Processar Arquivo de Transportadora, Verifique arquivo Anexo.</div></td>
-	cCorpo +="    </tr>
-	cCorpo +="  </table>
-	cCorpo +="  </div>
-	cCorpo +="  </body>
-	cCorpo +="  </html>
+Private oProcess
+Private oHtml
 
-	If lRetAuth 
-		SEND MAIL FROM cFrom TO cTO SUBJECT cSubject BODY cCorpo ATTACHMENT cAnexo RESULT lEnviado
-		If !lEnviado
-			GET MAIL ERROR cError
-			ConOut("Erro ao Enviar E-Mail : " + cError)
-		Else
-			ConOut("E-Mail enviado com Sucesso")
-		EndIf
-	Else
-		ConOut("Erro ao autenticar no servidor de e-mail")
-	EndIf
-	
-	DISCONNECT SMTP SERVER
+ConOut(" ==== Enviando E-Mail ==== ")
+ConOut("Para : " + cPara)
+ConOut("Arquivo anexo: " + cAnexo +" Existe?: "+cValToChar(File(cAnexo)))
+
+oProcess := TWFProcess():New("AVISOCONEMB","AVISO CONEMB")
+oProcess:NewTask("Enviando Aviso",cArquivo)
+oHtml := oProcess:oHTML
+oProcess:cSubject := cAssunto + " ["+AllTrim(SM0->M0_CODFIL)+" / "+AllTrim(SM0->M0_FILIAL)+"]"
+oProcess:USerSiga := "000000"
+oProcess:cTo  := cPara
+oProcess:cCC  := ""
+oProcess:cBCC := ""
+oProcess:AttachFile(cAnexo)
+oProcess:Start()
+oProcess:Finish()
  
 Return
