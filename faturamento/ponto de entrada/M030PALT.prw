@@ -21,7 +21,7 @@ Local cBCC     := "rogerio.machado@avantlux.com.br,tecnologia@avantlux.com.br"
 Local cAssunto := "Bem-vindo à Avant"
 
 	cLog := "<html><body>"
-	cLog += "<img src='http://avantled.com.br/BI/Bem%20Vindo.png'/>
+	cLog += "<img src='https://s3-sa-east-1.amazonaws.com/imagens-avantlux/Bem+Vindo.png'/>
 	cLog += "</body></html>"
 
 	If 	SA1->A1_X_WFLOW = " " .AND. SA1->A1_MSBLQL = "2"
