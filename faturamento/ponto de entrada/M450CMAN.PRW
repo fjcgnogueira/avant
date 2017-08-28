@@ -38,8 +38,6 @@ Return CliLib(SA1->A1_COD,SA1->A1_LOJA)
 Static Function CliLib(cCliente,cLoja)
 
 Local cAliasFIN := GetNextAlias()
-Local cAliasFIS := GetNextAlias()
-Local cAliasSC5 := GetNextAlias()
 Local lReturn   := .T.
 
 // Chamado 004840 - Fernando Nogueira
