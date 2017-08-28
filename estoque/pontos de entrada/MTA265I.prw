@@ -53,7 +53,7 @@ While (cAliasZZR)->(!EoF())
 						SDB->DB_PRODUTO,;			// Produto da reserva
 						SDB->DB_LOCAL,;				// Armazem da reserva 
 						nQuant,;					// Quantidade a ser reservada
-						{Space(TamSx3("DB_NUMLOTE")[1]),Space(TamSx3("DB_LOTECTL")[1]),Space(TamSx3("DB_LOCALIZ")[1]),Space(TamSx3("DB_NUMSERI")[1])})
+						{Space(TamSx3("DB_NUMLOTE")[1]),SDB->DB_LOTECTL,Space(TamSx3("DB_LOCALIZ")[1]),Space(TamSx3("DB_NUMSERI")[1])})
 						
 	If lRet
 		ConfirmSX8()
