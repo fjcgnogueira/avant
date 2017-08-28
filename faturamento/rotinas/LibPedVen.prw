@@ -193,7 +193,10 @@ If !(SC5->C5_X_BLQFI = 'S' .Or. SC5->C5_X_BLFIN = 'S')
 		SC6->(dbSkip())
 	End
 
-	MaAvalSC5("SC5",3,.F.,.F.,,,,,,cPedido,aRegSC6,.T.,.T.)
+	Begin Transaction
+		MaAvalSC5("SC5",3,.F.,.F.,,,,,,cPedido,/*aRegSC6*/,.T.,.T.)
+		aRegSC6 := {}
+	End Transaction
 Endif
 
 Return
