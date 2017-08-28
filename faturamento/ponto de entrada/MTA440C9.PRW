@@ -17,9 +17,7 @@
 User Function MTA440C9()
 
 Local aArea    := GetArea()
-//Local cCliente := SC9->C9_CLIENTE
-//Local cLojaCli := SC9->C9_LOJA
-
+Local aAreaSC9 := SC9->(GetArea())
 
 SC9->(DBSetOrder(1))
 SC9->(DbGoTop())
@@ -33,6 +31,7 @@ SC9->(MsUnlock())
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³  Retorna a situacao inicial       ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+SC9->(RestArea(aAreaSC9))
 RestArea(aArea)
 
 Return

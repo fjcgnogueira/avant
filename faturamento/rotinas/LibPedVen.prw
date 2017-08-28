@@ -194,9 +194,9 @@ If !(SC5->C5_X_BLQFI = 'S' .Or. SC5->C5_X_BLFIN = 'S')
 	End
 
 	Begin Transaction
-		MaAvalSC5("SC5",3,.F.,.F.,,,,,,cPedido,/*aRegSC6*/,.T.,.T.)
-		aRegSC6 := {}
+		MaAvalSC5("SC5",3,.F.,.F.,,,,,,cPedido,aRegSC6,.T.,.T.)
 	End Transaction
+	aRegSC6 := {}
 Endif
 
 Return
