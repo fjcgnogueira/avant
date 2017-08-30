@@ -101,33 +101,37 @@ If File(cArqEDI)
 					Não será preciso importar esta linha
 					*/
 					cCGCTrs  := SubStr(cBuff, 4, 14) //C.G.C. da transportadora
-					cCodForn := Posicione('SA2', 3, xFilial('SA2')+cCGCTrs, 'A2_COD')
 					
-					If Empty(cCodForn) // não existe a transportadora cadastrado como fornecedor
-						If !lExibe
-							ApMsgInfo('Não existem nenhum fornecedor cadastrado no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre um fornecedor com este CGC e execute novamente o processo.')
-						Else
-							AADD( aLogs, 'Não existem nenhum fornecedor cadastrado no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre um fornecedor com este CGC e execute novamente o processo.' )
-							ConOut('Não existem nenhum fornecedor cadastrado no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre um fornecedor com este CGC e execute novamente o processo.')
-						endIf
-						Return(nil)
-					EndIf
-					
-					cCodTrsp := Posicione('SA4', 3, xFilial('SA4')+cCGCTrs, 'A4_COD')
-					
-					If Empty(cCodForn) // não existe a transportadora cadastrado como fornecedor
-						If !lExibe
-							ApMsgInfo('Não existem nenhuma transportadora cadastrada no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre uma transportadora com este CGC e execute novamente o processo.')
-						Else
-							AADD( aLogs, 'Não existem nenhum transportadora cadastrada no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre uma transportadora com este CGC e execute novamente o processo.' )
-							ConOut('Não existem nenhum transportadora cadastrada no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre uma transportadora com este CGC e execute novamente o processo.')
-						endIf
-						Return(nil)
-					EndIf
-					AADD( aIdCnh, {'ZZ3_CODFOR'   , cCodForn} )  //codigo do fornecedor, ou seja, a transportadora como codigo de fornecedor
-					AADD( aIdCnh, {'ZZ3_LOJFOR'   , SA2->A2_LOJA} ) // codigo da loja do fornecedor, ou seja, da transportadora registrado como fornecedor
-					AADD( aIdCnh, {'ZZ3_CODTRS'   , cCodTrsp} )  //codigo da transportadora, registrado na tabela SA4
-					AADD( aIdCnh, {'ZZ3_CGCTRS'   , cCGCTrs} )  //CGC da transportadora
+					// Caso o CNPJ do Fornecedor seja '00000000000000', pegar do registro 322
+					If cCGCTrs <> '00000000000000'
+						cCodForn := Posicione('SA2', 3, xFilial('SA2')+cCGCTrs, 'A2_COD')
+						
+						If Empty(cCodForn) // não existe a transportadora cadastrado como fornecedor
+							If !lExibe
+								ApMsgInfo('Não existem nenhum fornecedor cadastrado no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre um fornecedor com este CGC e execute novamente o processo.')
+							Else
+								AADD( aLogs, 'Não existem nenhum fornecedor cadastrado no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre um fornecedor com este CGC e execute novamente o processo.' )
+								ConOut('Não existem nenhum fornecedor cadastrado no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre um fornecedor com este CGC e execute novamente o processo.')
+							endIf
+							Return(nil)
+						EndIf
+						
+						cCodTrsp := Posicione('SA4', 3, xFilial('SA4')+cCGCTrs, 'A4_COD')
+						
+						If Empty(cCodForn) // não existe a transportadora cadastrado como fornecedor
+							If !lExibe
+								ApMsgInfo('Não existem nenhuma transportadora cadastrada no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre uma transportadora com este CGC e execute novamente o processo.')
+							Else
+								AADD( aLogs, 'Não existem nenhum transportadora cadastrada no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre uma transportadora com este CGC e execute novamente o processo.' )
+								ConOut('Não existem nenhum transportadora cadastrada no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre uma transportadora com este CGC e execute novamente o processo.')
+							endIf
+							Return(nil)
+						EndIf
+						AADD( aIdCnh, {'ZZ3_CODFOR'   , cCodForn} )  //codigo do fornecedor, ou seja, a transportadora como codigo de fornecedor
+						AADD( aIdCnh, {'ZZ3_LOJFOR'   , SA2->A2_LOJA} ) // codigo da loja do fornecedor, ou seja, da transportadora registrado como fornecedor
+						AADD( aIdCnh, {'ZZ3_CODTRS'   , cCodTrsp} )  //codigo da transportadora, registrado na tabela SA4
+						AADD( aIdCnh, {'ZZ3_CGCTRS'   , cCGCTrs} )  //CGC da transportadora
+					Endif
 					
 				Case cIdReg == "322" // C E M - CONHECIMENTOS EMBARCADOS
 					/*
@@ -199,6 +203,42 @@ If File(cArqEDI)
 					106. FILLER A 2 679 M BRANCOS
 					*/
 					// para este cIdReg, não é para importar nenhum campo
+					
+					//-----------------------------------------------------------------------------------------------------------------------------------------
+					
+					// Caso o CNPJ do Fornecedor seja '00000000000000', irah pegar do registro 322
+					If cCGCTrs = '00000000000000'
+						cCGCTrs  := SubStr(cBuff, 205, 14) //C.G.C. da transportadora
+						cCodForn := Posicione('SA2', 3, xFilial('SA2')+cCGCTrs, 'A2_COD')
+						
+						If Empty(cCodForn) // não existe a transportadora cadastrado como fornecedor
+							If !lExibe
+								ApMsgInfo('Não existem nenhum fornecedor cadastrado no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre um fornecedor com este CGC e execute novamente o processo.')
+							Else
+								AADD( aLogs, 'Não existem nenhum fornecedor cadastrado no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre um fornecedor com este CGC e execute novamente o processo.' )
+								ConOut('Não existem nenhum fornecedor cadastrado no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre um fornecedor com este CGC e execute novamente o processo.')
+							endIf
+							Return(nil)
+						EndIf
+						
+						cCodTrsp := Posicione('SA4', 3, xFilial('SA4')+cCGCTrs, 'A4_COD')
+						
+						If Empty(cCodForn) // não existe a transportadora cadastrado como fornecedor
+							If !lExibe
+								ApMsgInfo('Não existem nenhuma transportadora cadastrada no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre uma transportadora com este CGC e execute novamente o processo.')
+							Else
+								AADD( aLogs, 'Não existem nenhum transportadora cadastrada no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre uma transportadora com este CGC e execute novamente o processo.' )
+								ConOut('Não existem nenhum transportadora cadastrada no CGC '+cCGCTrs+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre uma transportadora com este CGC e execute novamente o processo.')
+							endIf
+							Return(nil)
+						EndIf
+						AADD( aIdCnh, {'ZZ3_CODFOR'   , cCodForn} )  //codigo do fornecedor, ou seja, a transportadora como codigo de fornecedor
+						AADD( aIdCnh, {'ZZ3_LOJFOR'   , SA2->A2_LOJA} ) // codigo da loja do fornecedor, ou seja, da transportadora registrado como fornecedor
+						AADD( aIdCnh, {'ZZ3_CODTRS'   , cCodTrsp} )  //codigo da transportadora, registrado na tabela SA4
+						AADD( aIdCnh, {'ZZ3_CGCTRS'   , cCGCTrs} )  //CGC da transportadora
+					Endif
+					
+					//-----------------------------------------------------------------------------------------------------------------------------------------					
 					
 					cSerCon  := LEFT(SubStr(cBuff,14, 05),TamSx3("F1_SERIE")[1] )
 //					cNumCon  := LEFT(SubStr(cBuff, 19, 12),TamSx3("F1_DOC")[1] )
