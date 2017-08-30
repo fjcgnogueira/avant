@@ -33,8 +33,8 @@ Local _nOpc  := 0
 Local cTitul := ''
 
 // variaveis para a geração das notas fiscais de entrada
-Local aCabec:= {} // Array que conterá os dados para o cabeçalho do documento de entrada
-Local aItens:= {} // Array que conterá os itens da nota fiscal de entrada
+Local aCabec   := {} // Array que conterá os dados para o cabeçalho do documento de entrada
+Local aItens   := {} // Array que conterá os itens da nota fiscal de entrada
 Local cCodFis  := "" //CODIGO FISCAL DA NATUREZA DE OPERACAO
 Local lFalha   := .f.
 Local aAreaSF1 := SF1->(GetArea())
@@ -42,6 +42,9 @@ Local aAreaSD1 := SD1->(GetArea())
 Local nRegZZ4  := 0
 
 Local cErro    := ''
+
+Local cCodForn := "" 	// Codigo do fornecedor
+Local cLjForn  := ""	// Loja do Fornecedor
 
 Static oDlgEDI
 
@@ -202,10 +205,20 @@ If _nOpc <> 0 .And. __nValue <> 0 .And. ApMsgYesNo('Confirma geração dos titulos
 
 		nRecSF1 := SF1->(Recno())
 		(cAliasZZ5)->(dbGoTop())
-
+		
 		While (cAliasZZ5)->(!Eof())
 
 			ZZ5->(dbGoTo((cAliasZZ5)->RECZZ5))
+			
+			// Fernando Nogueira - Chamado 005198
+			cCodForn := Posicione('SA2', 3, xFilial('SA2')+(cAliasZZ5)->ZZ5_CGCREM, 'A2_COD')
+			cLjForn  := SA2->A2_LOJA
+			
+			If Empty(cCodForn) // não existe a transportadora cadastrado como fornecedor
+				ApMsgInfo('Não existe nenhum fornecedor cadastrado no CGC '+(cAliasZZ5)->ZZ5_CGCREM+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre um fornecedor com este CGC e execute novamente o processo.')
+				ConOut('Não existe nenhum fornecedor cadastrado no CGC '+(cAliasZZ5)->ZZ5_CGCREM+' e por este motivo nao será possível gerar os documentos de entrada. Solução: cadastre um fornecedor com este CGC e execute novamente o processo.')
+				Return
+			EndIf
 
 			If (cAliasZZ5)->ZZ5_OK == cMarca
 				// RecLock('ZZ5', .F.)
@@ -231,8 +244,11 @@ If _nOpc <> 0 .And. __nValue <> 0 .And. ApMsgYesNo('Confirma geração dos titulos
 				aAdd( aCabec, { "F1_FORMUL" 	, 1				    } )	// 10 - Utiliza Formulario proprio ? 2-Sim,1-Nao // Fernando Nogueira - Chamado 004199
 				aAdd( aCabec, { "F1_DOC" 		, PadR(ZZ5->ZZ5_NUMCON,Tamsx3("F1_DOC")[1])	} )	// 11 - Num. da NF de Conhecimento de Frete
 				aAdd( aCabec, { "F1_SERIE" 		, PadR(ZZ5->ZZ5_SERCON,Tamsx3("F1_SERIE")[1])	} )	// 12 - Serie da NF de COnhecimento de Frete
-				aAdd( aCabec, { "F1_FORNECE" 	, ZZ5->ZZ5_CODFOR	} )	// 13 - Codigo do Fornecedor da NF de FRETE
-				aAdd( aCabec, { "F1_LOJA" 		, ZZ5->ZZ5_LOJFOR	} )	// 14 - Loja do Fornecedor da NF de Frete
+				//aAdd( aCabec, { "F1_FORNECE" 	, ZZ5->ZZ5_CODFOR	} )	// 13 - Codigo do Fornecedor da NF de FRETE
+				//aAdd( aCabec, { "F1_LOJA" 		, ZZ5->ZZ5_LOJFOR	} )	// 14 - Loja do Fornecedor da NF de Frete
+				aAdd( aCabec, { "F1_FORNECE" 	, cCodForn      	} )	// 13 - Codigo do Fornecedor da NF de FRETE
+				aAdd( aCabec, { "F1_LOJA" 		, cLjForn       	} )	// 14 - Loja do Fornecedor da NF de Frete
+
 
 				If ZZ5->ZZ5_ICMS == 0
 					aAdd( aCabec, { "" 				, cTESCtr			} )	// 15 - Tes utilizada na Classificacao da NF
