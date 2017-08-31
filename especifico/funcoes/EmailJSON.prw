@@ -12,15 +12,17 @@
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
-User Function EmailJSON(cEmail)
+User Function EmailJSON(cChave,cEmail,lAviso)
 
-Local cUrl       := "http://api1.27hub.com/api/emh/a/v2?k=261C7C92&e="+AllTrim(cEmail)
+Local cUrl       := "http://api1.27hub.com/api/emh/a/v2?k="+cChave+"&e="+AllTrim(cEmail)
 Local cGetParams := ""
 Local nTimeOut   := 200
 Local aHeadStr   := {"Content-Type: application/json"}
 Local cHeaderGet := ""
 Local cRetorno   := ""
 Local oObjJson   := Nil
+
+Default lAviso := .T.
 
 cRetorno := HttpGet(cUrl,cGetParams,nTimeOut,aHeadStr,@cHeaderGet)
 
@@ -30,7 +32,10 @@ If !FwJsonDeserialize(cRetorno,@oObjJson)
 Endif 
 
 If AllTrim(oObjJson:result) = "Bad"
-	Aviso('E-mail',"E-mail inexistente.",{'Ok'})
+	If lAviso
+		Aviso('E-mail',"Email "+AllTrim(cEmail)+" inexistente.",{'Ok'})
+	Endif
+	ConOut("Email "+AllTrim(cEmail)+" inexistente.")
 	Return .F.
 Endif
 
