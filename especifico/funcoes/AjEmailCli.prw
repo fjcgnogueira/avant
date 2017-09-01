@@ -48,7 +48,7 @@ While (cAliasTRB)->(!Eof())
 	cMailFim := ""
 	aEmail   := {}
 	lAltera  := .F.
-	
+
 	If "," $ cEmail
 		While "," $ cEmail
 			aAdd(aEmail,Left(cEmail,At(",",cEmail)-1))
@@ -58,9 +58,9 @@ While (cAliasTRB)->(!Eof())
 	Else
 		aAdd(aEmail,cEmail)
 	Endif
-	
+
 	For _nI := 1 To Len(aEmail)
-		If U_EmailJSON("B5EC4870",aEmail[_nI],.F.)
+		If U_EmailJSON(aEmail[_nI],.F.)
 			If Empty(cMailFim)
 				cMailFim += aEmail[_nI]
 			Else
@@ -68,7 +68,7 @@ While (cAliasTRB)->(!Eof())
 			Endif
 		Endif
 	Next
-	
+
 	If AllTrim((cAliasTRB)->A1_EMAIL) <> cMailFim
 		If Empty(cMailFim)
 			cMailFim := "ISENTO"

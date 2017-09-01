@@ -12,8 +12,9 @@
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
-User Function EmailJSON(cChave,cEmail,lAviso)
+User Function EmailJSON(cEmail,lAviso)
 
+Local cChave     := GetMv("ES_CHVHIPP")
 Local cUrl       := "http://api1.27hub.com/api/emh/a/v2?k="+cChave+"&e="+AllTrim(cEmail)
 Local cGetParams := ""
 Local nTimeOut   := 200
