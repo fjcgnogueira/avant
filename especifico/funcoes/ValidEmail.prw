@@ -55,9 +55,9 @@ For _nJ := 1 To Len(aEmail)
 		Aviso('E-mail',"Necessario informar e-mail válido",{'Ok'})
 		Return .F.
 	Endif
-	/*If !U_EmailJSON(aEmail[_nJ])
+	If !U_EmailJSON("B5EC4870",aEmail[_nJ])
 		Return .F.
-	Endif*/
+	Endif
 Next
 
 Return .T.
