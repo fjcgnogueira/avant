@@ -159,7 +159,7 @@ Next
 oHtml:ValByName("cTotal"  , Transform(nTotal, PesqPict("SE1","E1_VALOR")))
 oHtml:ValByName("cDataPag", DtoC(DataValida(dDataBase+1)))
 
-oProcess:cSubject := "[Titulos Vencidos Avant - "+DtoC(Date())+"] "
+oProcess:cSubject := "[Titulos Vencidos Avant - "+DtoC(Date())+"] " + If(AllTrim(SA1->A1_EMAIL)='ISENTO'," - Email do Cliente Isento","")
 oProcess:USerSiga := "000000"
 oProcess:cTo      := cPara
 oProcess:cBCC     := cMailBCC

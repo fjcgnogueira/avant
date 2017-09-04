@@ -109,7 +109,7 @@ If SE1->(dbSeek(xFilial("SE1")+cPrefixo+cTitulo))
 	End
 Endif
 
-oProcess:cSubject := "[Titulo Avant No "+cTitulo+" com parcela(s) a vencer - "+DtoC(Date())+"] "
+oProcess:cSubject := "[Titulo Avant No "+cTitulo+" com parcela(s) a vencer - "+DtoC(Date())+"] " + If(AllTrim(SA1->A1_EMAIL)='ISENTO'," - Email do Cliente Isento","")
 oProcess:USerSiga := "000000"
 oProcess:cTo      := cPara
 oProcess:cBCC     := cMailBCC
