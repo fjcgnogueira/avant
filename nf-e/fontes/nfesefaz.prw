@@ -610,7 +610,7 @@ If cTipo == "1"
 			aadd(aDest,SA1->A1_CEP)
 			aadd(aDest,SA1->A1_DDD+SA1->A1_TEL)
 			aadd(aDest,SA1->A1_INSCRM)
-			aadd(aDest,SA1->A1_EMAIL)
+			aadd(aDest,If(Empty(SA1->A1_X_MAIL2),If(AllTrim(SA1->A1_EMAIL)='ISENTO',AllTrim(GetMv("ES_MAILCAV")),AllTrim(SA1->A1_EMAIL)),SA1->A1_X_MAIL2))  //Fernando Nogueira - Chamado 005202
 			
 			If !Upper(SA1->A1_EST) == "EX"
 				SC6->(dbSetOrder(4))
@@ -921,7 +921,7 @@ If cTipo == "1"
 					aadd(aDest,"")							
 				EndIf
 				aadd(aDest,SA1->A1_SUFRAMA)
-				aadd(aDest,SA1->A1_EMAIL)
+				aadd(aDest,If(Empty(SA1->A1_X_MAIL2),If(AllTrim(SA1->A1_EMAIL)='ISENTO',AllTrim(GetMv("ES_MAILCAV")),AllTrim(SA1->A1_EMAIL)),SA1->A1_X_MAIL2))  //Fernando Nogueira - Chamado 005202
 				aAdd(aDest,SA1->A1_CONTRIB) // Posição 17
 				aadd(aDest,Iif(SA1->(FieldPos("A1_IENCONT")) > 0 ,SA1->A1_IENCONT,""))
 				aadd(aDest,SA1->A1_INSCRM)
@@ -2989,7 +2989,7 @@ Else
 					aadd(aDest,"")							
 				EndIf
 				aadd(aDest,SA1->A1_SUFRAMA)
-				aadd(aDest,SA1->A1_EMAIL)
+				aadd(aDest,If(Empty(SA1->A1_X_MAIL2),If(AllTrim(SA1->A1_EMAIL)='ISENTO',AllTrim(GetMv("ES_MAILCAV")),AllTrim(SA1->A1_EMAIL)),SA1->A1_X_MAIL2))  //Fernando Nogueira - Chamado 005202
 				aAdd(aDest, SA1->A1_CONTRIB) // Posição 17
 				aadd(aDest,Iif(SA1->(FieldPos("A1_IENCONT")) > 0 ,SA1->A1_IENCONT,""))
 				aadd(aDest,SA1->A1_INSCRM)
