@@ -26,13 +26,13 @@ SA3->(dbSeek(xFilial("SA3")+SD2->D2_X_VEND))
 
 If AllTrim(SD2->D2_X_TPOPE) == 'VENDAS' .And. SD2->D2_X_CRVEN > 0
 	nDebito := SD2->D2_X_CRVEN
-	
+
 	SA3->(RecLock("SA3",.F.))
 		SA3->A3_ACMMKT -= nDebito
 	SA3->(MsUnlock())
-ElseIf AllTrim(SD2->D2_X_TPOPE) == 'BONIFICACAO' .And. SD2->D2_X_CRVEN > 0
+ElseIf AllTrim(SD2->D2_X_TPOPE) $ ('BONIFICACAO.REMESSA DOACAO') .And. SD2->D2_X_CRVEN > 0
 	nCredito := SD2->D2_X_CRVEN
-	
+
 	SA3->(RecLock("SA3",.F.))
 		SA3->A3_ACMMKT += nCredito
 	SA3->(MsUnlock())

@@ -71,7 +71,7 @@ If !(M->C5_TIPO $ 'BD')
 				Else
 					lFrete := .F.
 					// Verifica se o Pedido eh de Bonificacao
-					If (Right(AllTrim(aCols[nI,nPosCF]),3) $ "910")
+					If (Right(AllTrim(aCols[nI,nPosCF]),3) $ "910") .And. SB1->B1_TIPO $ ('PA.PR')  // Fernando Nogueira - Chamado 005205
 						lBonif := .T.
 					Endif
 				EndIf

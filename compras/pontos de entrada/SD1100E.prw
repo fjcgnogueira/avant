@@ -30,7 +30,7 @@ If SA3->(dbSeek(xFilial("SA3")+SD1->D1_X_VEND))
 		SA3->(RecLock("SA3",.F.))
 			SA3->A3_ACMMKT += nCredito
 		SA3->(MsUnlock())
-	ElseIf AllTrim(SD1->D1_X_TPOPE) == 'DVBONIFICACAO' .And. SD1->D1_X_DBVEN > 0
+	ElseIf AllTrim(SD1->D1_X_TPOPE) $ ('DVBONIFICACAO.DVDOACAO') .And. SD1->D1_X_DBVEN > 0
 		nDebito := SD1->D1_X_DBVEN
 
 		SA3->(RecLock("SA3",.F.))

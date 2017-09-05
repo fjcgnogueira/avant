@@ -66,12 +66,16 @@ User Function MT103FIM()
 				SA3->(RecLock("SA3",.F.))
 					SA3->A3_ACMMKT -= nDebito
 				SA3->(MsUnlock())
-			ElseIf AllTrim(SD2->D2_X_TPOPE) == 'BONIFICACAO' .And. SD2->D2_X_CRVEN > 0
+			ElseIf AllTrim(SD2->D2_X_TPOPE) $ ('BONIFICACAO.REMESSA DOACAO') .And. SD2->D2_X_CRVEN > 0
 				nCredito := (SD1->D1_QUANT * SD2->D2_X_CRVEN) / SD2->D2_QUANT
 
 				SD1->(RecLock("SD1",.F.))
 					SD1->D1_X_DBVEN := nCredito
-					SD1->D1_X_TPOPE := 'DVBONIFICACAO'
+					If AllTrim(SD2->D2_X_TPOPE) $ ('BONIFICACAO')
+						SD1->D1_X_TPOPE := 'DVBONIFICACAO'
+					Else
+						SD1->D1_X_TPOPE := 'DVDOACAO'
+					Endif
 				SD1->(MsUnlock())
 
 				SA3->(dbSeek(xFilial("SA3")+SD2->D2_X_VEND))

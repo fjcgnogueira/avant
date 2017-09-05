@@ -165,12 +165,14 @@ While SD2->(!Eof()) .And. 	SD2->D2_FILIAL == xFilial("SD2") .And. SD2->D2_DOC ==
 				SA3->A3_ACMMKT += nCredito
 			SA3->(MsUnlock())
 		Endif
-	ElseIf AllTrim(SC6->C6_TPOPERW) == 'BONIFICACAO'
+	ElseIf AllTrim(SC6->C6_TPOPERW) $ ('BONIFICACAO.REMESSA DOACAO')
 		nDebito := SD2->D2_VALBRUT
 
 		SD2->(RecLock("SD2",.F.))
 			SD2->D2_X_TPOPE := SC6->C6_TPOPERW
-			SD2->D2_X_CRVEN := nDebito
+			If SB1->B1_TIPO $ ('PA.PR')
+				SD2->D2_X_CRVEN := nDebito
+			Endif
 		SD2->(MsUnlock())
 		SA3->(RecLock("SA3",.F.))
 			SA3->A3_ACMMKT -= nDebito
