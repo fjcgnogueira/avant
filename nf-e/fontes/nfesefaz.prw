@@ -5056,7 +5056,7 @@ Static Function NfeDest(aDest,cVerAmb,aTransp,aCST,lBrinde)
 	//Considera o e-mail do cadastro da transportadora
 	If Len(aTransp) > 0 .and. !Empty(AllTrim(aTransp[07]))
 		If !Empty(aDest[16])
-			cMailTrans := ";"+AllTrim(aTransp[07])
+			cMailTrans := ","+AllTrim(aTransp[07])
 		Else 
 			cMailTrans := AllTrim(aTransp[07])
 		EndIf 	
