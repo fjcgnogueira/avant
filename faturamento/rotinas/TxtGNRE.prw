@@ -155,7 +155,7 @@ Static Function Gravacao()
 				cTexto		+= cFone					+ TAB
 				cTexto		+= Alltrim(MV_PAR09)		+ TAB
 				cTexto		+= "99"
-				cTexto		+ CRLF
+				cTexto		+= CRLF
 
 				nQtdNfs++
 
