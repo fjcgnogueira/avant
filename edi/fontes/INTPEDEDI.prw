@@ -71,7 +71,7 @@ If !(cAliasSC5)->(Eof())
 		(cAliasSC5)->(DbSkip())
 	Enddo
 
-	cMensagem+cEOL
+	cMensagem+=cEOL
 EndIf
 
 (cAliasSC5)->(DbCloseArea())
