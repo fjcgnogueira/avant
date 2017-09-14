@@ -20,24 +20,24 @@ _cCondPgto := ""
 _cCliente  := cCliente
 _cLoja     := cLoja
 _nCount    := 0
+cAliasTRB  := GetNextAlias()
 
 GeraArqTRB()
 
-TRB->(DbSelectArea('TRB'))
-TRB->(DbGotop())
+(cAliasTRB)->(DbGotop())
 
-While TRB->(!Eof())
+While (cAliasTRB)->(!Eof())
 	_nCount++
 
 	If _nCount > 1
 		_cCondPgto += "; "
 	Endif
 
-	_cCondPgto += AllTrim(TRB->COND_PED)
-	TRB->(dbSkip())
+	_cCondPgto += AllTrim((cAliasTRB)->COND_PED)
+	(cAliasTRB)->(dbSkip())
 End
 
-TRB->(DbCloseArea())
+(cAliasTRB)->(DbCloseArea())
 
 RestArea(_aArea)
 
@@ -56,7 +56,7 @@ Return Left(_cCondPgto,TamSx3("A1_X_CPGTO")[1])
 */
 Static Function GeraArqTRB()
 
-	BeginSql alias 'TRB'
+	BeginSql alias cAliasTRB
 
 		SELECT CLIENTE,LOJA,COND_CLI,COND_PED FROM
 			(SELECT C5_NUM NUMERO,A1_COND,CLI.E4_DESCRI COND_CLI,C5_CONDPAG,SE4.E4_DESCRI COND_PED,C5_CLIENTE CLIENTE,C5_LOJACLI LOJA,C5_XTOTPED TOTAL FROM %table:SC5% SC5

@@ -36,7 +36,7 @@ Static oSayWMS
 Static oSayLim
 Static oGetLim
 
-lCheckBoxWMS := VerServWMS()
+lCheckBoxWMS := U_VerServWMS()
 
   DEFINE MSDIALOG oDlgWMS TITLE "Habilita WMS" FROM 000, 000  TO 180, 600 COLORS 0, 16777215 PIXEL
 
@@ -64,7 +64,7 @@ Return
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
-Static Function VerServWMS()
+User Function VerServWMS()
 
 Local lCheckBoxWMS := .F.
 Local aArea:= GetArea()
