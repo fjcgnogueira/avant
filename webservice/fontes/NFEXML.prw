@@ -46,7 +46,6 @@ WSMETHOD XmlDados WSRECEIVE EmpCons, FilCons, NfeXML, NfeTime, NfeVersao WSSEND 
 
 	Local cEmpCons	:= EmpCons
 	Local cFilCons	:= FilCons
-	Local cCliente	:= Cliente
 	Local cNfeXML	:= NfeXML
 	Local cNfeTime	:= NfeTime
 	Local cNfeVersao:= NfeVersao
