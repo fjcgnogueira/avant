@@ -113,6 +113,7 @@ EndIf
 
 (cAliasDCF)->(DbCloseArea())
 
+SDB->(RestArea(aAreaSDB))
 RestArea(_aArea)
 
 Return .T.
