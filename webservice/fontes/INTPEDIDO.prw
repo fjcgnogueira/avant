@@ -336,12 +336,12 @@ If lRetorno
 
 									// Fernando Nogueira - Chamado 004646
 									If SB1->(dbSeek(xFilial("SB1")+aItens[_n][nPosProd][2])) .And. AllTrim(SB1->B1_POSIPI) = '85395000' .And. aImpostos[nPosRet][05] = 0
-										If !(SA1->A1_EST $ 'DF.ES.GO.MA.RJ.SC.TO') // Fernando Nogueira - Chamado 004975
+										If (SA1->A1_EST $ 'AP.RJ') // Fernando Nogueira - Chamado 004975 / 005226
 											lBlqIcmRet := .T.
 										Endif
 									Endif
 								ElseIf SB1->(dbSeek(xFilial("SB1")+aItens[_n][nPosProd][2])) .And. AllTrim(SB1->B1_POSIPI) = '85395000'  // Fernando Nogueira - Chamado 004874
-									If !(SA1->A1_EST $ 'DF.ES.GO.MA.RJ.SC.TO') // Fernando Nogueira - Chamado 004975
+									If (SA1->A1_EST $ 'AP.RJ') // Fernando Nogueira - Chamado 004975 / 005226
 										lBlqIcmRet := .T.
 									Endif
 								EndIf
