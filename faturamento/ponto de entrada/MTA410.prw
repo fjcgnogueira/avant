@@ -207,7 +207,7 @@ If !(M->C5_TIPO $ 'BD')
 		Next _n
 
 		// Bloqueia se o Pedido for de Bonificacao e o Valor do Pedido com Impostos for maior que o Credito do Vendedor
-		If lBonif .And. nTotPed > Posicione("SA3",1,xFilial("SA3")+cVend,"A3_ACMMKT")
+		If lBonif .And. nTotPed > Posicione("SA3",1,xFilial("SA3")+cVend,"A3_ACMMKT") .And. !lFlag // Fernando Nogueira - Chamado 005246
 			MsgInfo('Valor com impostos do Pedido ('+AllTrim(Transform(nTotPed, _cC5xTot))+') maior que o saldo em crédito de marketing do vendedor ('+AllTrim(Transform(SA3->A3_ACMMKT, _cC5xTot))+') !', 'Atenção')
 			lReturn := .F.
 		Endif

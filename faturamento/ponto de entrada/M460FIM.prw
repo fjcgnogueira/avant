@@ -165,7 +165,7 @@ While SD2->(!Eof()) .And. 	SD2->D2_FILIAL == xFilial("SD2") .And. SD2->D2_DOC ==
 				SA3->A3_ACMMKT += nCredito
 			SA3->(MsUnlock())
 		Endif
-	ElseIf AllTrim(SC6->C6_TPOPERW) $ ('BONIFICACAO.REMESSA DOACAO')
+	ElseIf AllTrim(SC6->C6_TPOPERW) $ ('BONIFICACAO.REMESSA DOACAO') .And. !Empty(SC5->C5_VEND1)  //Fernando Nogueira - Chamado 005246
 		nDebito := SD2->D2_VALBRUT
 
 		SD2->(RecLock("SD2",.F.))
