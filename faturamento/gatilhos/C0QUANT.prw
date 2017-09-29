@@ -22,8 +22,8 @@ Local aArea    := GetArea()
 Local aAreaSB8 := SB8->(GetArea())
 Local cLoteCTL := CriaVar("B8_LOTECTL")
 
-Default nQuant   := M->C0_QUANT
-Default cProduto := GdFieldGet('C0_PRODUTO')
+Default nQuant   := &(Alltrim(ReadVar()))
+Default cProduto := GdFieldGet(Substring(Alltrim(ReadVar()),At(">",Alltrim(ReadVar()))+1,3)+"PRODUTO")
 
 dbSelectArea("SB8")
 dbSetOrder(01)
@@ -33,6 +33,7 @@ dbSeek(xFilial("SB8")+cProduto)
 While SB8->(!EoF()) .And. SB8->B8_PRODUTO = cProduto
 	If SB8->(B8_SALDO-B8_EMPENHO-B8_QACLASS) >= nQuant
 		cLoteCTL := SB8->B8_LOTECTL
+		Exit
 	Endif
 	SB8->(dbSkip())
 End
