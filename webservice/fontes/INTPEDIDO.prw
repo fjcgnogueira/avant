@@ -44,9 +44,7 @@ Local nDescSuf   	:= 0
 Local nTotBonif    	:= 0
 Local _cSA3Cred 	:= PesqPict("SC6","C6_VALOR")
 Local cEnter	    := '<br />'
-Local lBlqNCM		:= .F.
 Local lBlqFis		:= .F.
-Local lBlqIcmRet	:= .F.
 Local lBloqFin		:= .F.
 Local nTotPed		:= 0
 Local lHabWMS		:= &(Posicione("SX5",1,xFilial("SX5")+"ZA0001","X5_DESCRI"))
@@ -241,10 +239,6 @@ If lRetorno
 
 						SB1->(dbSeek(xFilial("SB1")+SZ4->Z4_CODPROD))
 
-						If AllTrim(SB1->B1_POSIPI) = '85395000'
-							lBlqNCM := .T.
-						Endif
-
 						C09->(dbSeek(xFilial("C09")+SA1->A1_EST))
 						
 						// Fernando Nogueira - Chamado 004842
@@ -281,7 +275,7 @@ If lRetorno
 					nPosProd   := aScan(aLinha,{|x|Trim(x[1])=="C6_PRODUTO"})
 
 					// Verifica se o Pedido eh de Bonificacao - Chamado 002553 - Fernando Nogueira
-					If cTpOper == '54' .Or. lBlqNCM
+					If cTpOper == '54'
 						// Faz uma varredura no aItens
 						For _n := 1 to Len(aItens)
 							nDescSuf  := 0
@@ -331,21 +325,6 @@ If lRetorno
 								nPosRet		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "ICR"})
 								nPosIPI		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "IPI"})
 
-								If nPosRet > 0
-									nPrcVen	:= nPrcVen + aImpostos[nPosRet][05]
-
-									// Fernando Nogueira - Chamado 004646
-									If SB1->(dbSeek(xFilial("SB1")+aItens[_n][nPosProd][2])) .And. AllTrim(SB1->B1_POSIPI) = '85395000' .And. aImpostos[nPosRet][05] = 0
-										If (SA1->A1_EST $ 'AP.RJ') // Fernando Nogueira - Chamado 004975 / 005226
-											lBlqIcmRet := .T.
-										Endif
-									Endif
-								ElseIf SB1->(dbSeek(xFilial("SB1")+aItens[_n][nPosProd][2])) .And. AllTrim(SB1->B1_POSIPI) = '85395000'  // Fernando Nogueira - Chamado 004874
-									If (SA1->A1_EST $ 'AP.RJ') // Fernando Nogueira - Chamado 004975 / 005226
-										lBlqIcmRet := .T.
-									Endif
-								EndIf
-
 								If nPosIPI > 0
 									nPrcVen	:= nPrcVen + aImpostos[nPosIPI][05]
 								EndIf
@@ -378,7 +357,7 @@ If lRetorno
 					// Fernando Nogueira - Chamado 003522 - Bloqueio Fiscal
 					// Fernando Nogueira - Chamado 003575
 					// Fernando Nogueira - Chamado 004323
-					If SA1->A1_TIPO $ 'FR' .Or. lBlqIcmRet .Or. lBlqFis .Or. (!Empty(SA1->A1_X_DTRES) .And. SA1->A1_X_DTRES < dDataBase)
+					If SA1->A1_TIPO $ 'FR' .Or. lBlqFis .Or. (!Empty(SA1->A1_X_DTRES) .And. SA1->A1_X_DTRES < dDataBase)
 						aAdd(aCabec,{"C5_X_BLQFI" ,"S",NIL})
 					Endif
 
