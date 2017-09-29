@@ -56,8 +56,10 @@ Endif
 
 If lReturn .And. n <> 1 .AND. !aCols[n,Len(aHeader)+1]
 	If Posicione("SB1",1,xFilial("SB1")+aCols[n][nPosProd],"B1_UTLCOMS") <> Posicione("SB1",1,xFilial("SB1")+aCols[n-1][nPosProd],"B1_UTLCOMS")
-		MsgAlert('Existe conflito de produtos que geram comissão com produtos que não geram! Será necessário fazer pedidos separados.', 'Atenção')
-		lReturn := .F.
+		If Posicione('SF4',1,xFilial('SF4')+aCols[n][nPosTes],'F4_DUPLIC') == "S"  // Fernando Nogueira - Chamado 005259
+			MsgAlert('Existe conflito de produtos que geram comissão com produtos que não geram! Será necessário fazer pedidos separados.', 'Atenção')
+			lReturn := .F.
+		Endif
 	Endif
 Endif
 

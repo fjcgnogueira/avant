@@ -61,8 +61,10 @@ If !(M->C5_TIPO $ 'BD')
 					Endif
 				Else
 					If Posicione("SB1",1,xFilial("SB1")+aCols[nI][nPosProd],"B1_UTLCOMS") <> Posicione("SB1",1,xFilial("SB1")+aCols[nI-1][nPosProd],"B1_UTLCOMS")
-						MsgAlert('Existe conflito de produtos que geram comissão com produtos que não geram! Será necessário fazer pedidos separados.', 'Atenção')
-						Return .F.
+						If Posicione('SF4',1,xFilial('SF4')+aCols[n][nPosTes],'F4_DUPLIC') == "S"  // Fernando Nogueira - Chamado 005259
+							MsgAlert('Existe conflito de produtos que geram comissão com produtos que não geram! Será necessário fazer pedidos separados.', 'Atenção')
+							Return .F.
+						Endif
 					Endif
 				EndIf
 				// Bonificacao (910) e Troca (949) nao entram na regra
