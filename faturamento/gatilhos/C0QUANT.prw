@@ -18,11 +18,12 @@
 */
 User Function C0QUANT(cProduto,nQuant)
 
-Local nQuant   := M->C0_QUANT
-Local cProduto := GdFieldGet('C0_PRODUTO')
 Local aArea    := GetArea() 
 Local aAreaSB8 := SB8->(GetArea())
 Local cLoteCTL := CriaVar("B8_LOTECTL")
+
+Default nQuant   := M->C0_QUANT
+Default cProduto := GdFieldGet('C0_PRODUTO')
 
 dbSelectArea("SB8")
 dbSetOrder(01)
