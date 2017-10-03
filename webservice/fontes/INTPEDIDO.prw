@@ -207,6 +207,10 @@ If lRetorno
 						aAdd(aLinha,{"C6_LOCAL"  ,cArmazem       ,NIL})
 						aAdd(aLinha,{"C6_RESERVA",SZ4->Z4_PRESERV,NIL}) // Fernando Nogueira - Chamado 005107
 						
+						If Empty(SZ4->Z4_PRESERV)  // Fernando Nogueira - Chamado 005282
+							aAdd(aLinha,{"C6_LOTECTL",U_C0QUANT(SZ4->Z4_CODPROD,SZ4->Z4_QTDE),NIL})
+						Endif
+						
 						// Fernando Nogueira - Verifica se vem comissao da web
 						If (SZ4->Z4_PCCOMIS > 0 .Or. SZ4->Z4_INTCOMI > 0) .And. SA3->A3_TIPO = 'E'
 							If Empty(SZ4->Z4_INTCOMI)   // Fernando Nogueira - Chamado 005147
