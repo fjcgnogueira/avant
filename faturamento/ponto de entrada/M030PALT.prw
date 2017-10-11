@@ -17,11 +17,11 @@
 User Function M030PALT()
 
 Local cPara    := SA1->A1_EMAIL
-Local cBCC     := "rogerio.machado@avantlux.com.br,tecnologia@avantlux.com.br"
+Local cBCC     := "rogerio.machado@avantlux.com.br"
 Local cAssunto := "Bem-vindo à Avant"
 
 	cLog := "<html><body>"
-	cLog += "<img src='https://s3-sa-east-1.amazonaws.com/imagens-avantlux/Bem+Vindo.png'/>
+	cLog += "<img src='https://s3-sa-east-1.amazonaws.com/imagens-avantlux/seja-bem-vindo.jpg'/>
 	cLog += "</body></html>"
 
 	If 	SA1->A1_X_WFLOW = " " .AND. SA1->A1_MSBLQL = "2"
