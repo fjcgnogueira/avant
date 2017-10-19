@@ -37,6 +37,9 @@ Local cChaveDC  := ""
 Local lAjuste   := .F.
 
 If lContinua .And. IsMemVar("__nQtdB8Emp") .And. __nQtdB8Emp > 0
+
+	ConOut("Ponto de Entrada: MA260D3F")
+
 	Begin Transaction
 		SB8->(dbGoTo(__nB8RECNO))
 		If SB8->(RecLock("SB8",.F.))		

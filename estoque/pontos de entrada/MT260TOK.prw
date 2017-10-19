@@ -32,9 +32,10 @@ Public __nB8RECNO  := 0  // Recno do SB8
 Public __nBFRECNO  := 0  // Recno do SBF de Destino
 Public __aDCRECNO  := {} // Array com o(s) Recno(s) do SDC
 
-ConOut("Ponto de Entrada: MT260TOK")
-
 If cCodOrig = cCodDest .And. cLocOrig = cLocDest
+
+	ConOut("Ponto de Entrada: MT260TOK")
+
 	Begin Transaction
 		nB8Quant := Posicione("SB8",02,xFilial("SB8")+cNumLote+cLoteDigi+cCodOrig+cLocOrig,"B8_SALDO") - SB8->B8_QACLASS
 		nB8Emp   := SB8->B8_EMPENHO

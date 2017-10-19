@@ -32,10 +32,11 @@ Local nSldSB2   := SB2->(B2_QATU-B2_QEMP-B2_QACLASS-B2_RESERVA)
 Local nSldSBF   := 0
 Local nSldEnd   := 0
 
-ConOut("Ponto de Entrada: MTSLDLOT")
-
 // Somente no caso de reserva manual
 If !Empty(cLocaliz) .And. AllTrim(FunName()) $ ("MATA430")
+
+	ConOut("Ponto de Entrada: MTSLDLOT")
+
 	cEstFis := Posicione("SBF",01,xFilial("SBF")+cLocal+cLocaliz+cProduto+cNumSerie+cLoteCtl+cNumLote,"BF_ESTFIS")
 	
 	// Em caso de estrutura Picking
