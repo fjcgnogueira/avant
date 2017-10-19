@@ -77,32 +77,39 @@ Static Function Confirma(_cFilial)
 Local aRegistro   := {}
 Local nPosicao    := 0
 Local nFilial     := 0
+Local nTipo       := 0
 
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Le as informacoes do registro corrente                          ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+For nx := 1 to FCount()
+	AADD(aRegistro,FieldGet(nx))
+Next nx
 
-     //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-     //³ Le as informacoes do registro corrente                          ³
-     //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-     For nx := 1 to FCount()
-          AADD(aRegistro,FieldGet(nx))
-     Next nx
-
-     //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-     //³ Efetua a gravacao do novo registro                              ³
-     //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-     RecLock(Alias(),.T.)
-     For nx := 1 TO FCount()
-	 	  nFilial  := FieldPos("F4_FILIAL")
-          nPosicao := FieldPos("F4_CODIGO")
-          If nPosicao == nx
-               FieldPut(nx,cNewTes)
-		  ElseIf nFilial == nx
-		       FieldPut(nx,_cFilial)
-          Else
-               FieldPut(nx,aRegistro[nx])
-          Endif
-     Next nx
-     MsUnlock()
-     MsgBox("Tes copiada com Sucesso."+chr(10)+"Efetue as alteracoes necessarias na nova tes.")
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Efetua a gravacao do novo registro                              ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+RecLock(Alias(),.T.)
+For nx := 1 TO FCount()
+	nFilial  := FieldPos("F4_FILIAL")
+	nPosicao := FieldPos("F4_CODIGO")
+	nTipo    := FieldPos("F4_TIPO")
+	If nPosicao == nx
+		FieldPut(nx,cNewTes)
+	ElseIf nFilial == nx
+		FieldPut(nx,_cFilial)
+	ElseIf nTipo == nx
+		If cNewTes >= '500'
+			FieldPut(nx,"S")
+		Else
+			FieldPut(nx,"E")
+		Endif
+	Else
+		FieldPut(nx,aRegistro[nx])
+	Endif
+Next nx
+MsUnlock()
+MsgBox("Tes copiada com Sucesso."+chr(10)+"Efetue as alteracoes necessarias na nova tes.")
 
 Return
 
@@ -123,18 +130,16 @@ _lRet :=.T.
 _AREA := GETAREA()
 
 If SF4->(DbSeek(_cFilial+cNewTes))
-     MsgBox("Tes Já Cadastrada, escolha outra numeração.")
-     _lRet :=.F.
+	MsgBox("Tes Já Cadastrada, escolha outra numeração.")
+	_lRet :=.F.
 Endif
 
 If cOldTes < '500' .And. cNewTes >= '500'
-     ApMsgInfo("Tes de Entrada deve ser menor que 500.")
-     _lRet :=.F.
+	_lRet := MsgNoYes("Está sendo feita uma cópia de uma TES de Entrada para uma TES de Saída. Continua?")
 Endif
 
 If cOldTes >= '500' .And. cNewTes < '500'
-     ApMsgInfo("Tes de Saida deve ser maior que 500.")
-     _lRet :=.F.
+	_lRet := MsgNoYes("Está sendo feita uma cópia de uma TES de Saída para uma TES de Entrada. Continua?")
 Endif
 
 RESTAREA(_AREA)
