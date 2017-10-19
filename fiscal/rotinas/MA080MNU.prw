@@ -99,6 +99,7 @@ For nx := 1 TO FCount()
 	ElseIf nFilial == nx
 		FieldPut(nx,_cFilial)
 	ElseIf nTipo == nx
+		// Fernando Nogueira - Chamado 005344
 		If cNewTes >= '500'
 			FieldPut(nx,"S")
 		Else
