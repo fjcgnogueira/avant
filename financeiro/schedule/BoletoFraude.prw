@@ -4,6 +4,8 @@
 #INCLUDE "TbiConn.ch"
 #INCLUDE "AP5MAIL.CH"
 
+
+
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
@@ -16,7 +18,7 @@
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
 
-User Function BOLETOFRAUDE()
+User Function BOLETOFRAUDE(aParam)
 
 Local cLog     	 := ""
 Local cAssunto   := ""
@@ -24,46 +26,56 @@ Local _cPara     := ""
 Local cMailBCC   := ""
 Local oProcess  := Nil
 Local cArquivo  := "\MODELOS\BoletoFraude.html"
+Local aTabelas  := {"SE1","SA1"}
+Local cAlias1   := GetNextAlias()						// Pega o proximo Alias Disponivel
 
-oProcess := TWFProcess():New("BOLETOFRAUDE","INADIMPLENCIA")
-oProcess:NewTask("Enviando Relação de Clientes Inadimplentes",cArquivo)
-oHTML := oProcess:oHTML
+RpcClearEnv()
+RPCSetType(3)
+RpcSetEnv(aParam[1], aParam[2], NIL, NIL, "FIN", NIL, aTabelas)
 
 
-//Prepare Environment EMPRESA '01' FILIAL '010104'
+Prepare Environment EMPRESA '01' FILIAL '010104'
 
-BeginSql alias 'TRF'
+BeginSql alias cAlias1
 
 	SELECT RTRIM(A1_EMAIL) AS A1_EMAIL FROM %table:SA1% SA1 
-	WHERE SA1.%notDel% AND A1_COD = '020538'
+	WHERE SA1.%notDel% AND A1_EMAIL NOT IN ('ISENTO',' ')
+	AND A1_ULTCOM >= '20160101' AND LEFT(A1_EMAIL,1) > '9'
+	ORDER BY 1
 
 EndSql
 
 ConOut("[BoletoFraude] - Disparando e-mails")
 
-DbSelectArea('TRF')
-TRF->(DbGoTop())
+DbSelectArea(cAlias1)
+(cAlias1)->(DbGoTop())
 
-While TRF->(!Eof())
-	ConOut("teste 1")
-	_cPara     := TRF->A1_EMAIL
+While (cAlias1)->(!Eof())
+
+	oProcess := TWFProcess():New("BOLETOFRAUDE","INADIMPLENCIA")
+	oProcess:NewTask("Aviso de boletos fraudados",cArquivo)
+	oHTML := oProcess:oHTML
+
+	_cPara     := (cAlias1)->A1_EMAIL
 	cAssunto := "Avant - Comunicado importante sobre 'BOLETOS FALSOS'"
 	
 	oProcess:cSubject := "Avant - Comunicado importante sobre 'BOLETOS FALSOS'"
-	ConOut("teste 2")
+
 	oProcess:USerSiga := "000000"
 	oProcess:cTo      := _cPara
 	oProcess:cBCC     := cMailBCC
-	ConOut("teste 3")
+
 	oProcess:Start()
 	oProcess:Finish()
-	ConOut("teste 4")
-	//U_MHDEnvMail(_cPara, "", "", cAssunto, cLog, "")
-	//ConOut("Enviado para: "+ _cPara +","+ cMailBCC)
-	TRF->(DbSkip())
+
+	ConOut("Enviado para: "+ alltrim(_cPara) +","+ alltrim(cMailBCC))
+	(cAlias1)->(DbSkip())
+	
 End
 
 ConOut("[BoletoFraude] - Finalizado")
+
+(cAlias1)->(dbCloseArea())
 
 Return
 
