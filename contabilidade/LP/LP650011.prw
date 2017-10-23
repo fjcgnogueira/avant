@@ -21,7 +21,7 @@ User Function LP650011()
 
 	Local _cNumFat := " "
 
-	_cNumFat := "NEFRE "+If(IsMemVar("cDocCon"),cDocCon,POSICIONE("GW3","A",xFilial("GW3")+(POSICIONE("SA2",1,xFilial("SA2")+SF1->(F1_FORNECE+F1_LOJA),"A2_CGC"))+SF1->(F1_SERIE+"  "+F1_DOC),"GW3_NRFAT"))+"/"+SF1->F1_DOC+" "+LEFT(SA2->A2_NOME,14)
+	_cNumFat := "NEFRE "+If(IsMemVar("cDocCon"),cDocCon,POSICIONE("GW3",10,xFilial("GW3")+(POSICIONE("SA2",1,xFilial("SA2")+SF1->(F1_FORNECE+F1_LOJA),"A2_CGC"))+SF1->(F1_SERIE+"  "+F1_DOC),"GW3_NRFAT"))+"/"+SF1->F1_DOC+" "+LEFT(SA2->A2_NOME,14)
 
 Return(_cNumFat)
 
