@@ -61,6 +61,8 @@ While (cAliasTRB)->(!Eof())
 
 End
 
+(cAliasTRB)->(dbCloseArea())
+
 Return
 
 /*
