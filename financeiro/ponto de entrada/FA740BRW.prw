@@ -104,8 +104,8 @@ Private nTempArq := 2
 Private cBordero := MV_PAR01
 Private cLocDir  := "\workflow\xmlnfe\" + cBordero + "\"
 Private cCompact := "\workflow\xmlnfe\" + cBordero + ".rar"
-Private cLocRar  := "E:\Protheus_data\workflow\xmlnfe\" + cBordero
-Private cArqRar  := "E:\Protheus_data\workflow\WinRAR\Rar.exe a -s -m5 E:\Protheus_data\workflow\xmlnfe\" + cBordero + ".rar"
+Private cLocRar  := "D:\Protheus_data\workflow\xmlnfe\" + cBordero
+Private cArqRar  := "D:\Protheus_data\workflow\WinRAR\Rar.exe a -s -m5 D:\Protheus_data\workflow\xmlnfe\" + cBordero + ".rar"
 Private lEnviou  := .F.
 
 aAdd(aArrBut, {1, .T., {|| lExeFun := .T., FechaBatch()}})
