@@ -33,6 +33,7 @@ Local cRepres    := ""
 Local nTotSaldo  := 0
 Local _cMascara  := "@E 999,999,999.99"
 Local nTeste := ""
+Local cVenc := ""
 
 RpcClearEnv()
 RPCSetType(3)
@@ -56,14 +57,8 @@ ConOut("Data de corte: " +cDtcorte)
 BeginSql alias cAlias1
 
 	SELECT A3_COD AS VEND, A3_NOME AS Representante, A3_EMAIL AS Email, A1_NOME AS Cliente, 
-	CASE 
-		WHEN E1_FILIAL = '010104' THEN 'SANTA CATARINA - SC'
-		WHEN E1_FILIAL = '010103' THEN 'SAO FRANCISCO - BA'
-		WHEN E1_FILIAL = '010102' THEN 'PINHAIS'
-		WHEN E1_FILIAL = '010101' THEN 'MATRIZ'
-	ELSE E1_FILIAL 
-	END AS Filial,
-    E1_NUM AS Titulo, E1_PARCELA AS Parcela, E1_VENCREA AS Vencimento, E1_VALOR AS Valor, E1_SALDO AS Saldo, A1_CGC AS CNPJ FROM %table:SE1% SE1
+	E1_FILIAL AS Filial,
+    E1_NUM AS Titulo, E1_PARCELA AS Parcela, CONVERT(VARCHAR(12),CAST(E1_VENCREA AS DATE),103) AS Vencimento, E1_VALOR AS Valor, E1_SALDO AS Saldo, A1_CGC AS CNPJ FROM %table:SE1% SE1
 	INNER JOIN %table:SA1% SA1 ON E1_CLIENTE+E1_LOJA = A1_COD+A1_LOJA AND SA1.%notDel%
 	INNER JOIN %table:SA3% SA3 ON A1_VEND = A3_COD AND SA3.%notDel%
 	WHERE SE1.%notDel%
@@ -85,30 +80,32 @@ While (cAlias1)->(!Eof())
 	cRepres   := (cAlias1)->Representante
 	cAssunto  := "INADIMPLENCIA - " + cRepres
 	_cPara    := (cAlias1)->Email
-	cTotSaldo := 0
+	nTotSaldo := 0
+	
+	oProcess := TWFProcess():New("INADREP","INADIMPLENCIA REPRESENTANTES")
+	oProcess:NewTask("Enviando Relacao de Clientes Inadimplentes",cArquivo)
+	oHTML := oProcess:oHTML
 	
 	While cVend == (cAlias1)->VEND
-		
-		oProcess := TWFProcess():New("INADREP","INADIMPLENCIA REPRESENTANTES")
-		oProcess:NewTask("Enviando Relacao de Clientes Inadimplentes",cLog)
-		oHTML := oProcess:oHTML
+	
+		cVenc := CtoD((cAlias1)->Vencimento)
 		
 		aAdd((oHTML:ValByName("aR.cCli")),  (cAlias1)->Cliente)
 		aAdd((oHTML:ValByName("aR.cCNPJ")), (cAlias1)->CNPJ)
-		aAdd((oHTML:ValByName("aR.cFili	")), (cAlias1)->Filial)
+		aAdd((oHTML:ValByName("aR.cFili	")), Transform((cAlias1)->Filial, PesqPict("SE1","E1_FILIAL")))
 		aAdd((oHTML:ValByName("aR.cTit")),  (cAlias1)->Titulo)
 		aAdd((oHTML:ValByName("aR.cPar")),  (cAlias1)->Parcela)
-		aAdd((oHTML:ValByName("aR.cVenc")), (cAlias1)->Vencimento)
-		aAdd((oHTML:ValByName("aR.cVlr")),  (cAlias1)->Valor)
-		aAdd((oHTML:ValByName("aR.cSld")),  (cAlias1)->Saldo)
+		aAdd((oHTML:ValByName("aR.cVenc")), cVenc)
+		aAdd((oHTML:ValByName("aR.cVlr")),  Transform((cAlias1)->Valor, PesqPict("SE1","E1_VALOR")))
+		aAdd((oHTML:ValByName("aR.cSld")),  Transform((cAlias1)->Saldo, PesqPict("SE1","E1_VALOR")))
 		
-		nTotSaldo := nTotSaldo + (cAlias1)->Saldo
+		nTotSaldo += (cAlias1)->Saldo
 		
 		(cAlias1)->(DbSkip())
 		
 	End
 	
-	aAdd((oHTML:ValByName("cTotal")), nTotSaldo)
+	aAdd((oHTML:ValByName("cTotal")), Transform(nTotSaldo, PesqPict("SE1","E1_VALOR")))
 	
 	oProcess:cSubject := cAssunto
 
