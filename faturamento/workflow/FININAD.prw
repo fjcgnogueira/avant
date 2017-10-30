@@ -24,7 +24,7 @@ Local _cCcopia   := "rogerio.machado@avantlux.com.br"
 Local cMailBCC   := ""
 Local oProcess  := Nil
 Local cArquivo  := "\MODELOS\INADREP.html"
-Local aTabelas  := {"SE1","SA1"}
+Local aTabelas  := {"SE1","SA1","SA3"}
 Local cAlias1   := GetNextAlias()						// Pega o proximo Alias Disponivel
 Local cLog     	 := ""
 Local cDtcorte   := ""
@@ -89,18 +89,18 @@ While (cAlias1)->(!Eof())
 	
 	While cVend == (cAlias1)->VEND
 		
-		oProcess := TWFProcess():New("INADREP","INADREP")
+		oProcess := TWFProcess():New("INADREP","INADIMPLENCIA REPRESENTANTES")
 		oProcess:NewTask("Enviando Relacao de Clientes Inadimplentes",cLog)
 		oHTML := oProcess:oHTML
 		
-		aAdd((oHTML:ValByName("aR.cCli")), (cAlias1)->Cliente)
+		aAdd((oHTML:ValByName("aR.cCli")),  (cAlias1)->Cliente)
 		aAdd((oHTML:ValByName("aR.cCNPJ")), (cAlias1)->CNPJ)
 		aAdd((oHTML:ValByName("aR.cFili	")), (cAlias1)->Filial)
-		aAdd((oHTML:ValByName("aR.cTit")), (cAlias1)->Titulo)
-		aAdd((oHTML:ValByName("aR.cPar")), (cAlias1)->Parcela)
+		aAdd((oHTML:ValByName("aR.cTit")),  (cAlias1)->Titulo)
+		aAdd((oHTML:ValByName("aR.cPar")),  (cAlias1)->Parcela)
 		aAdd((oHTML:ValByName("aR.cVenc")), (cAlias1)->Vencimento)
-		aAdd((oHTML:ValByName("aR.cVlr")), (cAlias1)->Valor)
-		aAdd((oHTML:ValByName("aR.cSld")), (cAlias1)->Saldo)
+		aAdd((oHTML:ValByName("aR.cVlr")),  (cAlias1)->Valor)
+		aAdd((oHTML:ValByName("aR.cSld")),  (cAlias1)->Saldo)
 		
 		nTotSaldo := nTotSaldo + (cAlias1)->Saldo
 		
