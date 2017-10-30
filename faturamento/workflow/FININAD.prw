@@ -16,22 +16,31 @@
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
 
-User Function INADREP()
+User Function INADREP(aParam)
 
-Local cLog     	 := ""
-Local cFim       := "</body></html>"
 Local cAssunto   := ""
 Local _cPara     := ""
-Local _cCcopia   := ""
+Local _cCcopia   := "rogerio.machado@avantlux.com.br"
+Local cMailBCC   := ""
+Local oProcess  := Nil
+Local cArquivo  := "\MODELOS\INADREP.html"
+Local aTabelas  := {"SE1","SA1"}
+Local cAlias1   := GetNextAlias()						// Pega o proximo Alias Disponivel
+Local cLog     	 := ""
 Local cDtcorte   := ""
 Local cVend		 := ""
 Local cRepres    := ""
-Local cTotSaldo  := 0
+Local nTotSaldo  := 0
 Local _cMascara  := "@E 999,999,999.99"
 Local nTeste := ""
 
+RpcClearEnv()
+RPCSetType(3)
+RpcSetEnv(aParam[1], aParam[2], NIL, NIL, "FIN", NIL, aTabelas)
+
 
 Prepare Environment EMPRESA '01' FILIAL '010104'
+
 
 cDtcorte := Dtos(date()-3)
 
@@ -44,17 +53,17 @@ EndIf
 ConOut("Data de corte: " +cDtcorte)
 
 
-BeginSql alias 'TRC'
+BeginSql alias cAlias1
 
 	SELECT A3_COD AS VEND, A3_NOME AS Representante, A3_EMAIL AS Email, A1_NOME AS Cliente, 
 	CASE 
 		WHEN E1_FILIAL = '010104' THEN 'SANTA CATARINA - SC'
-		WHEN E1_FILIAL = '010103' THEN 'SÃO FRANCISCO - BA'
+		WHEN E1_FILIAL = '010103' THEN 'SAO FRANCISCO - BA'
 		WHEN E1_FILIAL = '010102' THEN 'PINHAIS'
 		WHEN E1_FILIAL = '010101' THEN 'MATRIZ'
 	ELSE E1_FILIAL 
 	END AS Filial,
-	 E1_NUM AS Titulo, E1_PARCELA AS Parcela, E1_VENCREA AS Vencimento, E1_SALDO AS Saldo, A1_CGC AS CNPJ FROM %table:SE1% SE1
+    E1_NUM AS Titulo, E1_PARCELA AS Parcela, E1_VENCREA AS Vencimento, E1_VALOR AS Valor, E1_SALDO AS Saldo, A1_CGC AS CNPJ FROM %table:SE1% SE1
 	INNER JOIN %table:SA1% SA1 ON E1_CLIENTE+E1_LOJA = A1_COD+A1_LOJA AND SA1.%notDel%
 	INNER JOIN %table:SA3% SA3 ON A1_VEND = A3_COD AND SA3.%notDel%
 	WHERE SE1.%notDel%
@@ -62,90 +71,58 @@ BeginSql alias 'TRC'
 	AND E1_TIPO IN ('NF')
 	AND A3_MSBLQL = '2'
 	AND E1_VENCREA <= %exp:cDtcorte%
-	ORDER BY A3_COD, A3_NOME, A1_NOME, E1_FILIAL, E1_NUM, E1_PARCELA
+	AND A3_COD = '000978'
+	ORDER BY A3_COD, A1_NOME, E1_FILIAL, E1_NUM, E1_PARCELA
 
 EndSql
 
-ConOut("Iniciado INADREP()")
+ConOut("[INADREP] - Iniciando disparos aos RCs")
 
-TRC->(DbGoTop())
+(cAlias1)->(DbGoTop())
 
-While TRC->(!Eof())
-	cVend     := TRC->VEND
-	cRepres   := TRC->Representante
+While (cAlias1)->(!Eof())
+	cVend     := (cAlias1)->VEND
+	cRepres   := (cAlias1)->Representante
+	cAssunto  := "INADIMPLENCIA - " + cRepres
+	_cPara    := (cAlias1)->Email
 	cTotSaldo := 0
-	cAssunto  := ""
-	_cPara     := ""
-	cLog := ""
-	cLog += "<html><body>"
 	
-	cLog += "<span style='color: rgb(1, 0, 0);'></span>"
-	cLog += "Caro representante,
-	cLog += "<br>"
-	cLog += "<br>"
-	cLog += "Abaixo segue sua carteira de inadimplentes. Pedimos a gentileza, de entrar em contato o mais breve possível com seus clientes, solicitando os comprovantes de pagamentos e encaminhando a Sede (Cobrança Avant) para efetivação das baixas e liberação do sistema para novos pedidos. "
-	cLog += "<br>"
-	cLog += "<br>"
-	cLog += "Em caso de dúvidas, 0xx11 3355-2222 – marcelino.goncalves@avantlux.com.br - Financeiro / Setor Cobrança."
-	cLog += "<br>"
-	cLog += "<br>"
-	cLog += "<strong>Atenção!! E-mail enviado automaticamente pelo sistema. Utilize os contatos acima para qualquer questionamento. </strong>"
-	cLog += "<br>"
-	cLog += "<br>"	
-	cLog += "<table style='text-align: left; width: 100%;' border='1'"
- 	cLog += "cellpadding='2' cellspacing='2'>"
-	cLog += "<tbody>"
-   	cLog += "<tr align='center'>"
-	cLog += "<td style='background-color: rgb(191, 225, 214);'"
-	cLog += "colspan='8' rowspan='1'><span"
-	cLog += "style='font-weight: bold;'><strong>Relação de Títulos em Aberto</strong></span></td>"
-	cLog += "</tr>"
-	cLog += "</tbody>"
-	cLog += "<span style='color: rgb(1, 0, 0);'>"
-	cLog += "</span>"
-  	cLog += "<tbody>"
-   	cLog += "<tr align='center'>"
-   	cLog += "<td style='background-color: rgb(191, 225, 214);'"
- 	cLog += "colspan='8' rowspan='1'><span"
- 	cLog += "style='font-weight: bold;'><strong>" + cRepres + "</strong></span></td>"
-  	cLog += "</tr>"
-    
-	cLog += "<tr>"
-	cLog += "<td><p align='center' class='style1'><strong>Cliente</strong></p></td>"
-	cLog += "<td><p align='center' class='style1'><strong>Filial</strong></p></td>"
-	cLog += "<td><p align='center' class='style1'><strong>Título</strong></p></td>"
-	cLog += "<td><p align='center' class='style1'><strong>Parcela</strong></p></td>"
-	cLog += "<td><p align='center' class='style1'><strong>Vencimento</strong></p></td>"
-	cLog += "<td><p align='center' class='style1'><strong>Saldo</strong></p></td>"
-	cLog += "<td><p align='center' class='style1'><strong>CNPJ</strong></p></td>"
-	cLog += "</tr>"
-	While(!Eof('TRC')) .AND. cVend = TRC->VEND
-			cLog += "<tr>"
-			cLog += "<td>" + CValToChar(TRC->Cliente) + "</td>"
-			cLog += "<td>" + CValToChar(TRC->Filial)  + "</td>"
-			cLog += "<td>" + CValToChar(TRC->Titulo)  + "</td>"
-			cLog += "<td>" + CValToChar(TRC->Parcela) + "</td>"
-			cLog += "<td>" + CValToChar(StoD(TRC->Vencimento)) + "</td>"			
-			cLog += "<td>" + Transform(TRC->Saldo, _cMascara)  + "</td>"
-			cTotSaldo += TRC->Saldo
-			cLog += "<td>" + CValToChar(TRC->CNPJ)    + "</td>"
-			cLog += "</tr>"
-			_cPara := TRC->Email
-			//_cPara := " "
-			_cCcopia := "rogerio.machado@avantlux.com.br"
-			DbSkip()
+	While cVend == (cAlias1)->VEND
+		
+		oProcess := TWFProcess():New("INADREP","INADREP")
+		oProcess:NewTask("Enviando Relacao de Clientes Inadimplentes",cLog)
+		oHTML := oProcess:oHTML
+		
+		aAdd((oHTML:ValByName("aR.cCli")), (cAlias1)->Cliente)
+		aAdd((oHTML:ValByName("aR.cCNPJ")), (cAlias1)->CNPJ)
+		aAdd((oHTML:ValByName("aR.cFili	")), (cAlias1)->Filial)
+		aAdd((oHTML:ValByName("aR.cTit")), (cAlias1)->Titulo)
+		aAdd((oHTML:ValByName("aR.cPar")), (cAlias1)->Parcela)
+		aAdd((oHTML:ValByName("aR.cVenc")), (cAlias1)->Vencimento)
+		aAdd((oHTML:ValByName("aR.cVlr")), (cAlias1)->Valor)
+		aAdd((oHTML:ValByName("aR.cSld")), (cAlias1)->Saldo)
+		
+		nTotSaldo := nTotSaldo + (cAlias1)->Saldo
+		
+		(cAlias1)->(DbSkip())
+		
 	End
-	cLog += "<td  align='center' style='background-color: rgb(191, 225, 214);' colspan='8' rowspan='1'><strong>Total: " + Transform(cTotSaldo, _cMascara) + "</strong></td>"	
-	cLog += "</tbody>
-	cLog += "</table>"
-	cLog += "<br>"
-	cLog += cFim
-	cAssunto := "TÍTULOS EM ABERTO - " + cRepres
-	U_MHDEnvMail(_cPara, _cCcopia, "", cAssunto, cLog, "")
-	ConOut("Enviado para: "+ _cPara +"; "+ _cCcopia)
+	
+	aAdd((oHTML:ValByName("cTotal")), nTotSaldo)
+	
+	oProcess:cSubject := cAssunto
+
+	oProcess:USerSiga := "000000"
+	oProcess:cTo      := _cPara
+	oProcess:cBCC     := _cCcopia
+
+	oProcess:Start()
+	oProcess:Finish()
+	
+	ConOut("[INADREP ENVIADO PARA]: "+ _cPara +", "+ _cCcopia)
 End
 
-ConOut("Finalizado INADREP()")
+ConOut("[FINALIZANDO INADREP]")
 
 Return
 
@@ -169,7 +146,7 @@ User Function INADNAC()
 	Local cFim       := "</body></html>"
 	Local cAssunto   := ""
 	Local _cPara     := ""
-	Local _cCcopia   := ""
+	Local _cCcopia   := "rogerio.machado@avantlux.com.br"
 	Local cDtcorte   := ""
 	Local cVend		 := ""
 	Local cRepres    := ""
