@@ -20,7 +20,7 @@ User Function INADREP(aParam)
 
 Local cAssunto   := ""
 Local _cPara     := ""
-Local _cCcopia   := "rogerio.machado@avantlux.com.br"
+Local _cCcopia   := "rogerio.machado@avantlux.com.br, cobranca@avantlux.com.br"
 Local cMailBCC   := ""
 Local oProcess  := Nil
 Local cArquivo  := "\MODELOS\INADREP.html"
@@ -66,7 +66,6 @@ BeginSql alias cAlias1
 	AND E1_TIPO IN ('NF')
 	AND A3_MSBLQL = '2'
 	AND E1_VENCREA <= %exp:cDtcorte%
-	AND A3_COD = '000978'
 	ORDER BY A3_COD, A1_NOME, E1_FILIAL, E1_NUM, E1_PARCELA
 
 EndSql
@@ -92,7 +91,7 @@ While (cAlias1)->(!Eof())
 		
 		aAdd((oHTML:ValByName("aR.cCli")),  (cAlias1)->Cliente)
 		aAdd((oHTML:ValByName("aR.cCNPJ")), (cAlias1)->CNPJ)
-		aAdd((oHTML:ValByName("aR.cFili	")), Transform((cAlias1)->Filial, PesqPict("SE1","E1_FILIAL")))
+		aAdd((oHTML:ValByName("aR.cFili")), (cAlias1)->Filial)
 		aAdd((oHTML:ValByName("aR.cTit")),  (cAlias1)->Titulo)
 		aAdd((oHTML:ValByName("aR.cPar")),  (cAlias1)->Parcela)
 		aAdd((oHTML:ValByName("aR.cVenc")), cVenc)
@@ -105,7 +104,7 @@ While (cAlias1)->(!Eof())
 		
 	End
 	
-	aAdd((oHTML:ValByName("cTotal")), Transform(nTotSaldo, PesqPict("SE1","E1_VALOR")))
+	oHTML:ValByName("cTotal" , Transform(nTotSaldo, PesqPict("SE1","E1_VALOR")))
 	
 	oProcess:cSubject := cAssunto
 
