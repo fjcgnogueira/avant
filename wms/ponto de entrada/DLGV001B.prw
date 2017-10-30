@@ -105,7 +105,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 		Endif
 		(cAlias5SDB)->(dbCloseArea())
 
-		If SDB->DB_RECHUM <> cRecHum .And. SDB->(RecLock("SDB",.F.))
+		If SDB->DB_RECHUM <> cRecHum .And. Empty(SDB->DB_ESTORNO) .And. SDB->(RecLock("SDB",.F.))
 			SDB->DB_RECHUM  := cRecHum
 			SDB->(MsUnlock())
 		Endif
@@ -153,7 +153,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 		EndSQL
 
 		(cAlias3SDB)->(dbGoTop())
-		
+
 		// Verifica se tem alguma conferencia com o mesmo recurso humano
 		BeginSQL Alias cAlias6SDB
 			SELECT * FROM %table:SDB% SDB
@@ -231,7 +231,7 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 			(cAlias2SDB)->(dbCloseArea())
 
 			If aReturn[1]
-			
+
 				// Verifica se tem alguma conferencia diferente do recurso humano atual ou com o status 2
 				BeginSQL Alias cAlias7SDB
 					SELECT * FROM %table:SDB% SDB
@@ -245,9 +245,9 @@ If lConvoca .And. cFuncao $ ('DLCONFEREN().DLAPANHE()')
 						AND (DB_RECHUM   <> %Exp:cRecHum% OR DB_STATUS = '2')
 						AND DB_X_STATU   = ' '
 				EndSQL
-		
+
 				(cAlias7SDB)->(dbGoTop())
-				
+
 				If (cAlias7SDB)->(!Eof())
 					(cAlias7SDB)->(dbCloseArea())
 					U_DefRecHum(cLocal,cPedido,cTarefa,cRecHum,cStatus,cStAnt)
@@ -294,6 +294,7 @@ BeginSQL Alias cAlias4SDB
 		AND DB_FILIAL    = %Exp:xFilial("SDB")%
 		AND DB_STATUS    <> '1'
 		AND DB_X_STATU   = ' '
+		AND DB_TIPO      = 'E'
 		AND DB_TAREFA    = %Exp:cTarefa%
 		AND DB_DOC       = %Exp:cPedido%
 		AND DB_LOCAL     = %Exp:cLocal%
