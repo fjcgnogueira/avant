@@ -109,6 +109,11 @@ User Function DV070QTD()
 					nQtdAtu := __aProdAtu[nPos][04] / SB1->B1_CONV + nQtde
 				Endif
 
+				If SDB->(RecLock("SDB",.F.))
+					SDB->DB_QTDLID := nQtdAtu
+					SDB->(MsUnLock())
+				Endif
+
 				dbSelectArea("SC9")
 				dbSetOrder(9)
 				dbSeek(xFilial("SC9")+SDB->DB_IDDCF)
