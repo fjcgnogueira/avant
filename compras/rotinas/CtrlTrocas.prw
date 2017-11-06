@@ -69,10 +69,10 @@ If SZH->(dbSeek(xFilial()+SF1->F1_NUMTRC))
 		&("M->"+x3_campo):= &("SZH->"+x3_campo)
 		dbSkip()
 	End
-	
+
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	//³ Campos carregados no aHeader                                 ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ		
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 	dbSelectArea("SX3")
 	dbSeek("SZI")
 	aHeader:={}
@@ -96,7 +96,7 @@ If SZH->(dbSeek(xFilial()+SF1->F1_NUMTRC))
 		Endif
 	    dbSkip()
 	End
-	
+
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	//³ Carga do aCols                                               ³
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
@@ -121,28 +121,28 @@ If SZH->(dbSeek(xFilial()+SF1->F1_NUMTRC))
 	          dbSkip()
 	     End
 	Endif
-	
+
 	If Len(aCols) > 0
 	    //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	    //³ Executa a Modelo 3                                  ³
 	    //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	    
+
 	    aAdd( aBotoes,{"ANEXO"  ,{|| MsAnxItem() },"Anexo"  })
 	    aAdd( aBotoes,{"ANALISE",{|| AnaliseTRC()},"Analise"})
-	    
+
 	    nPosQtd  := aScan(aHeader,{|x| AllTrim(x[2]) == "ZI_QUANT"})
     	nPosVlr  := aScan(aHeader,{|x| AllTrim(x[2]) == "ZI_VLRTOTA"})
-    	
+
     	For J := 1 To Len(aCols)
 			If !aCols[J,Len(aHeader)+1]
 				nQtdTot += aCols[J,nPosQtd]
 				nVlrTot += aCols[J,nPosVlr]
 			Endif
 		Next J
-    		
+
 	    lRetMod3 := U_ModeloFN(cTitulo, cAliasEnch, cAliasGetDad, aCpoEnCh, cLinOk, cTudOk, nOpcE, nOpcG, cFieldOk, , , , , aBotoes)
-	    
-	    /* 
+
+	    /*
 		Modelo3[1]  -> C (    7) [CTITULO]      Titulo do(a) "Dialog"/Janela
 		Modelo3[2]  -> C (    7) [CALIAS1]      Alias Usado na Enchoice
 		Modelo3[3]  -> C (    7) [CALIAS2]      Alias Usado na Alias da GetDados
@@ -159,67 +159,67 @@ If SZH->(dbSeek(xFilial()+SF1->F1_NUMTRC))
 		Modelo3[14] -> C (    8) [ABUTTONS]     Botoes a serem disponibizados na EnchoiceBar
 		Modelo3[15] -> C (    6) [ACORDW]       Coordenadas do(a) "Dialog"/janela
 		Modelo3[16] -> C (   11) [NSIZEHEADER]  Valor para Alinhamento dos Objetos
-		*/	     
-	     
+		*/
+
 	    //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	    //³ Executar processamento                              ³
 	    //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 	    If lRetMod3
 	    	//Aviso("Controle de Trocas","Operação Confirmada!",{"Ok"})
-	    	
+
 			// Grava Cabecalho
 			DbSelectArea("SZH")
 			If ALTERA .or. INCLUI
-				DbGoTo(nReg)			
+				DbGoTo(nReg)
 			EndIf
-			
+
 			If ALTERA .or. INCLUI
-		
+
 				/*SZH->(RecLock("SZH",INCLUI))
-				
+
 				// Grava campos que nao estao disponiveis na tela
 				SZH->ZH_FILIAL	:= xFilial("SZH")
 				If INCLUI
 					SZH->ZH_STATUS := "1"
 				EndIf
 				AEval(aCposSZH, {|x,y| If(!(Alltrim(x[2])$"") .and. x[10]<>"V" , FieldPut(FieldPos(x[2]),&("M->"+x[2])) , .F. ) })
-				
+
 				MsUnLock()*/
-		
+
 			ElseIf EXCLUI
-		
+
 				RecLock("SZI",INCLUI)
 					DbDelete()
 				MsUnLock()
-			
+
 			EndIf
-			
+
 			// Grava Itens
 			DbSelectArea("SZI")
 			For _nX := 1 To Len(aCols)
-				
+
 				If (aCols[_nX,Len(aHeader)+1] .And. Len(aRecnosSZI) <= _nX) .or. EXCLUI // Deletado
-				
+
 					DbGoto(aRecnosSZI[_nX])
 					RecLock("SZI",.F.)
 						DbDelete()
 					MsUnLock()
-				
+
 				ElseIf INCLUI .or. Len(aRecnosSZI) < _nX
 
 					RecLock("SZI",.T.)
 						SZI->ZI_FILIAL	:= xFilial("SZI")
 						SZI->ZI_NUMTRC	:= SF1->F1_NUMTRC
-						AEval(aHeader, {|x,y|  If(!(Alltrim(x[2])$"") .and. x[10]<>"V" , FieldPut(FieldPos(x[2]),aCols[_nX,y]) , .F. ) })	
+						AEval(aHeader, {|x,y|  If(!(Alltrim(x[2])$"") .and. x[10]<>"V" , FieldPut(FieldPos(x[2]),aCols[_nX,y]) , .F. ) })
 					MsUnLock()
-				
+
 				ElseIf ALTERA
-		
+
 					DbGoto(aRecnosSZI[_nX])
 					RecLock("SZI",.F.)
 						AEval(aHeader, {|x,y|  If(!(Alltrim(x[2])$"") .and. x[10]<>"V" , FieldPut(FieldPos(x[2]),aCols[_nX,y]) , .F. )  })
 					MsUnLock()
-				
+
 				EndIf
 			Next
 	    Endif
@@ -228,7 +228,7 @@ Else
 	ApMsgAlert("Essa nota não é de Troca")
 Endif
 
-Return 
+Return
 
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
@@ -261,7 +261,7 @@ Eval(oDlg:Cargo,nQtdTot,nVlrTot)
 If aCols[n,Len(aHeader)+1] .And. !Empty(GdFieldGet('ZI_NFORI'))
 	ApMsgInfo('Não pode deletar item original.')
 	Return .F.
-ElseIf !aCols[n,Len(aHeader)+1] .And. Empty(GdFieldGet('ZI_NFORI')) .And. GdFieldGet('ZI_QTDTRC') == 0
+ElseIf !aCols[n,Len(aHeader)+1] .And. Empty(GdFieldGet('ZI_NFORI')) .And. FwFldGet('ZI_QTDTRC') == 0
 	ApMsgInfo('Item não original deve ter quantidade de troca.')
 	Return .F.
 Else
@@ -336,22 +336,22 @@ Static Function Grv_Anexo(_cAnexo)
 
 	cDirDest := '\web\ws\trocas\'+M->ZH_NUMTRC
 	MakeDir(cDirDest)
-    
+
 	CpyT2S(AllTrim(_cAnexo), cDirDest, .F.)
-	
+
 	cArqOrig  := cDirDest+'\'+cNomeAnt
 	cNomeNovo := cDirDest+'\'+M->ZH_NUMTRC+'_'+StrZero(nItem,4)+'_'+StrZero(nFoto,2)+'.JPG'
-	
+
 	While File(cNomeNovo)
 		nFoto++
 		cNomeNovo := cDirDest+'\'+M->ZH_NUMTRC+'_'+StrZero(nItem,4)+'_'+StrZero(nFoto,2)+'.JPG'
 	End
-	
+
 	// Deixa somente o nome do arquivo, sem o caminho de pastas
 	While At("\",cNomeAnt) > 0
 		cNomeAnt := SubStr(cNomeAnt,At("\",cNomeAnt)+1,Len(cNomeAnt))
-	End		
-	
+	End
+
 	// Renomeia o Arquivo
 	cNomeAnt := cDirDest + '\' + cNomeAnt
 	If FRename(cNomeAnt,cNomeNovo) <> -1
@@ -377,7 +377,7 @@ Static Function AnaliseTRC()
 	Local nRet	      := 0
 	Local nPosItemTrc := aScan(aHeader,{|x| AllTrim(x[2]) == "ZI_ITEM"})
 	Local cExprFilTop := "(ZO_FILIAL+ZO_NUMTRC+ZO_ITEMTRC = '"+AllTrim(SM0->M0_CODFIL)+SF1->F1_NUMTRC+aCols[n][nPosItemTrc]+"')"
-	
+
 	Private cString
 	Private cAlias		:= "SZO"
 	Private cCadastro 	:= "Analise de Trocas"
@@ -386,13 +386,13 @@ Static Function AnaliseTRC()
 	             		 {"Incluir"   	,"U_CtrlTrInc" ,0,3} ,;
 	             		 {"Alterar"    	,"AxAltera"    ,0,4} ,;
 	             		 {"Excluir"		,"AxDeleta"    ,0,5} }
-	             		 
-	Private cDelFunc 	:= ".T." 
+
+	Private cDelFunc 	:= ".T."
 	Private cString 	:= "SZO"
 
 	DbSelectArea("SZO")
 	DbSetOrder(1)
-	
+
 	mBrowse(6,1,22,75,"SZO",,,,,,,,,,,,,,cExprFilTop)
 
 Return()
@@ -500,9 +500,9 @@ Return(StrZero(nNumAnalise,4))
 User Function ModeloFN(cTitulo,cAlias1,cAlias2,aMyEncho,cLinOk,cTudoOk,nOpcE,nOpcG,cFieldOk,lVirtual,nLinhas,aAltEnchoice,nFreeze,aButtons,aCordW,nSizeHeader)
 Local lRet, nOpca := 0,cSaveMenuh,nReg:=(cAlias1)->(Recno())//,oDlg
 Local oEnchoice
-Local nDlgHeight   
+Local nDlgHeight
 Local nDlgWidth
-Local nDiffWidth := 0 
+Local nDiffWidth := 0
 Local lMDI := .F.
 Local aPosObj  := {}
 Local aObjects := {}
@@ -528,7 +528,7 @@ If SetMDIChild()
 	nDlgWidth := oMainWnd:nWidth
 	lMdi := .T.
 	nDiffWidth := 0
-Else           
+Else
 	nDlgHeight := 420
 	nDlgWidth	:= 632
 	nDiffWidth := 1
@@ -554,7 +554,7 @@ If lMdi
 	oDlg:lMaximized := .T.
 EndIf
 
-oEnchoice := Msmget():New(cAlias1,nReg,nOpcE,,,,aMyEncho,{13,1,(nSizeHeader/2)+13,If(lMdi, (oMainWnd:nWidth/2)-2,__DlgWidth(oDlg)-nDiffWidth)},aAltEnchoice,3,,,,oDlg,,lVirtual,,,,,,,,.T.)       
+oEnchoice := Msmget():New(cAlias1,nReg,nOpcE,,,,aMyEncho,{13,1,(nSizeHeader/2)+13,If(lMdi, (oMainWnd:nWidth/2)-2,__DlgWidth(oDlg)-nDiffWidth)},aAltEnchoice,3,,,,oDlg,,lVirtual,,,,,,,,.T.)
 
 nGetLin := aPosObj[3,1]
 @ nGetLin+10,aPosGet[1,1]  SAY "Qtd. Original :"  SIZE 040,09 OF oDlg PIXEL

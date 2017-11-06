@@ -9,7 +9,7 @@
 +---------------------------------------------------------------------------+
 |    Sintaxe:  U_AVFATA13()
 +----------------------------------------------------------------------------
-|    Retorno:  Nulo                                                               
+|    Retorno:  Nulo
 +--------------------------------------------------------------------------*/
 
 User Function AVFATA13()
@@ -234,11 +234,11 @@ Begin Transaction
 		EndDo
 	Else
 		For nLinha := 1 to Len(oGetD:aCols)
-			
+
 			DbSelectArea("SZX")
 			SZX->(DbSetOrder(1))
 
-			If SZX->(DbSeek(xFilial("SZX") + M->ZX_CODPREV + M->ZX_ANO + GdFieldGet("ZX_CODPROD",nLinha,,oGetD:aHeader,oGetD:aCols)))	//Alteração | Encontrou o registro
+			If SZX->(DbSeek(xFilial("SZX") + M->ZX_CODPREV + M->ZX_ANO + FwFldGet("ZX_CODPROD",nLinha,,oGetD:aHeader,oGetD:aCols)))	//Alteração | Encontrou o registro
 				If GdDeleted(nLinha,oGetD:aHeader,oGetD:aCols)		// Se a linha estiver deletada
 					RecLock("SZX",.F.)
 					SZX->(DbDelete())
@@ -254,18 +254,18 @@ Begin Transaction
 					lInclusao := .T.
 				EndIf
 			EndIf
-			
+
 			If lInclusao
 				RecLock("SZX",.T.)
 				SZX->ZX_FILIAL	:= xFilial("SZX")
-				SZX->ZX_CODPREV	:= M->ZX_CODPREV  
+				SZX->ZX_CODPREV	:= M->ZX_CODPREV
 				SZX->ZX_DESPREV	:= M->ZX_DESPREV
 				SZX->ZX_ANO		:= M->ZX_ANO
 			Else
 				RecLock("SZX",.F.)
 				SZX->ZX_DESPREV	:= M->ZX_DESPREV
 			EndIf
-			
+
 			For nX := 1 to Len(oGetD:aHeader)
 				If ( oGetD:aHeader[nX,10] # "V" )
 					SZX->(FieldPut(FieldPos(oGetD:aHeader[nX,2]),oGetD:aCols[nLinha,nX]))
@@ -273,11 +273,11 @@ Begin Transaction
 			Next
 
 			MsUnLock("SZX")
-			
+
 		Next nLinha
-	
+
 	EndIf
-	
+
 End Transaction
 
 // Restaura TTS
@@ -408,8 +408,8 @@ oWizard:NewPanel( "Exportação da Previsão de Compras"/*<chTitle>*/,;
 				{|| lRet := ProcWizExp(aConfig, cCodFil, cCodPrev, cAno)}/*<bFinish>*/, ;
 				.T./*<.lPanel.>*/, ;
 				{||.T.}/*<bExecute>*/ )
-                                                                     
-TSay():New( 010, 007, {|| "A Previsão de Compras será exportada em arquivo no formato CSV conforme parâmetros selecionados." }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ ) 
+
+TSay():New( 010, 007, {|| "A Previsão de Compras será exportada em arquivo no formato CSV conforme parâmetros selecionados." }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
 TSay():New( 025, 007, {|| "Se o objetivo desta exportação for alterar ou inserir novos itens na Previsão para posterior importação no sistema" }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
 TSay():New( 035, 007, {|| "os seguintes critérios devem ser observados:" }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
 TSay():New( 045, 007, {|| "1)  O cabeçalho do arquivo não pode ser alterado ou excluído, e os títulos das colunas devem ser mantidos," }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
@@ -484,11 +484,11 @@ Return
 |    Sintaxe: ProcWizExp(aConfig, cCodFil, cCodPrev, cAno)
 +--------------------------------------------------------------------------*/
 
-Static Function ProcWizExp(aConfig, cCodFil, cCodPrev, cAno)                                          
+Static Function ProcWizExp(aConfig, cCodFil, cCodPrev, cAno)
 
 MsgRun("Processando a exportação. Aguarde...",, {|lEnd| FimWizExp(aConfig, cCodFil, cCodPrev, cAno, .F.) } )
 
-Return .T.  
+Return .T.
 
 /*----------------------+--------------------------------+------------------+
 |   Programa: FimWizExp | Autor: Kley@TOTVS              | Data: 24/03/2014 |
@@ -539,7 +539,7 @@ dbClearIndex()
 dbSetIndex( cNomeArq + OrdBagExt() )
 
 // Monta nome do arquivo e diretorio onde sera gravado.
-cDest	:= Iif( Right(cDest,1)=="\",cDest,cDest+"\" ) 
+cDest	:= Iif( Right(cDest,1)=="\",cDest,cDest+"\" )
 
 MakeDir(Left(cDest,Len(cDest)-1))
 If File(cDest + cNomArq)
@@ -575,8 +575,8 @@ If Select(cAliasTRB) > 0
 Endif
 
 BeginSQL Alias cAliasTRB
-	select 
-		rtrim(ZX_FILIAL) as ZX_FILIAL,  rtrim(ZX_CODPREV) as ZX_CODPREV, rtrim(ZX_DESPREV) as ZX_DESPREV, rtrim(ZX_ANO) as ZX_ANO, 
+	select
+		rtrim(ZX_FILIAL) as ZX_FILIAL,  rtrim(ZX_CODPREV) as ZX_CODPREV, rtrim(ZX_DESPREV) as ZX_DESPREV, rtrim(ZX_ANO) as ZX_ANO,
 		rtrim(ZX_CODPROD) as ZX_CODPROD, rtrim(isnull(B1_DESC,' '))   as ZX_DESPROD,
 		ZX_MES01, ZX_MES02, ZX_MES03, ZX_MES04, ZX_MES05, ZX_MES06, ZX_MES07, ZX_MES08, ZX_MES09, ZX_MES10, ZX_MES11, ZX_MES12
 	from %Table:SZX% SZX
@@ -592,9 +592,9 @@ DbSelectArea(cAliasTRB)
 (cAliasTRB)->(dbGoTop())
 
 If !Eof(cAliasTRB)
-	
+
 	While !Eof(cAliasTRB)
-		
+
 		// Grava a linha do Detalhe
 		FWrite(nHdl, (cAliasTRB)->ZX_FILIAL + ";" + (cAliasTRB)->ZX_CODPREV + ";" + (cAliasTRB)->ZX_DESPREV + ";" + (cAliasTRB)->ZX_ANO + ";" + ;
 				   (cAliasTRB)->ZX_CODPROD + ";" + (cAliasTRB)->ZX_DESPROD + ";" + ;
@@ -605,10 +605,10 @@ If !Eof(cAliasTRB)
 				   Transform((cAliasTRB)->ZX_MES09, PesqPict("SZX","ZX_MES09")) + ";" + Transform((cAliasTRB)->ZX_MES10, PesqPict("SZX","ZX_MES10")) + ";" + ;
 				   Transform((cAliasTRB)->ZX_MES11, PesqPict("SZX","ZX_MES11")) + ";" + Transform((cAliasTRB)->ZX_MES12, PesqPict("SZX","ZX_MES12")) )
 		FWrite(nHdl, CRLF)
-		
+
 		(cAliasTRB)->(dbSkip())
 	Enddo
-	
+
 Else
 	MsgStop("Não existem Produtos para esta Previsão de Compras. Para exportação da Previsão é necessário que exista pelo menos um Produto cadastrado.", "Exportação da Previsão de Compras" )
 Endif
@@ -676,8 +676,8 @@ oWizard:NewPanel( "Importação da Previsão de Compras"/*<chTitle>*/,;
 				{|| lRet := ProcWizImp(aConfig, cCodFil, cCodPrev, cAno)}/*<bFinish>*/, ;
 				.T./*<.lPanel.>*/, ;
 				{||.T.}/*<bExecute>*/ )
-                                                                     
-TSay():New( 010, 007, {|| "A Previsão de Compras será importada de um arquivo no formato CSV conforme parâmetros selecionados." }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ ) 
+
+TSay():New( 010, 007, {|| "A Previsão de Compras será importada de um arquivo no formato CSV conforme parâmetros selecionados." }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
 TSay():New( 025, 007, {|| "Os critérios abaixos devem ser observados para importação dos dados com sucesso:" }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
 TSay():New( 035, 007, {|| "1)  Para se obter o layout do arquivo para importação é recomendável fazer primeiro uma exportação;" }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
 TSay():New( 045, 007, {|| "2)  O cabeçalho do arquivo, que corresponde a primeira linha, deve conter os títulos das colunas e não podem" }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
@@ -710,14 +710,14 @@ Return
 |    Sintaxe: ProcWizImp(aConfig, cCodFil, cCodPrev, cAno)
 +--------------------------------------------------------------------------*/
 
-Static Function ProcWizImp(aConfig, cCodFil, cCodPrev, cAno)                                          
+Static Function ProcWizImp(aConfig, cCodFil, cCodPrev, cAno)
 
 Local oProcess
 
 oProcess:= MsNewProcess():New({|lEnd| FimWizImp(aConfig, cCodFil, cCodPrev, cAno, .F., oProcess)})
 oProcess:Activate()
 
-Return .T.  
+Return .T.
 
 /*----------------------+--------------------------------+------------------+
 |   Programa: FimWizImp | Autor: Kley@TOTVS              | Data: 24/03/2014 |
@@ -957,15 +957,15 @@ dbSelectArea(cAliasTmp)
 (cAliasTmp)->(dbGotop())
 
 While (cAliasTmp)->(!EOF())
-	
+
 	nProcRegs++
 	oProcess:IncRegua1("Validando arquivo item: "+cValToChar(nProcRegs)+" / "+CValToChar(nTotRegs))
-	
+
 	// Valida Registros e Gerar Log
-	
+
 	// Verifica se c Chave da linha corrente é diferente da 1ª linha do arquivo
 	If Empty(cChaveSZX)
-		cChaveSZX  := (cAliasTmp)->(ZX_FILIAL+ZX_CODPREV+ZX_ANO)	// 1ª linha do arquivo usada para comparação com as demais linhas	
+		cChaveSZX  := (cAliasTmp)->(ZX_FILIAL+ZX_CODPREV+ZX_ANO)	// 1ª linha do arquivo usada para comparação com as demais linhas
 		// Verifica se já existe Previsão de Compras com a mesma chave do arquivo
 		dbSelectArea("SZX")
 		SZX->(dbSetOrder(1))
@@ -984,7 +984,7 @@ While (cAliasTmp)->(!EOF())
 					lErro := .T.
 				Else
 					cTexto += " O código da Filial informada no arquivo (" + (cAliasTmp)->(ZX_FILIAL) + ") é inválida para a Empresa logada ou inexistente."+CRLF
-					lErro := .T.					
+					lErro := .T.
 				EndIf
 			EndIf
 
@@ -995,26 +995,26 @@ While (cAliasTmp)->(!EOF())
 				If SZX->ZX_ANO # (cAliasTmp)->ZX_ANO
 					cTexto += " Já existe Previsão cadastrada com o mesmo código (" + (cAliasTmp)->ZX_CODPREV + "), porém o ANO é diferentes;"+CRLF+;
 								" ANO do arquivo: " + (cAliasTmp)->ZX_ANO+" | ANO cadastrado: " + SZX->ZX_ANO+"."+CRLF
-					lErro := .T.					
-				EndIf				
+					lErro := .T.
+				EndIf
 				SZX->(dbSkip())
 			EndDo
 
 			// Valida o Ano
 			If (cAliasTmp)->(ZX_ANO) < "2010" .or. (cAliasTmp)->(ZX_ANO) > "2030"
 				cTexto += " O Ano informada no arquivo (" + (cAliasTmp)->(ZX_ANO) + ") é inválido."+CRLF
-				lErro := .T.	
+				lErro := .T.
 			EndIf
 
-		EndIf		
+		EndIf
 	ElseIf cChaveSZX # (cAliasTmp)->(ZX_FILIAL+ZX_CODPREV+ZX_ANO)
 		cTexto += " Linha ["+(cAliasTmp)->LINHA+"] A chave da Previsão de Compras (Fil/Cod.Prev./Ano) é diferente da 1a. linha de dados do arquivo;"+CRLF+;
 				" Chave da linha corrente: "+(cAliasTmp)->(ZX_FILIAL+ZX_CODPREV+ZX_ANO)+" | Chave 1a. linha: "+cChaveSZX+"."+CRLF
-		lErro := .T.	
+		lErro := .T.
 	EndIf
 
 	(cAliasTmp)->(DbSkip())
-	
+
 EndDo
 
 If lErro
@@ -1024,7 +1024,7 @@ Else
 	// Processa Importacao
 	(cAliasTmp)->(dbGotop())
 	While (cAliasTmp)->(!Eof())
-		
+
 		oProcess:IncRegua2("Importando os dados para Previsão - Produto: "+(cAliasTmp)->ZX_CODPROD)
 
 		DbSelectArea("SZX")
@@ -1036,7 +1036,7 @@ Else
 		Else														//Inclusão  | Não Encontrou a chave
 			RecLock("SZX",.T.)
 			SZX->ZX_FILIAL	:= xFilial("SZX")
-			SZX->ZX_CODPREV	:=(cAliasTmp)->ZX_CODPREV  
+			SZX->ZX_CODPREV	:=(cAliasTmp)->ZX_CODPREV
 			SZX->ZX_DESPREV	:=(cAliasTmp)->ZX_DESPREV
 			SZX->ZX_ANO		:=(cAliasTmp)->ZX_ANO
 			SZX->ZX_CODPROD	:=(cAliasTmp)->ZX_CODPROD
@@ -1054,13 +1054,13 @@ Else
 		SZX->ZX_MES10		:=(cAliasTmp)->ZX_MES10
 		SZX->ZX_MES11		:=(cAliasTmp)->ZX_MES11
 		SZX->ZX_MES12		:=(cAliasTmp)->ZX_MES12
-		
+
 		MsUnLock("SZX")
-			
+
 		nTotReg++
 		(cAliasTmp)->(dbSkip())
 	EndDo
-	
+
 	cTexto += " Importação realizada com sucesso!"+CRLF
 	MsgInfo("A importação foi concluída com sucesso!"+CRLF+CRLF+;
 			"Para obter detalhes consulte o arquivo de log que foi gerado no mesmo diretório do arquivo importado:"+CRLF+Alltrim(cFileLog),"Importação com sucesso")

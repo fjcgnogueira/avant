@@ -107,31 +107,31 @@ Local aGat2Res  := {}
 Local aGat3Res  := {}
 Local aGat4Res  := {}
 
-SetKey(VK_F4,({||If(IsMemVar("M->Z4_PRESERV"),MaViewSB2(GdFieldGet("Z4_CODPROD")),Nil)}))
+SetKey(VK_F4,({||If(IsMemVar("M->Z4_PRESERV"),MaViewSB2(FwFldGet("Z4_CODPROD")),Nil)}))
 
 oStruSZ3:SetProperty('Z3_NPEDWEB',MODEL_FIELD_INIT,{||ProxWeb()})
 
 oStruSZ3:AddField('Frete','Habilita Frete','Z3_FRETE','L',1,0,,,,,{||.F.},,,.T.)
 
-aGat1Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","0"                                ,.F.,,,,"Empty(GdFieldGet('Z4_PRESERV')).And.U_SaldoProd(GdFieldGet('Z4_CODPROD'),'01') < GdFieldGet('Z4_QTDE') ","001")
-aGat2Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","GdFieldGet('Z4_QTDE')*M->Z4_PRLIQ",.F.,,,,"Empty(GdFieldGet('Z4_PRESERV')).And.U_SaldoProd(GdFieldGet('Z4_CODPROD'),'01') >= GdFieldGet('Z4_QTDE')","002")
-aGat3Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","0"                                ,.F.,,,,"!Empty(GdFieldGet('Z4_PRESERV')).And.!U_WebReserv()"                                                    ,"003")
-aGat4Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","GdFieldGet('Z4_QTDE')*M->Z4_PRLIQ",.F.,,,,"!Empty(GdFieldGet('Z4_PRESERV')).And.U_WebReserv()"                                                     ,"004")
+aGat1Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","0"                                ,.F.,,,,"Empty(FwFldGet('Z4_PRESERV')).And.U_SaldoProd(FwFldGet('Z4_CODPROD'),'01') < FwFldGet('Z4_QTDE') ","001")
+aGat2Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","FwFldGet('Z4_QTDE')*M->Z4_PRLIQ",.F.,,,,"Empty(FwFldGet('Z4_PRESERV')).And.U_SaldoProd(FwFldGet('Z4_CODPROD'),'01') >= FwFldGet('Z4_QTDE')","002")
+//aGat3Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","0"                                ,.F.,,,,"!Empty(FwFldGet('Z4_PRESERV')).And.!U_WebReserv()"                                                    ,"003")
+//aGat4Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","FwFldGet('Z4_QTDE')*M->Z4_PRLIQ",.F.,,,,"!Empty(FwFldGet('Z4_PRESERV')).And.U_WebReserv()"                                                     ,"004")
 
-aGat1Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","0"                                           ,.F.,,,,"Empty(M->Z4_PRESERV).And.U_SaldoProd(GdFieldGet('Z4_CODPROD'),'01') < GdFieldGet('Z4_QTDE') ","001")
-aGat2Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","GdFieldGet('Z4_QTDE')*GdFieldGet('Z4_PRLIQ')",.F.,,,,"Empty(M->Z4_PRESERV).And.U_SaldoProd(GdFieldGet('Z4_CODPROD'),'01') >= GdFieldGet('Z4_QTDE')","002")
-aGat3Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","0"                                           ,.F.,,,,"!Empty(M->Z4_PRESERV).And.!U_WebReserv()"                                                    ,"003")
-aGat4Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","GdFieldGet('Z4_QTDE')*GdFieldGet('Z4_PRLIQ')",.F.,,,,"!Empty(M->Z4_PRESERV).And.U_WebReserv()"                                                     ,"004")
+aGat1Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","0"                                           ,.F.,,,,"Empty(M->Z4_PRESERV).And.U_SaldoProd(FwFldGet('Z4_CODPROD'),'01') < FwFldGet('Z4_QTDE') ","001")
+aGat2Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","FwFldGet('Z4_QTDE')*FwFldGet('Z4_PRLIQ')",.F.,,,,"Empty(M->Z4_PRESERV).And.U_SaldoProd(FwFldGet('Z4_CODPROD'),'01') >= FwFldGet('Z4_QTDE')","002")
+//aGat3Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","0"                                           ,.F.,,,,"!Empty(M->Z4_PRESERV).And.!U_WebReserv()"                                                    ,"003")
+//aGat4Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","FwFldGet('Z4_QTDE')*FwFldGet('Z4_PRLIQ')",.F.,,,,"!Empty(M->Z4_PRESERV).And.U_WebReserv()"                                                     ,"004")
 
 oStruSZ4:AddTrigger(aGat1Prl[1],aGat1Prl[2],aGat1Prl[3],aGat1Prl[4])
 oStruSZ4:AddTrigger(aGat2Prl[1],aGat2Prl[2],aGat2Prl[3],aGat2Prl[4])
-oStruSZ4:AddTrigger(aGat3Prl[1],aGat3Prl[2],aGat3Prl[3],aGat3Prl[4])
-oStruSZ4:AddTrigger(aGat4Prl[1],aGat4Prl[2],aGat4Prl[3],aGat4Prl[4])
+//oStruSZ4:AddTrigger(aGat3Prl[1],aGat3Prl[2],aGat3Prl[3],aGat3Prl[4])
+//oStruSZ4:AddTrigger(aGat4Prl[1],aGat4Prl[2],aGat4Prl[3],aGat4Prl[4])
 
 oStruSZ4:AddTrigger(aGat1Res[1],aGat1Res[2],aGat1Res[3],aGat1Res[4])
 oStruSZ4:AddTrigger(aGat2Res[1],aGat2Res[2],aGat2Res[3],aGat2Res[4])
-oStruSZ4:AddTrigger(aGat3Res[1],aGat3Res[2],aGat3Res[3],aGat3Res[4])
-oStruSZ4:AddTrigger(aGat4Res[1],aGat4Res[2],aGat4Res[3],aGat4Res[4])
+//oStruSZ4:AddTrigger(aGat3Res[1],aGat3Res[2],aGat3Res[3],aGat3Res[4])
+//oStruSZ4:AddTrigger(aGat4Res[1],aGat4Res[2],aGat4Res[3],aGat4Res[4])
 
 //Instancia do Objeto de Modelo de Dados
 oModel := MpFormModel():New('MDPEDWEB',/*Pre-Validacao*/,{|oModel| PosValPed(oModel)},/*bCommit*/,/*Cancel*/)

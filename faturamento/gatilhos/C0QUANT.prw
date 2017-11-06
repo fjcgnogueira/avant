@@ -18,12 +18,12 @@
 */
 User Function C0QUANT(cProduto,nQuant)
 
-Local aArea    := GetArea() 
+Local aArea    := GetArea()
 Local aAreaSB8 := SB8->(GetArea())
 Local cLoteCTL := CriaVar("B8_LOTECTL")
 
 Default nQuant   := &(Alltrim(ReadVar()))
-Default cProduto := GdFieldGet(Substring(Alltrim(ReadVar()),At(">",Alltrim(ReadVar()))+1,3)+"PRODUTO")
+Default cProduto := FwFldGet(Substring(Alltrim(ReadVar()),At(">",Alltrim(ReadVar()))+1,3)+"PRODUTO")
 
 dbSelectArea("SB8")
 dbSetOrder(01)

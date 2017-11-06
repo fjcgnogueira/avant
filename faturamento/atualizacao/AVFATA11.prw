@@ -9,7 +9,7 @@
 +---------------------------------------------------------------------------+
 |    Sintaxe:  U_AVFATA11()
 +----------------------------------------------------------------------------
-|    Retorno:  Nulo                                                               
+|    Retorno:  Nulo
 +--------------------------------------------------------------------------*/
 
 User Function AVFATA11()
@@ -236,11 +236,11 @@ Begin Transaction
 		EndDo
 	Else
 		For nLinha := 1 to Len(oGetD:aCols)
-			
+
 			DbSelectArea("SZW")
 			SZW->(DbSetOrder(1))
 
-			If SZW->(DbSeek(xFilial("SZW") + M->ZW_CODPREV + M->ZW_ANO + M->ZW_CODREG + GdFieldGet("ZW_CODPROD",nLinha,,oGetD:aHeader,oGetD:aCols)))	//Alteração | Encontrou o registro
+			If SZW->(DbSeek(xFilial("SZW") + M->ZW_CODPREV + M->ZW_ANO + M->ZW_CODREG + FwFldGet("ZW_CODPROD",nLinha,,oGetD:aHeader,oGetD:aCols)))	//Alteração | Encontrou o registro
 				If GdDeleted(nLinha,oGetD:aHeader,oGetD:aCols)		// Se a linha estiver deletada
 					RecLock("SZW",.F.)
 					SZW->(DbDelete())
@@ -256,11 +256,11 @@ Begin Transaction
 					lInclusao := .T.
 				EndIf
 			EndIf
-			
+
 			If lInclusao
 				RecLock("SZW",.T.)
 				SZW->ZW_FILIAL	:= xFilial("SZW")
-				SZW->ZW_CODPREV	:= M->ZW_CODPREV  
+				SZW->ZW_CODPREV	:= M->ZW_CODPREV
 				SZW->ZW_DESPREV	:= M->ZW_DESPREV
 				SZW->ZW_ANO		:= M->ZW_ANO
 				SZW->ZW_CODREG	:= M->ZW_CODREG
@@ -268,7 +268,7 @@ Begin Transaction
 				RecLock("SZW",.F.)
 				SZW->ZW_DESPREV	:= M->ZW_DESPREV
 			EndIf
-			
+
 			For nX := 1 to Len(oGetD:aHeader)
 				If ( oGetD:aHeader[nX,10] # "V" )
 					SZW->(FieldPut(FieldPos(oGetD:aHeader[nX,2]),oGetD:aCols[nLinha,nX]))
@@ -276,11 +276,11 @@ Begin Transaction
 			Next
 
 			MsUnLock("SZW")
-			
+
 		Next nLinha
-	
+
 	EndIf
-	
+
 End Transaction
 
 // Restaura TTS
@@ -415,8 +415,8 @@ oWizard:NewPanel( "Exportação da Previsão de Vendas"/*<chTitle>*/,;
 				{|| lRet := ProcWizExp(aConfig, cCodFil, cCodPrev, cAno, cCodReg)}/*<bFinish>*/, ;
 				.T./*<.lPanel.>*/, ;
 				{||.T.}/*<bExecute>*/ )
-                                                                     
-TSay():New( 010, 007, {|| "A Previsão de Vendas será exportada em arquivo no formato CSV conforme parâmetros selecionados." }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ ) 
+
+TSay():New( 010, 007, {|| "A Previsão de Vendas será exportada em arquivo no formato CSV conforme parâmetros selecionados." }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
 TSay():New( 025, 007, {|| "Se o objetivo desta exportação for alterar ou inserir novos itens na Previsão para posterior importação no sistema" }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
 TSay():New( 035, 007, {|| "os seguintes critérios devem ser observados:" }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
 TSay():New( 045, 007, {|| "1)  O cabeçalho do arquivo não pode ser alterado ou excluído, e os títulos das colunas devem ser mantidos," }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
@@ -491,11 +491,11 @@ Return
 |    Sintaxe: ProcWizExp(aConfig, cCodFil, cCodPrev, cAno, cCodReg)
 +--------------------------------------------------------------------------*/
 
-Static Function ProcWizExp(aConfig, cCodFil, cCodPrev, cAno, cCodReg)                                          
+Static Function ProcWizExp(aConfig, cCodFil, cCodPrev, cAno, cCodReg)
 
 MsgRun("Processando a exportação. Aguarde...",, {|lEnd| FimWizExp(aConfig, cCodFil, cCodPrev, cAno, cCodReg, .F.) } )
 
-Return .T.  
+Return .T.
 
 /*----------------------+--------------------------------+------------------+
 |   Programa: FimWizExp | Autor: Kley@TOTVS              | Data: 24/03/2014 |
@@ -548,7 +548,7 @@ dbClearIndex()
 dbSetIndex( cNomeArq + OrdBagExt() )
 
 // Monta nome do arquivo e diretorio onde sera gravado.
-cDest	:= Iif( Right(cDest,1)=="\",cDest,cDest+"\" ) 
+cDest	:= Iif( Right(cDest,1)=="\",cDest,cDest+"\" )
 
 MakeDir(Left(cDest,Len(cDest)-1))
 If File(cDest + cNomArq)
@@ -584,8 +584,8 @@ If Select(cAliasTRB) > 0
 Endif
 
 BeginSQL Alias cAliasTRB
-	select 
-		rtrim(ZW_FILIAL) as ZW_FILIAL,  rtrim(ZW_CODPREV) as ZW_CODPREV, rtrim(ZW_DESPREV) as ZW_DESPREV, rtrim(ZW_ANO) as ZW_ANO, 
+	select
+		rtrim(ZW_FILIAL) as ZW_FILIAL,  rtrim(ZW_CODPREV) as ZW_CODPREV, rtrim(ZW_DESPREV) as ZW_DESPREV, rtrim(ZW_ANO) as ZW_ANO,
 		rtrim(ZW_CODREG) as ZW_CODREG,  rtrim(isnull(ZZ_DESREG,' ')) as ZW_DESREG,
 		rtrim(ZW_CODPROD) as ZW_CODPROD, rtrim(isnull(B1_DESC,' '))   as ZW_DESPROD,
 		ZW_MES01, ZW_MES02, ZW_MES03, ZW_MES04, ZW_MES05, ZW_MES06, ZW_MES07, ZW_MES08, ZW_MES09, ZW_MES10, ZW_MES11, ZW_MES12
@@ -604,9 +604,9 @@ DbSelectArea(cAliasTRB)
 (cAliasTRB)->(dbGoTop())
 
 If !Eof(cAliasTRB)
-	
+
 	While !Eof(cAliasTRB)
-		
+
 		// Grava a linha do Detalhe
 		FWrite(nHdl, (cAliasTRB)->ZW_FILIAL + ";" + (cAliasTRB)->ZW_CODPREV + ";" + (cAliasTRB)->ZW_DESPREV + ";" + (cAliasTRB)->ZW_ANO + ";" + ;
 				   (cAliasTRB)->ZW_CODREG + ";" + (cAliasTRB)->ZW_DESREG + ";" + (cAliasTRB)->ZW_CODPROD + ";" + (cAliasTRB)->ZW_DESPROD + ";" + ;
@@ -617,10 +617,10 @@ If !Eof(cAliasTRB)
 				   Transform((cAliasTRB)->ZW_MES09, PesqPict("SZW","ZW_MES09")) + ";" + Transform((cAliasTRB)->ZW_MES10, PesqPict("SZW","ZW_MES10")) + ";" + ;
 				   Transform((cAliasTRB)->ZW_MES11, PesqPict("SZW","ZW_MES11")) + ";" + Transform((cAliasTRB)->ZW_MES12, PesqPict("SZW","ZW_MES12")) )
 		FWrite(nHdl, CRLF)
-		
+
 		(cAliasTRB)->(dbSkip())
 	Enddo
-	
+
 Else
 	MsgStop("Não existem Produtos para esta Previsão de Vendas. Para exportação da Previsão é necessário que exista pelo menos um Produto cadastrado.", "Exportação da Previsão de Vendas" )
 Endif
@@ -689,8 +689,8 @@ oWizard:NewPanel( "Importação da Previsão de Vendas"/*<chTitle>*/,;
 				{|| lRet := ProcWizImp(aConfig, cCodFil, cCodPrev, cAno, cCodReg)}/*<bFinish>*/, ;
 				.T./*<.lPanel.>*/, ;
 				{||.T.}/*<bExecute>*/ )
-                                                                     
-TSay():New( 010, 007, {|| "A Previsão de Vendas será importada de um arquivo no formato CSV conforme parâmetros selecionados." }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ ) 
+
+TSay():New( 010, 007, {|| "A Previsão de Vendas será importada de um arquivo no formato CSV conforme parâmetros selecionados." }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
 TSay():New( 025, 007, {|| "Os critérios abaixos devem ser observados para importação dos dados com sucesso:" }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
 TSay():New( 035, 007, {|| "1)  Para se obter o layout do arquivo para importação é recomendável fazer primeiro uma exportação;" }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
 TSay():New( 045, 007, {|| "2)  O cabeçalho do arquivo, que corresponde a primeira linha, deve conter os títulos das colunas e não podem" }	, oWizard:oMPanel[3],,,,  , /*<.lBorder.>*/, .T./*<.lPixel.>*/, /*<nClrText>*/, /*<nClrBack>*/, 300/*<nWidth>*/, 08/*<nHeight>*/, /*<.design.>*/, /*<.update.>*/, /*<.lShaded.>*/, /*<.lBox.>*/, /*<.lRaised.>*/, /*<.lHtml.>*/ )
@@ -723,14 +723,14 @@ Return
 |    Sintaxe: ProcWizImp(aConfig, cCodFil, cCodPrev, cAno, cCodReg)
 +--------------------------------------------------------------------------*/
 
-Static Function ProcWizImp(aConfig, cCodFil, cCodPrev, cAno, cCodReg)                                          
+Static Function ProcWizImp(aConfig, cCodFil, cCodPrev, cAno, cCodReg)
 
 Local oProcess
 
 oProcess:= MsNewProcess():New({|lEnd| FimWizImp(aConfig, cCodFil, cCodPrev, cAno, cCodReg, .F., oProcess)})
 oProcess:Activate()
 
-Return .T.  
+Return .T.
 
 /*----------------------+--------------------------------+------------------+
 |   Programa: FimWizImp | Autor: Kley@TOTVS              | Data: 24/03/2014 |
@@ -973,15 +973,15 @@ dbSelectArea(cAliasTmp)
 (cAliasTmp)->(dbGotop())
 
 While (cAliasTmp)->(!EOF())
-	
+
 	nProcRegs++
 	oProcess:IncRegua1("Validando arquivo item: "+cValToChar(nProcRegs)+" / "+CValToChar(nTotRegs))
-	
+
 	// Valida Registros e Gerar Log
-	
+
 	// Verifica se c Chave da linha corrente é diferente da 1ª linha do arquivo
 	If Empty(cChaveSZW)
-		cChaveSZW  := (cAliasTmp)->(ZW_FILIAL+ZW_CODPREV+ZW_ANO+ZW_CODREG)	// 1ª linha do arquivo usada para comparação com as demais linhas	
+		cChaveSZW  := (cAliasTmp)->(ZW_FILIAL+ZW_CODPREV+ZW_ANO+ZW_CODREG)	// 1ª linha do arquivo usada para comparação com as demais linhas
 		// Verifica se já existe Previsão de Vendas com a mesma chave do arquivo
 		dbSelectArea("SZW")
 		SZW->(dbSetOrder(1))
@@ -1000,7 +1000,7 @@ While (cAliasTmp)->(!EOF())
 					lErro := .T.
 				Else
 					cTexto += " O código da Filial informada no arquivo (" + (cAliasTmp)->(ZW_FILIAL) + ") é inválida para a Empresa logada ou inexistente."+CRLF
-					lErro := .T.					
+					lErro := .T.
 				EndIf
 			EndIf
 
@@ -1011,32 +1011,32 @@ While (cAliasTmp)->(!EOF())
 				If SZW->ZW_ANO # (cAliasTmp)->ZW_ANO .or. SZW->ZW_CODREG # (cAliasTmp)->ZW_CODREG
 					cTexto += " Já existe Previsão cadastrada com o mesmo código (" + (cAliasTmp)->ZW_CODPREV + "), porém o ANO ou REGIONAL são diferentes;"+CRLF+;
 								" ANO/COD.REGIONAL do arquivo: " + (cAliasTmp)->ZW_ANO+"/"+(cAliasTmp)->ZW_CODREG+" | ANO/COD.REGIONAL cadastrados: " + SZW->ZW_ANO+"/"+SZW->ZW_CODREG+"."+CRLF
-					lErro := .T.					
-				EndIf				
+					lErro := .T.
+				EndIf
 				SZW->(dbSkip())
 			EndDo
 
 			// Valida o Ano
 			If (cAliasTmp)->(ZW_ANO) < "2010" .or. (cAliasTmp)->(ZW_ANO) > "2030"
 				cTexto += " O Ano informada no arquivo (" + (cAliasTmp)->(ZW_ANO) + ") é inválido."+CRLF
-				lErro := .T.	
+				lErro := .T.
 			EndIf
 
 			// Valida Código da Regional
 			If !ExistCpo("SZZ",(cAliasTmp)->ZW_CODREG)
 				cTexto += " O Código da Regional do arquivo ("+(cAliasTmp)->(ZW_CODREG)+") não existe no cadastro de Regional."+CRLF
-				lErro := .T.	
+				lErro := .T.
 			EndIf
 
-		EndIf		
+		EndIf
 	ElseIf cChaveSZW # (cAliasTmp)->(ZW_FILIAL+ZW_CODPREV+ZW_ANO+ZW_CODREG)
 		cTexto += " Linha ["+(cAliasTmp)->LINHA+"] A chave da Previsão de Vendas (Fil/Cod.Prev./Ano/Cod.Reg) é diferente da 1a. linha de dados do arquivo;"+CRLF+;
 				" Chave da linha corrente: "+(cAliasTmp)->(ZW_FILIAL+ZW_CODPREV+ZW_ANO+ZW_CODREG)+" | Chave 1a. linha: "+cChaveSZW+"."+CRLF
-		lErro := .T.	
+		lErro := .T.
 	EndIf
 
 	(cAliasTmp)->(DbSkip())
-	
+
 EndDo
 
 If lErro
@@ -1046,7 +1046,7 @@ Else
 	// Processa Importacao
 	(cAliasTmp)->(dbGotop())
 	While (cAliasTmp)->(!Eof())
-		
+
 		oProcess:IncRegua2("Importando os dados para Previsão - Produto: "+(cAliasTmp)->ZW_CODPROD)
 
 		DbSelectArea("SZW")
@@ -1058,7 +1058,7 @@ Else
 		Else														//Inclusão  | Não Encontrou a chave
 			RecLock("SZW",.T.)
 			SZW->ZW_FILIAL	:= xFilial("SZW")
-			SZW->ZW_CODPREV	:=(cAliasTmp)->ZW_CODPREV  
+			SZW->ZW_CODPREV	:=(cAliasTmp)->ZW_CODPREV
 			SZW->ZW_DESPREV	:=(cAliasTmp)->ZW_DESPREV
 			SZW->ZW_ANO		:=(cAliasTmp)->ZW_ANO
 			SZW->ZW_CODREG	:=(cAliasTmp)->ZW_CODREG
@@ -1077,13 +1077,13 @@ Else
 		SZW->ZW_MES10		:=(cAliasTmp)->ZW_MES10
 		SZW->ZW_MES11		:=(cAliasTmp)->ZW_MES11
 		SZW->ZW_MES12		:=(cAliasTmp)->ZW_MES12
-		
+
 		MsUnLock("SZW")
-			
+
 		nTotReg++
 		(cAliasTmp)->(dbSkip())
 	EndDo
-	
+
 	cTexto += " Importação realizada com sucesso!"+CRLF
 	MsgInfo("A importação foi concluída com sucesso!"+CRLF+CRLF+;
 			"Para obter detalhes consulte o arquivo de log que foi gerado no mesmo diretório do arquivo importado:"+CRLF+Alltrim(cFileLog),"Importação com sucesso")
