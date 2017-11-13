@@ -115,23 +115,23 @@ oStruSZ3:AddField('Frete','Habilita Frete','Z3_FRETE','L',1,0,,,,,{||.F.},,,.T.)
 
 aGat1Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","0"                                ,.F.,,,,"Empty(FwFldGet('Z4_PRESERV')).And.U_SaldoProd(FwFldGet('Z4_CODPROD'),'01') < FwFldGet('Z4_QTDE') ","001")
 aGat2Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","FwFldGet('Z4_QTDE')*M->Z4_PRLIQ",.F.,,,,"Empty(FwFldGet('Z4_PRESERV')).And.U_SaldoProd(FwFldGet('Z4_CODPROD'),'01') >= FwFldGet('Z4_QTDE')","002")
-//aGat3Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","0"                                ,.F.,,,,"!Empty(FwFldGet('Z4_PRESERV')).And.!U_WebReserv()"                                                    ,"003")
-//aGat4Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","FwFldGet('Z4_QTDE')*M->Z4_PRLIQ",.F.,,,,"!Empty(FwFldGet('Z4_PRESERV')).And.U_WebReserv()"                                                     ,"004")
+aGat3Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","0"                                ,.F.,,,,"!Empty(FwFldGet('Z4_PRESERV')).And.!U_WebReserv()"                                                    ,"003")
+aGat4Prl := FwStruTrigger("Z4_PRLIQ","Z4_VLRTTIT","FwFldGet('Z4_QTDE')*M->Z4_PRLIQ",.F.,,,,"!Empty(FwFldGet('Z4_PRESERV')).And.U_WebReserv()"                                                     ,"004")
 
 aGat1Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","0"                                           ,.F.,,,,"Empty(M->Z4_PRESERV).And.U_SaldoProd(FwFldGet('Z4_CODPROD'),'01') < FwFldGet('Z4_QTDE') ","001")
 aGat2Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","FwFldGet('Z4_QTDE')*FwFldGet('Z4_PRLIQ')",.F.,,,,"Empty(M->Z4_PRESERV).And.U_SaldoProd(FwFldGet('Z4_CODPROD'),'01') >= FwFldGet('Z4_QTDE')","002")
-//aGat3Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","0"                                           ,.F.,,,,"!Empty(M->Z4_PRESERV).And.!U_WebReserv()"                                                    ,"003")
-//aGat4Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","FwFldGet('Z4_QTDE')*FwFldGet('Z4_PRLIQ')",.F.,,,,"!Empty(M->Z4_PRESERV).And.U_WebReserv()"                                                     ,"004")
+aGat3Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","0"                                           ,.F.,,,,"!Empty(M->Z4_PRESERV).And.!U_WebReserv()"                                                    ,"003")
+aGat4Res := FwStruTrigger("Z4_PRESERV","Z4_VLRTTIT","FwFldGet('Z4_QTDE')*FwFldGet('Z4_PRLIQ')",.F.,,,,"!Empty(M->Z4_PRESERV).And.U_WebReserv()"                                                     ,"004")
 
 oStruSZ4:AddTrigger(aGat1Prl[1],aGat1Prl[2],aGat1Prl[3],aGat1Prl[4])
 oStruSZ4:AddTrigger(aGat2Prl[1],aGat2Prl[2],aGat2Prl[3],aGat2Prl[4])
-//oStruSZ4:AddTrigger(aGat3Prl[1],aGat3Prl[2],aGat3Prl[3],aGat3Prl[4])
-//oStruSZ4:AddTrigger(aGat4Prl[1],aGat4Prl[2],aGat4Prl[3],aGat4Prl[4])
+oStruSZ4:AddTrigger(aGat3Prl[1],aGat3Prl[2],aGat3Prl[3],aGat3Prl[4])
+oStruSZ4:AddTrigger(aGat4Prl[1],aGat4Prl[2],aGat4Prl[3],aGat4Prl[4])
 
 oStruSZ4:AddTrigger(aGat1Res[1],aGat1Res[2],aGat1Res[3],aGat1Res[4])
 oStruSZ4:AddTrigger(aGat2Res[1],aGat2Res[2],aGat2Res[3],aGat2Res[4])
-//oStruSZ4:AddTrigger(aGat3Res[1],aGat3Res[2],aGat3Res[3],aGat3Res[4])
-//oStruSZ4:AddTrigger(aGat4Res[1],aGat4Res[2],aGat4Res[3],aGat4Res[4])
+oStruSZ4:AddTrigger(aGat3Res[1],aGat3Res[2],aGat3Res[3],aGat3Res[4])
+oStruSZ4:AddTrigger(aGat4Res[1],aGat4Res[2],aGat4Res[3],aGat4Res[4])
 
 //Instancia do Objeto de Modelo de Dados
 oModel := MpFormModel():New('MDPEDWEB',/*Pre-Validacao*/,{|oModel| PosValPed(oModel)},/*bCommit*/,/*Cancel*/)
@@ -488,21 +488,19 @@ Return lRet
 /*/
 User Function WebReserv()
 
-Local aArea  		:= GetArea()
-Local nPProduto		:= aScan(aHeader,{|x| AllTrim(x[2])=="Z4_CODPROD"})
-Local nPQtdVen		:= aScan(aHeader,{|x| AllTrim(x[2])=="Z4_QTDE"})
-Local nPReserva		:= aScan(aHeader,{|x| AllTrim(x[2])=="Z4_PRESERV"})
-Local nPVlrItem		:= aScan(aHeader,{|x| AllTrim(x[2])=="Z4_VLRTTIT"})
-Local nPQtde		:= aScan(aHeader,{|x| AllTrim(x[2])=="Z4_QTDE"})
-Local nPPrliq		:= aScan(aHeader,{|x| AllTrim(x[2])=="Z4_PRLIQ"})
-Local lGrade		:= MaGrade()
-Local lRetorna		:= .T.
-Local nQtdRes		:= 0
-Local nCntFor 		:= 0
+Local oModel	:= FwModelActive()
+Local oMdlGrid  := oModel:GetModel("ID_MODEL_GRD_PedidoWeb")
+Local nLinha	:= oMdlGrid:GetLine()
+Local nQtdLin	:= oMdlGrid:GetQtdLine()
+Local aArea  	:= GetArea()
+Local lGrade	:= MaGrade()
+Local lRetorna	:= .T.
+Local nQtdRes	:= 0
+Local nCntFor 	:= 0
 
-cProduto := aCols[n][nPProduto]
+cProduto := oMdlGrid:GetValue('Z4_CODPROD')
 cLocal   := "01"
-cReserva := aCols[n][nPReserva]
+cReserva := oMdlGrid:GetValue('Z4_PRESERV')
 
 If (ReadVar() $ "M->Z4_PRESERV")
 	cReserva := &(ReadVar())
@@ -512,7 +510,7 @@ EndIf
 //³Nao pode  haver  reserva  com grade                                     ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 If ( lGrade )
-	If ( MatGrdPrrf(aCols[n][nPProduto]) )
+	If ( MatGrdPrrf(cProduto) )
 		Help(" ",1,"A410NGRADE")
 		lRetorna := .F.
 	EndIf
@@ -536,18 +534,18 @@ If ( lRetorna )
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	//³Verifica a quantidade utilizada no Acols                                ³
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	For nCntFor := 1 To Len(aCols)
-		If ( !aCols[nCntFor][Len(aHeader)+1] 			.And.;
-				cReserva==aCols[nCntFor][nPReserva] 	.And.;
-				cProduto==aCols[nCntFor][nPProduto] 	.And.;
-				n 		!=nCntFor)
-			nQtdRes -= Min(aCols[nCntFor][nPQtdVen],nQtdRes)
+	For nCntFor := 1 To nQtdLin
+		If ( !oMdlGrid:IsDeleted() 									.And.;
+				cReserva==oMdlGrid:GetValue('Z4_PRESERV',nCntFor)	.And.;
+				cProduto==oMdlGrid:GetValue('Z4_CODPROD',nCntFor) 	.And.;
+				nLinha	!=nCntFor)
+			nQtdRes -= Min(oMdlGrid:GetValue('Z4_QTDE',nCntFor),nQtdRes)
 		EndIf
 	Next nCntFor
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	//³Quantidade utilizada no item                                            ³
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	nQtdRes -= aCols[n][nPQtdVen]
+	nQtdRes -= oMdlGrid:GetValue('Z4_QTDE',nLinha)
 
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	//³Valida a Reserva                                                        ³
