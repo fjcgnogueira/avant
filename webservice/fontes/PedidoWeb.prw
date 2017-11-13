@@ -532,7 +532,7 @@ EndIf
 //읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸
 If ( lRetorna )
 	//旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커
-	//쿣erifica a quantidade utilizada no Acols                                �
+	//쿣erifica a quantidade utilizada no Grid                                 �
 	//읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸
 	For nCntFor := 1 To nQtdLin
 		If ( !oMdlGrid:IsDeleted() 									.And.;
@@ -583,16 +583,17 @@ Local oMdlCalc  := oModel:GetModel('ID_COMP_CALC')
 Local cEstFrete := Posicione("SX5",01,xFilial("SX5")+"ZA"+"0002","X5_DESCRI")
 Local cEstado   := Posicione("SA1",03,xFilial("SA1")+oMdlField:GetValue("Z3_CNPJ"),"A1_EST")
 Local cTransp   := Posicione("SZ1",01,xFilial("SZ1")+SA1->(A1_COD+A1_LOJA),"Z1_TRANSP")
+Local nLinha	:= oMdlGrid:GetLine()
+Local nQtdLin	:= oMdlGrid:GetQtdLine()
 Local cHabFrete := SA1->A1_X_HBFRT
 Local cPessoa   := SA1->A1_PESSOA
 Local nTotal    := 0
 Local cTipoOper := AllTrim(oMdlField:GetValue("Z3_CODTSAC"))
-Local nPosVlrIt := aScan(oMdlGrid:aHeader,{|x| AllTrim(x[2]) == "Z4_VLRTTIT"})
 Local nLimite   := SA1->A1_X_VLVEN
 
-For nI := 1 To Len(oMdlGrid:aCols)
-	If !oMdlGrid:aCols[nI,Len(oMdlGrid:aHeader)+1]
-		nTotal += oMdlGrid:aCols[nI,nPosVlrIt]
+For nI := 1 To nQtdLin
+	If !oMdlGrid:IsDeleted()
+		nTotal += oMdlGrid:GetValue('Z4_QTDE',nI)
 	Endif
 Next nI
 
