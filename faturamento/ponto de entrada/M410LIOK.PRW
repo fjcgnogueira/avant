@@ -69,10 +69,12 @@ Endif
 //Endif
 
 // Verifica se a quantidade liberada eh maior que o saldo disponivel em estoque na inclusao do Pedido de Vendas
-If Posicione('SF4',1,xFilial('SF4')+aCols[n][nPosTes],'F4_ESTOQUE') == "S" //Chamado 002624
-	If lReturn .And. Inclui .And. Empty(aCols[n][nPosReserv]) .And. aCols[n][nPosQtdLib] > U_SaldoProd(aCols[n][nPosProd],aCols[n][nPosLocal])
-		MsgInfo('Quantidade liberada do produto '+AllTrim(aCols[n][nPosProd])+' maior que o saldo disponível em estoque!', 'Atenção')
-		lReturn := .F.
+If lReturn .AND. !aCols[n,Len(aHeader)+1]
+	If Posicione('SF4',1,xFilial('SF4')+aCols[n][nPosTes],'F4_ESTOQUE') == "S" //Chamado 002624
+		If lReturn .And. Inclui .And. Empty(aCols[n][nPosReserv]) .And. aCols[n][nPosQtdLib] > U_SaldoProd(aCols[n][nPosProd],aCols[n][nPosLocal])
+			MsgInfo('Quantidade liberada do produto '+AllTrim(aCols[n][nPosProd])+' maior que o saldo disponível em estoque!', 'Atenção')
+			lReturn := .F.
+		Endif
 	Endif
 Endif
 
