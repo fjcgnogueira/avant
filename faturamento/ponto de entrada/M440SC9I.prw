@@ -15,7 +15,15 @@
 /*/
 User Function M440SC9I()
 
+// Fernando Nogueira - Chamado 005486
+If Empty(SC9->C9_SERVIC) .And. !Empty(SC9->C9_BLWMS)
+	ConOut("Ponto de Entrada: M440SC9I")
+	SC9->C9_BLWMS := CriaVar("C9_BLWMS")
+Endif
+
 If IsBlind() .Or. AllTrim(FunName()) $ ('MATA410.MATA440')
+
+	ConOut("Ponto de Entrada: M440SC9I")
 
 	If AllTrim(SC5->C5_X_BLQ) == 'C'
 		SC5->C5_X_BLQ := 'S'
