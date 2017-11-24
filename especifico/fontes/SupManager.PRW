@@ -71,8 +71,8 @@ User Function SupManager(w,y,nOpc)
 
 	Private oFlwS 	 := LoadBitmap( GetResources(), "BR_VERMELHO_OCEAN.BMP" )
 	Private oFlwU 	 := LoadBitmap( GetResources(), "BMPUSER.BMP" )
-	Private oFlwT 	 := LoadBitmap( GetResources(), "IC_20_USUARIO.GIF" )
-	Private oFlwP 	 := LoadBitmap( GetResources(), "IC_SCORECARD.GIF" )
+	Private oFlwT 	 := LoadBitmap( GetResources(), "TCFIMG16.PNG" )
+	Private oFlwP 	 := LoadBitmap( GetResources(), "GCTIMG16.PNG" )
 	Private oFlw1 	 := LoadBitmap( GetResources(), "BR_VIOLETA.PNG" )
 	Private oFlw2 	 := LoadBitmap( GetResources(), "BR_VERMELHO_OCEAN.PNG" )
 	Private oFlw3 	 := LoadBitmap( GetResources(), "BR_AMARELO_OCEAN.PNG" )
@@ -521,18 +521,18 @@ Static Function MTLoadLbx(cDTAbrIni,cDTAbrFim,cFilArea,cFilTec,cFilStatus,cDTEnc
 		IF lUser
 			cSQL += "ZU_TECNICO = '" + cFilTec + "' AND " + cEOL
 		Endif
-		
+
 	    IF !lUser .And. !EMPTY(cFilTec2)
 			cSQL += "ZU_TECNICO = '" + cFilTec2 + "' AND " + cEOL
 		Endif
-		
+
 		IF lFilaPrj
 			cSQL += "ZU_FEEDBAC <> 'P' AND " + cEOL
-		Endif	
+		Endif
 
 		IF lProjeto
 			cSQL += "ZU_ROTINA = '000011' AND " + cEOL
-		Endif	
+		Endif
 
 	 	If !lTodos
 	 		IF !lPendente
@@ -893,6 +893,6 @@ Static Function LegPri()
 	aAdd( aLegenda, { "BR_AMARELO" 	, "Media" } )
 	aAdd( aLegenda, { "BR_AZUL"  	, "Baixa" } )
 
-	BrwLegenda("Prioridades do Chamado (P)" ,"Legenda" ,aLegenda) 
-	                                    
+	BrwLegenda("Prioridades do Chamado (P)" ,"Legenda" ,aLegenda)
+
 Return
