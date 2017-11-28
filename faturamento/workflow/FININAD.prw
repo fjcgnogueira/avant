@@ -56,17 +56,19 @@ ConOut("Data de corte: " +cDtcorte)
 
 BeginSql alias cAlias1
 
-	SELECT A3_COD AS VEND, A3_NOME AS Representante, A3_EMAIL AS Email, A1_NOME AS Cliente, 
+	SELECT SA3.A3_COD AS VEND, SA3.A3_NOME AS Representante, SA3.A3_EMAIL AS Email, A1_NOME AS Cliente, 
 	E1_FILIAL AS Filial,
-    E1_NUM AS Titulo, E1_PARCELA AS Parcela, CONVERT(VARCHAR(12),CAST(E1_VENCREA AS DATE),103) AS Vencimento, E1_VALOR AS Valor, E1_SALDO AS Saldo, A1_CGC AS CNPJ FROM %table:SE1% SE1
+	E1_NUM AS Titulo, E1_PARCELA AS Parcela, CONVERT(VARCHAR(12),CAST(E1_VENCREA AS DATE),103) AS Vencimento, E1_VALOR AS Valor, E1_SALDO AS Saldo, A1_CGC AS CNPJ,
+	ISNULL(SA32.A3_EMAIL,'') AS [Email_Gerente] FROM %table:SE1% SE1
 	INNER JOIN %table:SA1% SA1 ON E1_CLIENTE+E1_LOJA = A1_COD+A1_LOJA AND SA1.%notDel%
 	INNER JOIN %table:SA3% SA3 ON A1_VEND = A3_COD AND SA3.%notDel%
+	LEFT JOIN SA3010 SA32 ON SA3.A3_GEREN = SA32.A3_COD AND SA32.%notDel%
 	WHERE SE1.%notDel%
 	AND E1_SALDO > 0
 	AND E1_TIPO IN ('NF')
-	AND A3_MSBLQL = '2'
+	AND SA3.A3_MSBLQL = '2'
 	AND E1_VENCREA <= %exp:cDtcorte%
-	ORDER BY A3_COD, A1_NOME, E1_FILIAL, E1_NUM, E1_PARCELA
+	ORDER BY SA3.A3_COD, A1_NOME, E1_FILIAL, E1_NUM, E1_PARCELA
 
 EndSql
 
@@ -79,6 +81,7 @@ While (cAlias1)->(!Eof())
 	cRepres   := (cAlias1)->Representante
 	cAssunto  := "INADIMPLENCIA - " + cRepres
 	_cPara    := (cAlias1)->Email
+	_cCcopia  += ", "+(cAlias1)->Email_Gerente
 	nTotSaldo := 0
 	
 	oProcess := TWFProcess():New("INADREP","INADIMPLENCIA REPRESENTANTES")
