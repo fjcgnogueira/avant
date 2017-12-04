@@ -1,0 +1,15 @@
+<%#include "tbiconn.ch"%>
+<html>
+<head> <title>Teste de Listagem de Produtos em HTML através do ADVPLASP</title> </head>
+<p align="center" style="margin-top: 0; margin-bottom: 0"><b><u><font face="Arial Black" size="6" color="#FF0000">LISTA DE PRODUTOS </font></u></b></p>
+<table border="1" width="100%"> <tr> <td width="25%"><b><font color="#0000FF">PRODUTO</font></b></td> <td width="50%"><b><font color="#0000FF">DESCRICAO</font></b></td> <td width="25%"><b><font color="#0000FF">PRECO</font></b></td> </tr>
+<p align="left" style="line-height: 100%; word-spacing: 0; margin: 0"><b><font size="3" face="Arial"><fontcolor="#000080"> </font><fontcolor="#0000FF">    </font></font></b></p>
+<% PREPARE ENVIRONMENT EMPRESA "01" FILIAL "010104" MODULO "FAT" %>
+<% dbSelectArea("SB1") %>
+<% dbgotop() %>
+<% For nI:=1 TO 50 %>
+<tr> <td width="25%"><%= SB1->B1_COD %> </td> <td width="50%"><%= SB1->B1_DESC %> </td> <td width="25%"><%= SB1->B1_PRV1 %> </td> </tr>
+<% SB1->(dbSkip()) %>
+<% Next %>
+</table>
+</body> </html>
