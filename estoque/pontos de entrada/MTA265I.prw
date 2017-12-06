@@ -17,9 +17,13 @@ User Function MTA265I()
 Local aOperacao  := {}
 Local lRet
 Local aArea      := GetArea()
+Local aAreaSBF   := SBF->(GetArea())
 Local nQuant     := 0
 Local cNumReserv := ""
 Local cAliasZZR  := GetNextAlias()
+
+dbSelectArea("SBF")
+dbSetOrder(01)
 
 dbSelectArea("ZZR")
 dbSetOrder(01)
@@ -44,7 +48,8 @@ While (cAliasZZR)->(!EoF())
 
 	aOperacao := {01,(cAliasZZR)->ZZR_TIPO,'P'+(cAliasZZR)->ZZR_NUM,(cAliasZZR)->ZZR_SOLICI,(cAliasZZR)->ZZR_FILIAL,(cAliasZZR)->ZZR_OBS}
 	
-	nQuant := If(SDB->DB_QUANT >= (cAliasZZR)->ZZR_QUANT, (cAliasZZR)->ZZR_QUANT, SDB->DB_QUANT)
+	// Fernando Nogueira - Chamado 005536
+	nQuant := If((SBF->(BF_QUANT-BF_EMPENHO)) >= (cAliasZZR)->ZZR_QUANT, (cAliasZZR)->ZZR_QUANT, (SBF->(BF_QUANT-BF_EMPENHO)))
 	
 	cNumReserv := NumReserv()
 	
@@ -69,12 +74,13 @@ While (cAliasZZR)->(!EoF())
 	Else
 		RollBackSX8()
 	Endif	
-
+	
 	(cAliasZZR)->(dbSkip())
 End
 
 (cAliasZZR)->(dbCloseArea())
 
+SBF->(RestArea(aAreaSBF))
 RestArea(aArea)
 
 Return
