@@ -81,8 +81,12 @@ While (cAlias1)->(!Eof())
 	cRepres   := (cAlias1)->Representante
 	cAssunto  := "INADIMPLENCIA - " + cRepres
 	_cPara    := (cAlias1)->Email
-	_cCcopia  += ", "+(cAlias1)->Email_Gerente
 	nTotSaldo := 0
+	
+	If (cAlias1)->Email_Gerente = 'bernardo.guth@avantlux.com.br'
+		_cCcopia  += ", "+(cAlias1)->Email_Gerente
+	EndIf
+	
 	
 	oProcess := TWFProcess():New("INADREP","INADIMPLENCIA REPRESENTANTES")
 	oProcess:NewTask("Enviando Relacao de Clientes Inadimplentes",cArquivo)
