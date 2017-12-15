@@ -5308,6 +5308,10 @@ cFoneDest += IIF(aTelDest[3] > 0,ConvType(aTelDest[3],9),"") // Código do Telefo
 cString += NfeTag('<fone>',cFoneDest)
 cString += '</enderEmit>'
 cString += '<IE>'+ConvType(VldIE(SM0->M0_INSC))+'</IE>'
+// Fernando Nogueira - Chamado 005558
+If cUfDest = 'CE'
+	cString += '<IEST>065266080</IEST>'
+Endif
 If !Empty(aIEST) 
 	/*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	  ³ Tratamento para acordo entre os estados preenchidos no parametro MV_STNIEUF, quando em      ³
@@ -5328,10 +5332,13 @@ If !Empty(aIEST)
 	Regra de Validação
 	Se informada a IE do Substituto Tributário para uma operação com Exterior ou Operação Interna (tag:idDest=1 ou 3)
 	Exceção: A critério da UF, poderá ser aceita a informação da IE-ST em operação interna.
-	*/                                                                                                                                                                                                                                                      
-	If (AllTrim(ConvType(VldIE(SM0->M0_INSC))) <> Alltrim(aIEST[01])) .And. (Alltrim (aIEST[01]) <> Alltrim(aIEST[02])) .And. cIdDest == "2"
-		cString += NfeTag('<IEST>',aIEST[01]) 
-	EndIf
+	*/
+	// Fernando Nogueira - Chamado 005558                                                                                                                                                                                                                                                      
+	If cUfDest <> 'CE'
+		If (AllTrim(ConvType(VldIE(SM0->M0_INSC))) <> Alltrim(aIEST[01])) .And. (Alltrim (aIEST[01]) <> Alltrim(aIEST[02])) .And. cIdDest == "2"
+			cString += NfeTag('<IEST>',aIEST[01]) 
+		EndIf
+	Endif
 EndIf
 cString += NfeTag('<IM>',SM0->M0_INSCM)
 cString += NfeTag('<CNAE>',ConvType(SM0->M0_CNAE))
