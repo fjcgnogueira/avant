@@ -4855,7 +4855,7 @@ If !Empty(aNota)
 
 	cString := ""
 	cString += NfeIde(@cNFe,aNota,cNatOper,aDupl,aNfVinc,cVerAmb,aNfVincRur,aRefECF,cIndPres,aDest,aProd,aExp)
-	cString += NfeEmit(aIEST,cVerAmb,aDest)
+	cString += NfeEmit(aIEST,cVerAmb,aDest,aICMSST,aICMUFDest)
 	cString += NfeDest(aDest,cVerAmb,aTransp,aCST,lBrinde)
 	If !Empty(cAutXml)
 		cString += NfeAutXml(cAutXml)
@@ -5237,7 +5237,7 @@ cString += '</ide>'
 
 Return( cString )
 
-Static Function NfeEmit(aIEST, cVerAmb, aDest)
+Static Function NfeEmit(aIEST, cVerAmb, aDest,aICMSST,aICMUFDest)
 
 Local aTelDest 		:= {} 
 
@@ -5251,6 +5251,13 @@ Local cEndEmit	:= ""
 
 Local lEndFis 		:= GetNewPar("MV_SPEDEND",.F.)
 Local lUsaGesEmp	:= IIF(FindFunction("FWFilialName") .And. FindFunction("FWSizeFilial") .And. FWSizeFilial() > 2,.T.,.F.)
+
+Local _cAvSubtrib	:= GetSubTrib()
+Local _nPosI		:= 0
+Local _nPosF		:= 0
+Local _cAvInscSubs	:= ""
+Local _lICMSST		:= .F.
+Local _lICMSDifal	:= .F.
 
 DEFAULT aIEST	 := {}
 
@@ -5311,8 +5318,32 @@ cString += '<IE>'+ConvType(VldIE(SM0->M0_INSC))+'</IE>'
 // Fernando Nogueira - Chamado 005558
 If cUfDest = 'CE'
 	cString += '<IEST>065266080</IEST>'
+// Fernando Nogueira - Chamado 005562
+ElseIf !(cUfDest $ 'SC.EX')
+	For _n := 1 To Len(aICMSST)
+		If Len(aICMSST[_n]) > 1
+			_lICMSST := .T.
+			Exit
+		Endif
+	Next
+	For _n := 1 To Len(aICMUFDest)
+		If Len(aICMUFDest[_n]) > 1
+			_lICMSDifal := .T.
+			Exit
+		Endif
+	Next
+	If _lICMSST .Or. _lICMSDifal
+		If At(cUfDest, _cAvSubtrib) > 0
+			_nPosI	:=	At (cUfDest, _cAvSubtrib) + 2
+			_nPosF	:=	At ("/", SubStr(_cAvSubtrib, _nPosI)) - 1
+			_nPosF	:=	IIf(_nPosF <= 0,len(_cAvSubtrib),_nPosF)
+			_cAvInscSubs := SubStr(_cAvSubtrib, _nPosI, _nPosF) //01 - IE_ST
+			cString += '<IEST>'+_cAvInscSubs+'</IEST>'
+		EndIf
+	Endif
 Endif
-If !Empty(aIEST) 
+
+//If !Empty(aIEST) 
 	/*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	  ³ Tratamento para acordo entre os estados preenchidos no parametro MV_STNIEUF, quando em      ³
 	  ³ um movimento com ICMS-ST nao e' necessario ter insccricao estadual, assim esse tratamento   ³
@@ -5333,13 +5364,10 @@ If !Empty(aIEST)
 	Se informada a IE do Substituto Tributário para uma operação com Exterior ou Operação Interna (tag:idDest=1 ou 3)
 	Exceção: A critério da UF, poderá ser aceita a informação da IE-ST em operação interna.
 	*/
-	// Fernando Nogueira - Chamado 005558                                                                                                                                                                                                                                                      
-	If cUfDest <> 'CE'
-		If (AllTrim(ConvType(VldIE(SM0->M0_INSC))) <> Alltrim(aIEST[01])) .And. (Alltrim (aIEST[01]) <> Alltrim(aIEST[02])) .And. cIdDest == "2"
-			cString += NfeTag('<IEST>',aIEST[01]) 
-		EndIf
-	Endif
-EndIf
+	/*If (AllTrim(ConvType(VldIE(SM0->M0_INSC))) <> Alltrim(aIEST[01])) .And. (Alltrim (aIEST[01]) <> Alltrim(aIEST[02])) .And. cIdDest == "2"
+		cString += NfeTag('<IEST>',aIEST[01]) 
+	EndIf
+EndIf*/
 cString += NfeTag('<IM>',SM0->M0_INSCM)
 cString += NfeTag('<CNAE>',ConvType(SM0->M0_CNAE))
 cString += '<CRT>'+cMVCODREG+'</CRT>' 
