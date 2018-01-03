@@ -16,11 +16,10 @@
 北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北
 哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌哌
 */
-User Function UFBDST()                                      
+User Function UFBDST()
 
 Local cMens		:= 'Estados para a base dupla do ST: '
-Local cEOL		:= Chr(13)+Chr(10)
-Local bConfirma	:= {||If(AllTrim(cEstados)<>AllTrim(GetMv("MV_UFBDST")),PutMV("MV_UFBDST",cEstados),),MsgInfo(cMens+AllTrim(cEstados)),oDlgBDST:End()}
+Local bConfirma	:= {||PutMV("MV_UFBDST",AllTrim(cEstados)),MsgInfo(cMens+AllTrim(cEstados)),oDlgBDST:End()}
 
 Static oDlgBDST
 Static oButCancela
