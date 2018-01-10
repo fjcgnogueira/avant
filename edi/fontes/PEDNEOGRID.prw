@@ -139,6 +139,7 @@ For _n := 1 to Len(aDiretorio)
 								AADD( aIdSZJ, {'ZJ_OBSERV' , SubStr(cBuff, 276, 040)} ) //OBSERVACAO DO PEDIDO
 								AADD( aIdSZJ, {'ZJ_STATUS' , '1'} )                     //STATUS DO PEDIDO
 								AADD( aIdSZJ, {'ZJ_PROCES' , 'N'} )                     //INTEGROU O PEDIDO NO SISTEMA
+								AADD( aIdSZJ, {'ZJ_DTENTRE', SubStr(cBuff, 073, 008)} )//DATA DE ENTREGA
 
 								lRetorno := U_AV_EDIGRV('SZJ', aIdSZJ, cNumPed, 1, xFilial("SZJ")) > 0
 
