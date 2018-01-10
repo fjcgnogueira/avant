@@ -117,6 +117,7 @@ If lRetorno
 				aAdd(aCabec, {"C5_PEDEDI" , cPedEdi        , NIL} )
 				aAdd(aCabec, {"C5_PEDCLI" , cPedCli        , NIL} )
 				aAdd(aCabec, {"C5_X_BLQ"  ,"S"             , NIL} )		// Fernando Nogueira - Chamado 002243
+				aAdd(aCabec, {"C5_XDTENTR", SZJ->ZJ_DTENTRE, NIL} )
 
 				DbSelectarea("SZK")
 				SZK->(dbSetorder(1))
