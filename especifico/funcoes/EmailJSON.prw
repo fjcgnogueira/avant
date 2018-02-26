@@ -15,7 +15,7 @@
 User Function EmailJSON(cEmail,lAviso)
 
 Local cChave     := GetMv("ES_CHVHIPP")
-Local cUrl       := "http://api1.27hub.com/api/emh/a/v2?k="+cChave+"&e="+AllTrim(cEmail)
+Local cUrl       := "https://api.hippoapi.com/v3/more/json/"+cChave+"/"+AllTrim(cEmail)
 Local cGetParams := ""
 Local nTimeOut   := 200
 Local aHeadStr   := {"Content-Type: application/json"}
@@ -30,9 +30,9 @@ cRetorno := HttpGet(cUrl,cGetParams,nTimeOut,aHeadStr,@cHeaderGet)
 If !FwJsonDeserialize(cRetorno,@oObjJson)
 	MsgStop("Erro no processamento do Json")
 	Return .T.
-Endif 
+Endif
 
-If AllTrim(oObjJson:result) = "Bad"
+If AllTrim(oObjJson:EmailVerification:MailBoxVerification:Result) = "Bad"
 	If lAviso
 		Aviso('E-mail',"Email "+AllTrim(cEmail)+" inexistente.",{'Ok'})
 	Endif
