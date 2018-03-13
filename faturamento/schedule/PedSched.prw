@@ -17,13 +17,6 @@
 User Function PedSched(aParam)
 
 Local aTabelas   := {"SA1", "SC5", "SC6", "SC9", "SD2", "SF2", "SF4", "SF5", "SFM", "SB1", "SB2", "SB9","ZZI","ZIA","SZ3","SZ4"}
-Local cMensagem  := ""
-Local cDocumen   := ""
-Local cNextAlias := GetNextAlias()
-Local aPedWeb    := {}
-Local _nXI       := 0
-
-Private aPVlNFs  := {}
 
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	//³aParam     |  [01]   |  [02]  |
@@ -33,6 +26,36 @@ Private aPVlNFs  := {}
 RpcClearEnv()
 RPCSetType(3)
 RpcSetEnv(aParam[1], aParam[2], NIL, NIL, "FAT", NIL, aTabelas)
+
+U_xPedSched()
+
+RpcClearEnv()
+
+Return
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ xPedSchedº Autor ³ Fernando Nogueira  º Data ³ 13/03/2018  º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³ Integracao de Pedido de Vendas                             º±±
+±±º          ³ Nao precisa chamar via schedule, para testes               º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ Especifico Avant                                           º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+User Function xPedSched()
+
+Local cMensagem  := ""
+Local cDocumen   := ""
+Local cNextAlias := GetNextAlias()
+Local aPedWeb    := {}
+Local _nXI       := 0
+
+Private aPVlNFs  := {}
 
 BeginSql alias cNextAlias
 
@@ -67,7 +90,7 @@ For _nXI := 1 to Len(aPedWeb)
 
 	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Processando Pedido Web: "+AllTrim(cValToChar(aPedWeb[_nXI][01])))
 
-	U_INTPEDIDO(aParam[1], aParam[2], AllTrim(cValToChar(aPedWeb[_nXI][01])), @cMensagem, @cDocumen, .F.)
+	U_INTPEDIDO(cEmpAnt, cFilAnt, AllTrim(cValToChar(aPedWeb[_nXI][01])), @cMensagem, @cDocumen, .F.)
 
 	If !Empty(cMensagem)
 		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] "+cMensagem)
@@ -80,6 +103,9 @@ For _nXI := 1 to Len(aPedWeb)
 
 	If SZ3->Z3_STATUS = '3'
 		EnvInteg()
+		If SC5->C5_CONDPAG = '149'
+			EnvPedAnt()
+		Endif
 	Else
 		If !("Seu Pedido tem produto faltando regra fiscal" $ cMensagem) // Fernando Nogueira - Chamado 004689
 			EnvNaoInt(aPedWeb[_nXI][01],cMensagem)
@@ -108,8 +134,6 @@ Next
 If Empty(cDocumen) .And. Empty(cMensagem)
 	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Nenhum pedido a integrar")
 Endif
-
-RpcClearEnv()
 
 Return
 
@@ -311,5 +335,54 @@ oProcess:Start()
 oProcess:Finish()
 
 (cPedTRB)->(DbCloseArea())
+
+Return
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ EnvPedAntºAutor  ³ Fernando Nogueira  º Data ³ 13/03/2018  º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³ Envia Workflow com Pedido Antecipado ao Cliente            º±±
+±±º          ³ Chamado 005629                                             º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+Static Function EnvPedAnt()
+
+Local cArquivo  := "\MODELOS\ANTECIPADO.HTM"
+Local cMailCC   := AllTrim(GetMv("ES_MAILANT"))
+Local cMailBCC  := AllTrim(GetMv("ES_EMAILTI"))
+Local cSaudacao := ""
+Local _oProcess := Nil
+Local lEnd      := .F.
+Local cTotQtd   := 0
+Local cTotal    := 0
+Local lWFTI     := &(Posicione("SX5",1,xFilial("SX5")+"ZA0004","X5_DESCRI"))
+Local cPara     := Iif(!Empty(AllTrim(Posicione("SA1",1,xFilial("SA1")+SC5->(C5_CLIENTE+C5_LOJACLI),"A1_X_MAILC"))),AllTrim(SA1->A1_X_MAILC),If(AllTrim(SA1->A1_EMAIL)='ISENTO',AllTrim(GetMv("ES_MAILCAD")),AllTrim(SA1->A1_EMAIL)))
+
+cMailCC += Iif(Empty(cPara),"",",")+AllTrim(Posicione("SA3",1,xFilial("SA3")+SC5->C5_VEND1,"A3_EMAIL"))
+cMailCC += Iif(!Empty(SA3->A3_GEREN),Iif(Empty(cPara),"",",")+AllTrim(Posicione("SA3",1,xFilial("SA3")+SA3->A3_GEREN,"A3_EMAIL")),"")
+
+oProcess := TWFProcess():New("ENVPEDINT","PEDIDO ANTECIPADO")
+oProcess:NewTask("Enviando Pedido Antecipado",cArquivo)
+oHTML := oProcess:oHTML
+
+oHtml:ValByName("cPedido"    , SC5->C5_NUM)
+oHtml:ValByName("cValor"     , Alltrim(Transform(SC5->C5_XTOTPED , PesqPict("SC6","C6_VALOR"))))
+oHtml:ValByName("cVencimento", DtoC(DataValida(dDataBase+1,.T.)))
+
+oProcess:cSubject := "[Pedido Antecipado Avant "+SC5->C5_NUM+" - Dados para Pagamento - Cliente "+AllTrim(SA1->A1_NOME)+" - "+DtoC(Date())+"]"
+oProcess:USerSiga := "000000"
+oProcess:cTo      := cPara
+oProcess:cCC  	  := cMailCC
+If lWFTI
+	oProcess:cBCC := cMailBCC
+Endif
+oProcess:Start()
+oProcess:Finish()
+lEnviou := .T.
 
 Return
