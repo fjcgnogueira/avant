@@ -151,7 +151,8 @@ oModel:SetRelation('ID_MODEL_GRD_PedidoWeb', {{'Z4_FILIAL', 'xFilial("SZ4")'}, {
 //Liga o controle de não repetição de Linha
 oModel:GetModel('ID_MODEL_GRD_PedidoWeb'):SetUniqueLine({'Z4_ITEMPED'})
 
-oModel:AddCalc('ID_COMP_CALC','ID_MODEL_FLD_PedidoWeb','ID_MODEL_GRD_PedidoWeb','Z4_VLRTTIT','TOTVLRTTIT' ,'FORMULA',/*bCond*/,/*bInitValue*/,"Total do Pedido: ",{|oModel| VlrTot(oModel)},,02)
+//oModel:AddCalc('ID_COMP_CALC','ID_MODEL_FLD_PedidoWeb','ID_MODEL_GRD_PedidoWeb','Z4_VLRTTIT','TOTVLRTTIT' ,'FORMULA',/*bCond*/,/*bInitValue*/,"Total do Pedido: ",{|oModel| VlrTot(oModel)},,02)
+oModel:AddCalc('ID_COMP_CALC','ID_MODEL_FLD_PedidoWeb','ID_MODEL_GRD_PedidoWeb','Z4_VLRTTIT','TOTVLRTTIT' ,'SUM',/*bCond*/,/*bInitValue*/,"Total do Pedido: ")
 
 //Adiciona Descricao do Modelo de Dados
 oModel:SetDescription('Modelo de Dados do Pedido Web')
@@ -206,8 +207,8 @@ oView:CreateHorizontalBox('ID_HBOX_SUPERIOR', 40)
 oView:CreateHorizontalBox('ID_HBOX_INFERIOR', 50)
 oView:CreateHorizontalBox('ID_HBOX_TOTAIS'  , 10)
 
-oView:CreateVerticalBox('ID_VBOX_LEFT_TOTAIS' ,80,'ID_HBOX_TOTAIS')
-oView:CreateVerticalBox('ID_VBOX_RIGHT_TOTAIS',20,'ID_HBOX_TOTAIS')
+oView:CreateVerticalBox('ID_VBOX_LEFT_TOTAIS' ,60,'ID_HBOX_TOTAIS')
+oView:CreateVerticalBox('ID_VBOX_RIGHT_TOTAIS',40,'ID_HBOX_TOTAIS')
 
 // Relaciona o ID da View com o "box" para exibicao
 oView:SetOwnerView('ID_VIEW_FLD_PedidoWeb', 'ID_HBOX_SUPERIOR')
@@ -593,13 +594,13 @@ Local nLimite   := SA1->A1_X_VLVEN
 
 For nI := 1 To nQtdLin
 	If !oMdlGrid:IsDeleted()
-		nTotal += oMdlGrid:GetValue('Z4_QTDE',nI)
+		nTotal += oMdlGrid:GetValue('Z4_QTDE',nI) * oMdlGrid:GetValue('Z4_PRLIQ',nI) 
 	Endif
 Next nI
 
 If oModel:GetOperation() == MODEL_OPERATION_INSERT .Or. oModel:GetOperation() == MODEL_OPERATION_UPDATE
 
-	If nTotal < oMdlCalc:GetValue("TOTVLRTTIT") .And. nTotal > 0 .And. nTotal < nLimite .And. cPessoa <> "F" .And. cHabFrete == "S" .And. cTipoOper = '51'
+	If nTotal > 0 .And. nTotal < nLimite .And. cPessoa <> "F" .And. cHabFrete == "S" .And. cTipoOper = '51'
 		If cEstado $ cEstFrete
 			oMdlField:SetValue("Z3_FREPAGO","C")
 		Else
