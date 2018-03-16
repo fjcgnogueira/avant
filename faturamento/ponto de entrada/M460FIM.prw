@@ -4,10 +4,10 @@
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³M460FIM   º Autor ³ Rodrigo Leite      º Data ³  01/11/11   º±±
+±±ºPrograma  ³ M460FIM  º Autor ³ Rodrigo Leite      º Data ³  01/11/2011 º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Atualiza titulo no Contas a Receber SE1, e grava o campo   º±±
-±±º          ³ Regional com o codigo da regional do Cliente               º±±
+±±ºDescricao ³ Ponto de Entrada chamado apos a gravacao da NF de Saida    º±±
+±±º          ³ Fora da Transacao                                          º±±
 ±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
 ±±ºUso       ³ Especifico Avant                                           º±±
 ±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
@@ -48,12 +48,15 @@ dbSeek(xFilial("SE1")+SF2->F2_CLIENTE+SF2->F2_LOJA+SF2->F2_SERIE+SF2->F2_DOC)
 
 While !Eof() .And. 	SE1->E1_FILIAL == xFilial("SE1") .And.;
 	SE1->E1_CLIENTE == SF2->F2_CLIENTE .And.;
-	SE1->E1_LOJA ==SF2->F2_LOJA .And. ;
+	SE1->E1_LOJA == SF2->F2_LOJA .And. ;
 	SE1->E1_PREFIXO == SF2->F2_SERIE .And. ;
 	SE1->E1_NUM == SF2->F2_DOC
 
 	RecLock("SE1",.F.)
-		SE1->E1_REGIAO := Posicione("SA1",1,xfilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA,"A1_REGIAO")
+		SE1->E1_REGIAO  := Posicione("SA1",1,xfilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA,"A1_REGIAO")
+		// Fernando Nogueira - Atender Chamados 005637 e 005660
+		SE1->E1_X_TPPGT := SA1->A1_X_TPPGT
+		SE1->E1_X_CNDPG := SF2->F2_COND
 	MsUnlock()
 
 	dbSkip()
