@@ -29,33 +29,64 @@ Return "U_FiltroBordero()"
 User Function FiltroBordero()
 
 Local lReturn  := .T.
-Local aArea    := GetArea()
-Local aAreaSD2 := SD2->(GetArea())
-Local aAreaSC5 := SC5->(GetArea())
 
-dbSelectArea("SD2")
-dbSetOrder(03)
-dbGoTop()
-
-// Fernando Nogueira - Chamado 005463
-If SE1->E1_TIPO = 'NCC'
+If SE1->E1_TIPO = 'NCC'        //Fernando Nogueira - Chamado 005463
 	lReturn := .F.
-ElseIf dbSeek(xFilial("SD2")+SE1->E1_NUM+SE1->E1_PREFIXO+SE1->E1_CLIENTE+SE1->E1_LOJA)
-	
-	dbSelectArea("SC5")
-	dbSetOrder(01)
-	dbGoTop()
-	
-	If dbSeek(xFilial("SC5")+SD2->D2_PEDIDO)
-		// Fernando Nogueira - Chamado 005512
-		If SC5->C5_CONDPAG = '149'
-			lReturn := .F.
-		Endif
-	Endif
+ElseIf SE1->E1_X_TPPGT $ 'CD'  //Fernando Nogueira - Chamado 005660
+	lReturn := .F.
+ElseIf SE1->E1_X_TPPGT = '149' //Fernando Nogueira - Chamado 005512
+	lReturn := .F.
 Endif
 
-SC5->(RestArea(aAreaSC5))
-SD2->(RestArea(aAreaSD2))
-RestArea(aArea)
-
 Return lReturn
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ TitCliAberto  º Autor ³ Fernando Nogueira º Data ³ 16/03/2018 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³ Verifica se tem titulos do cliente em aberto                  º±±
+±±º          ³ Validacao campo A1_X_TPPGT - Chamado 005660                   º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+User Function TitCliAberto()
+
+Local cCliente  := M->A1_COD
+Local cLoja     := M->A1_LOJA
+Local cNome     := M->A1_NOME
+Local cTpPgto   := M->A1_X_TPPGT
+Local cAliasSE1 := GetNextAlias()
+
+BeginSql alias cAliasSE1
+	SELECT R_E_C_N_O_ SE1REC FROM %table:SE1% SE1
+	WHERE SE1.%notDel%
+		AND E1_FILIAL   = %xfilial:SE1%
+		AND E1_SALDO > 0
+		AND E1_TIPO     = 'NF'
+		AND E1_CLIENTE  = %exp:cCliente%
+		AND E1_LOJA     = %exp:cLoja%
+		AND E1_X_TPPGT <> %exp:cTpPgto%
+	ORDER BY SE1REC
+EndSql
+
+(cAliasSE1)->(dbGoTop())
+
+If (cAliasSE1)->(!EoF())
+	If MsgYesNo("O cliente "+cNome+" loja "+cLoja+" possui títulos em aberto com outro tipo de pagamento"+Chr(13)+Chr(10)+"Deseja alterar para o tipo informado?")
+		While (cAliasSE1)->(!EoF())
+			SE1->(dbGoto((cAliasSE1)->SE1REC))
+			SE1->(RecLock("SE1",.F.))
+				SE1->E1_X_TPPGT := cTpPgto
+			SE1->(MsUnlock())
+			(cAliasSE1)->(dbSkip())
+		End
+		MsgInfo("Títulos alterados")		
+	Endif
+End
+
+(cAliasSE1)->(DbCloseArea())
+
+Return .T.
