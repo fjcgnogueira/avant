@@ -34,7 +34,7 @@ If SE1->E1_TIPO = 'NCC'        //Fernando Nogueira - Chamado 005463
 	lReturn := .F.
 ElseIf SE1->E1_X_TPPGT $ 'CD'  //Fernando Nogueira - Chamado 005660
 	lReturn := .F.
-ElseIf SE1->E1_X_TPPGT = '149' //Fernando Nogueira - Chamado 005512
+ElseIf SE1->E1_X_CNDPG = '149' //Fernando Nogueira - Chamado 005512
 	lReturn := .F.
 Endif
 
