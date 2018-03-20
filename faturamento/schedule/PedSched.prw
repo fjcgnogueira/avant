@@ -59,10 +59,10 @@ Private aPVlNFs  := {}
 
 BeginSql alias cNextAlias
 
-	SELECT Z3_NPEDWEB,SZ3.R_E_C_N_O_ SZ3RECNO FROM %table:SZ3% SZ3
+	SELECT Z3_NPEDWEB,SZ3.R_E_C_N_O_ SZ3RECNO,Z3_CODTSAC FROM %table:SZ3% SZ3
 	INNER JOIN %table:SZ4% SZ4 ON Z3_FILIAL = Z4_FILIAL AND Z3_NPEDWEB = Z4_NUMPEDW AND SZ4.%notDel%
 	WHERE SZ3.%notDel% AND Z3_FILIAL = %xfilial:SZ3% AND Z3_STATUS = '2'
-	GROUP BY Z3_NPEDWEB,SZ3.R_E_C_N_O_
+	GROUP BY Z3_NPEDWEB,Z3_CODTSAC,SZ3.R_E_C_N_O_
 	ORDER BY Z3_NPEDWEB,SZ3.R_E_C_N_O_
 
 EndSql
@@ -71,7 +71,7 @@ EndSql
 // Fernando Nogueira - Chamado 004628
 While (cNextAlias)->(!EoF())
 
-	aAdd(aPedWeb, {(cNextAlias)->Z3_NPEDWEB,(cNextAlias)->SZ3RECNO})
+	aAdd(aPedWeb, {(cNextAlias)->Z3_NPEDWEB,(cNextAlias)->SZ3RECNO,Left((cNextAlias)->Z3_CODTSAC,2)})
 
 	SZ3->(dbGoTo((cNextAlias)->SZ3RECNO))
 
@@ -103,7 +103,8 @@ For _nXI := 1 to Len(aPedWeb)
 
 	If SZ3->Z3_STATUS = '3'
 		EnvInteg()
-		If SC5->C5_CONDPAG = '149'
+		// Fernando Nogueira - Chamado 005680
+		If SC5->C5_CONDPAG = '149' .And. aPedWeb[_nXI][03] = '51'
 			EnvPedAnt()
 		Endif
 	Else
