@@ -25,6 +25,7 @@ Local nMarcaAnt := 0
 Local nMarcaAtu := 0
 Local nMarcaApo := 0
 Local aAreaSX5  := ""
+Local cAliasSDB := GetNextAlias()
 
 Private aPVlNFs  := {}
 
@@ -36,6 +37,36 @@ Private aPVlNFs  := {}
 PREPARE ENVIRONMENT EMPRESA aParam[1] FILIAL aParam[2]
 
 SET CENTURY ON
+
+// Fernando Nogueira - Ajuste de Ok da Conferencia - Chamado 005674
+BeginSQL Alias cAliasSDB
+	SELECT SC9.R_E_C_N_O_ SC9RECNO FROM %table:SDB% SDB
+	INNER JOIN %table:SC9% SC9 ON DB_FILIAL = C9_FILIAL AND DB_DOC = C9_PEDIDO AND DB_SERIE = C9_ITEM AND DB_PRODUTO = C9_PRODUTO AND DB_LOTECTL = C9_LOTECTL AND DB_NUMLOTE = C9_NUMLOTE AND SC9.%notDel%
+	WHERE SDB.D_E_L_E_T_ = ''
+		AND DB_FILIAL = %Exp:xFilial("SDB")%
+		AND SDB.%notDel%
+		AND DB_TAREFA = '003'
+		AND DB_TIPO = 'E' 
+		AND DB_ESTORNO = ''
+		AND DB_STATUS = '1'
+		AND C9_XCONF <> 'S'
+	ORDER BY SC9RECNO	
+EndSQL
+
+(cAliasSDB)->(dbGoTop())
+
+dbSelectArea("SC9")
+
+While (cAliasSDB)->(!Eof())
+	SC9->(dbGoTo((cAliasSDB)->SC9RECNO))
+	SC9->(RecLock("SC9",.F.))
+		SC9->C9_XCONF := 'S'
+	SC9->(MsUnlock())
+	ConOut("["+DtoC(Date())+" "+Time()+"] [FatAuto] Acerto Conferencia do Pedido/Item: "+SC9->(C9_PEDIDO+"/"+C9_ITEM))	
+	(cAliasSDB)->(dbSkip())
+End
+
+(cAliasSDB)->(dbCloseArea())
 
 lFatAut   := &(Posicione("SX5",1,xFilial("SX5")+"ZA0005","X5_DESCRI"))
 
