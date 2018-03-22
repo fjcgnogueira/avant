@@ -54,6 +54,9 @@ Local cDocumen   := ""
 Local cNextAlias := GetNextAlias()
 Local aPedWeb    := {}
 Local _nXI       := 0
+Local cPedWeb    := ""
+
+
 
 Private aPVlNFs  := {}
 
@@ -67,13 +70,30 @@ BeginSql alias cNextAlias
 
 EndSql
 
+dbSelectArea("SC5")
+dbOrderNickName("PEDWEB")
+
 // Define o Status P - Em processo de Integracao
 // Fernando Nogueira - Chamado 004628
 While (cNextAlias)->(!EoF())
+	
+	SZ3->(dbGoTo((cNextAlias)->SZ3RECNO))
+	
+	cPedWeb	:= PadR(cValToChar(SZ3->Z3_NPEDWEB),TamSx3("Z3_NPEDWEB")[01])
+
+	// Fernando Nogueira - Chamado 005685
+	If SC5->(dbSeek(xFilial("SC5")+cPedWeb))
+		SZ3->(RecLock("SZ3",.F.))
+			SZ3->Z3_STATUS := '3'
+		SZ3->(MsUnlock())
+		(cNextAlias)->(dbSkip())
+		
+		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Pedido Web "+cValToChar(SZ3->Z3_NPEDWEB)+" alterado para status 3")
+		
+		Loop		
+	Endif
 
 	aAdd(aPedWeb, {(cNextAlias)->Z3_NPEDWEB,(cNextAlias)->SZ3RECNO,Left((cNextAlias)->Z3_CODTSAC,2)})
-
-	SZ3->(dbGoTo((cNextAlias)->SZ3RECNO))
 
 	SZ3->(RecLock("SZ3",.F.))
 		SZ3->Z3_STATUS := 'P'
