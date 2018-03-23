@@ -23,8 +23,11 @@ Local _cDoc     := AllTrim(ParamIXB[3])
 Local _cSerie   := AllTrim(ParamIXB[4])
 Local cMens1    := ""
 Local cMens2    := ""
+Local cAliasSC6 := GetNextAlias()
 Local cAliasSC9 := GetNextAlias()
 Local cAliasDCF := GetNextAlias()
+
+SET CENTURY ON
 
 Public __cRecHum := ""
 
@@ -41,26 +44,44 @@ If SDB->(dbSeek(xFilial('SDB')+DCF->DCF_DOCTO))
 	End
 Endif
 
+// Fernando Nogueira - Chamado 005682 (Liberacao Duplicada)
+BeginSQL Alias cAliasSC6
+	SELECT C9_PEDIDO,C9_ITEM, COUNT(*) QUANT FROM %Table:SC6% SC6
+	INNER JOIN %Table:SC9% SC9 ON C6_FILIAL = C9_FILIAL AND C6_NUM = C9_PEDIDO AND C6_ITEM = C9_ITEM AND C9_BLCRED = '' AND SC9.%NotDel%
+	WHERE SC6.%NotDel% 
+		AND C6_FILIAL = %Exp:xFilial("SC6")%
+		AND	C6_NUM = %Exp:_cDoc%
+	GROUP BY C9_PEDIDO,C9_ITEM,C9_QTDLIB HAVING COUNT(*) > 1 AND SUM(C9_QTDLIB) > SUM(C6_QTDEMP)
+	ORDER BY C9_PEDIDO,C9_ITEM,C9_QTDLIB
+EndSQL
+
+(cAliasSC6)->(dbGoTop())
+
+If !(cAliasSC6)->(Eof())
+	ConOut("["+DtoC(Date())+" "+Time()+"] [DLGA150E] O Pedido "+_cDoc+" possui liberacao em duplicidade")
+	Return .F.
+EndIf
+
+(cAliasSC6)->(DbCloseArea())
+
 // Fernando Nogueira - Verifica se tem item nao liberado no Pedido de Vendas
 // Fernando Nogueira - Chamado 004777 (Condicao Faturamento Parcial)
 BeginSQL Alias cAliasSC9
-	SELECT * FROM
-	(SELECT	C6_ITEM ITEMC6,ISNULL(C9_ITEM,'00') ITEMC9 FROM %Table:SC6% SC6
+	SELECT C6_ITEM ITEMC6 FROM %Table:SC6% SC6
 	INNER JOIN %Table:SA1% SA1 ON C6_CLI+C6_LOJA = A1_COD+A1_LOJA AND SA1.%NotDel%
-	LEFT JOIN %Table:SC9% SC9 ON C6_FILIAL = C9_FILIAL AND C6_NUM = C9_PEDIDO AND C6_ITEM = C9_ITEM AND SC9.%NotDel%
-	WHERE	SC6.%NotDel%
-	AND 	C6_FILIAL = %Exp:xFilial("SC6")%
-	AND		C6_NUM = %Exp:_cDoc%
-	AND 	A1_X_FATPA <> 'S'
-	GROUP BY C6_ITEM,C9_ITEM) ITENSC6
-	WHERE ITEMC9 = '00'
-	ORDER BY ITEMC6
+	LEFT  JOIN %Table:SC9% SC9 ON C6_FILIAL = C9_FILIAL AND C6_NUM = C9_PEDIDO AND C6_ITEM = C9_ITEM AND SC9.%NotDel%
+	WHERE SC6.%NotDel%
+		AND C6_FILIAL = %Exp:xFilial("SC6")%
+		AND	C6_NUM = %Exp:_cDoc%
+		AND A1_X_FATPA <> 'S'
+		AND C9_PEDIDO IS NULL
+	ORDER BY ITEMC6	
 EndSQL
 
 (cAliasSC9)->(dbGoTop())
 
 If !(cAliasSC9)->(Eof())
-	cMens1   := "O(s) Item(ns) abaixo do Pedido "+_cDoc+" estão em aberto no Pedido de Vendas:"+CHR(13)+CHR(10)
+	cMens1 := "["+DtoC(Date())+" "+Time()+"] [DLGA150E] O(s) Item(ns) abaixo do Pedido "+_cDoc+" estão em aberto no Pedido de Vendas:"+CHR(13)+CHR(10)
 
 	While !(cAliasSC9)->(Eof())
 		If Empty(cMens2)
@@ -80,23 +101,21 @@ EndIf
 // Fernando Nogueira - Verifica se tem item do Pedido que nao gerou execucao
 // Fernando Nogueira - Chamado 004777 (Condicao Faturamento Parcial)
 BeginSQL Alias cAliasDCF
-	SELECT * FROM
-	(SELECT	C6_ITEM ITEMC6,ISNULL(DCF_SERIE,'00') ITEMDCF FROM %Table:SC6% SC6
+	SELECT	C6_ITEM ITEMC6 FROM %Table:SC6% SC6
 	INNER JOIN %Table:SA1% SA1 ON C6_CLI+C6_LOJA = A1_COD+A1_LOJA AND SA1.%NotDel%
-	LEFT JOIN %Table:DCF% DCF ON C6_FILIAL = DCF_FILIAL AND C6_NUM = DCF_DOCTO AND C6_ITEM = DCF_SERIE AND DCF.%NotDel%
-	WHERE	SC6.%NotDel%
-	AND 	C6_FILIAL = %Exp:xFilial("SC6")%
-	AND		C6_NUM = %Exp:_cDoc%
-	AND 	A1_X_FATPA <> 'S'
-	GROUP BY C6_ITEM,DCF_SERIE) ITENSC6
-	WHERE ITEMDCF = '00'
+	LEFT  JOIN %Table:DCF% DCF ON C6_FILIAL = DCF_FILIAL AND C6_NUM = DCF_DOCTO AND C6_ITEM = DCF_SERIE AND DCF.%NotDel%
+	WHERE SC6.%NotDel%
+		AND	C6_FILIAL = %Exp:xFilial("SC6")%
+		AND	C6_NUM = %Exp:_cDoc%
+		AND	A1_X_FATPA <> 'S'
+		AND DCF_DOCTO IS NULL
 	ORDER BY ITEMC6
 EndSQL
 
 (cAliasDCF)->(dbGoTop())
 
 If !(cAliasDCF)->(Eof())
-	cMens1   := "O(s) Item(ns) abaixo do Pedido "+_cDoc+" não geraram execução de serviço:"+CHR(13)+CHR(10)
+	cMens1 := "["+DtoC(Date())+" "+Time()+"] [DLGA150E] O(s) Item(ns) abaixo do Pedido "+_cDoc+" não geraram execução de serviço:"+CHR(13)+CHR(10)
 
 	While !(cAliasDCF)->(Eof())
 		If Empty(cMens2)
