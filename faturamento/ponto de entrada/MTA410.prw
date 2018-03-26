@@ -27,6 +27,7 @@ Local aImpostos  := {}
 Local cDuplic    := ''
 Local nSomaTot   := 0
 Local nVlrFrete  := 0
+Local nVlrAtual  := M->C5_FRETE
 Local aAreaSA1   := SA1->(GetArea())
 Local aAreaSB1   := SB1->(GetArea())
 Local aAreaSF4   := SF4->(GetArea())
@@ -92,10 +93,9 @@ If !(M->C5_TIPO $ 'BD')
 		Endif
 
 		// Definir o Valor do Frete
-		If cHabFrete == "S"
+		// Fernando Nogueira - Chamado 005702
+		If cHabFrete == "S" .And. nVlrAtual = 0
 			M->C5_FRETE := nVlrFrete
-		Else
-			M->C5_FRETE := 0
 		Endif
 	Endif
 
