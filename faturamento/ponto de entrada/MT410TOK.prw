@@ -21,7 +21,6 @@ User Function MT410TOK()
 	Local nPosPrc	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_PRCVEN"})
 	Local nPosTot	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_VALOR"})
 	Local nPosCF	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_CF"})
-	Local nPosLoc	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_LOCAL"})
 	Local lBonif	:= .F.
 
 	Local nOpc    	:= PARAMIXB[1]
@@ -47,16 +46,6 @@ User Function MT410TOK()
 	Local aAreaAT	:= GetArea()
 	Local aAreaC5	:= SC5->(GetArea())
 	Local aAreaA1	:= SA1->(GetArea())
-	
-	Local _nPISCOF  := GetMV("MV_PISCOF")
-	Local _nFrete   := GetMV("MV_XFRETE")                                                                                                                                                                                                                                                   
-	Local _nComis   := GetMV("MV_XCOMIS")
-	Local _nICMS    := GetMV("MV_XICMS")
-	Local _nDespesa := GetMV("MV_DESPESA")
-	Local _aAreaSB2 := SB2->(GetArea())
-	Local _nCusto   := 0
-	Local _nMargem  := 0
-	
 
 	// Pedido Diferente de Dev.Compras e Beneficiamento
 	If !(M->C5_TIPO $ 'BD')
@@ -67,14 +56,6 @@ User Function MT410TOK()
 			For _nX := 1 To Len(aCols)
 				If !aCols[_nX][Len(aHeader)+1]
 					nSomaTot += aCols[_nX,nPosTot]
-					nPosQuan += aCols[_nX,nPosQuan]
-					
-					SB2->(dbSetOrder(1))
-					SB2->(dbGoTop())
-					SB2->(dbSeek(xFilial("SB2")+cValToChar(nPosProd)+cValToChar(nPosLoc)))
-					
-					_nCusto += SB2->B2_CM1
-					
 					// Fernando Nogueira - Chamado 004231
 					If !lBonif .And. (Right(AllTrim(aCols[_nX,nPosCF]),3) $ "910.949")
 						lBonif := .T.
@@ -200,20 +181,9 @@ User Function MT410TOK()
 	    EndIf
 
 	Endif
-	
-	
-//MARGEM PEDIDO	
-	
-	_nMargem := (nSomaTot - ( (_nCusto * nPosQuan) + (nSomaTot * _nPISCOF) + (nSomaTot * _nDespesa) + (nSomaTot * _nFrete) + (nSomaTot * _nICMS) + (nSomaTot * _nComis) ) ) / nSomaTot
-
-	M->C5_XMARGEM := _nMargem*100
-	
-
-//MARGEM PEDIDO	
 
 	RestArea(aAreaAT)
 	RestArea(aAreaA1)
 	RestArea(aAreaC5)
-	SB2->(RestArea(_aAreaSB2))
 
 Return lRetorno
