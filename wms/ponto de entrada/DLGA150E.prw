@@ -31,6 +31,11 @@ SET CENTURY ON
 
 Public __cRecHum := ""
 
+// Fernando Nogueira - Chamado 005713
+DCF->(RecLock("DCF",.F.))
+	DCF->DCF_X_MOTI := 'S'
+DCF->(MsUnlock())
+
 SDB->(dbSetOrder(6))
 
 // Fernando Nogueira - Verifica se ja tem servico para esse documento
@@ -61,6 +66,12 @@ EndSQL
 
 If !(cAliasSC6)->(Eof())
 	ConOut("["+DtoC(Date())+" "+Time()+"] [DLGA150E] O Pedido "+_cDoc+" possui liberacao em duplicidade")
+
+	// Fernando Nogueira - Chamado 005713
+	DCF->(RecLock("DCF",.F.))
+		DCF->DCF_X_MOTI := 'D'
+	DCF->(MsUnlock())
+
 	Return .F.
 EndIf
 
@@ -95,6 +106,12 @@ If !(cAliasSC9)->(Eof())
 	Enddo
 
 	ConOut(cMens1+cMens2)
+	
+	// Fernando Nogueira - Chamado 005713
+	DCF->(RecLock("DCF",.F.))
+		DCF->DCF_X_MOTI := 'P'
+	DCF->(MsUnlock())
+	
 	Return .F.
 EndIf
 
@@ -129,6 +146,12 @@ If !(cAliasDCF)->(Eof())
 	Enddo
 
 	ConOut(cMens1+cMens2)
+	
+	// Fernando Nogueira - Chamado 005713
+	DCF->(RecLock("DCF",.F.))
+		DCF->DCF_X_MOTI := 'P'
+	DCF->(MsUnlock())
+	
 	Return .F.
 EndIf
 
