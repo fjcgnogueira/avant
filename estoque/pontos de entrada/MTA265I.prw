@@ -42,41 +42,46 @@ EndSql
 
 (cAliasZZR)->(dbGoTop())
 
-While (cAliasZZR)->(!EoF())
+// Fernando Nogueira - Chamado 005714
+If SBF->(dbSeek(xFilial("SBF")+SDB->(DB_LOCAL+DB_LOCALIZ+DB_PRODUTO+DB_NUMSERI+DB_LOTECTL+DB_NUMLOTE)))
 
-	lParcial  := .F.
+	While (cAliasZZR)->(!EoF())
+	
+		lParcial  := .F.
+	
+		aOperacao := {01,(cAliasZZR)->ZZR_TIPO,'P'+(cAliasZZR)->ZZR_NUM,(cAliasZZR)->ZZR_SOLICI,(cAliasZZR)->ZZR_FILIAL,(cAliasZZR)->ZZR_OBS}
+		
+		// Fernando Nogueira - Chamado 005536
+		nQuant := If((SBF->(BF_QUANT-BF_EMPENHO)) >= (cAliasZZR)->ZZR_QUANT, (cAliasZZR)->ZZR_QUANT, (SBF->(BF_QUANT-BF_EMPENHO)))
+		
+		cNumReserv := NumReserv()
+		
+		lRet := a430Reserv(aOperacao,;
+							cNumReserv,;				// Numero da reserva 
+							SDB->DB_PRODUTO,;			// Produto da reserva
+							SDB->DB_LOCAL,;				// Armazem da reserva 
+							nQuant,;					// Quantidade a ser reservada
+							{Space(TamSx3("DB_NUMLOTE")[1]),SDB->DB_LOTECTL,Space(TamSx3("DB_LOCALIZ")[1]),Space(TamSx3("DB_NUMSERI")[1])})
+							
+		If lRet
+			ConfirmSX8()
+			ZZR->(dbSeek((cAliasZZR)->(ZZR_FILIAL+ZZR_NUM+ZZR_PRODUT+ZZR_LOCAL)))
+			ZZR->(RecLock("ZZR",.F.))
+				ZZR->ZZR_QUANT -= nQuant
+				If ZZR->ZZR_QUANT = 0
+					ZZR->ZZR_STATUS := 'B'
+				Else
+					ZZR->ZZR_STATUS := 'P'
+				Endif
+			ZZR->(MsUnlock())
+		Else
+			RollBackSX8()
+		Endif
+		
+		(cAliasZZR)->(dbSkip())
+	End
 
-	aOperacao := {01,(cAliasZZR)->ZZR_TIPO,'P'+(cAliasZZR)->ZZR_NUM,(cAliasZZR)->ZZR_SOLICI,(cAliasZZR)->ZZR_FILIAL,(cAliasZZR)->ZZR_OBS}
-	
-	// Fernando Nogueira - Chamado 005536
-	nQuant := If((SBF->(BF_QUANT-BF_EMPENHO)) >= (cAliasZZR)->ZZR_QUANT, (cAliasZZR)->ZZR_QUANT, (SBF->(BF_QUANT-BF_EMPENHO)))
-	
-	cNumReserv := NumReserv()
-	
-	lRet := a430Reserv(aOperacao,;
-						cNumReserv,;				// Numero da reserva 
-						SDB->DB_PRODUTO,;			// Produto da reserva
-						SDB->DB_LOCAL,;				// Armazem da reserva 
-						nQuant,;					// Quantidade a ser reservada
-						{Space(TamSx3("DB_NUMLOTE")[1]),SDB->DB_LOTECTL,Space(TamSx3("DB_LOCALIZ")[1]),Space(TamSx3("DB_NUMSERI")[1])})
-						
-	If lRet
-		ConfirmSX8()
-		ZZR->(dbSeek((cAliasZZR)->(ZZR_FILIAL+ZZR_NUM+ZZR_PRODUT+ZZR_LOCAL)))
-		ZZR->(RecLock("ZZR",.F.))
-			ZZR->ZZR_QUANT -= nQuant
-			If ZZR->ZZR_QUANT = 0
-				ZZR->ZZR_STATUS := 'B'
-			Else
-				ZZR->ZZR_STATUS := 'P'
-			Endif
-		ZZR->(MsUnlock())
-	Else
-		RollBackSX8()
-	Endif	
-	
-	(cAliasZZR)->(dbSkip())
-End
+Endif
 
 (cAliasZZR)->(dbCloseArea())
 
