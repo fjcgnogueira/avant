@@ -16,7 +16,10 @@
 */
 User Function PedSched(aParam)
 
-Local aTabelas   := {"SA1", "SC5", "SC6", "SC9", "SD2", "SF2", "SF4", "SF5", "SFM", "SB1", "SB2", "SB9","ZZI","ZIA","SZ3","SZ4"}
+Local aTabelas  := {"SA1", "SC5", "SC6", "SC9", "SD2", "SF2", "SF4", "SF5", "SFM", "SB1", "SB2", "SB9","ZZI","ZIA","SZ3","SZ4"}
+Local cAliasSZ3 := ""
+
+SET CENTURY ON
 
 	//旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴커
 	//쿪Param     |  [01]   |  [02]  |
@@ -27,7 +30,40 @@ RpcClearEnv()
 RPCSetType(3)
 RpcSetEnv(aParam[1], aParam[2], NIL, NIL, "FAT", NIL, aTabelas)
 
-U_xPedSched()
+// Fernando Nogueira - Chamado 005703
+// Executa entre os horarios abaixo
+If (Time() >= "06:20:00" .And. Time() < "06:30:00") .Or. (Time() >= "12:50:00" .And. Time() < "13:00:00")
+	cAliasSZ3 := GetNextAlias()
+	
+	BeginSql alias cAliasSZ3
+		SELECT R_E_C_N_O_ SZ3RECNO FROM %table:SZ3%
+		WHERE %NotDel% 
+			AND Z3_FILIAL = %xfilial:SZ3% 
+			AND Z3_STATUS = 'P'
+	EndSql
+	
+	While (cAliasSZ3)->(!EoF())
+	
+		SZ3->(dbGoTo((cAliasSZ3)->SZ3RECNO))
+		
+		SZ3->(RecLock("SZ3",.F.))
+			SZ3->Z3_STATUS := '2'
+		SZ3->(MsUnlock())
+		
+		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Pedido Web "+cValToChar(SZ3->Z3_NPEDWEB)+" voltou ao status '2'")
+		
+		(cAliasSZ3)->(dbSkip())
+	End
+	
+	(cAliasSZ3)->(DbCloseArea())
+Endif
+
+// Nao executa entre os horarios abaixo
+If !((Time() >= "06:00:00" .And. Time() < "06:20:00") .Or. (Time() >= "12:30:00" .And. Time() < "12:50:00"))
+	U_xPedSched()
+Else
+	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Execucao cancelada, horario de ajuste")
+Endif
 
 RpcClearEnv()
 
@@ -56,10 +92,9 @@ Local aPedWeb    := {}
 Local _nXI       := 0
 Local cPedWeb    := ""
 
+SET CENTURY ON
 
-
-Private aPVlNFs  := {}
-
+// Pedidos aptos a integrar
 BeginSql alias cNextAlias
 
 	SELECT Z3_NPEDWEB,SZ3.R_E_C_N_O_ SZ3RECNO,Z3_CODTSAC FROM %table:SZ3% SZ3
@@ -153,7 +188,7 @@ Next
 (cNextAlias)->(DbCloseArea())
 
 If Empty(cDocumen) .And. Empty(cMensagem)
-	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Nenhum pedido a integrar")
+	ConOut("["+DtoC(Date())+" "+Time()+"] [xPedSched] Nenhum pedido a integrar")
 Endif
 
 Return
