@@ -105,12 +105,12 @@ If nPedWeb > 0 .And. MsgYesNo("Deseja que esse Pedido volte para a Web?")
 
 		While (cPedTRB)->(!EoF())
 
-			aAdd((oHTML:ValByName("aR.cI"))      , (cPedTRB)->Z4_ITEMPED)
-			aAdd((oHTML:ValByName("aR.cPrd"))    , (cPedTRB)->Z4_CODPROD)
-			aAdd((oHTML:ValByName("aR.cDescPrd")), (cPedTRB)->Z4_DESCPRO)
-			aAdd((oHTML:ValByName("aR.cQtd"))    , Transform((cPedTRB)->Z4_QTDE, "@e 999,999,999"))
-			aAdd((oHTML:ValByName("aR.cVlr"))    , Transform((cPedTRB)->Z4_PRLIQ, PesqPict("SC6","C6_VALOR")))
-			aAdd((oHTML:ValByName("aR.cTot"))    , Transform((cPedTRB)->Z4_VLRTTIT, PesqPict("SC6","C6_VALOR")))
+			aAdd((oHTML:ValByName("a.cI"))      , (cPedTRB)->Z4_ITEMPED)
+			aAdd((oHTML:ValByName("a.cPrd"))    , (cPedTRB)->Z4_CODPROD)
+			aAdd((oHTML:ValByName("a.cDescPrd")), (cPedTRB)->Z4_DESCPRO)
+			aAdd((oHTML:ValByName("a.cQtd"))    , Transform((cPedTRB)->Z4_QTDE, "@e 999,999,999"))
+			aAdd((oHTML:ValByName("a.cVlr"))    , Transform((cPedTRB)->Z4_PRLIQ, PesqPict("SC6","C6_VALOR")))
+			aAdd((oHTML:ValByName("a.cTot"))    , Transform((cPedTRB)->Z4_VLRTTIT, PesqPict("SC6","C6_VALOR")))
 
 			cTotQtd += (cPedTRB)->Z4_QTDE
 			cTotal  += (cPedTRB)->Z4_VLRTTIT
