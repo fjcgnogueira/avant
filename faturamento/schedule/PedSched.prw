@@ -254,12 +254,12 @@ oHtml:ValByName("cObs"     , AllTrim(SC5->C5_MENNOTA))
 
 While SC6->(!EoF()) .And. SC6->C6_NUM == SC5->C5_NUM
 
-	aAdd((oHTML:ValByName("aR.cI"))      , SC6->C6_ITEM)
-	aAdd((oHTML:ValByName("aR.cPrd"))    , SC6->C6_PRODUTO)
-	aAdd((oHTML:ValByName("aR.cDescPrd")), SC6->C6_DESCRI)
-	aAdd((oHTML:ValByName("aR.cQtd"))    , Transform(SC6->C6_QTDVEN, "@e 999,999,999"))
-	aAdd((oHTML:ValByName("aR.cVlr"))    , Transform(SC6->C6_PRCVEN, PesqPict("SC6","C6_VALOR")))
-	aAdd((oHTML:ValByName("aR.cTot"))    , Transform(SC6->C6_VALOR , PesqPict("SC6","C6_VALOR")))
+	aAdd((oHTML:ValByName("a.cI"))      , SC6->C6_ITEM)
+	aAdd((oHTML:ValByName("a.cPrd"))    , SC6->C6_PRODUTO)
+	aAdd((oHTML:ValByName("a.cDescPrd")), SC6->C6_DESCRI)
+	aAdd((oHTML:ValByName("a.cQtd"))    , Transform(SC6->C6_QTDVEN, "@e 999,999,999"))
+	aAdd((oHTML:ValByName("a.cVlr"))    , Transform(SC6->C6_PRCVEN, PesqPict("SC6","C6_VALOR")))
+	aAdd((oHTML:ValByName("a.cTot"))    , Transform(SC6->C6_VALOR , PesqPict("SC6","C6_VALOR")))
 
 	cTotQtd += SC6->C6_QTDVEN
 	cTotal  += SC6->C6_VALOR
