@@ -34,27 +34,27 @@ RpcSetEnv(aParam[1], aParam[2], NIL, NIL, "FAT", NIL, aTabelas)
 // Executa entre os horarios abaixo
 If (Time() >= "06:20:00" .And. Time() < "06:30:00") .Or. (Time() >= "12:50:00" .And. Time() < "13:00:00")
 	cAliasSZ3 := GetNextAlias()
-	
+
 	BeginSql alias cAliasSZ3
 		SELECT R_E_C_N_O_ SZ3RECNO FROM %table:SZ3%
-		WHERE %NotDel% 
-			AND Z3_FILIAL = %xfilial:SZ3% 
+		WHERE %NotDel%
+			AND Z3_FILIAL = %xfilial:SZ3%
 			AND Z3_STATUS = 'P'
 	EndSql
-	
+
 	While (cAliasSZ3)->(!EoF())
-	
+
 		SZ3->(dbGoTo((cAliasSZ3)->SZ3RECNO))
-		
+
 		SZ3->(RecLock("SZ3",.F.))
 			SZ3->Z3_STATUS := '2'
 		SZ3->(MsUnlock())
-		
+
 		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Pedido Web "+cValToChar(SZ3->Z3_NPEDWEB)+" voltou ao status '2'")
-		
+
 		(cAliasSZ3)->(dbSkip())
 	End
-	
+
 	(cAliasSZ3)->(DbCloseArea())
 Endif
 
@@ -111,9 +111,9 @@ dbOrderNickName("PEDWEB")
 // Define o Status P - Em processo de Integracao
 // Fernando Nogueira - Chamado 004628
 While (cNextAlias)->(!EoF())
-	
+
 	SZ3->(dbGoTo((cNextAlias)->SZ3RECNO))
-	
+
 	cPedWeb	:= PadR(cValToChar(SZ3->Z3_NPEDWEB),TamSx3("Z3_NPEDWEB")[01])
 
 	// Fernando Nogueira - Chamado 005685
@@ -122,10 +122,10 @@ While (cNextAlias)->(!EoF())
 			SZ3->Z3_STATUS := '3'
 		SZ3->(MsUnlock())
 		(cNextAlias)->(dbSkip())
-		
+
 		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Pedido Web "+cValToChar(SZ3->Z3_NPEDWEB)+" alterado para status 3")
-		
-		Loop		
+
+		Loop
 	Endif
 
 	aAdd(aPedWeb, {(cNextAlias)->Z3_NPEDWEB,(cNextAlias)->SZ3RECNO,Left((cNextAlias)->Z3_CODTSAC,2)})
@@ -144,8 +144,12 @@ For _nXI := 1 to Len(aPedWeb)
 	cDocumen  := ""
 
 	ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] Processando Pedido Web: "+AllTrim(cValToChar(aPedWeb[_nXI][01])))
+	
+	Begin Transaction
 
-	U_INTPEDIDO(cEmpAnt, cFilAnt, AllTrim(cValToChar(aPedWeb[_nXI][01])), @cMensagem, @cDocumen, .F.)
+		U_INTPEDIDO(cEmpAnt, cFilAnt, AllTrim(cValToChar(aPedWeb[_nXI][01])), @cMensagem, @cDocumen, .F.)
+		
+	End Transaction
 
 	If !Empty(cMensagem)
 		ConOut("["+DtoC(Date())+" "+Time()+"] [PedSched] "+cMensagem)
@@ -359,12 +363,12 @@ oHtml:ValByName("cObs"     , AllTrim((cPedTRB)->Z3_OBS))
 
 While (cPedTRB)->(!EoF())
 
-	aAdd((oHTML:ValByName("aR.cI"))      , (cPedTRB)->Z4_ITEMPED)
-	aAdd((oHTML:ValByName("aR.cPrd"))    , (cPedTRB)->Z4_CODPROD)
-	aAdd((oHTML:ValByName("aR.cDescPrd")), (cPedTRB)->Z4_DESCPRO)
-	aAdd((oHTML:ValByName("aR.cQtd"))    , Transform((cPedTRB)->Z4_QTDE, "@e 999,999,999"))
-	aAdd((oHTML:ValByName("aR.cVlr"))    , Transform((cPedTRB)->Z4_PRLIQ, PesqPict("SC6","C6_VALOR")))
-	aAdd((oHTML:ValByName("aR.cTot"))    , Transform((cPedTRB)->Z4_VLRTTIT, PesqPict("SC6","C6_VALOR")))
+	aAdd((oHTML:ValByName("a.cI"))      , (cPedTRB)->Z4_ITEMPED)
+	aAdd((oHTML:ValByName("a.cPrd"))    , (cPedTRB)->Z4_CODPROD)
+	aAdd((oHTML:ValByName("a.cDescPrd")), (cPedTRB)->Z4_DESCPRO)
+	aAdd((oHTML:ValByName("a.cQtd"))    , Transform((cPedTRB)->Z4_QTDE, "@e 999,999,999"))
+	aAdd((oHTML:ValByName("a.cVlr"))    , Transform((cPedTRB)->Z4_PRLIQ, PesqPict("SC6","C6_VALOR")))
+	aAdd((oHTML:ValByName("a.cTot"))    , Transform((cPedTRB)->Z4_VLRTTIT, PesqPict("SC6","C6_VALOR")))
 
 	cTotQtd += (cPedTRB)->Z4_QTDE
 	cTotal  += (cPedTRB)->Z4_VLRTTIT
