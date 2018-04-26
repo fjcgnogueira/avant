@@ -133,6 +133,11 @@ If lRetorno
 					aAdd(aCabec,{"C5_X_BLQ","S",NIL})
 				Endif
 				
+				// Chamado 005741 - Fernando Nogueira
+				If !Empty(SZ3->Z3_AJUFISC)
+					aAdd(aCabec,{"C5_X_STAJF" ,"R",NIL})
+				Endif
+
 				DbSelectarea("C09")
 				C09->(DbSetorder(01))
 

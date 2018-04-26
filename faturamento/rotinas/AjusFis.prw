@@ -59,10 +59,21 @@ SZ3->(RecLock("SZ3",.F.))
 	SZ3->Z3_AJUFISC := cAjuste
 SZ3->(MsUnlock())
 
+// Fernando Nogueira - Chamado 005741
 If Empty(cAjuste)
+	If SC5->C5_X_STAJF <> 'N'
+		SC5->(RecLock("SC5",.F.))
+			SC5->C5_X_STAJF := 'N'
+		SC5->(MsUnlock())
+	Endif
 	MsgInfo("Ajuste Fiscal não informado")
 Else
-	MsgInfo("Ajuste Fiscal gravado")
+	If SC5->C5_X_STAJF <> 'I'
+		SC5->(RecLock("SC5",.F.))
+			SC5->C5_X_STAJF := 'I'
+		SC5->(MsUnlock())
+	Endif
+	MsgInfo("Ajuste Fiscal informado")
 Endif
 
 Return

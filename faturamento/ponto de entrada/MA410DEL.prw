@@ -27,8 +27,8 @@ Local cMailBCC  := AllTrim(GetMv("ES_EMAILTI"))
 Local cSaudacao := ""
 Local _oProcess := Nil
 Local lEnd      := .F.
-Local cTotQtd   := 0
-Local cTotal    := 0
+Local nTotQtd   := 0
+Local nTotal    := 0
 Local nPedWeb   := SC5->C5_PEDWEB
 Local cPedWeb   := cValtoChar(nPedWeb)
 Local cPedidoW  := PadL(cPedWeb,TamSx3("Z3_NPEDWEB")[01])
@@ -128,18 +128,26 @@ If dbSeek(xFilial("SZ3")+cPedidoW) .And. MsgYesNo("Deseja que esse Pedido volte 
 		aAdd((oHTML:ValByName("a.cVlr"))    , Transform((cPedTRB)->Z4_PRLIQ, PesqPict("SC6","C6_VALOR")))
 		aAdd((oHTML:ValByName("a.cTot"))    , Transform((cPedTRB)->Z4_VLRTTIT, PesqPict("SC6","C6_VALOR")))
 
-		cTotQtd += (cPedTRB)->Z4_QTDE
-		cTotal  += (cPedTRB)->Z4_VLRTTIT
+		nTotQtd += (cPedTRB)->Z4_QTDE
+		nTotal  += (cPedTRB)->Z4_VLRTTIT
 
 		(cPedTRB)->(dbSkip())
 
 	End
 
-	oHtml:ValByName("cTotQtd"  , Transform(cTotQtd, "@e 999,999,999"))
-	oHtml:ValByName("cTotal"   , Transform(cTotal , PesqPict("SC6","C6_VALOR")))
+	oHtml:ValByName("cTotQtd"  , Transform(nTotQtd, "@e 999,999,999"))
+	oHtml:ValByName("cTotal"   , Transform(nTotal , PesqPict("SC6","C6_VALOR")))
 
 	If !Empty(SZ3->Z3_AJUFISC)
 		oProcess:cSubject := "[Pedido Web "+cValtoChar(nPedWeb)+" Voltou para a Tela de Nao Enviados - Ajuste Fiscal Necessario - "+DtoC(Date())+"] "
+		// Fernando Nogueira - Chamado 005741
+		If !(cMailCad $ cPara)
+			If Empty(cMailCC)
+				cMailCC := cMailCad
+			Else
+				cMailCC += "," + cMailCad
+			Endif
+		Endif
 	Else
 		oProcess:cSubject := "[Pedido Web "+cValtoChar(nPedWeb)+" Voltou para a Tela de Nao Enviados - "+DtoC(Date())+"] "
 	Endif
