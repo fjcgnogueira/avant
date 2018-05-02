@@ -406,8 +406,10 @@ If lRetorno
 						For _nK := 1 To Len(aSldInd)
 							cMensagem += '<strong> Prod: </strong>'+aSldInd[_nK][1]+'<strong> - Descr: </strong>'+aSldInd[_nK][2]+'<br>'
 						Next
-						cMensagem += '<br>'
-						cMensagem += '<strong> O Pedido Web retornou para a tela de não enviados</strong><br>'
+						If cTpOper <> '54'
+							cMensagem += '<br>'
+							cMensagem += '<strong> O Pedido Web retornou para a tela de não enviados</strong><br>'
+						Endif
 						lRetorno	:= .F.
 					Endif
 
@@ -435,9 +437,9 @@ If lRetorno
 
 					MsUnlock()
 
-					If !lRetorno .And. Empty(aTesInt) // Fernando Nogueira - Chamado 004689
+					/*If !lRetorno .And. Empty(aTesInt) // Fernando Nogueira - Chamado 004689
 						U_DispPedErr(cMensagem,cPedWeb)
-					EndIf
+					EndIf*/
 
 				Else
 
