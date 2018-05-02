@@ -189,7 +189,7 @@ If lRetorno
 						
 						// Fernando Nogueira - Chamado 005743
 						If SZ4->Z4_QTDE > nSldDisp .And. Empty(SZ4->Z4_PRESERV)
-							aAdd(aSldInd,{SZ4->Z4_CODPROD,SZ4->Z4_QTDE,nSldDisp})
+							aAdd(aSldInd,{SZ4->Z4_CODPROD,SZ4->Z4_DESCPRO})
 						Endif
 
 						aLinha := {}
@@ -404,7 +404,7 @@ If lRetorno
 					Else
 						cMensagem += '<strong>Seu pedido não foi integrado devido a falta de estoque no(s) item(s) abaixo:</strong><br>'
 						For _nK := 1 To Len(aSldInd)
-							cMensagem += '<strong> Prod: </strong>'+aSldInd[_nK][1]+'<strong> - Quant: </strong>'+Transform(aSldInd[_nK][2],PesqPict("SZ4","Z4_QTDE"))+'<strong> - Saldo: </strong>'+Transform(aSldInd[_nK][3],PesqPict("SZ4","Z4_QTDE"))+'<br>'
+							cMensagem += '<strong> Prod: </strong>'+aSldInd[_nK][1]+'<strong> - Descr: </strong>'+aSldInd[_nK][2]+'<br>'
 						Next
 						cMensagem += '<br>'
 						cMensagem += '<strong> O Pedido Web retornou para a tela de não enviados</strong><br>'
