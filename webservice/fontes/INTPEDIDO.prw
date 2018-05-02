@@ -49,6 +49,8 @@ Local lBloqFin		:= .F.
 Local nTotPed		:= 0
 Local lHabWMS		:= &(Posicione("SX5",1,xFilial("SX5")+"ZA0001","X5_DESCRI"))
 Local nLimWMS		:= Val(Posicione("SX5",1,xFilial("SX5")+"ZA0011","X5_DESCRI"))
+Local aSldInd		:= {}  //Fernando Nogueira - Produtos com saldo indisponivel para atender a qtd do pedido
+Local nSldDisp		:= 0
 
 Private cTpOper		:= ""
 Private lMsErroAuto	:= .F.
@@ -182,6 +184,13 @@ If lRetorno
 
 				If SZ4->(DbSeek(xFilial("SZ4") + cPedidoW))
 					While SZ4->(!Eof()) .And. SZ4->Z4_FILIAL == xFilial("SZ4") .And. Padl(Alltrim(Str(SZ4->Z4_NUMPEDW)),TamSx3("Z4_NUMPEDW")[01]) == cPedidoW
+					
+						nSldDisp := U_SaldoProd(SZ4->Z4_CODPROD,cArmazem)
+						
+						// Fernando Nogueira - Chamado 005743
+						If SZ4->Z4_QTDE > nSldDisp .And. Empty(SZ4->Z4_PRESERV)
+							aAdd(aSldInd,{SZ4->Z4_CODPROD,SZ4->Z4_QTDE,nSldDisp})
+						Endif
 
 						aLinha := {}
 						aAdd(aLinha,{"C6_FILIAL" ,SZ4->Z4_FILIAL ,NIL})
@@ -369,31 +378,46 @@ If lRetorno
 					If SA1->A1_TIPO $ 'FR' .Or. lBlqFis .Or. (!Empty(SA1->A1_X_DTRES) .And. SA1->A1_X_DTRES < dDataBase)
 						aAdd(aCabec,{"C5_X_BLQFI" ,"S",NIL})
 					Endif
+					
+					// Caso naum tenha nenhum produto com saldo indisponivel
+					If Len(aSldInd) = 0
+						MsExecAuto({|a, b, c| MATA410(a, b, c)}, aCabec, aItens, 3)
 
-					MsExecAuto({|a, b, c| MATA410(a, b, c)}, aCabec, aItens, 3)
-
-					If lMsErroAuto
-						lRetorno	:= .F.
-						If Empty(cMensagem)
-							cMensagem 	+= MostraErro(cPathLog, cFileLog)
-						Endif
-						RollBackSx8()
+						If lMsErroAuto
+							lRetorno	:= .F.
+							If Empty(cMensagem)
+								cMensagem 	+= MostraErro(cPathLog, cFileLog)
+							Endif
+							RollBackSx8()
+						Else
+							cDocumen	:= "Pedido Nro.: " + SC5->C5_NUM + " Caro Representante. Seu pedido foi incluído com sucesso!"
+							SZ4->(dbGoTop())
+							If SZ4->(DbSeek(xFilial("SZ4") + cPedidoW))
+								While SZ4->(!Eof()) .And. 	SZ4->Z4_FILIAL == xFilial("SZ4") .And. Padl(Alltrim(Str(SZ4->Z4_NUMPEDW)),TamSx3("Z4_NUMPEDW")[01]) == cPedidoW
+									SZ4->(Reclock("SZ4",.F.))
+										SZ4->Z4_RESERVA := " " // Tira reserva web
+									SZ4->(MsUnlock())
+									SZ4->(DbSkip())
+								End
+							Endif
+						EndIf
 					Else
-						cDocumen	:= "Pedido Nro.: " + SC5->C5_NUM + " Caro Representante. Seu pedido foi incluído com sucesso!"
-						SZ4->(dbGoTop())
-						If SZ4->(DbSeek(xFilial("SZ4") + cPedidoW))
-							While SZ4->(!Eof()) .And. 	SZ4->Z4_FILIAL == xFilial("SZ4") .And. Padl(Alltrim(Str(SZ4->Z4_NUMPEDW)),TamSx3("Z4_NUMPEDW")[01]) == cPedidoW
-								SZ4->(Reclock("SZ4",.F.))
-									SZ4->Z4_RESERVA := " " // Tira reserva web
-								SZ4->(MsUnlock())
-								SZ4->(DbSkip())
-							End
-						Endif
-					EndIf
+						cMensagem += '<strong>Seu pedido não foi integrado devido a falta de estoque no(s) item(s) abaixo:</strong><br>'
+						For _nK := 1 To Len(aSldInd)
+							cMensagem += '<strong> Prod: </strong>'+aSldInd[_nK][1]+'<strong> - Quant: </strong>'+Transform(aSldInd[_nK][2],PesqPict("SZ4","Z4_QTDE"))+'<strong> - Saldo: </strong>'+Transform(aSldInd[_nK][3],PesqPict("SZ4","Z4_QTDE"))+'<br>'
+						Next
+						cMensagem += '<br>'
+						cMensagem += '<strong> O Pedido Web retornou para a tela de não enviados</strong><br>'
+						lRetorno	:= .F.
+					Endif
 
 					//Atualiza Status da SZ3
 					RecLock("SZ3", .F.)
-					SZ3->Z3_STATUS	:= IIF(lRetorno,"3","4")
+					If Len(aSldInd) = 0
+						SZ3->Z3_STATUS	:= IIF(lRetorno,"3","4")
+					Else
+						SZ3->Z3_STATUS	:= "1"
+					Endif
 					// Status
 					// 1 = Parado na Web (Nao enviado)
 					// 2 = Pedido ainda nao Integrado com Estoque na Web
