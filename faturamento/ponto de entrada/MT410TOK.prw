@@ -20,7 +20,9 @@ User Function MT410TOK()
 	Local nPosQuan 	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_QTDVEN"})
 	Local nPosPrc	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_PRCVEN"})
 	Local nPosTot	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_VALOR"})
+	Local nPosCom	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_COMIS1"})
 	Local nPosCF	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_CF"})
+	Local nPosLoc	:= aScan(aHeader,{|x| AllTrim(x[2]) == "C6_LOCAL"})
 	Local lBonif	:= .F.
 
 	Local nOpc    	:= PARAMIXB[1]
@@ -46,6 +48,22 @@ User Function MT410TOK()
 	Local aAreaAT	:= GetArea()
 	Local aAreaC5	:= SC5->(GetArea())
 	Local aAreaA1	:= SA1->(GetArea())
+	
+	Local _nPISCOF  := GetMV("MV_PISCOF")
+	Local _nFrete   := 0                                                                                                                                                                                                                                                   
+	Local _nComis   := 0
+	Local _nICMS    := GetMV("MV_XICMS")
+	Local _nDespesa := GetMV("MV_DESPESA")
+	Local _aAreaSB2 := SB2->(GetArea())
+	Local _nCusto   := 0
+	Local _nMargem  := 0
+	Local nPosICC   := 0
+	Local nPosDIF   := 0
+	Local nVlrICC   := 0
+	Local nVlrDIF   := 0	
+	Local _aAreaC09	 := C09->(GetArea())
+	Local _cProduto := ""
+	Local _cLocal   := ""
 
 	// Pedido Diferente de Dev.Compras e Beneficiamento
 	If !(M->C5_TIPO $ 'BD')
@@ -56,6 +74,17 @@ User Function MT410TOK()
 			For _nX := 1 To Len(aCols)
 				If !aCols[_nX][Len(aHeader)+1]
 					nSomaTot += aCols[_nX,nPosTot]
+					
+					 _cProduto := aCols[_nX][nPosProd]
+					 _cLocal   := aCols[_nX][nPosLoc]
+					
+					SB2->(dbSetOrder(1))
+					SB2->(dbGoTop())
+					SB2->(dbSeek(xFilial("SB2")+_cProduto+_cLocal))
+					
+					_nCusto += SB2->B2_CM1 * aCols[_nX,nPosQuan]
+					_nComis += aCols[_nX,nPosTot] * (aCols[_nX,nPosCom]/100)
+		
 					// Fernando Nogueira - Chamado 004231
 					If !lBonif .And. (Right(AllTrim(aCols[_nX,nPosCF]),3) $ "910.949")
 						lBonif := .T.
@@ -76,7 +105,7 @@ User Function MT410TOK()
 
 					DbSelectarea("SA1")
 					SA1->(DbSetorder(1))
-					If SA1->(DbSeek(xFilial("SA1") + cCliente + cLojaCli))
+					If SA1->(DbSeek(xFilial("SA1") + cCliente + cLojaCli)) 
 
 						MaFisIni(	SA1->A1_COD		,;		// 01-Codigo Cliente
 									SA1->A1_LOJA	,;		// 02-Loja do Cliente
@@ -123,6 +152,9 @@ User Function MT410TOK()
 						If Len(aImpostos) > 0
 							nPosRet		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "ICR"})
 							nPosIPI		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "IPI"})
+							
+							nPosICC		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "ICC"})
+							nPosDIF		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "DIF"})
 
 							If nPosRet > 0
 								nPrcVen	:= nPrcVen + aImpostos[nPosRet][05]
@@ -131,6 +163,14 @@ User Function MT410TOK()
 							If nPosIPI > 0
 								nPrcVen	:= nPrcVen + aImpostos[nPosIPI][05]
 							EndIf
+							
+							If nPosICC > 0
+								nVlrICC	:= aImpostos[nPosICC][05]
+							EndIf
+							
+							If nPosDIF > 0
+								nVlrDIF	:= aImpostos[nPosDIF][05]
+							EndIf							
 
 							If SA1->A1_CALCSUF = 'S'
 								nDescSuf := MafisRet(,"IT_DESCZF")
@@ -181,9 +221,34 @@ User Function MT410TOK()
 	    EndIf
 
 	Endif
+	
+	
+//MARGEM PEDIDO	
+
+		If M->C5_FRETE = 0
+			C09->(dbSetOrder(1))
+			C09->(dbGoTop())
+			C09->(dbSeek(xFilial("C09")+cEstado))
+			
+			_nFrete := nSomaTot * (C09->C09_PFRETE/100)
+		Else
+			_nFrete := M->C5_FRETE
+		EndIf
+	
+	_nMargem := (nSomaTot - ( _nCusto + (nSomaTot * _nPISCOF) + (nSomaTot * _nDespesa) + _nFrete + (nSomaTot * _nICMS) + _nComis + nVlrICC + nVlrDIF ) ) / nSomaTot
+	
+	//Alert("Total: "+ cValToChar(nSomaTot) +Chr(13)+Chr(10)+ "Custo: "+ cValToChar(_nCusto) +Chr(13)+Chr(10)+ "PIS COFINS: "+ cValToChar(_nPISCOF) +Chr(13)+Chr(10)+ "Despesa: "+ cValToChar(_nDespesa) +Chr(13)+Chr(10)+ "Frete: "+ cValToChar(_nFrete) +Chr(13)+Chr(10)+ "ICMS: "+ cValToChar(_nICMS) +Chr(13)+Chr(10)+ "Comis: "+ cValToChar(_nComis) +Chr(13)+Chr(10)+ "DIFAL 1: "+ cValToChar(nVlrICC) +Chr(13)+Chr(10)+ "DIFAL 2: "+ cValToChar(nVlrDIF) )
+	
+	
+	M->C5_XMARGEM := _nMargem*100
+	
+
+//MARGEM PEDIDO	
 
 	RestArea(aAreaAT)
 	RestArea(aAreaA1)
 	RestArea(aAreaC5)
-
+	SB2->(RestArea(_aAreaSB2))
+	C09->(RestArea(_aAreaC09))
+	
 Return lRetorno
