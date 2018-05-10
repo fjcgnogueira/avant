@@ -144,7 +144,7 @@ If lRetorno
 					Aadd(_aItem,{"D1_LOCAL"  ,cArmazem        ,Nil})
 					Aadd(_aItem,{"D1_DOC"    ,cNumero 		  ,Nil})
 					Aadd(_aItem,{"D1_SERIE"  ,cSerie 		  ,Nil})
-					Aadd(_aItem,{"D1_EMISSAO",dDataBase       ,Nil})
+					Aadd(_aItem,{"D1_EMISSAO",dEmissao        ,Nil})
 					If Empty(SD2->D2_LOTECTL)
 						Aadd(_aItem,{"D1_LOTECTL",AllTrim(Formula("018")),Nil})
 					Else
