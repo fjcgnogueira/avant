@@ -12,6 +12,26 @@
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
+Class TstObj
+data cData1
+data dData2
+data aArray1
+Method New()
+EndClass
+
+Method New() Class TstObj
+self:cData1 := "Valor caracter"
+self:dData2 := CTOD("01/01/01")
+self:aArray1 :={ "Valor array1","Valor array2"}
+Return
+
+User Function tstled()
+Local oObj := TstObj():New()
+Local cJson := FWJsonSerialize(oObj,.T.,.T.)
+MsgStop(cJson)
+Return
+
+
 User Function TesteJSON()
 
 Local cUrl       := "http://api1.27hub.com/api/emh/a/v2?k=261C7C92&e=acarol@eletricavivalux.com.br"
