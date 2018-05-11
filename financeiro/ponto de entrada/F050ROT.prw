@@ -159,7 +159,7 @@ User Function FlagE2()
 
 If Empty(SE2->E2_LA)
 	ApMsgInfo("Já está sem o Flag de Contabilização!")
-ElseIf MsgNoYes("Retirar o Flag do Tit. a Pagar: "+AllTrim(SE2->E5_NUM)+"-"+AllTrim(SE2->E2_PREFIXO)+"-"+AllTrim(SE2->E2_PARCELA)+" ?")
+ElseIf MsgNoYes("Retirar o Flag do Tit. a Pagar: "+AllTrim(SE2->E2_NUM)+"-"+AllTrim(SE2->E2_PREFIXO)+"-"+AllTrim(SE2->E2_PARCELA)+" ?")
 	If SE2->(RecLock("SE2",.F.))
 		SE2->E2_LA := ' '
 		SE2->(MsUnlock())
