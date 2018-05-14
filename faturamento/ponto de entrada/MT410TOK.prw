@@ -229,15 +229,27 @@ User Function MT410TOK()
 			C09->(dbSetOrder(1))
 			C09->(dbGoTop())
 			C09->(dbSeek(xFilial("C09")+cEstado))
-			
-			_nFrete := nSomaTot * (C09->C09_PFRETE/100)
+	
+			If cEstado == 'SP'
+				_nFrete := nSomaTot * 0.028
+			Else
+				_nFrete := (nSomaTot * ((10 - C09->C09_PFRETE)/100))
+			EndIf
 		Else
 			_nFrete := M->C5_FRETE
 		EndIf
 	
 	_nMargem := (nSomaTot - ( _nCusto + (nSomaTot * _nPISCOF) + (nSomaTot * _nDespesa) + _nFrete + (nSomaTot * _nICMS) + _nComis + nVlrICC + nVlrDIF ) ) / nSomaTot
 	
-	//Alert("Total: "+ cValToChar(nSomaTot) +Chr(13)+Chr(10)+ "Custo: "+ cValToChar(_nCusto) +Chr(13)+Chr(10)+ "PIS COFINS: "+ cValToChar(_nPISCOF) +Chr(13)+Chr(10)+ "Despesa: "+ cValToChar(_nDespesa) +Chr(13)+Chr(10)+ "Frete: "+ cValToChar(_nFrete) +Chr(13)+Chr(10)+ "ICMS: "+ cValToChar(_nICMS) +Chr(13)+Chr(10)+ "Comis: "+ cValToChar(_nComis) +Chr(13)+Chr(10)+ "DIFAL 1: "+ cValToChar(nVlrICC) +Chr(13)+Chr(10)+ "DIFAL 2: "+ cValToChar(nVlrDIF) )
+	/*Alert("Total: "+ cValToChar(nSomaTot) +Chr(13)+Chr(10)+ ;
+		  "Custo: "+ cValToChar(_nCusto) +Chr(13)+Chr(10)+ ;
+		  "PIS COFINS: "+ cValToChar(nSomaTot * _nPISCOF) +Chr(13)+Chr(10)+ ; 
+		  "Despesa: "+ cValToChar(nSomaTot * _nDespesa) +Chr(13)+Chr(10)+ ;
+		  "Frete: "+ cValToChar(_nFrete) +Chr(13)+Chr(10)+ ;
+		  "ICMS: "+ cValToChar(nSomaTot * _nICMS) +Chr(13)+Chr(10)+ ; 
+		  "Comis: "+ cValToChar(_nComis) +Chr(13)+Chr(10)+ ;
+		  "DIFAL 1: "+ cValToChar(nVlrICC) +Chr(13)+Chr(10)+ ; 
+		  "DIFAL 2: "+ cValToChar(nVlrDIF) )*/
 	
 	
 	M->C5_XMARGEM := _nMargem*100
