@@ -238,10 +238,14 @@ User Function MT410TOK()
 		Else
 			_nFrete := M->C5_FRETE
 		EndIf
+		
+	If _nComis == 0
+        _nComis := nSomaTot * (M->C5_COMIS1/100)
+	EndIf
 	
 	_nMargem := (nSomaTot - ( _nCusto + (nSomaTot * _nPISCOF) + (nSomaTot * _nDespesa) + _nFrete + (nSomaTot * _nICMS) + _nComis + nVlrICC + nVlrDIF ) ) / nSomaTot
 	
-/*	Alert("Total: "+ cValToChar(nSomaTot) +Chr(13)+Chr(10)+ ;
+	/*Alert("Total: "+ cValToChar(nSomaTot) +Chr(13)+Chr(10)+ ;
 		  "Custo: "+ cValToChar(_nCusto) +Chr(13)+Chr(10)+ ;
 		  "PIS COFINS: "+ cValToChar(nSomaTot * _nPISCOF) +Chr(13)+Chr(10)+ ; 
 		  "Despesa: "+ cValToChar(nSomaTot * _nDespesa) +Chr(13)+Chr(10)+ ;
@@ -249,7 +253,8 @@ User Function MT410TOK()
 		  "ICMS: "+ cValToChar(nSomaTot * _nICMS) +Chr(13)+Chr(10)+ ; 
 		  "Comis: "+ cValToChar(_nComis) +Chr(13)+Chr(10)+ ;
 		  "DIFAL 1: "+ cValToChar(nVlrICC) +Chr(13)+Chr(10)+ ; 
-		  "DIFAL 2: "+ cValToChar(nVlrDIF) )*/
+		  "DIFAL 2: "+ cValToChar(nVlrDIF) +Chr(13)+Chr(10)+ ;
+		  "Estado:  "+ cEstado )*/
 	
 	
 	M->C5_XMARGEM := _nMargem*100
