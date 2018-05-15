@@ -165,11 +165,11 @@ User Function MT410TOK()
 							EndIf
 							
 							If nPosICC > 0
-								nVlrICC	:= aImpostos[nPosICC][05]
+								nVlrICC	+= aImpostos[nPosICC][05]
 							EndIf
 							
 							If nPosDIF > 0
-								nVlrDIF	:= aImpostos[nPosDIF][05]
+								nVlrDIF	+= aImpostos[nPosDIF][05]
 							EndIf							
 
 							If SA1->A1_CALCSUF = 'S'
@@ -241,7 +241,7 @@ User Function MT410TOK()
 	
 	_nMargem := (nSomaTot - ( _nCusto + (nSomaTot * _nPISCOF) + (nSomaTot * _nDespesa) + _nFrete + (nSomaTot * _nICMS) + _nComis + nVlrICC + nVlrDIF ) ) / nSomaTot
 	
-	/*Alert("Total: "+ cValToChar(nSomaTot) +Chr(13)+Chr(10)+ ;
+/*	Alert("Total: "+ cValToChar(nSomaTot) +Chr(13)+Chr(10)+ ;
 		  "Custo: "+ cValToChar(_nCusto) +Chr(13)+Chr(10)+ ;
 		  "PIS COFINS: "+ cValToChar(nSomaTot * _nPISCOF) +Chr(13)+Chr(10)+ ; 
 		  "Despesa: "+ cValToChar(nSomaTot * _nDespesa) +Chr(13)+Chr(10)+ ;
