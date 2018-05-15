@@ -57,13 +57,27 @@ User Function MT410TOK()
 	Local _aAreaSB2 := SB2->(GetArea())
 	Local _nCusto   := 0
 	Local _nMargem  := 0
+	
+	Local nPosICR   := 0
+	Local nPosIPI   := 0
 	Local nPosICC   := 0
 	Local nPosDIF   := 0
+	Local nPosICM   := 0
+	Local nPosPS2   := 0
+	Local nPosCF2   := 0
+	
+	Local nVlrICR   := 0
+	Local nVlrIPI   := 0
 	Local nVlrICC   := 0
-	Local nVlrDIF   := 0	
+	Local nVlrDIF   := 0
+	Local nVlrICM   := 0
+	Local nVlrPS2   := 0
+	Local nVlrCF2   := 0
+		
 	Local _aAreaC09	 := C09->(GetArea())
 	Local _cProduto := ""
 	Local _cLocal   := ""
+	Local _nTotNota := 0
 
 	// Pedido Diferente de Dev.Compras e Beneficiamento
 	If !(M->C5_TIPO $ 'BD')
@@ -155,6 +169,11 @@ User Function MT410TOK()
 							
 							nPosICC		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "ICC"})
 							nPosDIF		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "DIF"})
+							
+							nPosICM		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "ICM"})
+							nPosPS2		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "PS2"})
+							nPosCF2		:= Ascan(aImpostos, {|x| AllTrim(x[01]) == "CF2"})
+
 
 							If nPosRet > 0
 								nPrcVen	:= nPrcVen + aImpostos[nPosRet][05]
@@ -164,6 +183,17 @@ User Function MT410TOK()
 								nPrcVen	:= nPrcVen + aImpostos[nPosIPI][05]
 							EndIf
 							
+							
+							
+							
+							If nPosICR > 0
+								nVlrICR	+= aImpostos[nPosICR][05]
+							EndIf
+							
+							If nPosIPI > 0
+								nVlrIPI	+= aImpostos[nPosIPI][05]
+							EndIf
+							
 							If nPosICC > 0
 								nVlrICC	+= aImpostos[nPosICC][05]
 							EndIf
@@ -171,6 +201,19 @@ User Function MT410TOK()
 							If nPosDIF > 0
 								nVlrDIF	+= aImpostos[nPosDIF][05]
 							EndIf							
+							
+							If nPosICM > 0
+								nVlrICM	+= aImpostos[nPosICM][05]
+							EndIf
+							
+							If nPosPS2 > 0
+								nVlrPS2	+= aImpostos[nPosPS2][05]
+							EndIf
+							
+							If nPosCF2 > 0
+								nVlrCF2	+= aImpostos[nPosCF2][05]
+							EndIf
+
 
 							If SA1->A1_CALCSUF = 'S'
 								nDescSuf := MafisRet(,"IT_DESCZF")
@@ -243,7 +286,11 @@ User Function MT410TOK()
         _nComis := nSomaTot * (M->C5_COMIS1/100)
 	EndIf
 	
-	_nMargem := (nSomaTot - ( _nCusto + (nSomaTot * _nPISCOF) + (nSomaTot * _nDespesa) + _nFrete + (nSomaTot * _nICMS) + _nComis + nVlrICC + nVlrDIF ) ) / nSomaTot
+	//_nMargem := (nSomaTot - ( _nCusto + (nSomaTot * _nPISCOF) + (nSomaTot * _nDespesa) + _nFrete + (nSomaTot * _nICMS) + _nComis + nVlrICC + nVlrDIF ) ) / nSomaTot
+	
+	_nTotNota := nSomaTot+nVlrIPI+nVlrICR
+	_nMargem := ((_nTotNota) - ( _nCusto + (nSomaTot*_nPISCOF) + (nSomaTot*_nDespesa) + _nFrete + (nSomaTot*_nICMS) + _nComis + nVlrICC + nVlrDIF + nVlrIPI + nVlrICR) ) / _nTotNota
+	
 	
 	/*Alert("Total: "+ cValToChar(nSomaTot) +Chr(13)+Chr(10)+ ;
 		  "Custo: "+ cValToChar(_nCusto) +Chr(13)+Chr(10)+ ;
